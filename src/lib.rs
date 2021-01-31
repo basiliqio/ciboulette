@@ -9,15 +9,21 @@ mod resource_obj;
 mod resource_schema;
 mod resource_type;
 
+#[cfg(test)]
+mod tests;
+
 use either::Either;
-use getset::{CopyGetters, Getters, MutGetters};
+use getset::{Getters, MutGetters};
 use serde_json::Value;
 use std::borrow::Cow;
 use std::collections::HashMap;
 use std::sync::Arc;
 
+pub use config::CibouletteConfig;
 pub use errors::CibouletteError;
 pub use link::CibouletteLink;
 pub use relationship::CibouletteRelationship;
 pub use resource_identifier::{CibouletteResourceIdentifier, CibouletteResourceIdentifierSelector};
+pub use resource_obj::CibouletteResourceObject;
 pub use resource_schema::{CibouletteResourceSchema, CibouletteResourceSchemaValue};
+pub use resource_type::CibouletteResourceType;
