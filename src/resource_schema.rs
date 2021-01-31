@@ -189,7 +189,7 @@ impl<'de> DeserializeSeed<'de> for &'de CibouletteResourceSchema<'de> {
                 CibouletteResourceSchemaNumberType::U128 => deserializer.deserialize_u128(self),
             },
             CibouletteResourceSchema::Obj(_) => deserializer.deserialize_map(self),
-            CibouletteResourceSchema::Array(_) => deserializer.deserialize_map(self),
+            CibouletteResourceSchema::Array(_) => deserializer.deserialize_seq(self),
             CibouletteResourceSchema::Null => deserializer.deserialize_option(self),
         }
     }
