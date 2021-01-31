@@ -73,9 +73,12 @@ fn bool() {
 #[test]
 fn number_tiny() {
     let schema: CibouletteResourceSchema = CibouletteResourceSchema::Obj(
-        vec![("hello".to_string(), &CibouletteResourceSchema::Number)]
-            .into_iter()
-            .collect(),
+        vec![(
+            "hello".to_string(),
+            &CibouletteResourceSchema::Number(CibouletteResourceSchemaNumberType::U64),
+        )]
+        .into_iter()
+        .collect(),
     );
     let value = r#"
 	{
@@ -86,30 +89,14 @@ fn number_tiny() {
 }
 
 #[test]
-fn number_medium() {
-    let schema: CibouletteResourceSchema = CibouletteResourceSchema::Obj(
-        vec![("hello".to_string(), &CibouletteResourceSchema::Number)]
-            .into_iter()
-            .collect(),
-    );
-    let value = r#"
-	{
-		"hello": 1551898
-	}
-	"#;
-    run_flat_test(
-        schema,
-        value,
-        CibouletteResourceSchemaValue::Number(1551898),
-    );
-}
-
-#[test]
 fn number_huge() {
     let schema: CibouletteResourceSchema = CibouletteResourceSchema::Obj(
-        vec![("hello".to_string(), &CibouletteResourceSchema::Number)]
-            .into_iter()
-            .collect(),
+        vec![(
+            "hello".to_string(),
+            &CibouletteResourceSchema::Number(CibouletteResourceSchemaNumberType::U128),
+        )]
+        .into_iter()
+        .collect(),
     );
     let value = r#"
 	{

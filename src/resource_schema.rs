@@ -2,10 +2,22 @@ use super::*;
 use serde::de::{DeserializeSeed, Deserializer, MapAccess, SeqAccess, Visitor};
 
 #[derive(Clone, Debug, PartialEq, Eq)]
+pub enum CibouletteResourceSchemaNumberType {
+    U64,
+    U128,
+}
+
+impl Default for CibouletteResourceSchemaNumberType {
+    fn default() -> Self {
+        CibouletteResourceSchemaNumberType::U64
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub enum CibouletteResourceSchema<'a> {
     Array(&'a CibouletteResourceSchema<'a>),
     Bool,
-    Number,
+    Number(CibouletteResourceSchemaNumberType),
     Obj(HashMap<String, &'a CibouletteResourceSchema<'a>>),
     String,
     Null,
@@ -117,18 +129,37 @@ impl<'de> Visitor<'de> for &'de CibouletteResourceSchema<'de> {
             )),
         }
     }
-    fn visit_u128<A>(self, v: u128) -> Result<Self::Value, A>
+
+    fn visit_u64<A>(self, v: u64) -> Result<Self::Value, A>
     where
         A: serde::de::Error,
     {
         match self {
-            CibouletteResourceSchema::Number => Ok(CibouletteResourceSchemaValue::Number(v)),
+            CibouletteResourceSchema::Number(CibouletteResourceSchemaNumberType::U64) => {
+                Ok(CibouletteResourceSchemaValue::Number(v as u128))
+            }
             _ => Err(serde::de::Error::invalid_type(
                 serde::de::Unexpected::Other("number"),
                 &"other",
             )),
         }
     }
+
+    fn visit_u128<A>(self, v: u128) -> Result<Self::Value, A>
+    where
+        A: serde::de::Error,
+    {
+        match self {
+            CibouletteResourceSchema::Number(CibouletteResourceSchemaNumberType::U128) => {
+                Ok(CibouletteResourceSchemaValue::Number(v))
+            }
+            _ => Err(serde::de::Error::invalid_type(
+                serde::de::Unexpected::Other("number"),
+                &"other",
+            )),
+        }
+    }
+
     fn visit_none<A>(self) -> Result<Self::Value, A>
     where
         A: serde::de::Error,
@@ -153,7 +184,10 @@ impl<'de> DeserializeSeed<'de> for &'de CibouletteResourceSchema<'de> {
         match self {
             CibouletteResourceSchema::Bool => deserializer.deserialize_bool(self),
             CibouletteResourceSchema::String => deserializer.deserialize_str(self),
-            CibouletteResourceSchema::Number => deserializer.deserialize_u128(self),
+            CibouletteResourceSchema::Number(type_) => match type_ {
+                CibouletteResourceSchemaNumberType::U64 => deserializer.deserialize_u64(self),
+                CibouletteResourceSchemaNumberType::U128 => deserializer.deserialize_u128(self),
+            },
             CibouletteResourceSchema::Obj(_) => deserializer.deserialize_map(self),
             CibouletteResourceSchema::Array(_) => deserializer.deserialize_map(self),
             CibouletteResourceSchema::Null => deserializer.deserialize_option(self),

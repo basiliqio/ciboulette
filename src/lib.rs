@@ -25,5 +25,7 @@ pub use link::CibouletteLink;
 pub use relationship::CibouletteRelationship;
 pub use resource_identifier::{CibouletteResourceIdentifier, CibouletteResourceIdentifierSelector};
 pub use resource_obj::CibouletteResourceObject;
-pub use resource_schema::{CibouletteResourceSchema, CibouletteResourceSchemaValue};
+pub use resource_schema::{
+    CibouletteResourceSchema, CibouletteResourceSchemaNumberType, CibouletteResourceSchemaValue,
+};
 pub use resource_type::CibouletteResourceType;
