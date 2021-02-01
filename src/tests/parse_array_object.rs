@@ -45,15 +45,16 @@ fn run_nested_test(schema: CibouletteResourceSchema, value: &str) {
 fn nested_simple() {
     let nested_string =
         CibouletteResourceSchema::String(CibouletteResourceSchemaScalar::new(false));
-    let nested_schema: CibouletteResourceSchema =
-        CibouletteResourceSchema::Array(CibouletteResourceSchemaArray::new(&nested_string, false));
+    let nested_schema: CibouletteResourceSchema = CibouletteResourceSchema::Array(Box::new(
+        CibouletteResourceSchemaArray::new(nested_string, false),
+    ));
     let schema: CibouletteResourceSchema =
-        CibouletteResourceSchema::Obj(CibouletteResourceSchemaObject::new(
-            vec![("hello".to_string(), &nested_schema)]
+        CibouletteResourceSchema::Obj(Box::new(CibouletteResourceSchemaObject::new(
+            vec![("hello".to_string(), nested_schema)]
                 .into_iter()
                 .collect(),
             false,
-        ));
+        )));
     let value = r#"
 	{
 		"hello": [
@@ -70,15 +71,16 @@ fn nested_simple() {
 fn nested_wrong_value() {
     let nested_string =
         CibouletteResourceSchema::String(CibouletteResourceSchemaScalar::new(false));
-    let nested_schema: CibouletteResourceSchema =
-        CibouletteResourceSchema::Array(CibouletteResourceSchemaArray::new(&nested_string, false));
+    let nested_schema: CibouletteResourceSchema = CibouletteResourceSchema::Array(Box::new(
+        CibouletteResourceSchemaArray::new(nested_string, false),
+    ));
     let schema: CibouletteResourceSchema =
-        CibouletteResourceSchema::Obj(CibouletteResourceSchemaObject::new(
-            vec![("hello".to_string(), &nested_schema)]
+        CibouletteResourceSchema::Obj(Box::new(CibouletteResourceSchemaObject::new(
+            vec![("hello".to_string(), nested_schema)]
                 .into_iter()
                 .collect(),
             false,
-        ));
+        )));
     let value = r#"
 	{
 		"hello": [

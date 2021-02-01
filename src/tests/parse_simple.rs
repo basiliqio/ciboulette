@@ -40,12 +40,12 @@ fn string() {
     let nested_string =
         CibouletteResourceSchema::String(CibouletteResourceSchemaScalar::new(false));
     let schema: CibouletteResourceSchema =
-        CibouletteResourceSchema::Obj(CibouletteResourceSchemaObject::new(
-            vec![("hello".to_string(), &nested_string)]
+        CibouletteResourceSchema::Obj(Box::new(CibouletteResourceSchemaObject::new(
+            vec![("hello".to_string(), nested_string)]
                 .into_iter()
                 .collect(),
             false,
-        ));
+        )));
     let value = r#"
 	{
 		"hello": "world"
@@ -63,12 +63,12 @@ fn string() {
 fn bool() {
     let nested_string = CibouletteResourceSchema::Bool(CibouletteResourceSchemaScalar::new(false));
     let schema: CibouletteResourceSchema =
-        CibouletteResourceSchema::Obj(CibouletteResourceSchemaObject::new(
-            vec![("hello".to_string(), &nested_string)]
+        CibouletteResourceSchema::Obj(Box::new(CibouletteResourceSchemaObject::new(
+            vec![("hello".to_string(), nested_string)]
                 .into_iter()
                 .collect(),
             false,
-        ));
+        )));
     let value = r#"
 	{
 		"hello": true
@@ -84,12 +84,12 @@ fn number_tiny() {
         false,
     ));
     let schema: CibouletteResourceSchema =
-        CibouletteResourceSchema::Obj(CibouletteResourceSchemaObject::new(
-            vec![("hello".to_string(), &nested_string)]
+        CibouletteResourceSchema::Obj(Box::new(CibouletteResourceSchemaObject::new(
+            vec![("hello".to_string(), nested_string)]
                 .into_iter()
                 .collect(),
             false,
-        ));
+        )));
     let value = r#"
 	{
 		"hello": 15
@@ -105,12 +105,12 @@ fn number_huge() {
         false,
     ));
     let schema: CibouletteResourceSchema =
-        CibouletteResourceSchema::Obj(CibouletteResourceSchemaObject::new(
-            vec![("hello".to_string(), &nested_string)]
+        CibouletteResourceSchema::Obj(Box::new(CibouletteResourceSchemaObject::new(
+            vec![("hello".to_string(), nested_string)]
                 .into_iter()
                 .collect(),
             false,
-        ));
+        )));
     let value = r#"
 	{
 		"hello": 340282366920938463463374607431768211454

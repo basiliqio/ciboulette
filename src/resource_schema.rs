@@ -15,29 +15,26 @@ impl Default for CibouletteResourceSchemaNumberType {
 
 #[derive(Clone, Debug, PartialEq, Eq, Getters)]
 #[getset(get = "pub")]
-pub struct CibouletteResourceSchemaArray<'a> {
+pub struct CibouletteResourceSchemaArray {
     optional: bool,
-    items: &'a CibouletteResourceSchema<'a>,
+    items: CibouletteResourceSchema,
 }
 
-impl<'a> CibouletteResourceSchemaArray<'a> {
-    pub fn new(items: &'a CibouletteResourceSchema<'a>, optional: bool) -> Self {
+impl CibouletteResourceSchemaArray {
+    pub fn new(items: CibouletteResourceSchema, optional: bool) -> Self {
         CibouletteResourceSchemaArray { items, optional }
     }
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Getters)]
 #[getset(get = "pub")]
-pub struct CibouletteResourceSchemaObject<'a> {
+pub struct CibouletteResourceSchemaObject {
     optional: bool,
-    properties: HashMap<String, &'a CibouletteResourceSchema<'a>>,
+    properties: HashMap<String, CibouletteResourceSchema>,
 }
 
-impl<'a> CibouletteResourceSchemaObject<'a> {
-    pub fn new(
-        properties: HashMap<String, &'a CibouletteResourceSchema<'a>>,
-        optional: bool,
-    ) -> Self {
+impl CibouletteResourceSchemaObject {
+    pub fn new(properties: HashMap<String, CibouletteResourceSchema>, optional: bool) -> Self {
         CibouletteResourceSchemaObject {
             properties,
             optional,
@@ -71,11 +68,11 @@ impl CibouletteResourceSchemaScalar {
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
-pub enum CibouletteResourceSchema<'a> {
-    Array(CibouletteResourceSchemaArray<'a>),
+pub enum CibouletteResourceSchema {
+    Array(Box<CibouletteResourceSchemaArray>),
     Bool(CibouletteResourceSchemaScalar),
     Number(CibouletteResourceSchemaNumeric),
-    Obj(CibouletteResourceSchemaObject<'a>),
+    Obj(Box<CibouletteResourceSchemaObject>),
     String(CibouletteResourceSchemaScalar),
     Null,
 }
@@ -90,7 +87,7 @@ pub enum CibouletteResourceSchemaValue<'a> {
     Null,
 }
 
-impl<'de> Visitor<'de> for &'de CibouletteResourceSchema<'de> {
+impl<'de> Visitor<'de> for &'de CibouletteResourceSchema {
     type Value = CibouletteResourceSchemaValue<'de>;
 
     fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
@@ -104,7 +101,7 @@ impl<'de> Visitor<'de> for &'de CibouletteResourceSchema<'de> {
         match self {
             CibouletteResourceSchema::Array(arr_type) => {
                 let mut res: Vec<Self::Value> = Vec::with_capacity(seq.size_hint().unwrap_or(10));
-                while let Some(elem) = seq.next_element_seed(*arr_type.items())? {
+                while let Some(elem) = seq.next_element_seed(arr_type.items())? {
                     res.push(elem)
                 }
                 Ok(CibouletteResourceSchemaValue::Array(res))
@@ -151,7 +148,7 @@ impl<'de> Visitor<'de> for &'de CibouletteResourceSchema<'de> {
                             ));
                         }
                     };
-                    let val = seq.next_value_seed(*val_schema)?;
+                    let val = seq.next_value_seed(val_schema)?;
                     res.insert(key_str, val);
                 }
                 Ok(CibouletteResourceSchemaValue::Obj(res))
@@ -248,7 +245,7 @@ impl<'de> Visitor<'de> for &'de CibouletteResourceSchema<'de> {
     }
 }
 
-impl<'de> DeserializeSeed<'de> for &'de CibouletteResourceSchema<'de> {
+impl<'de> DeserializeSeed<'de> for &'de CibouletteResourceSchema {
     type Value = CibouletteResourceSchemaValue<'de>;
 
     fn deserialize<D>(self, deserializer: D) -> Result<Self::Value, D::Error>
