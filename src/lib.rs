@@ -6,7 +6,6 @@ mod link;
 mod relationship;
 mod resource_identifier;
 mod resource_obj;
-mod resource_schema;
 mod resource_type;
 
 #[cfg(test)]
@@ -14,6 +13,7 @@ mod tests;
 
 use either::Either;
 use getset::{Getters, MutGetters};
+use messy_json::*;
 use serde_json::Value;
 use std::borrow::Cow;
 use std::collections::HashMap;
@@ -25,9 +25,4 @@ pub use link::CibouletteLink;
 pub use relationship::CibouletteRelationship;
 pub use resource_identifier::{CibouletteResourceIdentifier, CibouletteResourceIdentifierSelector};
 pub use resource_obj::CibouletteResourceObject;
-pub use resource_schema::{
-    CibouletteResourceSchema, CibouletteResourceSchemaArray, CibouletteResourceSchemaNumberType,
-    CibouletteResourceSchemaNumeric, CibouletteResourceSchemaObject,
-    CibouletteResourceSchemaScalar, CibouletteResourceSchemaValue,
-};
 pub use resource_type::CibouletteResourceType;
