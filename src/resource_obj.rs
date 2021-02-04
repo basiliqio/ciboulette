@@ -1,14 +1,16 @@
 use super::*;
-use serde::{de::DeserializeSeed, de::MapAccess, de::SeqAccess, de::Visitor, Deserializer};
+use serde::{
+    de::DeserializeOwned, de::DeserializeSeed, de::MapAccess, de::SeqAccess, de::Visitor,
+    Deserializer,
+};
+use serde_json::value::RawValue;
 use std::fmt::Formatter;
-use std::marker::PhantomData;
-const FIELDS: &[&str] = &["id", "type", "meta", "attributes", "relationships", "links"];
+const CIBOULETTE_RESOURCE_FIELDS: &[&str] =
+    &["id", "type", "meta", "attributes", "relationships", "links"];
 
 #[derive(Debug, Getters)]
-// #[serde(rename = "camelCase")]
 #[getset(get = "pub")]
 pub struct CibouletteResource<'a> {
-    // #[serde(flatten)]
     identifier: CibouletteResourceIdentifier<'a>,
     attributes: Option<MessyJsonValueContainer<'a>>,
     relationships: Option<HashMap<Cow<'a, str>, CibouletteRelationship<'a>>>,
@@ -31,7 +33,15 @@ impl<'a> CibouletteResource<'a> {
 
 #[derive(Clone, Debug)]
 pub struct CibouletteResourceVisitor<'a>(&'a CibouletteBag<'a>);
-enum Field {
+
+impl<'a> CibouletteResourceVisitor<'a> {
+    #[inline]
+    pub fn new(bag: &'a CibouletteBag<'a>) -> Self {
+        CibouletteResourceVisitor(bag)
+    }
+}
+
+enum CibouletteResourceField {
     Id,
     Type,
     Meta,
@@ -40,56 +50,60 @@ enum Field {
     Links,
     Ignore,
 }
-struct FieldVisitor;
-impl<'de> Visitor<'de> for FieldVisitor {
-    type Value = Field;
+struct CibouletteResourceFieldVisitor;
+impl<'de> Visitor<'de> for CibouletteResourceFieldVisitor {
+    type Value = CibouletteResourceField;
 
+    #[inline]
     fn expecting(&self, formatter: &mut Formatter) -> std::fmt::Result {
         Formatter::write_str(formatter, "field identifier")
     }
 
+    #[inline]
     fn visit_str<E>(self, value: &str) -> Result<Self::Value, E>
     where
         E: serde::de::Error,
     {
         match value {
-            "id" => Ok(Field::Id),
-            "type" => Ok(Field::Type),
-            "meta" => Ok(Field::Meta),
-            "attributes" => Ok(Field::Attributes),
-            "relationships" => Ok(Field::Relationships),
-            "links" => Ok(Field::Links),
-            _ => Ok(Field::Ignore),
+            "id" => Ok(CibouletteResourceField::Id),
+            "type" => Ok(CibouletteResourceField::Type),
+            "meta" => Ok(CibouletteResourceField::Meta),
+            "attributes" => Ok(CibouletteResourceField::Attributes),
+            "relationships" => Ok(CibouletteResourceField::Relationships),
+            "links" => Ok(CibouletteResourceField::Links),
+            _ => Ok(CibouletteResourceField::Ignore),
         }
     }
 
+    #[inline]
     fn visit_bytes<E>(self, value: &[u8]) -> Result<Self::Value, E>
     where
         E: serde::de::Error,
     {
         match value {
-            b"id" => Ok(Field::Id),
-            b"type" => Ok(Field::Type),
-            b"meta" => Ok(Field::Meta),
-            b"attributes" => Ok(Field::Attributes),
-            b"relationships" => Ok(Field::Relationships),
-            b"links" => Ok(Field::Links),
-            _ => Ok(Field::Ignore),
+            b"id" => Ok(CibouletteResourceField::Id),
+            b"type" => Ok(CibouletteResourceField::Type),
+            b"meta" => Ok(CibouletteResourceField::Meta),
+            b"attributes" => Ok(CibouletteResourceField::Attributes),
+            b"relationships" => Ok(CibouletteResourceField::Relationships),
+            b"links" => Ok(CibouletteResourceField::Links),
+            _ => Ok(CibouletteResourceField::Ignore),
         }
     }
 }
-impl<'de> serde::Deserialize<'de> for Field {
+impl<'de> serde::Deserialize<'de> for CibouletteResourceField {
     #[inline]
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
         D: serde::Deserializer<'de>,
     {
-        serde::Deserializer::deserialize_identifier(deserializer, FieldVisitor)
+        serde::Deserializer::deserialize_identifier(deserializer, CibouletteResourceFieldVisitor)
     }
 }
 impl<'de> serde::de::Visitor<'de> for CibouletteResourceVisitor<'de> {
     type Value = CibouletteResource<'de>;
 
+    #[inline]
     fn expecting(&self, formatter: &mut Formatter) -> std::fmt::Result {
         Formatter::write_str(formatter, "struct CibouletteResource")
     }
@@ -102,102 +116,37 @@ impl<'de> serde::de::Visitor<'de> for CibouletteResourceVisitor<'de> {
         let mut id: Option<Cow<'de, str>> = None;
         let mut type_: Option<Cow<'de, str>> = None;
         let mut meta: Option<HashMap<Cow<'de, str>, Value>> = None;
-        let mut attributes: Option<MessyJsonValueContainer<'de>> = None;
+        let mut attributes: Option<&'de RawValue> = None;
         let mut relationships: Option<HashMap<Cow<'de, str>, CibouletteRelationship<'de>>> = None;
         let mut links: Option<CibouletteLink<'de>> = None;
-        while let Some(key) = match serde::de::MapAccess::next_key::<Field>(&mut map) {
-            Ok(val) => val,
-            Err(err) => {
-                return Err(err);
+        while let Some(key) =
+            match serde::de::MapAccess::next_key::<CibouletteResourceField>(&mut map) {
+                Ok(val) => val,
+                Err(err) => {
+                    return Err(err);
+                }
             }
-        } {
+        {
             match key {
-                Field::Id => {
-                    if Option::is_some(&id) {
-                        return Err(<A::Error as serde::de::Error>::duplicate_field("id"));
-                    }
-                    id = Some(
-                        match serde::de::MapAccess::next_value::<Cow<'de, str>>(&mut map) {
-                            Ok(val) => val,
-                            Err(err) => {
-                                return Err(err);
-                            }
-                        },
-                    );
+                CibouletteResourceField::Id => {
+                    super::handle_ident_in_map_stateless(&mut id, &mut map, "id")?
                 }
-                Field::Type => {
-                    if Option::is_some(&type_) {
-                        return Err(<A::Error as serde::de::Error>::duplicate_field("type"));
-                    }
-                    type_ = Some(
-                        match serde::de::MapAccess::next_value::<Cow<'de, str>>(&mut map) {
-                            Ok(val) => val,
-                            Err(err) => {
-                                return Err(err);
-                            }
-                        },
-                    );
+                CibouletteResourceField::Type => {
+                    super::handle_ident_in_map_stateless(&mut type_, &mut map, "type")?
                 }
-                Field::Meta => {
-                    if Option::is_some(&meta) {
-                        return Err(<A::Error as serde::de::Error>::duplicate_field("meta"));
-                    }
-                    meta = Some(
-                        match serde::de::MapAccess::next_value::<HashMap<Cow<'de, str>, Value>>(
-                            &mut map,
-                        ) {
-                            Ok(val) => val,
-                            Err(err) => {
-                                return Err(err);
-                            }
-                        },
-                    );
+                CibouletteResourceField::Meta => {
+                    super::handle_ident_in_map_stateless(&mut meta, &mut map, "meta")?
                 }
-                Field::Attributes => {
-                    if Option::is_some(&attributes) {
-                        return Err(<A::Error as serde::de::Error>::duplicate_field(
-                            "attributes",
-                        ));
-                    }
-                    // attributes = Some( // TODO
-                    // 	match serde::de::MapAccess::next_value_seed::<MessyJsonBuilder<'de>>(&mut map) {
-                    // 		Ok(val) => val,
-                    // 		Err(err) => {
-                    // 			return Err(err);
-                    // 		}
-                    // 	},
-                    // );
+                CibouletteResourceField::Attributes => {
+                    super::handle_ident_in_map_stateless(&mut attributes, &mut map, "attributes")?
                 }
-                Field::Relationships => {
-                    if Option::is_some(&relationships) {
-                        return Err(<A::Error as serde::de::Error>::duplicate_field(
-                            "relationships",
-                        ));
-                    }
-                    relationships = Some(
-                        match serde::de::MapAccess::next_value::<
-                            HashMap<Cow<'de, str>, CibouletteRelationship<'de>>,
-                        >(&mut map)
-                        {
-                            Ok(val) => val,
-                            Err(err) => {
-                                return Err(err);
-                            }
-                        },
-                    );
-                }
-                Field::Links => {
-                    if Option::is_some(&links) {
-                        return Err(<A::Error as serde::de::Error>::duplicate_field("links"));
-                    }
-                    links = Some(
-                        match serde::de::MapAccess::next_value::<CibouletteLink<'de>>(&mut map) {
-                            Ok(val) => val,
-                            Err(err) => {
-                                return Err(err);
-                            }
-                        },
-                    );
+                CibouletteResourceField::Relationships => super::handle_ident_in_map_stateless(
+                    &mut relationships,
+                    &mut map,
+                    "relationships",
+                )?,
+                CibouletteResourceField::Links => {
+                    super::handle_ident_in_map_stateless(&mut links, &mut map, "links")?
                 }
                 _ => {
                     let _ =
@@ -211,8 +160,23 @@ impl<'de> serde::de::Visitor<'de> for CibouletteResourceVisitor<'de> {
             }
         }
 
-        let id = id.ok_or(<A::Error as serde::de::Error>::missing_field("id"))?;
-        let type_ = type_.ok_or(<A::Error as serde::de::Error>::missing_field("type"))?;
+        let id = id.ok_or_else(|| <A::Error as serde::de::Error>::missing_field("id"))?;
+        let type_ = type_.ok_or_else(|| <A::Error as serde::de::Error>::missing_field("type"))?;
+        let rt: &CibouletteResourceType<'de> = self.0.map().get(&*type_).ok_or_else(|| {
+            <A::Error as serde::de::Error>::custom(format!("Type `{}` is not known.", type_))
+        })?;
+        let attributes: Option<MessyJsonValueContainer<'de>> = match attributes {
+            Some(x) => {
+                let mut deserializer = serde_json::Deserializer::from_str(x.get());
+                Some(
+                    rt.schema()
+                        .builder()
+                        .deserialize(&mut deserializer)
+                        .map_err(<A::Error as serde::de::Error>::custom)?,
+                )
+            }
+            None => None,
+        };
         Ok(CibouletteResource {
             identifier: CibouletteResourceIdentifier::new(id, type_, meta.unwrap_or_default()),
             attributes,
@@ -221,101 +185,19 @@ impl<'de> serde::de::Visitor<'de> for CibouletteResourceVisitor<'de> {
         })
     }
 }
-#[derive(Clone, Debug)]
-pub struct CibouletteResourceSelectorVisitor<'a>(&'a CibouletteBag<'a>);
-
-impl<'de> serde::de::Visitor<'de> for CibouletteResourceSelectorVisitor<'de> {
-    type Value = CibouletteResourceSelector<'de>;
-
-    fn expecting(&self, formatter: &mut Formatter) -> std::fmt::Result {
-        Formatter::write_str(formatter, "struct CibouletteResourceSelector")
-    }
-
-    #[inline]
-    fn visit_seq<A>(self, mut seq: A) -> Result<Self::Value, A::Error>
-    where
-        A: serde::de::SeqAccess<'de>,
-    {
-        let mut res: Vec<CibouletteResource<'de>> =
-            Vec::with_capacity(seq.size_hint().unwrap_or(0));
-        while let Some(v) = seq.next_element_seed(CibouletteResourceVisitor(self.0))? {
-            res.push(v);
-        }
-        Ok(CibouletteResourceSelector::Many(res))
-    }
-
-    #[inline]
-    fn visit_map<A>(self, map: A) -> Result<Self::Value, A::Error>
-    where
-        A: serde::de::MapAccess<'de>,
-    {
-        let v = CibouletteResourceVisitor(self.0);
-        Ok(CibouletteResourceSelector::One(
-            <CibouletteResourceVisitor as Visitor>::visit_map(v, map)?,
-        ))
-    }
-}
-
-#[derive(Debug)]
-// #[serde(untagged)]
-pub enum CibouletteResourceSelector<'a> {
-    One(CibouletteResource<'a>),
-    Many(Vec<CibouletteResource<'a>>),
-    Null,
-}
-
-impl<'a> CibouletteResourceSelector<'a> {
-    pub fn deserialize<R>(
-        d: &mut serde_json::Deserializer<R>,
-        bag: &'a CibouletteBag,
-    ) -> Result<Self, serde_json::Error>
-    where
-        R: serde_json::de::Read<'a>,
-    {
-        let visitor = CibouletteResourceSelectorVisitor(bag);
-
-        visitor.deserialize(d)
-    }
-}
 
 impl<'de> DeserializeSeed<'de> for CibouletteResourceVisitor<'de> {
     type Value = CibouletteResource<'de>;
 
+    #[inline]
     fn deserialize<D>(self, deserializer: D) -> Result<Self::Value, D::Error>
     where
         D: Deserializer<'de>,
     {
         deserializer.deserialize_struct(
             "CibouletteResource",
-            FIELDS,
-            CibouletteResourceVisitor(self.0),
+            CIBOULETTE_RESOURCE_FIELDS,
+            CibouletteResourceVisitor::new(self.0),
         )
-    }
-}
-
-impl<'de> DeserializeSeed<'de> for CibouletteResourceSelectorVisitor<'de> {
-    type Value = CibouletteResourceSelector<'de>;
-
-    fn deserialize<D>(self, deserializer: D) -> Result<Self::Value, D::Error>
-    where
-        D: Deserializer<'de>,
-    {
-        deserializer.deserialize_any(CibouletteResourceSelectorVisitor(self.0))
-        // if let Ok(res) = deserializer.deserialize_seq(CibouletteResourceSelectorVisitor(self.0))
-        // {
-        // 	return Ok(res);
-        // }
-
-        // if let Ok(res) = deserializer.deserialize_struct("CibouletteResource", FIELDS, CibouletteResourceSelectorVisitor(self.0))
-        // {
-        // 	return Ok(res);
-        // }
-
-        // if let Ok(res) = deserializer.deserialize_option(CibouletteResourceSelectorVisitor(self.0))
-        // {
-        // 	return Ok(res);
-        // }
-
-        // Err(<D::Error as serde::de::Error>::custom("Cannot deserialize resource selector. Should be either an object, an array or null"))
     }
 }
