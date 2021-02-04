@@ -1,6 +1,4 @@
 use super::*;
-use serde::de::DeserializeOwned;
-use std::marker::PhantomData;
 
 #[derive(Clone, Debug, Getters, MutGetters)]
 #[getset(get = "pub", get_mut = "pub")]

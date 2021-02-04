@@ -1,8 +1,5 @@
 use super::*;
-use serde::{
-    de::DeserializeOwned, de::DeserializeSeed, de::MapAccess, de::SeqAccess, de::Visitor,
-    Deserializer,
-};
+use serde::de::{DeserializeSeed, Deserializer, Visitor};
 use std::fmt::Formatter;
 
 #[derive(Debug, Getters, MutGetters)]
