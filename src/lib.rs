@@ -31,7 +31,7 @@ pub use bag::CibouletteBag;
 pub use config::CibouletteConfig;
 pub use errors::CibouletteError;
 pub use errors_obj::{CibouletteErrorLink, CibouletteErrorObj, CibouletteErrorSource};
-pub use link::CibouletteLink;
+pub use link::{CibouletteLink, CibouletteLinkObj};
 pub use relationship::CibouletteRelationship;
 pub use resource_identifier::{CibouletteResourceIdentifier, CibouletteResourceIdentifierSelector};
 pub use resource_obj::CibouletteResource;

@@ -5,7 +5,7 @@ use serde::{
 };
 use std::fmt::Formatter;
 
-#[derive(Getters, MutGetters)]
+#[derive(Debug, Getters, MutGetters)]
 #[getset(get = "pub", get_mut = "pub")]
 pub struct CibouletteTopLevel<'a> {
     data: Option<CibouletteResourceSelector<'a>>,
@@ -178,6 +178,12 @@ impl<'de> serde::de::Visitor<'de> for CibouletteTopLevelVisitor<'de> {
             },
             None => Ok(Vec::new()),
         }?;
+
+        if let (None, None, None) = (&data, &errors, &meta) {
+            return Err(<A::Error as serde::de::Error>::custom(
+                "At least one of `data`, `errors` or `meta` should be defined.",
+            ));
+        };
         Ok(CibouletteTopLevel {
             data,
             errors,

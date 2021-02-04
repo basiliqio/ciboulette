@@ -1,6 +1,6 @@
 use super::*;
 
-#[derive(Deserialize, Serialize, Getters, Debug)]
+#[derive(Debug, Deserialize, Serialize, Getters)]
 #[getset(get = "pub")]
 pub struct CibouletteLinkObj<'a> {
     href: Cow<'a, str>,
@@ -12,7 +12,7 @@ pub struct CibouletteLinkObj<'a> {
     meta: HashMap<Cow<'a, str>, Value>,
 }
 
-#[derive(Deserialize, Serialize, Getters, Debug)]
+#[derive(Debug, Deserialize, Serialize, Getters)]
 #[getset(get = "pub")]
 pub struct CibouletteLink<'a> {
     self_: Option<Either<Cow<'a, str>, CibouletteLinkObj<'a>>>,

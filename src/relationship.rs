@@ -1,6 +1,6 @@
 use super::*;
 
-#[derive(Deserialize, Serialize, Debug, Getters)]
+#[derive(Debug, Deserialize, Serialize, Getters)]
 #[getset(get = "pub")]
 pub struct CibouletteRelationship<'a> {
     links: Option<CibouletteLink<'a>>,

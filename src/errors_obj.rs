@@ -1,14 +1,15 @@
 use super::*;
 
-#[derive(Deserialize, Serialize, Getters, MutGetters)]
+#[derive(Debug, Deserialize, Serialize, Getters, MutGetters)]
 #[serde(rename = "camelCase")]
 #[getset(get = "pub", get_mut = "pub")]
 pub struct CibouletteErrorLink<'a> {
     about: Option<Cow<'a, str>>,
-    // flatten links
+    #[serde(flatten)]
+    inner_link: Option<CibouletteLinkObj<'a>>,
 }
 
-#[derive(Deserialize, Serialize, Getters, MutGetters)]
+#[derive(Debug, Deserialize, Serialize, Getters, MutGetters)]
 #[serde(rename = "camelCase")]
 #[getset(get = "pub", get_mut = "pub")]
 pub struct CibouletteErrorSource<'a> {
@@ -17,7 +18,7 @@ pub struct CibouletteErrorSource<'a> {
     header: Option<Cow<'a, str>>,
 }
 
-#[derive(Deserialize, Serialize, Getters, MutGetters)]
+#[derive(Debug, Deserialize, Serialize, Getters, MutGetters)]
 #[serde(rename = "camelCase")]
 #[getset(get = "pub", get_mut = "pub")]
 pub struct CibouletteErrorObj<'a> {
