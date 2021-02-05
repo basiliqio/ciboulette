@@ -13,7 +13,7 @@ use messy_json::*;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::borrow::Cow;
-use std::collections::HashMap;
+use std::collections::{BTreeMap, BTreeSet, HashMap};
 use std::sync::Arc;
 
 pub use body::bag::CibouletteBag;

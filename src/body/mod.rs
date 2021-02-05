@@ -12,4 +12,7 @@ pub mod resource_type;
 pub mod serde_utils;
 pub mod top_level;
 
+#[cfg(test)]
+mod tests;
+
 use serde_utils::{handle_ident_in_map_stateful, handle_ident_in_map_stateless};

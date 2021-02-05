@@ -2,15 +2,15 @@ use super::*;
 
 #[derive(Clone, Debug, Getters, MutGetters)]
 #[getset(get = "pub", get_mut = "pub")]
-pub struct CibouletteResourceType<'a> {
-    relationships: HashMap<Cow<'a, str>, &'a CibouletteResourceType<'a>>,
+pub struct CibouletteResourceType {
+    relationships: BTreeSet<String>,
     schema: MessyJson,
 }
 
-impl<'a> CibouletteResourceType<'a> {
-    pub fn new(schema: MessyJson) -> Self {
+impl CibouletteResourceType {
+    pub fn new(schema: MessyJson, relationships: Vec<String>) -> Self {
         CibouletteResourceType {
-            relationships: HashMap::new(),
+            relationships: relationships.into_iter().collect(),
             schema,
         }
     }

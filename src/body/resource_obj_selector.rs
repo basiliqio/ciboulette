@@ -3,11 +3,11 @@ use serde::de::{DeserializeSeed, Deserializer, Visitor};
 use std::fmt::Formatter;
 
 #[derive(Clone, Debug)]
-pub struct CibouletteResourceSelectorVisitor<'a>(&'a CibouletteBag<'a>);
+pub struct CibouletteResourceSelectorVisitor<'a>(&'a CibouletteBag);
 
 impl<'a> CibouletteResourceSelectorVisitor<'a> {
     #[inline]
-    pub fn new(bag: &'a CibouletteBag<'a>) -> Self {
+    pub fn new(bag: &'a CibouletteBag) -> Self {
         CibouletteResourceSelectorVisitor(bag)
     }
 }

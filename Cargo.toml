@@ -12,7 +12,7 @@ serde_json = { version = "1", features = [ "raw_value" ] }
 thiserror = "1"
 getset = "0.1"
 either = { version = "1.6", features = [ "serde" ] }
-messy_json = "0.1"
+messy_json = { git = "ssh://git@gitlab.com/basiliq/messy_json.git"}
 
 [dev-dependencies.cargo-husky]
 version = "1"

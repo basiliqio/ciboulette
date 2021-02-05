@@ -29,11 +29,11 @@ impl<'a> CibouletteResource<'a> {
 }
 
 #[derive(Clone, Debug)]
-pub struct CibouletteResourceVisitor<'a>(&'a CibouletteBag<'a>);
+pub struct CibouletteResourceVisitor<'a>(&'a CibouletteBag);
 
 impl<'a> CibouletteResourceVisitor<'a> {
     #[inline]
-    pub fn new(bag: &'a CibouletteBag<'a>) -> Self {
+    pub fn new(bag: &'a CibouletteBag) -> Self {
         CibouletteResourceVisitor(bag)
     }
 }
@@ -159,7 +159,7 @@ impl<'de> serde::de::Visitor<'de> for CibouletteResourceVisitor<'de> {
 
         let id = id.ok_or_else(|| <A::Error as serde::de::Error>::missing_field("id"))?;
         let type_ = type_.ok_or_else(|| <A::Error as serde::de::Error>::missing_field("type"))?;
-        let rt: &CibouletteResourceType<'de> = self.0.map().get(&*type_).ok_or_else(|| {
+        let rt: &CibouletteResourceType = self.0.map().get(&*type_).ok_or_else(|| {
             <A::Error as serde::de::Error>::custom(format!("Type `{}` is not known.", type_))
         })?;
         let attributes: Option<MessyJsonValueContainer<'de>> = match attributes {

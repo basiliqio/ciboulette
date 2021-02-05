@@ -31,11 +31,11 @@ impl<'a> CibouletteTopLevel<'a> {
 }
 
 #[derive(Clone, Debug)]
-pub struct CibouletteTopLevelVisitor<'a>(&'a CibouletteBag<'a>);
+pub struct CibouletteTopLevelVisitor<'a>(&'a CibouletteBag);
 
 impl<'a> CibouletteTopLevelVisitor<'a> {
     #[inline]
-    pub fn new(bag: &'a CibouletteBag<'a>) -> Self {
+    pub fn new(bag: &'a CibouletteBag) -> Self {
         CibouletteTopLevelVisitor(bag)
     }
 }
