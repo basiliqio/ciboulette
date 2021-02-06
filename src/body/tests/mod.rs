@@ -1,3 +1,4 @@
+mod normal_multi_docs;
 mod normal_single_doc;
 
 use super::*;

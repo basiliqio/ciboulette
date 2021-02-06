@@ -1,34 +1,38 @@
 use super::*;
 
 #[test]
-fn ok() {
+fn single_ok() {
     let bag = gen_bag();
     const VAL: &str = r#"
 	{
-		"data":
-		{
-			"id": "6720877a-e27e-4e9e-9ac0-3fff4deb55f2",
-			"type": "english",
-			"attributes":
+		"data": 
+		[
 			{
-				"hello": "world",
-				"world": "the earth"
+				"id": "6720877a-e27e-4e9e-9ac0-3fff4deb55f2",
+				"type": "english",
+				"attributes":
+				{
+					"hello": "world",
+					"world": "the earth"
+				}
 			}
-		}
+		]
 	}
 	"#;
     let mut deserializer = serde_json::Deserializer::from_str(VAL);
     let doc_builder = CibouletteTopLevelBuilder::deserialize(&mut deserializer)
         .expect("to parse the json:api document");
     let doc = doc_builder.build(&bag).expect("to build the document");
-    let data = check_single(&doc.data().as_ref().expect("data to be defined"));
+    let data = check_multi(&doc.data().as_ref().expect("data to be defined"));
     check_ident(
-        data.identifier(),
+        data.get(0).unwrap().identifier(),
         "english",
         "6720877a-e27e-4e9e-9ac0-3fff4deb55f2",
     );
     assert_eq!(
-        data.attributes()
+        data.get(0)
+            .unwrap()
+            .attributes()
             .clone()
             .unwrap()
             .inner()
@@ -40,20 +44,22 @@ fn ok() {
 }
 
 #[test]
-fn unknown_type() {
+fn single_unknown_type() {
     let bag = gen_bag();
     const VAL: &str = r#"
 	{
 		"data":
-		{
-			"id": "6720877a-e27e-4e9e-9ac0-3fff4deb55f2",
-			"type": "englisheeeeee",
-			"attributes":
+		[
 			{
-				"hello": "world",
-				"world": "the earth"
+				"id": "6720877a-e27e-4e9e-9ac0-3fff4deb55f2",
+				"type": "englisheeeeee",
+				"attributes":
+				{
+					"hello": "world",
+					"world": "the earth"
+				}
 			}
-		}
+		]
 	}
 	"#;
     let mut deserializer = serde_json::Deserializer::from_str(VAL);
