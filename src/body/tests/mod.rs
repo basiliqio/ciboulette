@@ -86,13 +86,6 @@ fn check_multi<'a>(
     }
 }
 
-fn check_null<'a>(selector: &'a CibouletteResourceSelector<'a>) {
-    match selector {
-        CibouletteResourceSelector::Null => (),
-        _ => panic!("Expected `data` to be absent or null"),
-    };
-}
-
 fn parse_attribute_english() -> serde_json::Value {
     let s = r#"{
 		"hello": "world",

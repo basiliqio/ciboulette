@@ -1,4 +1,4 @@
-use serde::de::{Deserialize, DeserializeSeed};
+use serde::de::Deserialize;
 
 #[inline]
 fn handle_ident_check_doesnt_exists<'de, T, A: serde::de::MapAccess<'de>>(
@@ -23,13 +23,12 @@ pub fn handle_ident_in_map_stateless<'de, T: Deserialize<'de>, A: serde::de::Map
 }
 
 #[inline]
-pub fn handle_ident_in_map_stateful<'de, A: serde::de::MapAccess<'de>, V: DeserializeSeed<'de>>(
-    res: &mut Option<V::Value>,
+pub fn handle_ident_in_map_stateful<'de, A: serde::de::MapAccess<'de>, V: Deserialize<'de>>(
+    res: &mut Option<V>,
     mut map: &mut A,
     field_name: &'static str,
-    seed: V,
 ) -> Result<(), A::Error> {
-    handle_ident_check_doesnt_exists::<V::Value, A>(res, field_name)?;
-    *res = Some(serde::de::MapAccess::next_value_seed::<V>(&mut map, seed)?);
+    handle_ident_check_doesnt_exists::<V, A>(res, field_name)?;
+    *res = Some(serde::de::MapAccess::next_value(&mut map)?);
     Ok(())
 }

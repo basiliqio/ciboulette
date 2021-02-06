@@ -7,6 +7,15 @@ const CIBOULETTE_RESOURCE_FIELDS: &[&str] =
 
 #[derive(Debug, Getters)]
 #[getset(get = "pub")]
+pub struct CibouletteResourceBuilder<'a> {
+    identifier: CibouletteResourceIdentifier<'a>,
+    attributes: Option<&'a RawValue>,
+    relationships: Option<HashMap<Cow<'a, str>, CibouletteRelationship<'a>>>,
+    links: Option<CibouletteLink<'a>>,
+}
+
+#[derive(Debug, Getters)]
+#[getset(get = "pub")]
 pub struct CibouletteResource<'a> {
     identifier: CibouletteResourceIdentifier<'a>,
     attributes: Option<MessyJsonValueContainer<'a>>,
@@ -14,29 +23,19 @@ pub struct CibouletteResource<'a> {
     links: Option<CibouletteLink<'a>>,
 }
 
-impl<'a> CibouletteResource<'a> {
-    pub fn deserialize<R>(
-        d: &mut serde_json::Deserializer<R>,
-        bag: &'a CibouletteBag,
-    ) -> Result<Self, serde_json::Error>
+impl<'a> CibouletteResourceBuilder<'a> {
+    pub fn deserialize<R>(d: &mut serde_json::Deserializer<R>) -> Result<Self, serde_json::Error>
     where
         R: serde_json::de::Read<'a>,
     {
-        let visitor = CibouletteResourceVisitor(bag);
+        let visitor = CibouletteResourceBuilderVisitor;
 
         visitor.deserialize(d)
     }
 }
 
-#[derive(Clone, Debug)]
-pub struct CibouletteResourceVisitor<'a>(&'a CibouletteBag);
-
-impl<'a> CibouletteResourceVisitor<'a> {
-    #[inline]
-    pub fn new(bag: &'a CibouletteBag) -> Self {
-        CibouletteResourceVisitor(bag)
-    }
-}
+#[derive(Clone, Copy, Debug)]
+pub struct CibouletteResourceBuilderVisitor;
 
 enum CibouletteResourceField {
     Id,
@@ -97,8 +96,8 @@ impl<'de> serde::Deserialize<'de> for CibouletteResourceField {
         serde::Deserializer::deserialize_identifier(deserializer, CibouletteResourceFieldVisitor)
     }
 }
-impl<'de> serde::de::Visitor<'de> for CibouletteResourceVisitor<'de> {
-    type Value = CibouletteResource<'de>;
+impl<'de> serde::de::Visitor<'de> for CibouletteResourceBuilderVisitor {
+    type Value = CibouletteResourceBuilder<'de>;
 
     #[inline]
     fn expecting(&self, formatter: &mut Formatter) -> std::fmt::Result {
@@ -159,22 +158,7 @@ impl<'de> serde::de::Visitor<'de> for CibouletteResourceVisitor<'de> {
 
         let id = id.ok_or_else(|| <A::Error as serde::de::Error>::missing_field("id"))?;
         let type_ = type_.ok_or_else(|| <A::Error as serde::de::Error>::missing_field("type"))?;
-        let rt: &CibouletteResourceType = self.0.map().get(&*type_).ok_or_else(|| {
-            <A::Error as serde::de::Error>::custom(format!("Type `{}` is not known.", type_))
-        })?;
-        let attributes: Option<MessyJsonValueContainer<'de>> = match attributes {
-            Some(x) => {
-                let mut deserializer = serde_json::Deserializer::from_str(x.get());
-                Some(
-                    rt.schema()
-                        .builder()
-                        .deserialize(&mut deserializer)
-                        .map_err(<A::Error as serde::de::Error>::custom)?,
-                )
-            }
-            None => None,
-        };
-        Ok(CibouletteResource {
+        Ok(CibouletteResourceBuilder {
             identifier: CibouletteResourceIdentifier::new(id, type_, meta.unwrap_or_default()),
             attributes,
             relationships,
@@ -183,8 +167,8 @@ impl<'de> serde::de::Visitor<'de> for CibouletteResourceVisitor<'de> {
     }
 }
 
-impl<'de> DeserializeSeed<'de> for CibouletteResourceVisitor<'de> {
-    type Value = CibouletteResource<'de>;
+impl<'de> DeserializeSeed<'de> for CibouletteResourceBuilderVisitor {
+    type Value = CibouletteResourceBuilder<'de>;
 
     #[inline]
     fn deserialize<D>(self, deserializer: D) -> Result<Self::Value, D::Error>
@@ -194,7 +178,35 @@ impl<'de> DeserializeSeed<'de> for CibouletteResourceVisitor<'de> {
         deserializer.deserialize_struct(
             "CibouletteResource",
             CIBOULETTE_RESOURCE_FIELDS,
-            CibouletteResourceVisitor::new(self.0),
+            CibouletteResourceBuilderVisitor,
         )
+    }
+}
+
+impl<'a> CibouletteResourceBuilder<'a> {
+    pub fn build(self, bag: &'a CibouletteBag) -> Result<CibouletteResource<'a>, CibouletteError> {
+        let attributes: Option<MessyJsonValueContainer<'a>> = match self.attributes {
+            Some(attributes) => {
+                let type_ident = self.identifier().type_().as_ref();
+                let resource_type = bag
+                    .map()
+                    .get(type_ident)
+                    .ok_or_else(|| CibouletteError::UnknownType(type_ident.to_string()))?;
+                let mut deserializer = serde_json::Deserializer::from_str(attributes.get());
+                Some(
+                    resource_type
+                        .schema()
+                        .builder()
+                        .deserialize(&mut deserializer)?,
+                )
+            }
+            None => None,
+        };
+        Ok(CibouletteResource {
+            identifier: self.identifier,
+            attributes,
+            links: self.links,
+            relationships: self.relationships,
+        })
     }
 }

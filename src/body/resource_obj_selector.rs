@@ -1,19 +1,24 @@
 use super::*;
-use serde::de::{DeserializeSeed, Deserializer, Visitor};
+use serde::de::{Deserializer, Visitor};
 use std::fmt::Formatter;
 
-#[derive(Clone, Debug)]
-pub struct CibouletteResourceSelectorVisitor<'a>(&'a CibouletteBag);
-
-impl<'a> CibouletteResourceSelectorVisitor<'a> {
-    #[inline]
-    pub fn new(bag: &'a CibouletteBag) -> Self {
-        CibouletteResourceSelectorVisitor(bag)
-    }
+#[derive(Debug)]
+pub enum CibouletteResourceSelectorBuilder<'a> {
+    One(CibouletteResourceBuilder<'a>),
+    Many(Vec<CibouletteResourceBuilder<'a>>),
 }
 
-impl<'de> serde::de::Visitor<'de> for CibouletteResourceSelectorVisitor<'de> {
-    type Value = CibouletteResourceSelector<'de>;
+#[derive(Debug)]
+pub enum CibouletteResourceSelector<'a> {
+    One(CibouletteResource<'a>),
+    Many(Vec<CibouletteResource<'a>>),
+}
+
+#[derive(Clone, Debug)]
+pub struct CibouletteResourceSelectorBuilderVisitor;
+
+impl<'de> serde::de::Visitor<'de> for CibouletteResourceSelectorBuilderVisitor {
+    type Value = CibouletteResourceSelectorBuilder<'de>;
 
     #[inline]
     fn expecting(&self, formatter: &mut Formatter) -> std::fmt::Result {
@@ -25,12 +30,12 @@ impl<'de> serde::de::Visitor<'de> for CibouletteResourceSelectorVisitor<'de> {
     where
         A: serde::de::SeqAccess<'de>,
     {
-        let mut res: Vec<CibouletteResource<'de>> =
+        let mut res: Vec<CibouletteResourceBuilder<'de>> =
             Vec::with_capacity(seq.size_hint().unwrap_or(0));
-        while let Some(v) = seq.next_element_seed(CibouletteResourceVisitor::new(self.0))? {
+        while let Some(v) = seq.next_element_seed(CibouletteResourceBuilderVisitor)? {
             res.push(v);
         }
-        Ok(CibouletteResourceSelector::Many(res))
+        Ok(CibouletteResourceSelectorBuilder::Many(res))
     }
 
     #[inline]
@@ -38,50 +43,41 @@ impl<'de> serde::de::Visitor<'de> for CibouletteResourceSelectorVisitor<'de> {
     where
         A: serde::de::MapAccess<'de>,
     {
-        let v = CibouletteResourceVisitor::new(self.0);
-        Ok(CibouletteResourceSelector::One(
-            <CibouletteResourceVisitor as Visitor>::visit_map(v, map)?,
+        Ok(CibouletteResourceSelectorBuilder::One(
+            <CibouletteResourceBuilderVisitor as Visitor>::visit_map(
+                CibouletteResourceBuilderVisitor,
+                map,
+            )?,
         ))
     }
-    #[inline]
-    fn visit_unit<E>(self) -> Result<Self::Value, E>
-    where
-        E: serde::de::Error,
-    {
-        Ok(CibouletteResourceSelector::Null)
-    }
 }
 
-#[derive(Debug)]
-pub enum CibouletteResourceSelector<'a> {
-    One(CibouletteResource<'a>),
-    Many(Vec<CibouletteResource<'a>>),
-    Null,
-}
-
-impl<'a> CibouletteResourceSelector<'a> {
-    #[inline]
-    pub fn deserialize<R>(
-        d: &mut serde_json::Deserializer<R>,
-        bag: &'a CibouletteBag,
-    ) -> Result<Self, serde_json::Error>
-    where
-        R: serde_json::de::Read<'a>,
-    {
-        let visitor = CibouletteResourceSelectorVisitor(bag);
-
-        visitor.deserialize(d)
-    }
-}
-
-impl<'de> DeserializeSeed<'de> for CibouletteResourceSelectorVisitor<'de> {
-    type Value = CibouletteResourceSelector<'de>;
-
-    #[inline]
-    fn deserialize<D>(self, deserializer: D) -> Result<Self::Value, D::Error>
+impl<'de> Deserialize<'de> for CibouletteResourceSelectorBuilder<'de> {
+    fn deserialize<D>(deserializer: D) -> Result<CibouletteResourceSelectorBuilder<'de>, D::Error>
     where
         D: Deserializer<'de>,
     {
-        deserializer.deserialize_any(CibouletteResourceSelectorVisitor(self.0))
+        deserializer.deserialize_any(CibouletteResourceSelectorBuilderVisitor)
+    }
+}
+
+impl<'a> CibouletteResourceSelectorBuilder<'a> {
+    pub fn build(
+        self,
+        bag: &'a CibouletteBag,
+    ) -> Result<CibouletteResourceSelector<'a>, CibouletteError> {
+        match self {
+            CibouletteResourceSelectorBuilder::One(element) => {
+                Ok(CibouletteResourceSelector::One(element.build(bag)?))
+            }
+            CibouletteResourceSelectorBuilder::Many(elements) => {
+                let mut res: Vec<CibouletteResource> = Vec::with_capacity(elements.len());
+
+                for el in elements.into_iter() {
+                    res.push(el.build(bag)?);
+                }
+                Ok(CibouletteResourceSelector::Many(res))
+            }
+        }
     }
 }

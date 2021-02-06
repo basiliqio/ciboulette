@@ -18,8 +18,9 @@ fn ok() {
 	}
 	"#;
     let mut deserializer = serde_json::Deserializer::from_str(VAL);
-    let doc = CibouletteTopLevel::deserialize(&mut deserializer, &bag)
+    let doc_builder = CibouletteTopLevelBuilder::deserialize(&mut deserializer)
         .expect("to parse the json:api document");
+    let doc = doc_builder.build(&bag).expect("to build the document");
     let data = check_single(&doc.data().as_ref().expect("data to be defined"));
     check_ident(
         data.identifier(),
