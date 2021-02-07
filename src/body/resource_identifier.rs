@@ -20,5 +20,4 @@ impl<'a> CibouletteResourceIdentifier<'a> {
 pub enum CibouletteResourceIdentifierSelector<'a> {
     One(CibouletteResourceIdentifier<'a>),
     Many(Vec<CibouletteResourceIdentifier<'a>>),
-    Null,
 }

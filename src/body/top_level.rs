@@ -191,6 +191,8 @@ impl<'de> Deserialize<'de> for CibouletteTopLevelBuilder<'de> {
 
 impl<'a> CibouletteTopLevelBuilder<'a> {
     pub fn build(self, bag: &'a CibouletteBag) -> Result<CibouletteTopLevel<'a>, CibouletteError> {
+        let res: CibouletteTopLevel<'a>;
+
         let data = match self.data {
             Some(data) => Some(data.build(bag)?),
             None => None,
@@ -199,16 +201,121 @@ impl<'a> CibouletteTopLevelBuilder<'a> {
         for i in self.included.into_iter() {
             included.push(i.build(&bag)?);
         }
-        // TODO verify that every object is uniq by (`type`, `id`)
-        // TODO verify that every included object is uniq by (`type` and `id`)
-        // TODO verify full linkage
-        Ok(CibouletteTopLevel {
+        res = CibouletteTopLevel {
             data,
             errors: self.errors,
             meta: self.meta,
             links: self.links,
             jsonapi: self.jsonapi,
             included,
-        })
+        };
+        res.check()?;
+        Ok(res)
+    }
+}
+
+impl<'a> CibouletteTopLevel<'a> {
+    fn check_obj_uniqueness(&self) -> Result<(), CibouletteError> {
+        let mut obj_set: BTreeSet<(&str, &str)> = BTreeSet::new();
+
+        if let Some(data) = self.data() {
+            match data {
+                CibouletteResourceSelector::One(_) => Ok(()),
+                CibouletteResourceSelector::Many(objs) => {
+                    for obj in objs.iter() {
+                        if !obj_set.insert((obj.identifier().type_(), obj.identifier().id())) {
+                            return Err(CibouletteError::UniqObj(
+                                obj.identifier().type_().to_string(),
+                                obj.identifier().id().to_string(),
+                            ));
+                        }
+                    }
+                    Ok(())
+                }
+            }
+        } else {
+            Ok(())
+        }
+    }
+
+    fn check_linked_obj_uniqueness_single(
+        linked_set: &mut BTreeSet<(&'a str, &'a str)>,
+        obj: &'a CibouletteResource,
+    ) -> Result<(), CibouletteError> {
+        for (_link_name, rel) in obj.relationships().iter() {
+            match rel.data() {
+                Some(CibouletteResourceIdentifierSelector::One(el)) => {
+                    if !linked_set.insert((el.type_(), el.id())) {
+                        return Err(CibouletteError::UniqObj(
+                            el.type_().to_string(),
+                            el.id().to_string(),
+                        ));
+                    }
+                }
+                Some(CibouletteResourceIdentifierSelector::Many(els)) => {
+                    for el in els.iter() {
+                        if !linked_set.insert((el.type_(), el.id())) {
+                            return Err(CibouletteError::UniqObj(
+                                el.type_().to_string(),
+                                el.id().to_string(),
+                            ));
+                        }
+                    }
+                }
+                None => (),
+            }
+        }
+        Ok(())
+    }
+
+    fn check_linked_obj_uniqueness(&'a self) -> Result<BTreeSet<(&str, &str)>, CibouletteError> {
+        let mut linked_set: BTreeSet<(&str, &str)> = BTreeSet::new();
+
+        if let Some(data) = self.data() {
+            return match data {
+                CibouletteResourceSelector::One(obj) => {
+                    Self::check_linked_obj_uniqueness_single(&mut linked_set, &obj)?;
+                    Ok(linked_set)
+                }
+                CibouletteResourceSelector::Many(objs) => {
+                    for obj in objs.iter() {
+                        Self::check_linked_obj_uniqueness_single(&mut linked_set, &obj)?;
+                    }
+                    Ok(linked_set)
+                }
+            };
+        }
+        Ok(linked_set)
+    }
+
+    fn check_included_obj_uniqueness(
+        &'a self,
+        linked_set: &'a mut BTreeSet<(&'a str, &'a str)>,
+    ) -> Result<(), CibouletteError> {
+        for included_el in self.included().iter() {
+            if linked_set.insert((
+                included_el.identifier().type_(),
+                included_el.identifier().id(),
+            )) {
+                return Err(CibouletteError::MissingLink(
+                    included_el.identifier().type_().to_string(),
+                    included_el.identifier().id().to_string(),
+                ));
+            }
+        }
+        Ok(())
+    }
+
+    pub fn check(&self) -> Result<(), CibouletteError> {
+        let mut linked_set: BTreeSet<(&str, &str)>;
+
+        self.check_obj_uniqueness()?;
+        linked_set = self.check_linked_obj_uniqueness()?;
+        if let Some(CibouletteResourceSelector::Many(_)) = self.data()
+        //TODO CHECK for full linkage
+        {
+            self.check_included_obj_uniqueness(&mut linked_set)?;
+        }
+        Ok(())
     }
 }

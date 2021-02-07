@@ -10,7 +10,7 @@ const CIBOULETTE_RESOURCE_FIELDS: &[&str] =
 pub struct CibouletteResourceBuilder<'a> {
     identifier: CibouletteResourceIdentifier<'a>,
     attributes: Option<&'a RawValue>,
-    relationships: Option<HashMap<Cow<'a, str>, CibouletteRelationship<'a>>>,
+    relationships: HashMap<Cow<'a, str>, CibouletteRelationship<'a>>,
     links: Option<CibouletteLink<'a>>,
 }
 
@@ -19,7 +19,7 @@ pub struct CibouletteResourceBuilder<'a> {
 pub struct CibouletteResource<'a> {
     identifier: CibouletteResourceIdentifier<'a>,
     attributes: Option<MessyJsonValueContainer<'a>>,
-    relationships: Option<HashMap<Cow<'a, str>, CibouletteRelationship<'a>>>,
+    relationships: HashMap<Cow<'a, str>, CibouletteRelationship<'a>>,
     links: Option<CibouletteLink<'a>>,
 }
 
@@ -158,6 +158,7 @@ impl<'de> serde::de::Visitor<'de> for CibouletteResourceBuilderVisitor {
 
         let id = id.ok_or_else(|| <A::Error as serde::de::Error>::missing_field("id"))?;
         let type_ = type_.ok_or_else(|| <A::Error as serde::de::Error>::missing_field("type"))?;
+        let relationships = relationships.unwrap_or_default();
         Ok(CibouletteResourceBuilder {
             identifier: CibouletteResourceIdentifier::new(id, type_, meta.unwrap_or_default()),
             attributes,
