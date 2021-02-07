@@ -199,6 +199,9 @@ impl<'a> CibouletteTopLevelBuilder<'a> {
         for i in self.included.into_iter() {
             included.push(i.build(&bag)?);
         }
+        // TODO verify that every object is uniq by (`type`, `id`)
+        // TODO verify that every included object is uniq by (`type` and `id`)
+        // TODO verify full linkage
         Ok(CibouletteTopLevel {
             data,
             errors: self.errors,

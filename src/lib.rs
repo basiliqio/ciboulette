@@ -6,7 +6,6 @@ mod errors;
 mod tests;
 
 use body::resource_obj::CibouletteResourceBuilderVisitor;
-use either::Either;
 use getset::{Getters, MutGetters};
 use messy_json::*;
 use serde::{Deserialize, Serialize};

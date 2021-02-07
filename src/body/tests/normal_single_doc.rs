@@ -14,6 +14,10 @@ fn ok() {
 				"hello": "world",
 				"world": "the earth"
 			}
+		},
+		"links":
+		{
+			"self": "https://thisserver.com/english/6720877a-e27e-4e9e-9ac0-3fff4deb55f2"
 		}
 	}
 	"#;
@@ -67,4 +71,50 @@ fn unknown_type() {
         panic!("Wrong error");
     }
     println!("{:#?}", doc);
+}
+
+#[test]
+fn ok_error_simple() {
+    const VAL: &str = r#"
+	{
+		"errors":
+		{
+			"status": 200
+		}
+	}
+	"#;
+    let mut deserializer = serde_json::Deserializer::from_str(VAL);
+    CibouletteTopLevelBuilder::deserialize(&mut deserializer)
+        .expect("to parse the json:api document");
+}
+
+#[test]
+fn ok_error_complex() {
+    const VAL: &str = r#"
+	{
+		"errors":
+		{
+			"status": 200,
+			"id": "AAAA",
+			"code": "iwannadie",
+			"title": "my brain has scattered",
+			"detail": "so I took bowl of cereal, you see, and it was mind blowing, really!",
+			"source":
+			{
+				"pointer": "/bowl",
+				"parameter": "bowl_type",
+				"header": "bowl_color" 
+			},
+			"links":
+			{
+				"about": "http://someverygoodcereal.com/",
+				"href": "http://thisserver.com/.well-known/errors/AAAA",
+				"meta": "Oh boi"
+			}
+		}
+	}
+	"#;
+    let mut deserializer = serde_json::Deserializer::from_str(VAL);
+    CibouletteTopLevelBuilder::deserialize(&mut deserializer)
+        .expect("to parse the json:api document");
 }
