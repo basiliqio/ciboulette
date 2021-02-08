@@ -1,7 +1,6 @@
 use super::*;
 
 pub mod bag;
-pub mod check;
 pub mod errors_obj;
 pub mod link;
 pub mod relationship;

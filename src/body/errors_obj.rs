@@ -1,5 +1,6 @@
 use super::*;
 
+/// ## A link describing a `json:api` [error](https://jsonapi.org/format/#error-objects)
 #[derive(Debug, Deserialize, Serialize, Getters, MutGetters)]
 #[serde(rename = "camelCase")]
 #[getset(get = "pub", get_mut = "pub")]
@@ -9,6 +10,7 @@ pub struct CibouletteErrorLink<'a> {
     inner_link: Option<CibouletteLinkObj<'a>>,
 }
 
+/// ## Source object of a `json:api` [error](https://jsonapi.org/format/#error-objects)
 #[derive(Debug, Deserialize, Serialize, Getters, MutGetters)]
 #[serde(rename = "camelCase")]
 #[getset(get = "pub", get_mut = "pub")]
@@ -18,6 +20,7 @@ pub struct CibouletteErrorSource<'a> {
     header: Option<Cow<'a, str>>,
 }
 
+/// ## Object of a `json:api` [error](https://jsonapi.org/format/#error-objects)
 #[derive(Debug, Deserialize, Serialize, Getters, MutGetters)]
 #[serde(rename = "camelCase")]
 #[getset(get = "pub", get_mut = "pub")]

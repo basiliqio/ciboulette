@@ -1,5 +1,7 @@
 use thiserror::Error;
 
+/// When describing KeyClash, we need to know if the field was supposed be with
+/// or without another field
 #[derive(Debug, PartialEq)]
 pub enum CibouletteClashDirection {
     With,
@@ -19,7 +21,7 @@ impl std::fmt::Display for CibouletteClashDirection {
     }
 }
 
-/// # An error throwable by [OApi](crate)
+/// # An error throwable by [Ciboulette](crate)
 #[derive(Error, Debug)]
 pub enum CibouletteError {
     #[error("The json:api type `{0}` is unknown.")]

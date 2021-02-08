@@ -2,12 +2,14 @@ use super::*;
 use serde::de::{Deserializer, Visitor};
 use std::fmt::Formatter;
 
+/// ## Builder object for [CibouletterResourceSelector](CibouletterResourceSelector)
 #[derive(Debug)]
 pub enum CibouletteResourceSelectorBuilder<'a> {
     One(CibouletteResourceBuilder<'a>),
     Many(Vec<CibouletteResourceBuilder<'a>>),
 }
 
+/// ## A selector between a single or multiple `json:api` [resource](https://jsonapi.org/format/#document-resource-objects) objects
 #[derive(Debug)]
 pub enum CibouletteResourceSelector<'a> {
     One(CibouletteResource<'a>),
@@ -15,7 +17,7 @@ pub enum CibouletteResourceSelector<'a> {
 }
 
 #[derive(Clone, Debug)]
-pub struct CibouletteResourceSelectorBuilderVisitor;
+struct CibouletteResourceSelectorBuilderVisitor;
 
 impl<'de> serde::de::Visitor<'de> for CibouletteResourceSelectorBuilderVisitor {
     type Value = CibouletteResourceSelectorBuilder<'de>;
@@ -62,6 +64,7 @@ impl<'de> Deserialize<'de> for CibouletteResourceSelectorBuilder<'de> {
 }
 
 impl<'a> CibouletteResourceSelectorBuilder<'a> {
+    /// Build the resource selector from the builder
     pub fn build(
         self,
         bag: &'a CibouletteBag,

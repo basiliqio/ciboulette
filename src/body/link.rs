@@ -1,5 +1,6 @@
 use super::*;
 
+/// ## A `json:api` inner [link](https://jsonapi.org/format/#document-links) object
 #[derive(Debug, Deserialize, Serialize, Getters)]
 #[getset(get = "pub")]
 pub struct CibouletteLinkObj<'a> {
@@ -7,6 +8,7 @@ pub struct CibouletteLinkObj<'a> {
     meta: HashMap<Cow<'a, str>, Value>,
 }
 
+/// ## A selector between simple or complex `json:api` [link](https://jsonapi.org/format/#document-links) inner object
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(untagged)]
 pub enum CibouletteLinkSelector<'a> {
@@ -14,6 +16,7 @@ pub enum CibouletteLinkSelector<'a> {
     Obj(CibouletteLinkObj<'a>),
 }
 
+/// ## A `json:api` [link](https://jsonapi.org/format/#document-links) object
 #[derive(Debug, Deserialize, Serialize, Getters)]
 #[getset(get = "pub")]
 pub struct CibouletteLink<'a> {

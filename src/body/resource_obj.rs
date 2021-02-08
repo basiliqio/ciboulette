@@ -5,6 +5,7 @@ use std::fmt::Formatter;
 const CIBOULETTE_RESOURCE_FIELDS: &[&str] =
     &["id", "type", "meta", "attributes", "relationships", "links"];
 
+/// ## Builder object for [CibouletterResource](CibouletterResource)
 #[derive(Debug, Getters)]
 #[getset(get = "pub")]
 pub struct CibouletteResourceBuilder<'a> {
@@ -14,6 +15,7 @@ pub struct CibouletteResourceBuilder<'a> {
     links: Option<CibouletteLink<'a>>,
 }
 
+/// ## A `json:api` [resource](https://jsonapi.org/format/#document-resource-objects) object
 #[derive(Debug, Getters)]
 #[getset(get = "pub")]
 pub struct CibouletteResource<'a> {
@@ -185,6 +187,7 @@ impl<'de> DeserializeSeed<'de> for CibouletteResourceBuilderVisitor {
 }
 
 impl<'a> CibouletteResourceBuilder<'a> {
+    /// ## build the [CibouletteResource](CibouletteResource) from the builder
     pub fn build(self, bag: &'a CibouletteBag) -> Result<CibouletteResource<'a>, CibouletteError> {
         let attributes: Option<MessyJsonValueContainer<'a>> = match self.attributes {
             Some(attributes) => {

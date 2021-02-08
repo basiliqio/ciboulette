@@ -2,6 +2,7 @@ use super::*;
 use serde::de::{Deserializer, Visitor};
 use std::fmt::Formatter;
 
+/// ## Builder object for [CibouletteTopLevel](CibouletteTopLevel)
 #[derive(Debug, Getters, MutGetters)]
 #[getset(get = "pub", get_mut = "pub")]
 pub struct CibouletteTopLevelBuilder<'a> {
@@ -13,6 +14,7 @@ pub struct CibouletteTopLevelBuilder<'a> {
     jsonapi: Option<Cow<'a, str>>, // TODO Semver
 }
 
+/// ## A `json:api` [document](https://jsonapi.org/format/#document-top-level) object
 #[derive(Debug, Getters, MutGetters)]
 #[getset(get = "pub", get_mut = "pub")]
 pub struct CibouletteTopLevel<'a> {
@@ -28,7 +30,7 @@ const CIBOULETTE_TOP_LEVEL_FIELDS: &[&str] =
     &["data", "errors", "meta", "links", "included", "jsonapi"];
 
 #[derive(Clone, Debug)]
-pub struct CibouletteTopLevelBuilderVisitor;
+struct CibouletteTopLevelBuilderVisitor;
 
 enum CibouletteTopLevelField {
     Data,
@@ -190,6 +192,7 @@ impl<'de> Deserialize<'de> for CibouletteTopLevelBuilder<'de> {
 }
 
 impl<'a> CibouletteTopLevelBuilder<'a> {
+    /// Build a [CibouletteTopLevel](CibouletteTopLevel) from the builder
     pub fn build(self, bag: &'a CibouletteBag) -> Result<CibouletteTopLevel<'a>, CibouletteError> {
         let res: CibouletteTopLevel<'a>;
 
@@ -215,6 +218,7 @@ impl<'a> CibouletteTopLevelBuilder<'a> {
 }
 
 impl<'a> CibouletteTopLevel<'a> {
+    /// Check that every objects in `data` is unique by `type` and `id`
     fn check_obj_uniqueness(&self) -> Result<(), CibouletteError> {
         let mut obj_set: BTreeSet<(&str, &str)> = BTreeSet::new();
 
@@ -238,6 +242,7 @@ impl<'a> CibouletteTopLevel<'a> {
         }
     }
 
+    /// Check that every relationships in `data` is unique by `type` and `id` for a single object
     fn check_relationships_uniqueness_single(
         linked_set: &mut BTreeSet<(&'a str, &'a str)>,
         obj: &'a CibouletteResource,
@@ -268,6 +273,7 @@ impl<'a> CibouletteTopLevel<'a> {
         Ok(())
     }
 
+    /// Check that every relationships in `data` is unique by `type` and `id`
     fn check_relationships_uniqueness(&'a self) -> Result<BTreeSet<(&str, &str)>, CibouletteError> {
         let mut linked_set: BTreeSet<(&str, &str)> = BTreeSet::new();
 
@@ -279,7 +285,9 @@ impl<'a> CibouletteTopLevel<'a> {
                 }
                 CibouletteResourceSelector::Many(objs) => {
                     for obj in objs.iter() {
-                        Self::check_relationships_uniqueness_single(&mut linked_set, &obj)?;
+                        let mut linked_set_inner: BTreeSet<(&str, &str)> = BTreeSet::new();
+                        Self::check_relationships_uniqueness_single(&mut linked_set_inner, &obj)?;
+                        linked_set.append(&mut linked_set_inner);
                     }
                     Ok(linked_set)
                 }
@@ -288,6 +296,8 @@ impl<'a> CibouletteTopLevel<'a> {
         Ok(linked_set)
     }
 
+    /// Check that every object in `included` is unique by `type` and `id`.
+    /// Also check for linkage error in case of a compound document
     fn check_included(
         &'a self,
         check_full_linkage: bool,
@@ -311,6 +321,7 @@ impl<'a> CibouletteTopLevel<'a> {
         Ok(linked_set)
     }
 
+    /// Checks for key clash like `included` without `data`, or `data` with `errors`
     #[inline]
     fn check_key_clash(&self) -> Result<(), CibouletteError> {
         if self.data().is_none() && !self.included().is_empty() {
@@ -330,6 +341,7 @@ impl<'a> CibouletteTopLevel<'a> {
         Ok(())
     }
 
+    /// Perfom all the document checks
     pub fn check(&self) -> Result<(), CibouletteError> {
         let rel_set: BTreeSet<(&str, &str)>;
         let included_set: BTreeSet<(&str, &str)>;
