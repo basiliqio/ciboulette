@@ -1,10 +1,10 @@
 use super::*;
 
-#[derive(Debug, Deserialize, Serialize, Getters)]
+#[derive(Debug, Deserialize, Serialize, Getters, Default)]
 #[getset(get = "pub")]
+#[serde(default)]
 pub struct CibouletteRelationship<'a> {
     links: Option<CibouletteLink<'a>>,
     data: Option<CibouletteResourceIdentifierSelector<'a>>,
-    #[serde(default)]
     meta: HashMap<Cow<'a, str>, Value>,
 }

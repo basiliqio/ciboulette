@@ -9,6 +9,8 @@ pub enum CibouletteError {
     UniqObj(String, String),
     #[error("The linked object ({0}, {1}) is missing")]
     MissingLink(String, String),
+    #[error("The linked object ({0}, {1}) is not completely linked")]
+    NoCompleteLinkage(String, String),
     /// When there is a failure while deserializing the JSON
     #[error(transparent)]
     SerdeJson(#[from] serde_json::Error),

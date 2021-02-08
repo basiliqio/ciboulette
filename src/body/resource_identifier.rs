@@ -1,11 +1,12 @@
 use super::*;
 
 #[derive(Deserialize, Serialize, Debug, Getters, MutGetters)]
-#[serde(rename = "camelCase")]
 #[getset(get = "pub", get_mut = "pub")]
 pub struct CibouletteResourceIdentifier<'a> {
+    #[serde(rename = "type")]
     type_: Cow<'a, str>,
     id: Cow<'a, str>,
+    #[serde(default)]
     meta: HashMap<Cow<'a, str>, Value>,
 }
 
