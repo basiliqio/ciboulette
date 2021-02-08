@@ -27,4 +27,4 @@ pub use body::resource_obj_selector::{
 pub use body::resource_type::CibouletteResourceType;
 pub use body::top_level::{CibouletteTopLevel, CibouletteTopLevelBuilder};
 pub use config::CibouletteConfig;
-pub use errors::CibouletteError;
+pub use errors::{CibouletteClashDirection, CibouletteError};

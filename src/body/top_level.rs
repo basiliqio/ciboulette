@@ -311,9 +311,30 @@ impl<'a> CibouletteTopLevel<'a> {
         Ok(linked_set)
     }
 
+    #[inline]
+    fn check_key_clash(&self) -> Result<(), CibouletteError> {
+        if self.data().is_none() && !self.included().is_empty() {
+            return Err(CibouletteError::KeyClash(
+                "included".to_string(),
+                CibouletteClashDirection::With,
+                "data".to_string(),
+            ));
+        }
+        if self.data().is_some() && self.errors().is_some() {
+            return Err(CibouletteError::KeyClash(
+                "data".to_string(),
+                CibouletteClashDirection::Without,
+                "errors".to_string(),
+            ));
+        }
+        Ok(())
+    }
+
     pub fn check(&self) -> Result<(), CibouletteError> {
         let rel_set: BTreeSet<(&str, &str)>;
         let included_set: BTreeSet<(&str, &str)>;
+
+        self.check_key_clash()?;
         let check_full_linkage: bool =
             matches!(self.data(), Some(CibouletteResourceSelector::Many(_)));
 
