@@ -7,6 +7,8 @@ pub enum CibouletteError {
     UnknownType(String),
     #[error("The resource object ({0}, {1}) should be unique by `type` and `id`")]
     UniqObj(String, String),
+    #[error("The resource relationship ({0}, {1}) should be unique by `type` and `id`")]
+    UniqRelationship(String, String),
     #[error("The linked object ({0}, {1}) is missing")]
     MissingLink(String, String),
     #[error("The linked object ({0}, {1}) is not completely linked")]

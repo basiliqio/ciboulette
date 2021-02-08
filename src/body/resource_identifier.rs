@@ -7,11 +7,11 @@ pub struct CibouletteResourceIdentifier<'a> {
     type_: Cow<'a, str>,
     id: Cow<'a, str>,
     #[serde(default)]
-    meta: HashMap<Cow<'a, str>, Value>,
+    meta: Value,
 }
 
 impl<'a> CibouletteResourceIdentifier<'a> {
-    pub fn new(id: Cow<'a, str>, type_: Cow<'a, str>, meta: HashMap<Cow<'a, str>, Value>) -> Self {
+    pub fn new(id: Cow<'a, str>, type_: Cow<'a, str>, meta: Value) -> Self {
         CibouletteResourceIdentifier { id, type_, meta }
     }
 }

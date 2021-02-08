@@ -131,6 +131,123 @@ fn non_uniq_obj() {
 }
 
 #[test]
+fn non_uniq_rel() {
+    let bag = gen_bag();
+    const VAL: &str = r#"
+	{
+		"data":
+		{
+			"id": "6720877a-e27e-4e9e-9ac0-3fff4deb55f2",
+			"type": "english",
+			"attributes":
+			{
+				"hello": "world",
+				"world": "the earth"
+			},
+			"relationships":
+			{
+				"planet":
+				{
+				  "links":
+				  {
+					"self": "/english/6720877a-e27e-4e9e-9ac0-3fff4deb55f2/relationships/planet",
+					"related": "/planet/6720877a-e27e-4e9e-9ac0-3fff4deb55f2/english"
+				  },
+				  "data":
+				  {
+					"type": "planet",
+					"id": "b922a277-aadb-4c4e-b13d-9c4c98b3ad80"
+				  }
+				},
+				"bonjour":
+				{
+				  "links":
+				  {
+					"self": "/english/6720877a-e27e-4e9e-9ac0-3fff4deb55f2/relationships/planet",
+					"related": "/planet/6720877a-e27e-4e9e-9ac0-3fff4deb55f2/english"
+				  },
+				  "data":
+				  {
+					"type": "planet",
+					"id": "b922a277-aadb-4c4e-b13d-9c4c98b3ad80"
+				  }
+				}
+			}
+		}
+	}
+	"#;
+    let mut deserializer = serde_json::Deserializer::from_str(VAL);
+    let doc = CibouletteTopLevelBuilder::deserialize(&mut deserializer).expect("no error");
+    let err: CibouletteError = doc.build(&bag).expect_err("uniqueness error");
+    match err {
+        CibouletteError::UniqRelationship(type_, id) => {
+            assert_eq!(type_, "planet".to_string(), "id mismatch");
+            assert_eq!(
+                id,
+                "b922a277-aadb-4c4e-b13d-9c4c98b3ad80".to_string(),
+                "id mismatch"
+            );
+        }
+        _ => panic!("wrong error type"),
+    };
+}
+
+#[test]
+fn non_uniq_rel2() {
+    let bag = gen_bag();
+    const VAL: &str = r#"
+	{
+		"data":
+		{
+			"id": "6720877a-e27e-4e9e-9ac0-3fff4deb55f2",
+			"type": "english",
+			"attributes":
+			{
+				"hello": "world",
+				"world": "the earth"
+			},
+			"relationships":
+			{
+				"planet":
+				{
+				  "links":
+				  {
+					"self": "/english/6720877a-e27e-4e9e-9ac0-3fff4deb55f2/relationships/planet",
+					"related": "/planet/6720877a-e27e-4e9e-9ac0-3fff4deb55f2/english"
+				  },
+				  "data":
+				  [
+					  {
+						  "type": "planet",
+						  "id": "b922a277-aadb-4c4e-b13d-9c4c98b3ad80"
+					  },
+					  {
+						"type": "planet",
+						"id": "b922a277-aadb-4c4e-b13d-9c4c98b3ad80"
+					  }
+				  ]
+				}
+			}
+		}
+	}
+	"#;
+    let mut deserializer = serde_json::Deserializer::from_str(VAL);
+    let doc = CibouletteTopLevelBuilder::deserialize(&mut deserializer).expect("no error");
+    let err: CibouletteError = doc.build(&bag).expect_err("uniqueness error");
+    match err {
+        CibouletteError::UniqRelationship(type_, id) => {
+            assert_eq!(type_, "planet".to_string(), "id mismatch");
+            assert_eq!(
+                id,
+                "b922a277-aadb-4c4e-b13d-9c4c98b3ad80".to_string(),
+                "id mismatch"
+            );
+        }
+        _ => panic!("wrong error type"),
+    };
+}
+
+#[test]
 fn non_uniq_linked() {
     let bag = gen_bag();
     const VAL: &str = r#"

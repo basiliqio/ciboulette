@@ -111,7 +111,7 @@ impl<'de> serde::de::Visitor<'de> for CibouletteResourceBuilderVisitor {
     {
         let mut id: Option<Cow<'de, str>> = None;
         let mut type_: Option<Cow<'de, str>> = None;
-        let mut meta: Option<HashMap<Cow<'de, str>, Value>> = None;
+        let mut meta: Option<Value> = None;
         let mut attributes: Option<&'de RawValue> = None;
         let mut relationships: Option<HashMap<Cow<'de, str>, CibouletteRelationship<'de>>> = None;
         let mut links: Option<CibouletteLink<'de>> = None;

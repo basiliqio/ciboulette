@@ -7,7 +7,7 @@ use std::fmt::Formatter;
 pub struct CibouletteTopLevelBuilder<'a> {
     data: Option<CibouletteResourceSelectorBuilder<'a>>,
     errors: Option<CibouletteErrorObj<'a>>,
-    meta: Option<Value>,
+    meta: Value,
     links: Option<CibouletteLink<'a>>,
     included: Vec<CibouletteResourceBuilder<'a>>,
     jsonapi: Option<Cow<'a, str>>, // TODO Semver
@@ -18,7 +18,7 @@ pub struct CibouletteTopLevelBuilder<'a> {
 pub struct CibouletteTopLevel<'a> {
     data: Option<CibouletteResourceSelector<'a>>,
     errors: Option<CibouletteErrorObj<'a>>,
-    meta: Option<Value>,
+    meta: Value,
     links: Option<CibouletteLink<'a>>,
     included: Vec<CibouletteResource<'a>>,
     jsonapi: Option<Cow<'a, str>>, // TODO Semver
@@ -167,7 +167,7 @@ impl<'de> serde::de::Visitor<'de> for CibouletteTopLevelBuilderVisitor {
         Ok(CibouletteTopLevelBuilder {
             data,
             errors,
-            meta,
+            meta: meta.unwrap_or_default(),
             links,
             included,
             jsonapi,
@@ -246,7 +246,7 @@ impl<'a> CibouletteTopLevel<'a> {
             match rel.data() {
                 Some(CibouletteResourceIdentifierSelector::One(el)) => {
                     if !linked_set.insert((el.type_(), el.id())) {
-                        return Err(CibouletteError::UniqObj(
+                        return Err(CibouletteError::UniqRelationship(
                             el.type_().to_string(),
                             el.id().to_string(),
                         ));
@@ -255,7 +255,7 @@ impl<'a> CibouletteTopLevel<'a> {
                 Some(CibouletteResourceIdentifierSelector::Many(els)) => {
                     for el in els.iter() {
                         if !linked_set.insert((el.type_(), el.id())) {
-                            return Err(CibouletteError::UniqObj(
+                            return Err(CibouletteError::UniqRelationship(
                                 el.type_().to_string(),
                                 el.id().to_string(),
                             ));
