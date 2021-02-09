@@ -48,6 +48,7 @@ enum CibouletteResourceField {
     Links,
     Ignore,
 }
+
 struct CibouletteResourceFieldVisitor;
 impl<'de> Visitor<'de> for CibouletteResourceFieldVisitor {
     type Value = CibouletteResourceField;
@@ -89,6 +90,7 @@ impl<'de> Visitor<'de> for CibouletteResourceFieldVisitor {
         }
     }
 }
+
 impl<'de> serde::Deserialize<'de> for CibouletteResourceField {
     #[inline]
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
@@ -98,6 +100,7 @@ impl<'de> serde::Deserialize<'de> for CibouletteResourceField {
         serde::Deserializer::deserialize_identifier(deserializer, CibouletteResourceFieldVisitor)
     }
 }
+
 impl<'de> serde::de::Visitor<'de> for CibouletteResourceBuilderVisitor {
     type Value = CibouletteResourceBuilder<'de>;
 
