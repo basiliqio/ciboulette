@@ -2,6 +2,7 @@
 mod body;
 mod config;
 mod errors;
+mod query;
 #[cfg(test)]
 mod tests;
 
