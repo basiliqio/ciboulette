@@ -2,7 +2,9 @@
 mod body;
 mod config;
 mod errors;
+mod member_name;
 mod query;
+
 #[cfg(test)]
 mod tests;
 

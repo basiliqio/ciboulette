@@ -36,6 +36,8 @@ pub enum CibouletteError {
     NoCompleteLinkage(String, String),
     #[error("The key `{0}` must be present {1} `{2}`")]
     KeyClash(String, CibouletteClashDirection, String),
+    #[error("The member name {0} doesn't respect the json:api specification`")]
+    InvalidMemberName(String),
     /// When there is a failure while deserializing the JSON
     #[error(transparent)]
     SerdeJson(#[from] serde_json::Error),
