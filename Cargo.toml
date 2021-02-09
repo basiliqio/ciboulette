@@ -20,3 +20,10 @@ version = "1"
 default-features = false # Disable features which are enabled by default
 features = ["precommit-hook", "run-cargo-check", "run-cargo-fmt"]
 
+[dev-dependencies]
+criterion = { version = "0.3.4", features = [ "html_reports", "cargo_bench_support" ] }
+
+[[bench]]
+name = "ciboulette_benches"
+path = "src/benches/main.rs"
+harness = false
