@@ -2,7 +2,7 @@ use lazy_static::lazy_static;
 use regex::Regex;
 
 lazy_static! {
-    pub static ref MEMBER_NAME_REGEX: Regex = Regex::new(r#"(?x)																		# Disable whitespace consideration in regex
+    static ref MEMBER_NAME_REGEX: Regex = Regex::new(r#"(?x)																		# Disable whitespace consideration in regex
 	^																																# The case of only 1 char
 	[																																
 		a-z 																																# Accept lowercase letters
@@ -65,6 +65,11 @@ lazy_static! {
 	]{1}																																	# Only for last character
 	$
 	"#).unwrap();
+}
+
+#[inline]
+pub fn check_member_name(s: &str) -> bool {
+    MEMBER_NAME_REGEX.is_match(s)
 }
 
 #[cfg(test)]

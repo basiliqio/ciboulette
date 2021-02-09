@@ -11,12 +11,12 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     group.bench_with_input(
         criterion::BenchmarkId::new("regex_member_name", "normal"),
         &"hello_world",
-        |b, i| b.iter(|| ciboulette::MEMBER_NAME_REGEX.is_match(i)),
+        |b, i| b.iter(|| ciboulette::check_member_name(i)),
     );
     group.bench_with_input(
         criterion::BenchmarkId::new("regex_member_name", "unicode"),
         &"hello_😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀_world",
-        |b, i| b.iter(|| ciboulette::MEMBER_NAME_REGEX.is_match(i)),
+        |b, i| b.iter(|| ciboulette::check_member_name(i)),
     );
     group.finish();
 }
