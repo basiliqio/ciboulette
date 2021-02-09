@@ -2,7 +2,7 @@ use lazy_static::lazy_static;
 use regex::Regex;
 
 lazy_static! {
-    pub static ref SPARSE_REGEX: Regex = { Regex::new(r"^fields\[(?P<type>.+)*\]").unwrap() };
+    pub static ref SPARSE_REGEX: Regex = Regex::new(r"^fields\[(?P<type>.+)*\]").unwrap();
 }
 
 #[cfg(test)]
