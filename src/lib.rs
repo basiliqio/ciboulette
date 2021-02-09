@@ -2,7 +2,7 @@
 mod body;
 mod config;
 mod errors;
-mod member_name;
+mod member_name_regex;
 mod query;
 
 #[cfg(test)]
@@ -31,4 +31,4 @@ pub use body::resource_type::CibouletteResourceType;
 pub use body::top_level::{CibouletteTopLevel, CibouletteTopLevelBuilder};
 pub use config::CibouletteConfig;
 pub use errors::{CibouletteClashDirection, CibouletteError};
-pub use member_name::check_member_name;
+pub use member_name_regex::check_member_name;

@@ -217,3 +217,42 @@ impl<'a> CibouletteResourceBuilder<'a> {
         })
     }
 }
+
+impl<'a> CibouletteResource<'a> {
+    fn check_member_name_routine(val: &MessyJsonValue<'a>) -> Option<String> {
+        match val {
+            MessyJsonValue::Obj(map) => {
+                for (k, v) in map.iter() {
+                    if !crate::member_name_regex::check_member_name(&*k) {
+                        return Some(k.to_string());
+                    }
+                    if let Some(x) = Self::check_member_name_routine(v) {
+                        return Some(x);
+                    }
+                }
+                None
+            }
+            MessyJsonValue::Array(arr) => {
+                for element in arr.iter() {
+                    if let Some(x) = Self::check_member_name_routine(element) {
+                        return Some(x);
+                    }
+                }
+                None
+            }
+            _ => None,
+        }
+    }
+
+    pub fn check_member_name(&self) -> Result<(), CibouletteError> {
+        match self.attributes() {
+            Some(attributes) => {
+                if let Some(x) = Self::check_member_name_routine(attributes.inner()) {
+                    return Err(CibouletteError::InvalidMemberName(x));
+                }
+                Ok(())
+            }
+            _ => Ok(()),
+        }
+    }
+}

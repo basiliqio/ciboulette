@@ -3,7 +3,7 @@ use criterion::Criterion;
 use std::time::Duration;
 
 pub fn criterion_benchmark(c: &mut Criterion) {
-    let mut group = c.benchmark_group("Simple object");
+    let mut group = c.benchmark_group("json:api regex");
 
     group.sample_size(1000);
     group.warm_up_time(Duration::from_secs(1));

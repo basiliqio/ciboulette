@@ -109,7 +109,7 @@ impl<'de> serde::de::Visitor<'de> for CibouletteTopLevelBuilderVisitor {
         let mut errors: Option<CibouletteErrorObj<'de>> = None;
         let mut meta: Option<Value> = None;
         let mut links: Option<CibouletteLink<'de>> = None;
-        let mut included: Option<CibouletteResourceSelectorBuilder<'de>> = None; // TODO CHECK THAT it's many
+        let mut included: Option<CibouletteResourceSelectorBuilder<'de>> = None;
         let mut jsonapi: Option<Cow<'de, str>> = None;
 
         while let Some(key) =
@@ -345,11 +345,17 @@ impl<'a> CibouletteTopLevel<'a> {
     pub fn check(&self) -> Result<(), CibouletteError> {
         let rel_set: BTreeSet<(&str, &str)>;
         let included_set: BTreeSet<(&str, &str)>;
+        let check_full_linkage: bool;
 
         self.check_key_clash()?;
-        let check_full_linkage: bool =
-            matches!(self.data(), Some(CibouletteResourceSelector::Many(_)));
-
+        check_full_linkage = match self.data() {
+            Some(CibouletteResourceSelector::Many(_)) => true,
+            Some(CibouletteResourceSelector::One(data)) => {
+                data.check_member_name()?;
+                false
+            }
+            _ => false,
+        };
         self.check_obj_uniqueness()?;
         rel_set = self.check_relationships_uniqueness()?;
         included_set = self.check_included(check_full_linkage)?;
@@ -361,6 +367,7 @@ impl<'a> CibouletteTopLevel<'a> {
                 ));
             }
         }
+
         Ok(())
     }
 }

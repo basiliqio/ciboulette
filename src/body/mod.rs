@@ -15,3 +15,5 @@ pub mod top_level;
 mod tests;
 
 use serde_utils::{handle_ident_in_map_stateful, handle_ident_in_map_stateless};
+
+use crate::member_name_regex::check_member_name;
