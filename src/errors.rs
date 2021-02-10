@@ -26,6 +26,10 @@ impl std::fmt::Display for CibouletteClashDirection {
 pub enum CibouletteError {
     #[error("The json:api type `{0}` is unknown.")]
     UnknownType(String),
+    #[error("No relationship `{1}` for type `{0}`.")]
+    UnknownRelationship(String, String),
+    #[error("No field {1} for type {0}.")]
+    UnknownField(String, String),
     #[error("The resource object ({0}, {1}) should be unique by `type` and `id`")]
     UniqObj(String, String),
     #[error("The resource relationship ({0}, {1}) should be unique by `type` and `id`")]

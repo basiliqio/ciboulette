@@ -56,9 +56,17 @@ fn gen_messy_json_schema3() -> MessyJson {
 }
 
 fn gen_bag() -> CibouletteBag {
-    let type1 = CibouletteResourceType::new(gen_messy_json_schema1(), vec!["planet".to_string()]);
-    let type2 = CibouletteResourceType::new(gen_messy_json_schema2(), vec!["planet".to_string()]);
-    let type3 = CibouletteResourceType::new(gen_messy_json_schema3(), vec![]);
+    let type1 = CibouletteResourceType::new(
+        "english".to_string(),
+        gen_messy_json_schema1(),
+        vec!["planet".to_string()],
+    );
+    let type2 = CibouletteResourceType::new(
+        "french".to_string(),
+        gen_messy_json_schema2(),
+        vec!["planet".to_string()],
+    );
+    let type3 = CibouletteResourceType::new("planet".to_string(), gen_messy_json_schema3(), vec![]);
     CibouletteBag::new(
         vec![
             ("english".to_string(), type1),
