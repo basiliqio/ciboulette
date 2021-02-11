@@ -25,6 +25,7 @@ pub enum CiboulettePageType<'a> {
 }
 
 impl CibouletteQueryParametersFieldVisitor {
+    #[inline]
     fn parse_str<'a, E>(value: Cow<'a, str>) -> Result<CibouletteQueryParametersField<'a>, E>
     where
         E: serde::de::Error,
@@ -50,9 +51,7 @@ impl CibouletteQueryParametersFieldVisitor {
                         let page_type: Cow<'a, str> = match page_type_vec.len() {
                             0 => Cow::Borrowed(""),
                             1 => page_type_vec.pop().unwrap(),
-                            _ => Cow::Owned(
-                                page_type_vec.join("."), // FIXME Try not to allocate more
-                            ),
+                            _ => Cow::Owned(page_type_vec.join(".")),
                         };
                         match page_type.as_ref() {
                             "limit" => Ok(CibouletteQueryParametersField::Page(
@@ -130,6 +129,17 @@ impl<'de> Visitor<'de> for CibouletteQueryParametersFieldVisitor {
         E: serde::de::Error,
     {
         Self::parse_str(Cow::Owned(value))
+    }
+
+    #[inline]
+    fn visit_bytes<E>(self, value: &[u8]) -> Result<Self::Value, E>
+    where
+        E: serde::de::Error,
+    {
+        self.visit_str(
+            std::str::from_utf8(value)
+                .map_err(|e| serde::de::Error::custom(format!("UTF8 error : {}", e)))?,
+        )
     }
 }
 
