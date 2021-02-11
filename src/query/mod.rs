@@ -10,7 +10,8 @@ mod visitor;
 #[cfg(test)]
 mod tests;
 
-use fields::{CiboulettePageType, CibouletteQueryParametersField};
+pub use fields::CiboulettePageType;
+use fields::CibouletteQueryParametersField;
 pub use parsing::{
     CibouletteQueryParameters, CibouletteQueryParametersBuilder, CibouletteSortingElement,
 };

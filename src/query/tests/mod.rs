@@ -3,6 +3,7 @@ use ciboulette_test_helper::*;
 use serde::Deserialize;
 
 mod include;
+mod page;
 mod sorting;
 mod sparse;
 
