@@ -11,11 +11,15 @@ mod visitor;
 mod tests;
 
 use fields::{CiboulettePageType, CibouletteQueryParametersField};
-use parsing::CibouletteQueryParametersBuilder;
+pub use parsing::{CibouletteQueryParameters, CibouletteQueryParametersBuilder};
 use visitor::CibouletteQueryParametersBuilderVisitor;
 
 pub use sorting::CibouletteSortingDirection;
 
 fn explode_by_comma<'a>(i: &'a str) -> Vec<&'a str> {
     i.split(',').collect()
+}
+
+fn explode_by_dot<'a>(i: &'a str) -> Vec<&'a str> {
+    i.split('.').collect()
 }

@@ -77,17 +77,18 @@ impl<'a> CibouletteQueryParametersBuilder<'a> {
                 .ok_or_else(|| CibouletteError::UnknownType(type_.to_string()))?;
         }
         for type_ in types_iter {
-            let curr_type = bag
-                .map()
-                .get(*type_)
-                .ok_or_else(|| CibouletteError::UnknownType(type_.to_string()))?;
-
-            if !wtype.relationships().contains_key(*type_) {
-                return Err(CibouletteError::UnknownRelationship(
-                    wtype.name().clone(),
-                    type_.to_string(),
-                ));
-            }
+            let curr_type_name = match wtype.relationships().get(*type_) {
+                Some(name) => name,
+                None => {
+                    return Err(CibouletteError::UnknownRelationship(
+                        wtype.name().clone(),
+                        type_.to_string(),
+                    ))
+                }
+            };
+            let curr_type = bag.map().get(curr_type_name).ok_or_else(|| {
+                CibouletteError::UnknownRelationship(wtype.name().clone(), type_.to_string())
+            })?;
             wtype = curr_type;
         }
         Ok(wtype)
@@ -139,7 +140,7 @@ impl<'a> CibouletteQueryParametersBuilder<'a> {
     pub fn build(
         self,
         bag: &'a CibouletteBag,
-        main_type: &'a CibouletteResourceType,
+        main_type: Option<&'a CibouletteResourceType>,
     ) -> Result<CibouletteQueryParameters<'a>, CibouletteError> {
         let mut sparse: BTreeMap<&'a CibouletteResourceType, Vec<&'a str>> = BTreeMap::new();
         let mut sorting: Vec<CibouletteSortingElement> = Vec::new();
@@ -177,7 +178,14 @@ impl<'a> CibouletteQueryParametersBuilder<'a> {
                             fields = &fields_and_rel[1..fields_and_rel.len()];
                             x
                         }
-                        Err(_) => main_type,
+                        Err(_) => match main_type {
+                            Some(x) => x,
+                            None => {
+                                return Err(CibouletteError::UnknownType(
+                                    fields_and_rel[0].to_string(),
+                                ))
+                            }
+                        },
                     };
                     Self::check_field_exists(rel, fields)?;
                     sorting.push(CibouletteSortingElement::new(

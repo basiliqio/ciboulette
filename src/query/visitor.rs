@@ -46,7 +46,16 @@ impl<'de> serde::de::Visitor<'de> for CibouletteQueryParametersBuilderVisitor {
         {
             match key {
                 CibouletteQueryParametersField::Include => {
-                    super::handle_ident_in_map_stateless(&mut include, &mut map, "include")?
+                    let mut include_str: Option<&'de str> = None;
+                    super::handle_ident_in_map_stateless(&mut include_str, &mut map, "include")?;
+                    if let Some(include_str) = include_str {
+                        include = Some(
+                            explode_by_comma(include_str)
+                                .into_iter()
+                                .map(|x| explode_by_dot(x))
+                                .collect(),
+                        );
+                    }
                 }
                 CibouletteQueryParametersField::Sparse(type_) => {
                     if sparse

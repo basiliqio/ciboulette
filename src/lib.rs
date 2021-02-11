@@ -28,6 +28,9 @@ pub use body::resource_obj_selector::{
 };
 pub use body::resource_type::CibouletteResourceType;
 pub use body::top_level::{CibouletteTopLevel, CibouletteTopLevelBuilder};
+
+pub use query::{CibouletteQueryParameters, CibouletteQueryParametersBuilder};
+
 pub use config::CibouletteConfig;
 pub use errors::{CibouletteClashDirection, CibouletteError};
 pub use member_name_regex::check_member_name;
