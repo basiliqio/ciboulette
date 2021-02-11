@@ -10,11 +10,21 @@ pub struct CibouletteQueryParametersFieldVisitor;
 
 pub enum CibouletteQueryParametersField<'a> {
     Include,
-    Sparse(Vec<Cow<'a, str>>),
+    Sparse(Vec<&'a str>),
     Sorting,
-    Page,
+    Page(CiboulettePageType<'a>),
     Filter,
     Meta(Cow<'a, str>),
+}
+
+#[derive(Clone, Debug, Ord, PartialOrd, Eq, PartialEq)]
+pub enum CiboulettePageType<'a> {
+    Number,
+    Size,
+    Offset,
+    Limit,
+    Cursor,
+    Other(Cow<'a, str>),
 }
 
 #[derive(Debug, Getters)]
@@ -22,14 +32,14 @@ pub enum CibouletteQueryParametersField<'a> {
 pub struct CibouletteSortingElement<'a> {
     type_: &'a CibouletteResourceType,
     direction: CibouletteSortingDirection,
-    field: Vec<Cow<'a, str>>,
+    field: Vec<&'a str>,
 }
 
 impl<'a> CibouletteSortingElement<'a> {
     pub fn new(
         type_: &'a CibouletteResourceType,
         direction: CibouletteSortingDirection,
-        field: Vec<Cow<'a, str>>,
+        field: Vec<&'a str>,
     ) -> Self {
         CibouletteSortingElement {
             type_,
@@ -43,9 +53,9 @@ impl<'a> CibouletteSortingElement<'a> {
 #[getset(get = "pub")]
 pub struct CibouletteQueryParametersBuilder<'a> {
     include: Option<Vec<Vec<Cow<'a, str>>>>,
-    sparse: BTreeMap<Vec<Cow<'a, str>>, Vec<Cow<'a, str>>>,
-    sorting: Vec<(CibouletteSortingDirection, Vec<Cow<'a, str>>)>,
-    page: Option<Cow<'a, str>>,
+    sparse: BTreeMap<Vec<&'a str>, Vec<&'a str>>,
+    sorting: Vec<(CibouletteSortingDirection, Vec<&'a str>)>,
+    page: BTreeMap<CiboulettePageType<'a>, Cow<'a, str>>,
     filter: Option<Cow<'a, str>>,
     meta: Vec<(Cow<'a, str>, Cow<'a, str>)>,
 }
@@ -54,9 +64,9 @@ pub struct CibouletteQueryParametersBuilder<'a> {
 #[getset(get = "pub")]
 pub struct CibouletteQueryParameters<'a> {
     include: Option<Vec<Vec<Cow<'a, str>>>>,
-    sparse: BTreeMap<&'a CibouletteResourceType, Vec<Cow<'a, str>>>,
+    sparse: BTreeMap<&'a CibouletteResourceType, Vec<&'a str>>,
     sorting: Vec<CibouletteSortingElement<'a>>,
-    page: Option<Cow<'a, str>>, // TODO support multiple page types
+    page: BTreeMap<CiboulettePageType<'a>, Cow<'a, str>>,
     filter: Option<Cow<'a, str>>,
     meta: Vec<(Cow<'a, str>, Cow<'a, str>)>,
 }
@@ -77,16 +87,54 @@ impl<'de> Visitor<'de> for CibouletteQueryParametersFieldVisitor {
         let preemptive_val = match value {
             "include" => Some(CibouletteQueryParametersField::Include),
             "sort" => Some(CibouletteQueryParametersField::Sorting),
-            "page" => Some(CibouletteQueryParametersField::Page),
             "filter" => Some(CibouletteQueryParametersField::Filter),
             _ => None,
         };
         if let Some(preemptive_val) = preemptive_val {
             return Ok(preemptive_val);
         }
-        let res: Option<Vec<Cow<'de, str>>> = sparse::parse_sparse(value);
-        match res {
-            Some(x) => Ok(CibouletteQueryParametersField::Sparse(x)),
+        let has_type = value.find('[');
+        match has_type {
+            Some(type_end_index) => {
+                let type_ = &value[0..type_end_index];
+                match type_ {
+                    "page" => {
+                        let mut page_type_vec =
+                            typed_param::parse_typed_query_param(&value).unwrap_or_default();
+                        let page_type: Cow<'de, str> = match page_type_vec.len() {
+                            0 => Cow::Borrowed(""),
+                            1 => Cow::Borrowed(page_type_vec.pop().unwrap()),
+                            _ => Cow::Owned(
+                                page_type_vec.join("."), // FIXME Try not to allocate more
+                            ),
+                        };
+                        match page_type.as_ref() {
+                            "limit" => Ok(CibouletteQueryParametersField::Page(
+                                CiboulettePageType::Limit,
+                            )),
+                            "size" => Ok(CibouletteQueryParametersField::Page(
+                                CiboulettePageType::Size,
+                            )),
+                            "offset" => Ok(CibouletteQueryParametersField::Page(
+                                CiboulettePageType::Offset,
+                            )),
+                            "number" => Ok(CibouletteQueryParametersField::Page(
+                                CiboulettePageType::Number,
+                            )),
+                            "cursor" => Ok(CibouletteQueryParametersField::Page(
+                                CiboulettePageType::Cursor,
+                            )),
+                            _ => Ok(CibouletteQueryParametersField::Page(
+                                CiboulettePageType::Other(page_type),
+                            )),
+                        }
+                    }
+                    "fields" => Ok(CibouletteQueryParametersField::Sparse(
+                        typed_param::parse_typed_query_param(value).unwrap_or_default(),
+                    )),
+                    _ => Ok(CibouletteQueryParametersField::Meta(Cow::Borrowed(value))),
+                }
+            }
             None => Ok(CibouletteQueryParametersField::Meta(Cow::Borrowed(value))),
         }
     }
@@ -118,11 +166,11 @@ impl<'de> serde::de::Visitor<'de> for CibouletteQueryParametersBuilderVisitor {
     where
         A: serde::de::MapAccess<'de>,
     {
-        let mut sparse: BTreeMap<Vec<Cow<'de, str>>, Vec<Cow<'de, str>>> = BTreeMap::new();
-        let mut sorting: Vec<(CibouletteSortingDirection, Vec<Cow<'de, str>>)> = Vec::new();
+        let mut sparse: BTreeMap<Vec<&'de str>, Vec<&'de str>> = BTreeMap::new();
+        let mut sorting: Vec<(CibouletteSortingDirection, Vec<&'de str>)> = Vec::new();
+        let mut page: BTreeMap<CiboulettePageType<'de>, Cow<'de, str>> = BTreeMap::new();
         let mut meta: Vec<(Cow<'de, str>, Cow<'de, str>)> = Vec::new();
         let mut include: Option<Vec<Vec<Cow<'de, str>>>> = None;
-        let mut page: Option<Cow<'de, str>> = None;
         let mut filter: Option<Cow<'de, str>> = None;
 
         while let Some(key) =
@@ -157,8 +205,18 @@ impl<'de> serde::de::Visitor<'de> for CibouletteQueryParametersBuilderVisitor {
                         &'de str,
                     >(&mut map)?);
                 }
-                CibouletteQueryParametersField::Page => {
-                    super::handle_ident_in_map_stateless(&mut page, &mut map, "page")?
+                CibouletteQueryParametersField::Page(type_) => {
+                    if page
+                        .insert(
+                            type_,
+                            serde::de::MapAccess::next_value::<Cow<'de, str>>(&mut map)?,
+                        )
+                        .is_some()
+                    {
+                        return Err(<A::Error as serde::de::Error>::duplicate_field(
+                            "page[<type>]",
+                        ));
+                    }
                 }
                 CibouletteQueryParametersField::Filter => {
                     super::handle_ident_in_map_stateless(&mut filter, &mut map, "filter")?
@@ -223,7 +281,7 @@ impl<'de> Deserialize<'de> for CibouletteQueryParametersBuilder<'de> {
 impl<'a> CibouletteQueryParametersBuilder<'a> {
     fn check_relationship_exists(
         bag: &'a CibouletteBag,
-        type_list: &[Cow<'a, str>],
+        type_list: &[&'a str],
     ) -> Result<&'a CibouletteResourceType, CibouletteError> {
         let mut wtype: &CibouletteResourceType;
         let mut types_iter = type_list.iter();
@@ -234,16 +292,16 @@ impl<'a> CibouletteQueryParametersBuilder<'a> {
                 .ok_or_else(|| CibouletteError::UnknownType("<empty>".to_string()))?;
             wtype = bag
                 .map()
-                .get(type_.as_ref())
+                .get(*type_)
                 .ok_or_else(|| CibouletteError::UnknownType(type_.to_string()))?;
         }
         for type_ in types_iter {
             let curr_type = bag
                 .map()
-                .get(type_.as_ref())
+                .get(*type_)
                 .ok_or_else(|| CibouletteError::UnknownType(type_.to_string()))?;
 
-            if !wtype.relationships().contains(type_.as_ref()) {
+            if !wtype.relationships().contains(*type_) {
                 return Err(CibouletteError::UnknownRelationship(
                     wtype.name().clone(),
                     type_.to_string(),
@@ -256,7 +314,7 @@ impl<'a> CibouletteQueryParametersBuilder<'a> {
 
     fn check_field_exists(
         type_: &'a CibouletteResourceType,
-        field_list: &[Cow<'a, str>],
+        field_list: &[&'a str],
     ) -> Result<(), CibouletteError> {
         let mut curr_obj: &MessyJson = type_.schema();
         let mut iter = field_list.iter().peekable();
@@ -277,7 +335,7 @@ impl<'a> CibouletteQueryParametersBuilder<'a> {
                     }
                 },
                 MessyJson::Obj(obj) => {
-                    curr_obj = obj.properties().get(field.as_ref()).ok_or_else(|| {
+                    curr_obj = obj.properties().get(*field).ok_or_else(|| {
                         CibouletteError::UnknownField(type_.name().clone(), "<empty>".to_string())
                     })?;
                     continue;
@@ -302,7 +360,7 @@ impl<'a> CibouletteQueryParametersBuilder<'a> {
         bag: &'a CibouletteBag,
         main_type: &'a CibouletteResourceType,
     ) -> Result<CibouletteQueryParameters<'a>, CibouletteError> {
-        let mut sparse: BTreeMap<&'a CibouletteResourceType, Vec<Cow<'a, str>>> = BTreeMap::new();
+        let mut sparse: BTreeMap<&'a CibouletteResourceType, Vec<&'a str>> = BTreeMap::new();
         let mut sorting: Vec<CibouletteSortingElement> = Vec::new();
 
         for (types, fields) in self.sparse.into_iter() {

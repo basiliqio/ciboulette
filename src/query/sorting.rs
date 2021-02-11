@@ -6,8 +6,8 @@ pub enum CibouletteSortingDirection {
     Desc,
 }
 
-pub fn parse_sorting<'a>(s: &'a str) -> Vec<(CibouletteSortingDirection, Vec<Cow<'a, str>>)> {
-    let mut res: Vec<(CibouletteSortingDirection, Vec<Cow<'a, str>>)> = Vec::new();
+pub fn parse_sorting<'a>(s: &'a str) -> Vec<(CibouletteSortingDirection, Vec<&'a str>)> {
+    let mut res: Vec<(CibouletteSortingDirection, Vec<&'a str>)> = Vec::new();
 
     for el in s.split(',') {
         if el.starts_with('-') {
