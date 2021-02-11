@@ -1,7 +1,8 @@
 use ciboulette_test_helper::ciboulette::*;
 use ciboulette_test_helper::*;
-use serde::Deserialize;
 
+mod filter;
+mod filter_simple;
 mod include;
 mod page;
 mod sorting;
