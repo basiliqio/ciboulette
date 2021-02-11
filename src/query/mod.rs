@@ -1,9 +1,15 @@
 use super::*;
 
+mod fields;
 mod parsing;
 mod sorting;
 mod typed_param;
 mod typed_param_regex;
+mod visitor;
+
+use fields::{CiboulettePageType, CibouletteQueryParametersField};
+use parsing::CibouletteQueryParametersBuilder;
+use visitor::CibouletteQueryParametersBuilderVisitor;
 
 pub use sorting::CibouletteSortingDirection;
 
