@@ -1,7 +1,6 @@
 use criterion::*;
 mod parse_body;
 mod regex;
-mod utils;
 
 criterion_group!(
     benches,

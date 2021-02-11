@@ -1,4 +1,3 @@
-use super::*;
 use criterion::Criterion;
 use serde::Deserialize;
 use std::time::Duration;
@@ -82,7 +81,7 @@ const VAL: &str = r#"
 
 pub fn criterion_benchmark(c: &mut Criterion) {
     let mut group = c.benchmark_group("json:api body");
-    let bag = utils::gen_bag();
+    let bag = ciboulette_test_helper::gen_bag();
 
     group.sample_size(1000);
     group.warm_up_time(Duration::from_secs(2));

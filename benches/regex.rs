@@ -1,4 +1,3 @@
-use super::*;
 use criterion::Criterion;
 use std::time::Duration;
 

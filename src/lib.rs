@@ -6,9 +6,6 @@ mod member_name_regex;
 mod query;
 mod serde_utils;
 
-#[cfg(test)]
-mod tests;
-
 use body::resource_obj::CibouletteResourceBuilderVisitor;
 use getset::{Getters, MutGetters};
 use messy_json::*;
