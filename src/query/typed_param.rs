@@ -1,10 +1,15 @@
 use super::*;
 
-pub fn parse_typed_query_param<'a>(s: &'a str) -> Option<Vec<Cow<'a, str>>> {
+pub fn parse_typed_query_param<'a>(s: &str) -> Option<Vec<Cow<'a, str>>> {
     let mut matches = typed_param_regex::TYPED_PARAM_REGEX.captures_iter(s);
     if let Some(whole_match) = matches.next() {
         if let Some(type_) = whole_match.get(1) {
-            let res: Vec<Cow<'a, str>> = type_.as_str().split('.').map(Cow::Borrowed).collect();
+            let res: Vec<Cow<'a, str>> = type_
+                .as_str()
+                .split('.')
+                .map(str::to_string)
+                .map(Cow::Owned)
+                .collect();
             if !res.is_empty() {
                 Some(res)
             } else {

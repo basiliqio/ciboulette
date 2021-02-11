@@ -4,6 +4,7 @@ use serde::Deserialize;
 
 mod include;
 mod sorting;
+mod sparse;
 
 #[inline]
 fn setup(input: &str) -> (CibouletteBag, CibouletteQueryParametersBuilder<'_>) {

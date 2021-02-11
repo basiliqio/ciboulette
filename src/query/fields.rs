@@ -24,20 +24,12 @@ pub enum CiboulettePageType<'a> {
     Other(Cow<'a, str>),
 }
 
-impl<'de> Visitor<'de> for CibouletteQueryParametersFieldVisitor {
-    type Value = CibouletteQueryParametersField<'de>;
-
-    #[inline]
-    fn expecting(&self, formatter: &mut Formatter) -> std::fmt::Result {
-        Formatter::write_str(formatter, "field identifier")
-    }
-
-    #[inline]
-    fn visit_borrowed_str<E>(self, value: &'de str) -> Result<Self::Value, E>
+impl CibouletteQueryParametersFieldVisitor {
+    fn parse_str<'a, E>(value: Cow<'a, str>) -> Result<CibouletteQueryParametersField<'a>, E>
     where
         E: serde::de::Error,
     {
-        let preemptive_val = match value {
+        let preemptive_val = match value.as_ref() {
             "include" => Some(CibouletteQueryParametersField::Include),
             "sort" => Some(CibouletteQueryParametersField::Sorting),
             "filter" => Some(CibouletteQueryParametersField::Filter),
@@ -53,8 +45,9 @@ impl<'de> Visitor<'de> for CibouletteQueryParametersFieldVisitor {
                 match type_ {
                     "page" => {
                         let mut page_type_vec =
-                            typed_param::parse_typed_query_param(value).unwrap_or_default();
-                        let page_type: Cow<'de, str> = match page_type_vec.len() {
+                            typed_param::parse_typed_query_param(&value[type_end_index..])
+                                .unwrap_or_default();
+                        let page_type: Cow<'a, str> = match page_type_vec.len() {
                             0 => Cow::Borrowed(""),
                             1 => page_type_vec.pop().unwrap(),
                             _ => Cow::Owned(
@@ -83,11 +76,13 @@ impl<'de> Visitor<'de> for CibouletteQueryParametersFieldVisitor {
                         }
                     }
                     "fields" => Ok(CibouletteQueryParametersField::Sparse(
-                        typed_param::parse_typed_query_param(value).unwrap_or_default(),
+                        typed_param::parse_typed_query_param(&value[type_end_index..])
+                            .unwrap_or_default(),
                     )),
                     "filter" => {
                         let mut type_vec =
-                            typed_param::parse_typed_query_param(value).unwrap_or_default();
+                            typed_param::parse_typed_query_param(&value[type_end_index..])
+                                .unwrap_or_default();
                         let type_ = match type_vec.len() {
                             0 => Cow::Borrowed(""),
                             1 => type_vec.pop().unwrap(),
@@ -97,11 +92,44 @@ impl<'de> Visitor<'de> for CibouletteQueryParametersFieldVisitor {
                         };
                         Ok(CibouletteQueryParametersField::FilterTyped(type_))
                     }
-                    _ => Ok(CibouletteQueryParametersField::Meta(Cow::Borrowed(value))),
+                    _ => Ok(CibouletteQueryParametersField::Meta(value)),
                 }
             }
-            None => Ok(CibouletteQueryParametersField::Meta(Cow::Borrowed(value))),
+            None => Ok(CibouletteQueryParametersField::Meta(value)),
         }
+    }
+}
+
+impl<'de> Visitor<'de> for CibouletteQueryParametersFieldVisitor {
+    type Value = CibouletteQueryParametersField<'de>;
+
+    #[inline]
+    fn expecting(&self, formatter: &mut Formatter) -> std::fmt::Result {
+        Formatter::write_str(formatter, "field identifier")
+    }
+
+    #[inline]
+    fn visit_borrowed_str<E>(self, value: &'de str) -> Result<Self::Value, E>
+    where
+        E: serde::de::Error,
+    {
+        Self::parse_str(Cow::Borrowed(value))
+    }
+
+    #[inline]
+    fn visit_str<E>(self, value: &str) -> Result<Self::Value, E>
+    where
+        E: serde::de::Error,
+    {
+        Self::parse_str(Cow::Owned(value.to_string()))
+    }
+
+    #[inline]
+    fn visit_string<E>(self, value: String) -> Result<Self::Value, E>
+    where
+        E: serde::de::Error,
+    {
+        Self::parse_str(Cow::Owned(value))
     }
 }
 

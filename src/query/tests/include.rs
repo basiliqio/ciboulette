@@ -72,7 +72,7 @@ fn empty() {
         .build(&bag, None)
         .expect_err("not to build correctly");
     assert_eq!(
-        matches!(err, CibouletteError::UnknownType(type_) if type_ == ""),
+        matches!(err, CibouletteError::UnknownType(type_) if type_.is_empty()),
         true,
         "wrong error type"
     );
