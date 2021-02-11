@@ -1,19 +1,20 @@
 use super::*;
 use serde::de::{DeserializeSeed, Deserializer};
+use std::borrow::Borrow;
 
 #[derive(Debug, Getters)]
 #[getset(get = "pub")]
 pub struct CibouletteSortingElement<'a> {
     type_: &'a CibouletteResourceType,
     direction: CibouletteSortingDirection,
-    field: Vec<&'a str>,
+    field: Cow<'a, str>,
 }
 
 impl<'a> CibouletteSortingElement<'a> {
     pub fn new(
         type_: &'a CibouletteResourceType,
         direction: CibouletteSortingDirection,
-        field: Vec<&'a str>,
+        field: Cow<'a, str>,
     ) -> Self {
         CibouletteSortingElement {
             type_,
@@ -26,9 +27,9 @@ impl<'a> CibouletteSortingElement<'a> {
 #[derive(Debug, Getters)]
 #[getset(get = "pub")]
 pub struct CibouletteQueryParametersBuilder<'a> {
-    pub(super) include: Option<Vec<Vec<&'a str>>>,
-    pub(super) sparse: BTreeMap<Vec<&'a str>, Vec<&'a str>>,
-    pub(super) sorting: Vec<(CibouletteSortingDirection, Vec<&'a str>)>,
+    pub(super) include: Option<Vec<Vec<Cow<'a, str>>>>,
+    pub(super) sparse: BTreeMap<Vec<Cow<'a, str>>, Vec<Cow<'a, str>>>,
+    pub(super) sorting: Vec<(CibouletteSortingDirection, Cow<'a, str>)>,
     pub(super) page: BTreeMap<CiboulettePageType<'a>, Cow<'a, str>>,
     pub(super) filter: Option<Cow<'a, str>>,
     pub(super) filter_typed: BTreeMap<Cow<'a, str>, Cow<'a, str>>,
@@ -39,7 +40,7 @@ pub struct CibouletteQueryParametersBuilder<'a> {
 #[getset(get = "pub")]
 pub struct CibouletteQueryParameters<'a> {
     include: Option<Vec<&'a CibouletteResourceType>>,
-    sparse: BTreeMap<&'a CibouletteResourceType, Vec<&'a str>>,
+    sparse: BTreeMap<&'a CibouletteResourceType, Vec<Cow<'a, str>>>,
     sorting: Vec<CibouletteSortingElement<'a>>,
     page: BTreeMap<CiboulettePageType<'a>, Cow<'a, str>>,
     filter: Option<Cow<'a, str>>,
@@ -62,7 +63,7 @@ impl<'de> Deserialize<'de> for CibouletteQueryParametersBuilder<'de> {
 impl<'a> CibouletteQueryParametersBuilder<'a> {
     fn check_relationship_exists(
         bag: &'a CibouletteBag,
-        type_list: &[&'a str],
+        type_list: &[Cow<'a, str>],
     ) -> Result<&'a CibouletteResourceType, CibouletteError> {
         let mut wtype: &CibouletteResourceType;
         let mut types_iter = type_list.iter();
@@ -73,11 +74,11 @@ impl<'a> CibouletteQueryParametersBuilder<'a> {
                 .ok_or_else(|| CibouletteError::UnknownType("<empty>".to_string()))?;
             wtype = bag
                 .map()
-                .get(*type_)
+                .get(type_.as_ref())
                 .ok_or_else(|| CibouletteError::UnknownType(type_.to_string()))?;
         }
         for type_ in types_iter {
-            let curr_type_name = match wtype.relationships().get(*type_) {
+            let curr_type_name = match wtype.relationships().get(type_.as_ref()) {
                 Some(name) => name,
                 None => {
                     return Err(CibouletteError::UnknownRelationship(
@@ -96,7 +97,26 @@ impl<'a> CibouletteQueryParametersBuilder<'a> {
 
     fn check_field_exists(
         type_: &'a CibouletteResourceType,
-        field_list: &[&'a str],
+        field: &str,
+    ) -> Result<(), CibouletteError> {
+        match type_.schema() {
+            MessyJson::Obj(obj) => match obj.properties().contains_key(field) {
+                true => Ok(()),
+                false => Err(CibouletteError::UnknownField(
+                    type_.name().clone(),
+                    field.to_string(),
+                )),
+            },
+            _ => Err(CibouletteError::UnknownField(
+                type_.name().clone(),
+                field.to_string(),
+            )),
+        }
+    }
+
+    fn check_fields_exists(
+        type_: &'a CibouletteResourceType,
+        field_list: &[Cow<'a, str>],
     ) -> Result<(), CibouletteError> {
         let mut curr_obj: &MessyJson = type_.schema();
         let mut iter = field_list.iter().peekable();
@@ -117,10 +137,13 @@ impl<'a> CibouletteQueryParametersBuilder<'a> {
                     }
                 },
                 MessyJson::Obj(obj) => {
-                    curr_obj = obj.properties().get(*field).ok_or_else(|| {
-                        CibouletteError::UnknownField(type_.name().clone(), "<empty>".to_string())
+                    curr_obj = obj.properties().get(field.as_ref()).ok_or_else(|| {
+                        CibouletteError::UnknownField(type_.name().clone(), field.to_string())
                     })?;
-                    continue;
+                    match iter.peek().is_some() {
+                        true => continue,
+                        false => return Ok(()),
+                    }
                 }
             }
         }
@@ -142,7 +165,7 @@ impl<'a> CibouletteQueryParametersBuilder<'a> {
         bag: &'a CibouletteBag,
         main_type: Option<&'a CibouletteResourceType>,
     ) -> Result<CibouletteQueryParameters<'a>, CibouletteError> {
-        let mut sparse: BTreeMap<&'a CibouletteResourceType, Vec<&'a str>> = BTreeMap::new();
+        let mut sparse: BTreeMap<&'a CibouletteResourceType, Vec<Cow<'a, str>>> = BTreeMap::new();
         let mut sorting: Vec<CibouletteSortingElement> = Vec::new();
         let include: Option<Vec<&'a CibouletteResourceType>> = match self.include {
             None => None,
@@ -156,46 +179,20 @@ impl<'a> CibouletteQueryParametersBuilder<'a> {
         };
         for (types, fields) in self.sparse.into_iter() {
             let rel = Self::check_relationship_exists(bag, types.as_slice())?;
-            Self::check_field_exists(rel, fields.as_slice())?;
+            Self::check_fields_exists(rel, fields.as_slice())?;
             sparse.insert(rel, fields);
         }
 
-        for (direction, fields_and_rel) in self.sorting.into_iter() {
-            let mut fields = &fields_and_rel[..];
-            match fields_and_rel.len() {
-                0 => return Err(CibouletteError::UnknownType("<empty>".to_string())),
-                1 => {
-                    let rel = Self::check_relationship_exists(bag, fields_and_rel.as_slice())?;
-
-                    sorting.push(CibouletteSortingElement::new(rel, direction, vec![]));
-                }
-                _ => {
-                    let rel = match Self::check_relationship_exists(
-                        bag,
-                        &fields_and_rel.as_slice()[0..1],
-                    ) {
-                        Ok(x) => {
-                            fields = &fields_and_rel[1..fields_and_rel.len()];
-                            x
-                        }
-                        Err(_) => match main_type {
-                            Some(x) => x,
-                            None => {
-                                return Err(CibouletteError::UnknownType(
-                                    fields_and_rel[0].to_string(),
-                                ))
-                            }
-                        },
-                    };
-                    Self::check_field_exists(rel, fields)?;
-                    sorting.push(CibouletteSortingElement::new(
-                        rel,
-                        direction,
-                        fields.to_vec(),
-                    ));
+        match (main_type, self.sorting.len()) {
+            (_, 0) => (),
+            (Some(main_type), _) => {
+                for (direction, field) in self.sorting.into_iter() {
+                    Self::check_field_exists(main_type, &field)?;
+                    sorting.push(CibouletteSortingElement::new(main_type, direction, field))
                 }
             }
-        }
+            (None, _) => return Err(CibouletteError::IncompatibleSorting),
+        };
 
         let res = CibouletteQueryParameters {
             include,

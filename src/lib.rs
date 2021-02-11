@@ -29,7 +29,10 @@ pub use body::resource_obj_selector::{
 pub use body::resource_type::CibouletteResourceType;
 pub use body::top_level::{CibouletteTopLevel, CibouletteTopLevelBuilder};
 
-pub use query::{CibouletteQueryParameters, CibouletteQueryParametersBuilder};
+pub use query::{
+    CibouletteQueryParameters, CibouletteQueryParametersBuilder, CibouletteSortingDirection,
+    CibouletteSortingElement,
+};
 
 pub use config::CibouletteConfig;
 pub use errors::{CibouletteClashDirection, CibouletteError};

@@ -1,5 +1,6 @@
 use super::*;
 use serde::de::{DeserializeSeed, Deserializer};
+use std::borrow::Borrow;
 use std::fmt::Formatter;
 
 const CIBOULETTE_QUERY_PARAMETERS_FIELDS: &[&str] = &[
@@ -28,12 +29,12 @@ impl<'de> serde::de::Visitor<'de> for CibouletteQueryParametersBuilderVisitor {
     where
         A: serde::de::MapAccess<'de>,
     {
-        let mut sparse: BTreeMap<Vec<&'de str>, Vec<&'de str>> = BTreeMap::new();
-        let mut sorting: Vec<(CibouletteSortingDirection, Vec<&'de str>)> = Vec::new();
+        let mut sparse: BTreeMap<Vec<Cow<'de, str>>, Vec<Cow<'de, str>>> = BTreeMap::new();
+        let mut sorting: Vec<(CibouletteSortingDirection, Cow<'de, str>)> = Vec::new();
         let mut page: BTreeMap<CiboulettePageType<'de>, Cow<'de, str>> = BTreeMap::new();
         let mut filter_typed: BTreeMap<Cow<'de, str>, Cow<'de, str>> = BTreeMap::new();
         let mut meta: Vec<(Cow<'de, str>, Cow<'de, str>)> = Vec::new();
-        let mut include: Option<Vec<Vec<&'de str>>> = None;
+        let mut include: Option<Vec<Vec<Cow<'de, str>>>> = None;
         let mut filter: Option<Cow<'de, str>> = None;
 
         while let Some(key) =
@@ -46,7 +47,7 @@ impl<'de> serde::de::Visitor<'de> for CibouletteQueryParametersBuilderVisitor {
         {
             match key {
                 CibouletteQueryParametersField::Include => {
-                    let mut include_str: Option<&'de str> = None;
+                    let mut include_str: Option<Cow<'de, str>> = None;
                     super::handle_ident_in_map_stateless(&mut include_str, &mut map, "include")?;
                     if let Some(include_str) = include_str {
                         include = Some(
@@ -61,7 +62,7 @@ impl<'de> serde::de::Visitor<'de> for CibouletteQueryParametersBuilderVisitor {
                     if sparse
                         .insert(
                             type_,
-                            explode_by_comma(&serde::de::MapAccess::next_value::<&'de str>(
+                            explode_by_comma(serde::de::MapAccess::next_value::<Cow<'de, str>>(
                                 &mut map,
                             )?),
                         )
@@ -73,9 +74,8 @@ impl<'de> serde::de::Visitor<'de> for CibouletteQueryParametersBuilderVisitor {
                     }
                 }
                 CibouletteQueryParametersField::Sorting => {
-                    sorting = super::sorting::parse_sorting(serde::de::MapAccess::next_value::<
-                        &'de str,
-                    >(&mut map)?);
+                    let s = serde::de::MapAccess::next_value::<Cow<'de, str>>(&mut map)?;
+                    sorting = super::sorting::parse_sorting(&s);
                 }
                 CibouletteQueryParametersField::Page(type_) => {
                     if page

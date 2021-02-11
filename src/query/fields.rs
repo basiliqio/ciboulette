@@ -6,7 +6,7 @@ pub struct CibouletteQueryParametersFieldVisitor;
 
 pub enum CibouletteQueryParametersField<'a> {
     Include,
-    Sparse(Vec<&'a str>),
+    Sparse(Vec<Cow<'a, str>>),
     Sorting,
     Page(CiboulettePageType<'a>),
     Filter,
@@ -53,10 +53,10 @@ impl<'de> Visitor<'de> for CibouletteQueryParametersFieldVisitor {
                 match type_ {
                     "page" => {
                         let mut page_type_vec =
-                            typed_param::parse_typed_query_param(&value).unwrap_or_default();
+                            typed_param::parse_typed_query_param(value).unwrap_or_default();
                         let page_type: Cow<'de, str> = match page_type_vec.len() {
                             0 => Cow::Borrowed(""),
-                            1 => Cow::Borrowed(page_type_vec.pop().unwrap()),
+                            1 => page_type_vec.pop().unwrap(),
                             _ => Cow::Owned(
                                 page_type_vec.join("."), // FIXME Try not to allocate more
                             ),
@@ -90,7 +90,7 @@ impl<'de> Visitor<'de> for CibouletteQueryParametersFieldVisitor {
                             typed_param::parse_typed_query_param(value).unwrap_or_default();
                         let type_ = match type_vec.len() {
                             0 => Cow::Borrowed(""),
-                            1 => Cow::Borrowed(type_vec.pop().unwrap()),
+                            1 => type_vec.pop().unwrap(),
                             _ => Cow::Owned(
                                 type_vec.join("."), // FIXME Try not to allocate more
                             ),
