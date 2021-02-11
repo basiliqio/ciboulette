@@ -14,6 +14,7 @@ pub enum CibouletteQueryParametersField<'a> {
     Sorting,
     Page(CiboulettePageType<'a>),
     Filter,
+    FilterTyped(Cow<'a, str>),
     Meta(Cow<'a, str>),
 }
 
@@ -57,6 +58,7 @@ pub struct CibouletteQueryParametersBuilder<'a> {
     sorting: Vec<(CibouletteSortingDirection, Vec<&'a str>)>,
     page: BTreeMap<CiboulettePageType<'a>, Cow<'a, str>>,
     filter: Option<Cow<'a, str>>,
+    filter_typed: BTreeMap<Cow<'a, str>, Cow<'a, str>>,
     meta: Vec<(Cow<'a, str>, Cow<'a, str>)>,
 }
 
@@ -68,6 +70,7 @@ pub struct CibouletteQueryParameters<'a> {
     sorting: Vec<CibouletteSortingElement<'a>>,
     page: BTreeMap<CiboulettePageType<'a>, Cow<'a, str>>,
     filter: Option<Cow<'a, str>>,
+    filter_typed: BTreeMap<Cow<'a, str>, Cow<'a, str>>,
     meta: Vec<(Cow<'a, str>, Cow<'a, str>)>,
 }
 
@@ -132,6 +135,18 @@ impl<'de> Visitor<'de> for CibouletteQueryParametersFieldVisitor {
                     "fields" => Ok(CibouletteQueryParametersField::Sparse(
                         typed_param::parse_typed_query_param(value).unwrap_or_default(),
                     )),
+                    "filter" => {
+                        let mut type_vec =
+                            typed_param::parse_typed_query_param(value).unwrap_or_default();
+                        let type_ = match type_vec.len() {
+                            0 => Cow::Borrowed(""),
+                            1 => Cow::Borrowed(type_vec.pop().unwrap()),
+                            _ => Cow::Owned(
+                                type_vec.join("."), // FIXME Try not to allocate more
+                            ),
+                        };
+                        Ok(CibouletteQueryParametersField::FilterTyped(type_))
+                    }
                     _ => Ok(CibouletteQueryParametersField::Meta(Cow::Borrowed(value))),
                 }
             }
@@ -169,6 +184,7 @@ impl<'de> serde::de::Visitor<'de> for CibouletteQueryParametersBuilderVisitor {
         let mut sparse: BTreeMap<Vec<&'de str>, Vec<&'de str>> = BTreeMap::new();
         let mut sorting: Vec<(CibouletteSortingDirection, Vec<&'de str>)> = Vec::new();
         let mut page: BTreeMap<CiboulettePageType<'de>, Cow<'de, str>> = BTreeMap::new();
+        let mut filter_typed: BTreeMap<Cow<'de, str>, Cow<'de, str>> = BTreeMap::new();
         let mut meta: Vec<(Cow<'de, str>, Cow<'de, str>)> = Vec::new();
         let mut include: Option<Vec<Vec<Cow<'de, str>>>> = None;
         let mut filter: Option<Cow<'de, str>> = None;
@@ -221,6 +237,19 @@ impl<'de> serde::de::Visitor<'de> for CibouletteQueryParametersBuilderVisitor {
                 CibouletteQueryParametersField::Filter => {
                     super::handle_ident_in_map_stateless(&mut filter, &mut map, "filter")?
                 }
+                CibouletteQueryParametersField::FilterTyped(type_) => {
+                    if filter_typed
+                        .insert(
+                            type_,
+                            serde::de::MapAccess::next_value::<Cow<'de, str>>(&mut map)?,
+                        )
+                        .is_some()
+                    {
+                        return Err(<A::Error as serde::de::Error>::duplicate_field(
+                            "filter[<type>]",
+                        ));
+                    }
+                }
                 CibouletteQueryParametersField::Meta(key) => {
                     meta.push((
                         key,
@@ -243,6 +272,7 @@ impl<'de> serde::de::Visitor<'de> for CibouletteQueryParametersBuilderVisitor {
             include,
             sparse,
             filter,
+            filter_typed,
             page,
             sorting,
             meta,
@@ -404,6 +434,7 @@ impl<'a> CibouletteQueryParametersBuilder<'a> {
             page: self.page,
             meta: self.meta,
             filter: self.filter,
+            filter_typed: self.filter_typed,
             sparse,
             sorting,
         };
