@@ -1,6 +1,5 @@
 use super::*;
 use serde::de::{DeserializeSeed, Deserializer};
-use std::borrow::Borrow;
 use std::fmt::Formatter;
 
 const CIBOULETTE_QUERY_PARAMETERS_FIELDS: &[&str] = &[
@@ -33,7 +32,7 @@ impl<'de> serde::de::Visitor<'de> for CibouletteQueryParametersBuilderVisitor {
         let mut sorting: Vec<(CibouletteSortingDirection, Cow<'de, str>)> = Vec::new();
         let mut page: BTreeMap<CiboulettePageType<'de>, Cow<'de, str>> = BTreeMap::new();
         let mut filter_typed: BTreeMap<Cow<'de, str>, Cow<'de, str>> = BTreeMap::new();
-        let mut meta: Vec<(Cow<'de, str>, Cow<'de, str>)> = Vec::new();
+        let mut meta: BTreeMap<Cow<'de, str>, Cow<'de, str>> = BTreeMap::new();
         let mut include: Option<Vec<Vec<Cow<'de, str>>>> = None;
         let mut filter: Option<Cow<'de, str>> = None;
 
@@ -102,19 +101,10 @@ impl<'de> serde::de::Visitor<'de> for CibouletteQueryParametersBuilderVisitor {
                     }
                 }
                 CibouletteQueryParametersField::Meta(key) => {
-                    meta.push((
+                    meta.insert(
                         key,
                         serde::de::MapAccess::next_value::<Cow<'de, str>>(&mut map)?,
-                    ));
-                }
-                _ => {
-                    let _ =
-                        match serde::de::MapAccess::next_value::<serde::de::IgnoredAny>(&mut map) {
-                            Ok(val) => val,
-                            Err(err) => {
-                                return Err(err);
-                            }
-                        };
+                    );
                 }
             }
         }

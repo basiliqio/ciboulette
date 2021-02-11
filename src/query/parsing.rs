@@ -1,6 +1,5 @@
 use super::*;
 use serde::de::{DeserializeSeed, Deserializer};
-use std::borrow::Borrow;
 
 #[derive(Debug, Getters)]
 #[getset(get = "pub")]
@@ -33,7 +32,7 @@ pub struct CibouletteQueryParametersBuilder<'a> {
     pub(super) page: BTreeMap<CiboulettePageType<'a>, Cow<'a, str>>,
     pub(super) filter: Option<Cow<'a, str>>,
     pub(super) filter_typed: BTreeMap<Cow<'a, str>, Cow<'a, str>>,
-    pub(super) meta: Vec<(Cow<'a, str>, Cow<'a, str>)>,
+    pub(super) meta: BTreeMap<Cow<'a, str>, Cow<'a, str>>,
 }
 
 #[derive(Debug, Getters)]
@@ -45,7 +44,7 @@ pub struct CibouletteQueryParameters<'a> {
     page: BTreeMap<CiboulettePageType<'a>, Cow<'a, str>>,
     filter: Option<Cow<'a, str>>,
     filter_typed: BTreeMap<Cow<'a, str>, Cow<'a, str>>,
-    meta: Vec<(Cow<'a, str>, Cow<'a, str>)>,
+    meta: BTreeMap<Cow<'a, str>, Cow<'a, str>>,
 }
 
 impl<'de> Deserialize<'de> for CibouletteQueryParametersBuilder<'de> {

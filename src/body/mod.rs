@@ -12,5 +12,3 @@ pub mod top_level;
 
 #[cfg(test)]
 mod tests;
-
-use crate::member_name_regex::check_member_name;

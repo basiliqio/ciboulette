@@ -4,6 +4,7 @@ use ciboulette_test_helper::*;
 mod filter;
 mod filter_simple;
 mod include;
+mod meta;
 mod page;
 mod sorting;
 mod sparse;
