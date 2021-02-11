@@ -8,11 +8,10 @@ fn key_clash_data_error() {
 		"data":
 		{
 			"id": "6720877a-e27e-4e9e-9ac0-3fff4deb55f2",
-			"type": "english",
+			"type": "comments",
 			"attributes":
 			{
-				"hello": "world",
-				"world": "the earth"
+				"body": "world"
 			}
 		},
 		"errors":
@@ -49,14 +48,14 @@ fn key_clash_included_without_data() {
 		[
 			{
 				"id": "b922a277-aadb-4c4e-b13d-9c4c98b3ad80",
-				"type": "planet",
+				"type": "comments",
 				"attributes":
 				{
-					"p": "earth"
+					"body": "world"
 				},
 				"links":
 				{
-					"self": "/planet/b922a277-aadb-4c4e-b13d-9c4c98b3ad80"
+					"self": "/comments/b922a277-aadb-4c4e-b13d-9c4c98b3ad80"
 				}
 			}
 		],

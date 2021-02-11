@@ -7,21 +7,19 @@ fn duplicate_field_top_level() {
 		"data":
 		{
 			"id": "6720877a-e27e-4e9e-9ac0-3fff4deb55f2",
-			"type": "englisheeeeee",
+			"type": "commentsssss",
 			"attributes":
 			{
-				"hello": "world",
-				"world": "the earth"
+				"body": "hello"
 			}
 		},
 		"data":
 		{
 			"id": "6720877a-e27e-4e9e-9ac0-3fff4deb55f2",
-			"type": "englisheeeeee",
+			"type": "commentsssss",
 			"attributes":
 			{
-				"hello": "world",
-				"world": "the earth"
+				"body": "hello"
 			}
 		}
 	}
@@ -37,12 +35,11 @@ fn duplicate_field_data_level() {
 		"data":
 		{
 			"id": "6720877a-e27e-4e9e-9ac0-3fff4deb55f2",
-			"type": "englisheeeeee",
-			"type": "englisheeeeee",
+			"type": "comments",
+			"type": "comments",
 			"attributes":
 			{
-				"hello": "world",
-				"world": "the earth"
+				"body": "world"
 			}
 		},
 	}
@@ -58,11 +55,10 @@ fn wrong_argument_type_id() {
 		"data":
 		{
 			"id": 65,
-			"type": "englisheeeeee",
+			"type": "comments",
 			"attributes":
 			{
-				"hello": "world",
-				"world": "the earth"
+				"body": "world"
 			}
 		},
 	}
@@ -81,8 +77,7 @@ fn wrong_argument_type_type() {
 			"type": 3,
 			"attributes":
 			{
-				"hello": "world",
-				"world": "the earth"
+				"body": "world"
 			}
 		},
 	}
@@ -110,12 +105,11 @@ fn unknown_field() {
 		"data":
 		{
 			"id": "6720877a-e27e-4e9e-9ac0-3fff4deb55f2",
-			"type": "english",
+			"type": "comments",
 			"HOLAAAAAAAAAAAAAAA": "CHICOOOOOOOOOOOOOOOOOOOOOOOOOOOOOS",
 			"attributes":
 			{
-				"hello": "world",
-				"world": "the earth"
+				"body": "world"
 			}
 		}
 	}
@@ -147,12 +141,11 @@ fn unknown_meta() {
 				"como": 5317
 			},
 			"id": "6720877a-e27e-4e9e-9ac0-3fff4deb55f2",
-			"type": "english",
+			"type": "comments",
 			"HOLAAAAAAAAAAAAAAA": "CHICOOOOOOOOOOOOOOOOOOOOOOOOOOOOOS",
 			"attributes":
 			{
-				"hello": "world",
-				"world": "the earth"
+				"body": "world"
 			}
 		}
 	}

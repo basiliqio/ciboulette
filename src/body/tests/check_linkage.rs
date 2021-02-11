@@ -9,24 +9,23 @@ fn ok() {
 		[
 			{
 				"id": "6720877a-e27e-4e9e-9ac0-3fff4deb55f2",
-				"type": "english",
+				"type": "comments",
 				"attributes":
 				{
-					"hello": "world",
-					"world": "the earth"
+					"body": "world"
 				},
 				"relationships":
 				{
-					"planet":
+					"author":
 					{
 					  "links":
 					  {
-						"self": "/english/6720877a-e27e-4e9e-9ac0-3fff4deb55f2/relationships/planet",
-						"related": "/planet/6720877a-e27e-4e9e-9ac0-3fff4deb55f2/english"
+						"self": "/comments/6720877a-e27e-4e9e-9ac0-3fff4deb55f2/relationships/author",
+						"related": "/author/6720877a-e27e-4e9e-9ac0-3fff4deb55f2/comments"
 					  },
 					  "data":
 					  {
-						"type": "planet",
+						"type": "peoples",
 						"id": "b922a277-aadb-4c4e-b13d-9c4c98b3ad80"
 					  }
 					}
@@ -35,20 +34,21 @@ fn ok() {
 		],
 		"links":
 		{
-			"self": "/english/6720877a-e27e-4e9e-9ac0-3fff4deb55f2"
+			"self": "/comments/6720877a-e27e-4e9e-9ac0-3fff4deb55f2"
 		},
 		"included":
 		[
 			{
 				"id": "b922a277-aadb-4c4e-b13d-9c4c98b3ad80",
-				"type": "planet",
+				"type": "peoples",
 				"attributes":
 				{
-					"p": "earth"
+					"first-name": "john",
+					"last-name": "doe"
 				},
 				"links":
 				{
-					"self": "/planet/b922a277-aadb-4c4e-b13d-9c4c98b3ad80"
+					"self": "/peoples/b922a277-aadb-4c4e-b13d-9c4c98b3ad80"
 				}
 			}
 		]
@@ -69,24 +69,23 @@ fn missing_link() {
 		[
 			{
 				"id": "6720877a-e27e-4e9e-9ac0-3fff4deb55f2",
-				"type": "english",
+				"type": "comments",
 				"attributes":
 				{
-					"hello": "world",
-					"world": "the earth"
+					"body": "world"
 				},
 				"relationships":
 				{
-					"planet":
+					"author":
 					{
 					  "links":
 					  {
-						"self": "/english/6720877a-e27e-4e9e-9ac0-3fff4deb55f2/relationships/planet",
-						"related": "/planet/6720877a-e27e-4e9e-9ac0-3fff4deb55f2/english"
+						"self": "/comments/6720877a-e27e-4e9e-9ac0-3fff4deb55f2/relationships/author",
+						"related": "/author/6720877a-e27e-4e9e-9ac0-3fff4deb55f2/comments"
 					  },
 					  "data":
 					  {
-						"type": "planet",
+						"type": "peoples",
 						"id": "b922a277-aadb-4c4e-b13d-9c4c98b3ad80"
 					  }
 					}
@@ -95,7 +94,7 @@ fn missing_link() {
 		],
 		"links":
 		{
-			"self": "/english/6720877a-e27e-4e9e-9ac0-3fff4deb55f2"
+			"self": "/comments/6720877a-e27e-4e9e-9ac0-3fff4deb55f2"
 		},
 		"included": []
 	}
@@ -106,7 +105,7 @@ fn missing_link() {
     let err = doc_builder.build(&bag).expect_err("missing link");
     match err {
         CibouletteError::MissingLink(type_, id) => {
-            assert_eq!(type_, "planet".to_string(), "type mismatch");
+            assert_eq!(type_, "peoples".to_string(), "type mismatch");
             assert_eq!(
                 id,
                 "b922a277-aadb-4c4e-b13d-9c4c98b3ad80".to_string(),
@@ -126,24 +125,23 @@ fn not_fully_linked() {
 		[
 			{
 				"id": "6720877a-e27e-4e9e-9ac0-3fff4deb55f2",
-				"type": "english",
+				"type": "comments",
 				"attributes":
 				{
-					"hello": "world",
-					"world": "the earth"
+					"body": "world"
 				},
 				"relationships":
 				{
-					"planet":
+					"author":
 					{
 					  "links":
 					  {
-						"self": "/english/6720877a-e27e-4e9e-9ac0-3fff4deb55f2/relationships/planet",
-						"related": "/planet/6720877a-e27e-4e9e-9ac0-3fff4deb55f2/english"
+						"self": "/comments/6720877a-e27e-4e9e-9ac0-3fff4deb55f2/relationships/author",
+						"related": "/author/6720877a-e27e-4e9e-9ac0-3fff4deb55f2/comments"
 					  },
 					  "data":
 					  {
-						"type": "planet",
+						"type": "peoples",
 						"id": "b922a277-aadb-4c4e-b13d-9c4c98b3ad80"
 					  }
 					}
@@ -152,16 +150,16 @@ fn not_fully_linked() {
 		],
 		"links":
 		{
-			"self": "/english/6720877a-e27e-4e9e-9ac0-3fff4deb55f2"
+			"self": "/comments/6720877a-e27e-4e9e-9ac0-3fff4deb55f2"
 		},
 		"included":
 		[
 			{
 				"id": "b922a277-aadb-4c4e-b13d-9c4c98b3ad80",
-				"type": "planet",
+				"type": "peoples",
 				"links":
 				{
-					"self": "/planet/b922a277-aadb-4c4e-b13d-9c4c98b3ad80"
+					"self": "/peoples/b922a277-aadb-4c4e-b13d-9c4c98b3ad80"
 				}
 			}
 		]
@@ -173,7 +171,7 @@ fn not_fully_linked() {
     let err = doc_builder.build(&bag).expect_err("missing link");
     match err {
         CibouletteError::NoCompleteLinkage(type_, id) => {
-            assert_eq!(type_, "planet".to_string(), "type mismatch");
+            assert_eq!(type_, "peoples".to_string(), "type mismatch");
             assert_eq!(
                 id,
                 "b922a277-aadb-4c4e-b13d-9c4c98b3ad80".to_string(),

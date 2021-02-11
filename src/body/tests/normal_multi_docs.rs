@@ -9,11 +9,10 @@ fn single_ok() {
 		[
 			{
 				"id": "6720877a-e27e-4e9e-9ac0-3fff4deb55f2",
-				"type": "english",
+				"type": "comments",
 				"attributes":
 				{
-					"hello": "world",
-					"world": "the earth"
+					"body": "world"
 				}
 			}
 		]
@@ -26,7 +25,7 @@ fn single_ok() {
     let data = check_multi(&doc.data().as_ref().expect("data to be defined"));
     check_ident(
         data.get(0).unwrap().identifier(),
-        "english",
+        "comments",
         "6720877a-e27e-4e9e-9ac0-3fff4deb55f2",
     );
     assert_eq!(
@@ -36,7 +35,7 @@ fn single_ok() {
             .clone()
             .unwrap()
             .inner()
-            .eq(&parse_attribute_english()),
+            .eq(&parse_attribute_comments()),
         true,
         "attributes object mismatch"
     );
@@ -52,11 +51,10 @@ fn single_unknown_type() {
 		[
 			{
 				"id": "6720877a-e27e-4e9e-9ac0-3fff4deb55f2",
-				"type": "englisheeeeee",
+				"type": "commentse",
 				"attributes":
 				{
-					"hello": "world",
-					"world": "the earth"
+					"body": "world"
 				}
 			}
 		]

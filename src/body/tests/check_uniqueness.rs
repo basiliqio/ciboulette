@@ -9,20 +9,18 @@ fn uniq_obj() {
 		[
 			{
 				"id": "6720877a-e27e-4e9e-9ac0-3fff4deb55f2",
-				"type": "english",
+				"type": "comments",
 				"attributes":
 				{
-					"hello": "world",
-					"world": "the earth"
+					"body": "world"
 				}
 			},
 			{
 				"id": "f15fa424-8aec-452f-a916-eb57c87bd172",
-				"type": "english",
+				"type": "comments",
 				"attributes":
 				{
-					"hello": "le monde",
-					"world": "la terre"
+					"body": "world2"
 				}
 			}
 		]
@@ -41,24 +39,23 @@ fn uniq_linked() {
 		"data":
 		{
 			"id": "6720877a-e27e-4e9e-9ac0-3fff4deb55f2",
-			"type": "english",
+			"type": "comments",
 			"attributes":
 			{
-				"hello": "world",
-				"world": "the earth"
+				"body": "world"
 			},
 			"relationships":
 			{
-				"planet":
+				"author":
 				{
 				  "links":
 				  {
-					"self": "/english/6720877a-e27e-4e9e-9ac0-3fff4deb55f2/relationships/planet",
-					"related": "/planet/6720877a-e27e-4e9e-9ac0-3fff4deb55f2/english"
+					"self": "/comments/6720877a-e27e-4e9e-9ac0-3fff4deb55f2/relationships/author",
+					"related": "/author/6720877a-e27e-4e9e-9ac0-3fff4deb55f2/comments"
 				  },
 				  "data":
 				  {
-					"type": "planet",
+					"type": "peoples",
 					"id": "b922a277-aadb-4c4e-b13d-9c4c98b3ad80"
 				  }
 				}
@@ -68,14 +65,15 @@ fn uniq_linked() {
 		[
 			{
 				"id": "b922a277-aadb-4c4e-b13d-9c4c98b3ad80",
-				"type": "planet",
+				"type": "peoples",
 				"attributes":
 				{
-					"p": "earth"
+					"first-name": "john",
+					"last-name": "doe"
 				},
 				"links":
 				{
-					"self": "/planet/b922a277-aadb-4c4e-b13d-9c4c98b3ad80"
+					"self": "/peoples/b922a277-aadb-4c4e-b13d-9c4c98b3ad80"
 				}
 			}
 		]
@@ -95,20 +93,18 @@ fn non_uniq_obj() {
 		[
 			{
 				"id": "6720877a-e27e-4e9e-9ac0-3fff4deb55f2",
-				"type": "english",
+				"type": "comments",
 				"attributes":
 				{
-					"hello": "world",
-					"world": "the earth"
+					"body": "world"
 				}
 			},
 			{
 				"id": "6720877a-e27e-4e9e-9ac0-3fff4deb55f2",
-				"type": "english",
+				"type": "comments",
 				"attributes":
 				{
-					"hello": "le monde",
-					"world": "la terre"
+					"body": "le monde"
 				}
 			}
 		]
@@ -119,7 +115,7 @@ fn non_uniq_obj() {
     let err: CibouletteError = doc.build(&bag).expect_err("uniqueness error");
     match err {
         CibouletteError::UniqObj(type_, id) => {
-            assert_eq!(type_, "english".to_string(), "id mismatch");
+            assert_eq!(type_, "comments".to_string(), "id mismatch");
             assert_eq!(
                 id,
                 "6720877a-e27e-4e9e-9ac0-3fff4deb55f2".to_string(),
@@ -138,37 +134,36 @@ fn non_uniq_rel() {
 		"data":
 		{
 			"id": "6720877a-e27e-4e9e-9ac0-3fff4deb55f2",
-			"type": "english",
+			"type": "comments",
 			"attributes":
 			{
-				"hello": "world",
-				"world": "the earth"
+				"body": "world"
 			},
 			"relationships":
 			{
-				"planet":
+				"author":
 				{
 				  "links":
 				  {
-					"self": "/english/6720877a-e27e-4e9e-9ac0-3fff4deb55f2/relationships/planet",
-					"related": "/planet/6720877a-e27e-4e9e-9ac0-3fff4deb55f2/english"
+					"self": "/comments/6720877a-e27e-4e9e-9ac0-3fff4deb55f2/relationships/author",
+					"related": "/author/6720877a-e27e-4e9e-9ac0-3fff4deb55f2/comments"
 				  },
 				  "data":
 				  {
-					"type": "planet",
+					"type": "peoples",
 					"id": "b922a277-aadb-4c4e-b13d-9c4c98b3ad80"
 				  }
 				},
-				"bonjour":
+				"articles":
 				{
 				  "links":
 				  {
-					"self": "/english/6720877a-e27e-4e9e-9ac0-3fff4deb55f2/relationships/planet",
-					"related": "/planet/6720877a-e27e-4e9e-9ac0-3fff4deb55f2/english"
+					"self": "/comments/6720877a-e27e-4e9e-9ac0-3fff4deb55f2/relationships/articles",
+					"related": "/articles/6720877a-e27e-4e9e-9ac0-3fff4deb55f2/comments"
 				  },
 				  "data":
 				  {
-					"type": "planet",
+					"type": "peoples",
 					"id": "b922a277-aadb-4c4e-b13d-9c4c98b3ad80"
 				  }
 				}
@@ -181,7 +176,7 @@ fn non_uniq_rel() {
     let err: CibouletteError = doc.build(&bag).expect_err("uniqueness error");
     match err {
         CibouletteError::UniqRelationship(type_, id) => {
-            assert_eq!(type_, "planet".to_string(), "id mismatch");
+            assert_eq!(type_, "peoples".to_string(), "id mismatch");
             assert_eq!(
                 id,
                 "b922a277-aadb-4c4e-b13d-9c4c98b3ad80".to_string(),
@@ -200,29 +195,28 @@ fn non_uniq_rel2() {
 		"data":
 		{
 			"id": "6720877a-e27e-4e9e-9ac0-3fff4deb55f2",
-			"type": "english",
+			"type": "comments",
 			"attributes":
 			{
-				"hello": "world",
-				"world": "the earth"
+				"body": "world"
 			},
 			"relationships":
 			{
-				"planet":
+				"author":
 				{
 				  "links":
 				  {
-					"self": "/english/6720877a-e27e-4e9e-9ac0-3fff4deb55f2/relationships/planet",
-					"related": "/planet/6720877a-e27e-4e9e-9ac0-3fff4deb55f2/english"
+					"self": "/comments/6720877a-e27e-4e9e-9ac0-3fff4deb55f2/relationships/author",
+					"related": "/author/6720877a-e27e-4e9e-9ac0-3fff4deb55f2/comments"
 				  },
 				  "data":
 				  [
 					  {
-						"type": "planet",
+						"type": "peoples",
 						"id": "b922a277-aadb-4c4e-b13d-9c4c98b3ad80"
 					  },
 					  {
-						"type": "planet",
+						"type": "peoples",
 						"id": "b922a277-aadb-4c4e-b13d-9c4c98b3ad80"
 					  }
 				  ]
@@ -236,7 +230,7 @@ fn non_uniq_rel2() {
     let err: CibouletteError = doc.build(&bag).expect_err("uniqueness error");
     match err {
         CibouletteError::UniqRelationship(type_, id) => {
-            assert_eq!(type_, "planet".to_string(), "id mismatch");
+            assert_eq!(type_, "peoples".to_string(), "id mismatch");
             assert_eq!(
                 id,
                 "b922a277-aadb-4c4e-b13d-9c4c98b3ad80".to_string(),
@@ -256,25 +250,24 @@ fn uniq_rel() {
 		[
 			{
 				"id": "6720877a-e27e-4e9e-9ac0-3fff4deb55f2",
-				"type": "english",
+				"type": "comments",
 				"attributes":
 				{
-					"hello": "world",
-					"world": "the earth"
+					"body": "world"
 				},
 				"relationships":
 				{
-					"planet":
+					"author":
 					{
 					  "links":
 					  {
-						"self": "/english/6720877a-e27e-4e9e-9ac0-3fff4deb55f2/relationships/planet",
-						"related": "/planet/6720877a-e27e-4e9e-9ac0-3fff4deb55f2/english"
+						"self": "/comments/6720877a-e27e-4e9e-9ac0-3fff4deb55f2/relationships/author",
+						"related": "/author/6720877a-e27e-4e9e-9ac0-3fff4deb55f2/comments"
 					  },
 					  "data":
 					  [
 						  {
-							"type": "planet",
+							"type": "peoples",
 							"id": "b922a277-aadb-4c4e-b13d-9c4c98b3ad80"
 						  }
 					  ]
@@ -283,25 +276,24 @@ fn uniq_rel() {
 			},
 			{
 				"id": "568109e1-74e9-41b3-a10f-f103aba5e78c",
-				"type": "english",
+				"type": "comments",
 				"attributes":
 				{
-					"hello": "world2",
-					"world": "the earth v2"
+					"body": "world2"
 				},
 				"relationships":
 				{
-					"planet":
+					"author":
 					{
 					  "links":
 					  {
-						"self": "/english/568109e1-74e9-41b3-a10f-f103aba5e78c/relationships/planet",
-						"related": "/planet/568109e1-74e9-41b3-a10f-f103aba5e78c/english"
+						"self": "/comments/568109e1-74e9-41b3-a10f-f103aba5e78c/relationships/author",
+						"related": "/peoples/568109e1-74e9-41b3-a10f-f103aba5e78c/comments"
 					  },
 					  "data":
 					  [
 						  {
-							"type": "planet",
+							"type": "peoples",
 							"id": "b922a277-aadb-4c4e-b13d-9c4c98b3ad80"
 						  }
 					  ]
@@ -313,14 +305,15 @@ fn uniq_rel() {
 		[
 			{
 				"id": "b922a277-aadb-4c4e-b13d-9c4c98b3ad80",
-				"type": "planet",
+				"type": "peoples",
 				"attributes":
 				{
-					"p": "earth"
+					"first-name": "john",
+					"last-name": "doe"
 				},
 				"links":
 				{
-					"self": "/planet/b922a277-aadb-4c4e-b13d-9c4c98b3ad80"
+					"self": "/peoples/b922a277-aadb-4c4e-b13d-9c4c98b3ad80"
 				}
 			}
 		]
@@ -339,24 +332,23 @@ fn non_uniq_linked() {
 		"data":
 		{
 			"id": "6720877a-e27e-4e9e-9ac0-3fff4deb55f2",
-			"type": "english",
+			"type": "comments",
 			"attributes":
 			{
-				"hello": "world",
-				"world": "the earth"
+				"body": "world"
 			},
 			"relationships":
 			{
-				"planet":
+				"author":
 				{
 				  "links":
 				  {
-					"self": "/english/6720877a-e27e-4e9e-9ac0-3fff4deb55f2/relationships/planet",
-					"related": "/planet/6720877a-e27e-4e9e-9ac0-3fff4deb55f2/english"
+					"self": "/comments/6720877a-e27e-4e9e-9ac0-3fff4deb55f2/relationships/author",
+					"related": "/peoples/6720877a-e27e-4e9e-9ac0-3fff4deb55f2/comments"
 				  },
 				  "data":
 				  {
-					"type": "planet",
+					"type": "peoples",
 					"id": "b922a277-aadb-4c4e-b13d-9c4c98b3ad80"
 				  }
 				}
@@ -366,26 +358,28 @@ fn non_uniq_linked() {
 		[
 			{
 				"id": "b922a277-aadb-4c4e-b13d-9c4c98b3ad80",
-				"type": "planet",
+				"type": "peoples",
 				"attributes":
 				{
-					"p": "earth"
+					"first-name": "john",
+					"last-name": "doe"
 				},
 				"links":
 				{
-					"self": "/planet/b922a277-aadb-4c4e-b13d-9c4c98b3ad80"
+					"self": "/peoples/b922a277-aadb-4c4e-b13d-9c4c98b3ad80"
 				}
 			},
 			{
 				"id": "b922a277-aadb-4c4e-b13d-9c4c98b3ad80",
-				"type": "planet",
+				"type": "peoples",
 				"attributes":
 				{
-					"p": "earth"
+					"first-name": "john",
+					"last-name": "doe"
 				},
 				"links":
 				{
-					"self": "/planet/b922a277-aadb-4c4e-b13d-9c4c98b3ad80"
+					"self": "/peoples/b922a277-aadb-4c4e-b13d-9c4c98b3ad80"
 				}
 			}
 		]
@@ -396,7 +390,7 @@ fn non_uniq_linked() {
     let err: CibouletteError = doc.build(&bag).expect_err("uniqueness error");
     match err {
         CibouletteError::UniqObj(type_, id) => {
-            assert_eq!(type_, "planet".to_string(), "id mismatch");
+            assert_eq!(type_, "peoples".to_string(), "id mismatch");
             assert_eq!(
                 id,
                 "b922a277-aadb-4c4e-b13d-9c4c98b3ad80".to_string(),

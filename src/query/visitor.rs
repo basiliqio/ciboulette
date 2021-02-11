@@ -33,7 +33,7 @@ impl<'de> serde::de::Visitor<'de> for CibouletteQueryParametersBuilderVisitor {
         let mut page: BTreeMap<CiboulettePageType<'de>, Cow<'de, str>> = BTreeMap::new();
         let mut filter_typed: BTreeMap<Cow<'de, str>, Cow<'de, str>> = BTreeMap::new();
         let mut meta: Vec<(Cow<'de, str>, Cow<'de, str>)> = Vec::new();
-        let mut include: Option<Vec<Vec<Cow<'de, str>>>> = None;
+        let mut include: Option<Vec<Vec<&'de str>>> = None;
         let mut filter: Option<Cow<'de, str>> = None;
 
         while let Some(key) =
