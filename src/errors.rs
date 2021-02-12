@@ -47,4 +47,6 @@ pub enum CibouletteError {
     /// When there is a failure while deserializing the JSON
     #[error(transparent)]
     SerdeJson(#[from] serde_json::Error),
+    #[error(transparent)]
+    SerdeUrlEncoded(#[from] serde_urlencoded::de::Error),
 }

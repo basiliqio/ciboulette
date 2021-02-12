@@ -9,6 +9,7 @@ edition = "2018"
 [dependencies]
 serde = { version = "1", features = [ "derive", "rc" ] }
 serde_json = { version = "1", features = [ "raw_value" ] }
+serde_urlencoded = "0.7.0"
 thiserror = "1"
 getset = "0.1"
 messy_json = { git = "https://gitlab.com/basiliq/messy_json.git"}
@@ -22,7 +23,6 @@ features = ["precommit-hook", "run-cargo-check", "run-cargo-fmt"]
 
 [dev-dependencies]
 criterion = { version = "0.3.4", features = [ "html_reports", "cargo_bench_support" ] }
-serde_urlencoded = "0.7.0"
 ciboulette_test_helper = { path = "ciboulette_test_helper" }
 
 [[bench]]

@@ -17,10 +17,33 @@ pub enum CibouletteLinkSelector<'a> {
 }
 
 /// ## A `json:api` [link](https://jsonapi.org/format/#document-links) object
-#[derive(Debug, Deserialize, Serialize, Getters)]
+#[derive(Debug, Deserialize, Serialize, Getters, Default)]
 #[getset(get = "pub")]
+#[serde(default)]
 pub struct CibouletteLink<'a> {
     #[serde(rename = "self")]
     self_: Option<CibouletteLinkSelector<'a>>,
     related: Option<CibouletteLinkSelector<'a>>,
+}
+
+/// ## A `json:api` top-level [link](https://jsonapi.org/format/#document-links) object with pagination support
+#[derive(Debug, Deserialize, Serialize, Getters, Default)]
+#[getset(get = "pub")]
+#[serde(default)]
+pub struct CibouletteTopLevelPagination<'a> {
+    first: Option<Cow<'a, str>>,
+    last: Option<Cow<'a, str>>,
+    prev: Option<Cow<'a, str>>,
+    next: Option<Cow<'a, str>>,
+}
+
+/// ## A `json:api` top-level [link](https://jsonapi.org/format/#document-links) object with pagination support
+#[derive(Debug, Deserialize, Serialize, Getters, Default)]
+#[getset(get = "pub")]
+#[serde(default)]
+pub struct CibouletteTopLevelLink<'a> {
+    #[serde(flatten)]
+    inner_link: CibouletteLink<'a>,
+    #[serde(flatten)]
+    pagination: CibouletteTopLevelPagination<'a>,
 }

@@ -2,6 +2,7 @@
 mod body;
 mod config;
 mod errors;
+mod inbound_request;
 mod member_name_regex;
 mod query;
 mod serde_utils;
@@ -17,7 +18,9 @@ use std::collections::{BTreeMap, BTreeSet, HashMap};
 
 pub use body::bag::CibouletteBag;
 pub use body::errors_obj::{CibouletteErrorLink, CibouletteErrorObj, CibouletteErrorSource};
-pub use body::link::{CibouletteLink, CibouletteLinkObj};
+pub use body::link::{
+    CibouletteLink, CibouletteLinkObj, CibouletteTopLevelLink, CibouletteTopLevelPagination,
+};
 pub use body::relationship::CibouletteRelationship;
 pub use body::resource_identifier::{
     CibouletteResourceIdentifier, CibouletteResourceIdentifierSelector,

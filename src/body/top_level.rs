@@ -9,7 +9,7 @@ pub struct CibouletteTopLevelBuilder<'a> {
     data: Option<CibouletteResourceSelectorBuilder<'a>>,
     errors: Option<CibouletteErrorObj<'a>>,
     meta: Value,
-    links: Option<CibouletteLink<'a>>,
+    links: Option<CibouletteTopLevelLink<'a>>,
     included: Vec<CibouletteResourceBuilder<'a>>,
     jsonapi: Option<Cow<'a, str>>, // TODO Semver
 }
@@ -21,7 +21,7 @@ pub struct CibouletteTopLevel<'a> {
     data: Option<CibouletteResourceSelector<'a>>,
     errors: Option<CibouletteErrorObj<'a>>,
     meta: Value,
-    links: Option<CibouletteLink<'a>>,
+    links: Option<CibouletteTopLevelLink<'a>>,
     included: Vec<CibouletteResource<'a>>,
     jsonapi: Option<Cow<'a, str>>, // TODO Semver
 }
@@ -108,7 +108,7 @@ impl<'de> serde::de::Visitor<'de> for CibouletteTopLevelBuilderVisitor {
         let mut data: Option<CibouletteResourceSelectorBuilder<'de>> = None;
         let mut errors: Option<CibouletteErrorObj<'de>> = None;
         let mut meta: Option<Value> = None;
-        let mut links: Option<CibouletteLink<'de>> = None;
+        let mut links: Option<CibouletteTopLevelLink<'de>> = None;
         let mut included: Option<CibouletteResourceSelectorBuilder<'de>> = None;
         let mut jsonapi: Option<Cow<'de, str>> = None;
 
@@ -369,5 +369,28 @@ impl<'a> CibouletteTopLevel<'a> {
         }
 
         Ok(())
+    }
+
+    /// Get the main type of the request
+    /// If it's a single document request, the type of the document is used.
+    /// If it's a compound documen request and all the document are the same type, then this type is used.
+    /// Else `None` is returned
+    pub fn get_main_type(&self, bag: &'a CibouletteBag) -> Option<&'a CibouletteResourceType> {
+        self.data().as_ref().and_then(|data| match data {
+            CibouletteResourceSelector::One(x) => bag.map().get(x.identifier().type_().as_ref()),
+            CibouletteResourceSelector::Many(types) => {
+                let mut titer = types.iter();
+                let first_type = match titer.next() {
+                    Some(x) => x.identifier().type_(),
+                    _ => return None,
+                };
+                for type_ in titer {
+                    if type_.identifier().type_() != first_type {
+                        return None;
+                    }
+                }
+                bag.map().get(first_type.as_ref())
+            }
+        })
     }
 }
