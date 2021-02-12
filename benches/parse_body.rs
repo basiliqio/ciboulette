@@ -8,11 +8,10 @@ const VAL: &str = r#"
 		[
 			{
 				"id": "6720877a-e27e-4e9e-9ac0-3fff4deb55f2",
-				"type": "english",
+				"type": "comments",
 				"attributes":
 				{
-					"hello": "world",
-					"world": "the earth"
+					"body": "world"
 				},
 				"relationships":
 				{
@@ -20,13 +19,13 @@ const VAL: &str = r#"
 					{
 					  "links":
 					  {
-						"self": "/english/6720877a-e27e-4e9e-9ac0-3fff4deb55f2/relationships/planet",
-						"related": "/planet/6720877a-e27e-4e9e-9ac0-3fff4deb55f2/english"
+						"self": "/comments/6720877a-e27e-4e9e-9ac0-3fff4deb55f2/relationships/author",
+						"related": "/author/6720877a-e27e-4e9e-9ac0-3fff4deb55f2/comments"
 					  },
 					  "data":
 					  [
 						  {
-							"type": "planet",
+							"type": "peoples",
 							"id": "b922a277-aadb-4c4e-b13d-9c4c98b3ad80"
 						  }
 					  ]
@@ -35,25 +34,24 @@ const VAL: &str = r#"
 			},
 			{
 				"id": "568109e1-74e9-41b3-a10f-f103aba5e78c",
-				"type": "english",
+				"type": "comments",
 				"attributes":
 				{
-					"hello": "world2",
-					"world": "the earth v2"
+					"body": "world2"
 				},
 				"relationships":
 				{
-					"planet":
+					"author":
 					{
 					  "links":
 					  {
-						"self": "/english/568109e1-74e9-41b3-a10f-f103aba5e78c/relationships/planet",
-						"related": "/planet/568109e1-74e9-41b3-a10f-f103aba5e78c/english"
+						"self": "/comments/568109e1-74e9-41b3-a10f-f103aba5e78c/relationships/author",
+						"related": "/author/568109e1-74e9-41b3-a10f-f103aba5e78c/comments"
 					  },
 					  "data":
 					  [
 						  {
-							"type": "planet",
+							"type": "peoples",
 							"id": "b922a277-aadb-4c4e-b13d-9c4c98b3ad80"
 						  }
 					  ]
@@ -65,14 +63,15 @@ const VAL: &str = r#"
 		[
 			{
 				"id": "b922a277-aadb-4c4e-b13d-9c4c98b3ad80",
-				"type": "planet",
+				"type": "peoples",
 				"attributes":
 				{
-					"p": "earth"
+					"first-name": "John",
+					"last-name": "Doe"
 				},
 				"links":
 				{
-					"self": "/planet/b922a277-aadb-4c4e-b13d-9c4c98b3ad80"
+					"self": "/peoples/b922a277-aadb-4c4e-b13d-9c4c98b3ad80"
 				}
 			}
 		]
