@@ -18,13 +18,3 @@ pub use parsing::{
 use visitor::CibouletteQueryParametersBuilderVisitor;
 
 pub use sorting::CibouletteSortingDirection;
-
-fn explode_by_comma(i: Cow<'_, str>) -> Vec<Cow<'_, str>> {
-    i.split(',').map(str::to_string).map(Cow::Owned).collect()
-}
-
-fn explode_by_comma_and_dot(i: Cow<'_, str>) -> Vec<Vec<Cow<'_, str>>> {
-    i.split(',')
-        .map(|x| x.split('.').map(str::to_string).map(Cow::Owned).collect())
-        .collect()
-}

@@ -1,6 +1,7 @@
 use super::*;
 use serde::de::{DeserializeSeed, Deserializer};
 
+/// ## Element of a sorting vector.
 #[derive(Debug, Getters)]
 #[getset(get = "pub")]
 pub struct CibouletteSortingElement<'a> {
@@ -10,6 +11,7 @@ pub struct CibouletteSortingElement<'a> {
 }
 
 impl<'a> CibouletteSortingElement<'a> {
+    /// Create a new sorting element
     pub fn new(
         type_: &'a CibouletteResourceType,
         direction: CibouletteSortingDirection,
@@ -23,6 +25,7 @@ impl<'a> CibouletteSortingElement<'a> {
     }
 }
 
+/// ## Builder object for [CibouletteQueryParameters](CibouletteQueryParameters)
 #[derive(Debug, Getters)]
 #[getset(get = "pub")]
 pub struct CibouletteQueryParametersBuilder<'a> {
@@ -35,6 +38,7 @@ pub struct CibouletteQueryParametersBuilder<'a> {
     pub(super) meta: BTreeMap<Cow<'a, str>, Cow<'a, str>>,
 }
 
+/// ## Query parameters for `json:api`
 #[derive(Debug, Getters)]
 #[getset(get = "pub")]
 pub struct CibouletteQueryParameters<'a> {
@@ -60,6 +64,13 @@ impl<'de> Deserialize<'de> for CibouletteQueryParametersBuilder<'de> {
 }
 
 impl<'a> CibouletteQueryParametersBuilder<'a> {
+    /// Check that a relationship exists between a chain of types.
+    ///
+    /// i.e. "author.comments" makes sense because the author has comments
+    ///
+    /// but "comments.email" may not make sense
+    /// if there is no relationship between those two resources.
+    #[inline]
     fn check_relationship_exists(
         bag: &'a CibouletteBag,
         type_list: &[Cow<'a, str>],
@@ -94,6 +105,8 @@ impl<'a> CibouletteQueryParametersBuilder<'a> {
         Ok(wtype)
     }
 
+    /// Checks that a field exists in a give resource type
+    #[inline]
     fn check_field_exists(
         type_: &'a CibouletteResourceType,
         field: &str,
@@ -113,6 +126,8 @@ impl<'a> CibouletteQueryParametersBuilder<'a> {
         }
     }
 
+    /// Checks that fields exists in a give resource type
+    #[inline]
     fn check_fields_exists(
         type_: &'a CibouletteResourceType,
         field_list: &[Cow<'a, str>],
@@ -127,6 +142,7 @@ impl<'a> CibouletteQueryParametersBuilder<'a> {
                 | MessyJson::Number(_)
                 | MessyJson::String(_)
                 | MessyJson::Array(_) => match iter.peek().is_some() {
+                    // Cannot points to those types, so if there is more, it means that it's an error
                     false => return Ok(()),
                     true => {
                         return Err(CibouletteError::UnknownField(
@@ -165,7 +181,9 @@ impl<'a> CibouletteQueryParametersBuilder<'a> {
         main_type: Option<&'a CibouletteResourceType>,
     ) -> Result<CibouletteQueryParameters<'a>, CibouletteError> {
         let mut sparse: BTreeMap<&'a CibouletteResourceType, Vec<Cow<'a, str>>> = BTreeMap::new();
-        let mut sorting: Vec<CibouletteSortingElement> = Vec::new();
+        let mut sorting: Vec<CibouletteSortingElement> = Vec::with_capacity(self.sorting.len());
+
+        // Check for include relationships and build the array
         let include: Option<Vec<&'a CibouletteResourceType>> = match self.include {
             None => None,
             Some(include) => {
@@ -176,12 +194,15 @@ impl<'a> CibouletteQueryParametersBuilder<'a> {
                 Some(res)
             }
         };
+
+        // Check for sparse fields, checking that fields exists
         for (types, fields) in self.sparse.into_iter() {
             let rel = Self::check_relationship_exists(bag, types.as_slice())?;
             Self::check_fields_exists(rel, fields.as_slice())?;
             sparse.insert(rel, fields);
         }
 
+        // Check for the sort fields, checking fields exists
         match (main_type, self.sorting.len()) {
             (_, 0) => (),
             (Some(main_type), _) => {

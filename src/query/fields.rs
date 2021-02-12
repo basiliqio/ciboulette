@@ -4,16 +4,25 @@ use std::fmt::Formatter;
 
 pub struct CibouletteQueryParametersFieldVisitor;
 
+/// Field of `json:api` query parameters object
 pub enum CibouletteQueryParametersField<'a> {
+    /// `include` parameter
     Include,
+    /// `field[*]` parameter, filling the vector with types separated by '.'
     Sparse(Vec<Cow<'a, str>>),
+    /// The `sort` parameter
     Sorting,
+    /// The page[<type>] parameter, parsing the inner type
     Page(CiboulettePageType<'a>),
+    /// The simple `filter` parameter
     Filter,
+    /// The typed `filter[<type>]` parameter with the type as argument
     FilterTyped(Cow<'a, str>),
+    /// Any other parameter
     Meta(Cow<'a, str>),
 }
 
+/// The page type used in the [CibouletteQueryParametersField](CibouletteQueryParametersField)
 #[derive(Clone, Debug, Ord, PartialOrd, Eq, PartialEq)]
 pub enum CiboulettePageType<'a> {
     Number,
@@ -26,10 +35,11 @@ pub enum CiboulettePageType<'a> {
 
 impl CibouletteQueryParametersFieldVisitor {
     #[inline]
-    fn parse_str<'a, E>(value: Cow<'a, str>) -> Result<CibouletteQueryParametersField<'a>, E>
+    fn parse_str<E>(value: Cow<'_, str>) -> Result<CibouletteQueryParametersField<'_>, E>
     where
         E: serde::de::Error,
     {
+        // Check the simplier types for match
         let preemptive_val = match value.as_ref() {
             "include" => Some(CibouletteQueryParametersField::Include),
             "sort" => Some(CibouletteQueryParametersField::Sorting),
@@ -37,22 +47,19 @@ impl CibouletteQueryParametersFieldVisitor {
             _ => None,
         };
         if let Some(preemptive_val) = preemptive_val {
+            // Return then in case of match
             return Ok(preemptive_val);
         }
-        let has_type = value.find('[');
+        let has_type = value.find('['); // Is it a typed parameter ?
         match has_type {
             Some(type_end_index) => {
+                // Yes, then which one is it
                 let type_ = &value[0..type_end_index];
                 match type_ {
                     "page" => {
-                        let mut page_type_vec =
-                            typed_param::parse_typed_query_param(&value[type_end_index..])
+                        let page_type =
+                            typed_param::parse_typed_query_param(&value[type_end_index..]) // Parse inner parameter
                                 .unwrap_or_default();
-                        let page_type: Cow<'a, str> = match page_type_vec.len() {
-                            0 => Cow::Borrowed(""),
-                            1 => page_type_vec.pop().unwrap(),
-                            _ => Cow::Owned(page_type_vec.join(".")),
-                        };
                         match page_type.as_ref() {
                             "limit" => Ok(CibouletteQueryParametersField::Page(
                                 CiboulettePageType::Limit,
@@ -70,26 +77,20 @@ impl CibouletteQueryParametersFieldVisitor {
                                 CiboulettePageType::Cursor,
                             )),
                             _ => Ok(CibouletteQueryParametersField::Page(
-                                CiboulettePageType::Other(page_type),
+                                CiboulettePageType::Other(Cow::Owned(page_type.into_owned())),
                             )),
                         }
                     }
                     "fields" => Ok(CibouletteQueryParametersField::Sparse(
-                        typed_param::parse_typed_query_param(&value[type_end_index..])
+                        typed_param::parse_typed_query_params(&value[type_end_index..]) // Extract parameters
                             .unwrap_or_default(),
                     )),
                     "filter" => {
-                        let mut type_vec =
-                            typed_param::parse_typed_query_param(&value[type_end_index..])
-                                .unwrap_or_default();
-                        let type_ = match type_vec.len() {
-                            0 => Cow::Borrowed(""),
-                            1 => type_vec.pop().unwrap(),
-                            _ => Cow::Owned(
-                                type_vec.join("."), // FIXME Try not to allocate more
-                            ),
-                        };
-                        Ok(CibouletteQueryParametersField::FilterTyped(type_))
+                        let type_ = typed_param::parse_typed_query_param(&value[type_end_index..])
+                            .unwrap_or_default();
+                        Ok(CibouletteQueryParametersField::FilterTyped(Cow::Owned(
+                            type_.into_owned(),
+                        )))
                     }
                     _ => Ok(CibouletteQueryParametersField::Meta(value)),
                 }

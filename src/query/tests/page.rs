@@ -8,6 +8,7 @@ fn simple_number() {
     let res: CibouletteQueryParameters = builder.build(&bag, None).expect("to build correctly");
     let page = res.page();
     assert_eq!(page.len(), 1);
+    println!("{:#?}", page);
     let page = page.get(&CiboulettePageType::Number).unwrap();
     assert_eq!(page, "1");
 }

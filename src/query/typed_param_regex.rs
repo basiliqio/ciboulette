@@ -2,6 +2,7 @@ use lazy_static::lazy_static;
 use regex::Regex;
 
 lazy_static! {
+    /// Regexp to parse raw types in query parameters like `[mytype]` => `mytype`
     pub static ref TYPED_PARAM_REGEX: Regex = Regex::new(r"^\[(?P<type>.+)*\]").unwrap();
 }
 
