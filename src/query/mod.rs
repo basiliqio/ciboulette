@@ -4,7 +4,6 @@ mod fields;
 mod parsing;
 mod sorting;
 mod typed_param;
-mod typed_param_regex;
 mod visitor;
 
 #[cfg(test)]

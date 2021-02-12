@@ -223,7 +223,7 @@ impl<'a> CibouletteResource<'a> {
         match val {
             MessyJsonValue::Obj(map) => {
                 for (k, v) in map.iter() {
-                    if !crate::member_name_regex::check_member_name(&*k) {
+                    if !crate::member_name::check_member_name(&*k) {
                         return Some(k.to_string());
                     }
                     if let Some(x) = Self::check_member_name_routine(v) {

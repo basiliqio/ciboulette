@@ -1,20 +1,15 @@
 use super::*;
 
 pub fn parse_typed_query_params<'a>(s: &str) -> Option<Vec<Cow<'a, str>>> {
-    let mut matches = typed_param_regex::TYPED_PARAM_REGEX.captures_iter(s);
-    if let Some(whole_match) = matches.next() {
-        if let Some(type_) = whole_match.get(1) {
-            let res: Vec<Cow<'a, str>> = type_
-                .as_str()
-                .split('.')
-                .map(str::to_string)
-                .map(Cow::Owned)
-                .collect();
-            if !res.is_empty() {
-                Some(res)
-            } else {
-                None
-            }
+    if let Some(type_) = parse_typed_query_param(s) {
+        let res: Vec<Cow<'a, str>> = type_
+            .as_ref()
+            .split('.')
+            .map(str::to_string)
+            .map(Cow::Owned)
+            .collect();
+        if !res.is_empty() {
+            Some(res)
         } else {
             None
         }
@@ -24,12 +19,10 @@ pub fn parse_typed_query_params<'a>(s: &str) -> Option<Vec<Cow<'a, str>>> {
 }
 
 pub fn parse_typed_query_param(s: &str) -> Option<Cow<'_, str>> {
-    let mut matches = typed_param_regex::TYPED_PARAM_REGEX.captures_iter(s);
-    if let Some(whole_match) = matches.next() {
-        whole_match.get(1).map(|x| Cow::Borrowed(x.as_str()))
-    } else {
-        None
+    if s.len() <= 2 || !(s.starts_with('[') && s.ends_with(']')) {
+        return None;
     }
+    Some(Cow::Borrowed(&s[1..s.len() - 1]))
 }
 
 #[cfg(test)]

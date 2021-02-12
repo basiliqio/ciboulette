@@ -3,7 +3,7 @@ mod body;
 mod config;
 mod errors;
 mod inbound_request;
-mod member_name_regex;
+mod member_name;
 mod query;
 mod serde_utils;
 
@@ -39,4 +39,4 @@ pub use query::{
 
 pub use config::CibouletteConfig;
 pub use errors::{CibouletteClashDirection, CibouletteError};
-pub use member_name_regex::check_member_name;
+pub use member_name::check_member_name;
