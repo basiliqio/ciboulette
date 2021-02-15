@@ -1,6 +1,4 @@
 use super::*;
-use serde::de::{Deserializer, Visitor};
-use std::fmt::Formatter;
 
 /// ## Builder object for [CibouletteTopLevel](CibouletteTopLevel)
 #[derive(Debug, Copy, Clone)]

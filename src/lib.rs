@@ -39,4 +39,5 @@ pub use query::{
 
 pub use config::CibouletteConfig;
 pub use errors::{CibouletteClashDirection, CibouletteError};
+pub use inbound_request::{CibouletteIntention, CibouletteRequest, CibouletteRequestBuilder};
 pub use member_name::check_member_name;
