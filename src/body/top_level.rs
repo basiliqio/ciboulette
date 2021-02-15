@@ -393,4 +393,11 @@ impl<'a> CibouletteTopLevel<'a> {
             }
         })
     }
+
+    pub fn is_compound(&self) -> bool {
+        matches!(
+            self.data().as_ref(),
+            Some(CibouletteResourceSelector::Many(_))
+        )
+    }
 }

@@ -11,7 +11,7 @@ const CIBOULETTE_RESOURCE_FIELDS: &[&str] =
 pub struct CibouletteResourceBuilder<'a> {
     identifier: CibouletteResourceIdentifier<'a>,
     attributes: Option<&'a RawValue>,
-    relationships: HashMap<Cow<'a, str>, CibouletteRelationship<'a>>,
+    relationships: HashMap<Cow<'a, str>, CibouletteRelationshipObject<'a>>,
     links: Option<CibouletteLink<'a>>,
 }
 
@@ -21,7 +21,7 @@ pub struct CibouletteResourceBuilder<'a> {
 pub struct CibouletteResource<'a> {
     identifier: CibouletteResourceIdentifier<'a>,
     attributes: Option<MessyJsonValueContainer<'a>>,
-    relationships: HashMap<Cow<'a, str>, CibouletteRelationship<'a>>,
+    relationships: HashMap<Cow<'a, str>, CibouletteRelationshipObject<'a>>,
     links: Option<CibouletteLink<'a>>,
 }
 
@@ -118,7 +118,8 @@ impl<'de> serde::de::Visitor<'de> for CibouletteResourceBuilderVisitor {
         let mut type_: Option<Cow<'de, str>> = None;
         let mut meta: Option<Value> = None;
         let mut attributes: Option<&'de RawValue> = None;
-        let mut relationships: Option<HashMap<Cow<'de, str>, CibouletteRelationship<'de>>> = None;
+        let mut relationships: Option<HashMap<Cow<'de, str>, CibouletteRelationshipObject<'de>>> =
+            None;
         let mut links: Option<CibouletteLink<'de>> = None;
         while let Some(key) =
             match serde::de::MapAccess::next_key::<CibouletteResourceField>(&mut map) {
