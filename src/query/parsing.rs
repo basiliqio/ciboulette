@@ -147,7 +147,6 @@ impl<'a> CibouletteQueryParametersBuilder<'a> {
         while let Some(field) = iter.next() {
             match curr_obj {
                 MessyJson::Bool(_)
-                | MessyJson::Null
                 | MessyJson::Number(_)
                 | MessyJson::String(_)
                 | MessyJson::Array(_) => match iter.peek().is_some() {
