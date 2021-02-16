@@ -118,7 +118,7 @@ fn gen_messy_json_schema_peoples() -> MessyJson {
 //     )))
 // }
 
-pub fn gen_bag() -> CibouletteBag {
+pub fn gen_bag() -> CibouletteStore {
     // let type1 = CibouletteResourceType::new(
     //     "articles".to_string(),
     //     gen_messy_json_schema_articles(),
@@ -143,7 +143,7 @@ pub fn gen_bag() -> CibouletteBag {
     //         ("articles".to_string(), "articles".to_string()),
     //     ],
     // );
-    // CibouletteBag::new(
+    // CibouletteStore::new(
     //     vec![
     //         ("articles".to_string(), type1),
     //         ("comments".to_string(), type2),
@@ -152,7 +152,7 @@ pub fn gen_bag() -> CibouletteBag {
     //     .into_iter()
     //     .collect(),
     // )
-	let mut res = CibouletteBag::new();
+	let mut res = CibouletteStore::new();
 
 	res.add_type("articles".to_string(), gen_messy_json_schema_articles()).unwrap();
 	res.add_type("comments".to_string(), gen_messy_json_schema_comments()).unwrap();

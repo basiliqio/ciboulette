@@ -192,7 +192,10 @@ impl<'de> DeserializeSeed<'de> for CibouletteResourceBuilderVisitor {
 
 impl<'a> CibouletteResourceBuilder<'a> {
     /// ## build the [CibouletteResource](CibouletteResource) from the builder
-    pub fn build(self, bag: &'a CibouletteBag) -> Result<CibouletteResource<'a>, CibouletteError> {
+    pub fn build(
+        self,
+        bag: &'a CibouletteStore,
+    ) -> Result<CibouletteResource<'a>, CibouletteError> {
         let attributes: Option<MessyJsonValueContainer<'a>> = match self.attributes {
             Some(attributes) => {
                 let type_ident = self.identifier().type_().as_ref();

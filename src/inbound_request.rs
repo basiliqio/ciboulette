@@ -27,7 +27,7 @@ pub struct CibouletteRequest<'a> {
 }
 
 impl<'a> CibouletteRequestBuilder<'a> {
-    pub fn build(self, bag: &'a CibouletteBag) -> Result<CibouletteRequest<'a>, CibouletteError> {
+    pub fn build(self, bag: &'a CibouletteStore) -> Result<CibouletteRequest<'a>, CibouletteError> {
         let body: Option<CibouletteTopLevel<'a>> = match self.body {
             // Build body
             Some(body) => {

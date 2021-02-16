@@ -16,7 +16,6 @@ use serde_utils::{handle_ident_in_map_stateful, handle_ident_in_map_stateless};
 use std::borrow::Cow;
 use std::collections::{BTreeMap, BTreeSet, HashMap};
 
-pub use body::bag::CibouletteBag;
 pub use body::errors_obj::{CibouletteErrorLink, CibouletteErrorObj, CibouletteErrorSource};
 pub use body::link::{
     CibouletteLink, CibouletteLinkObj, CibouletteTopLevelLink, CibouletteTopLevelPagination,
@@ -30,6 +29,7 @@ pub use body::resource_obj_selector::{
     CibouletteResourceSelector, CibouletteResourceSelectorBuilder,
 };
 pub use body::resource_type::CibouletteResourceType;
+pub use body::store::CibouletteStore;
 pub use body::top_level::{CibouletteTopLevel, CibouletteTopLevelBuilder};
 
 pub use query::{

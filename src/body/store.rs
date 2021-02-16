@@ -2,15 +2,15 @@ use super::*;
 
 /// ## Map of accepted resource types
 #[derive(Clone, Debug)]
-pub struct CibouletteBag {
+pub struct CibouletteStore {
     graph: petgraph::graph::Graph<CibouletteResourceType, bool, petgraph::Directed, u16>,
     map: BTreeMap<String, petgraph::graph::NodeIndex<u16>>,
 }
 
-impl<'a> CibouletteBag {
+impl<'a> CibouletteStore {
     /// Create a new bag
     pub fn new() -> Self {
-        CibouletteBag {
+        CibouletteStore {
             graph: petgraph::graph::Graph::with_capacity(0, 0),
             map: BTreeMap::new(),
         }

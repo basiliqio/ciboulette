@@ -72,7 +72,7 @@ impl<'a> CibouletteQueryParametersBuilder<'a> {
     /// if there is no relationship between those two resources.
     #[inline]
     fn check_relationship_exists(
-        bag: &'a CibouletteBag,
+        bag: &'a CibouletteStore,
         type_list: &[Cow<'a, str>],
     ) -> Result<&'a CibouletteResourceType, CibouletteError> {
         let mut wtype: &CibouletteResourceType;
@@ -182,7 +182,7 @@ impl<'a> CibouletteQueryParametersBuilder<'a> {
     /// Build a [CibouletteQueryParametersBuilder](CibouletteQueryParametersBuilder) from the builder
     pub fn build(
         self,
-        bag: &'a CibouletteBag,
+        bag: &'a CibouletteStore,
         main_type: Option<&'a CibouletteResourceType>,
     ) -> Result<CibouletteQueryParameters<'a>, CibouletteError> {
         let mut sparse: BTreeMap<&'a CibouletteResourceType, Vec<Cow<'a, str>>> = BTreeMap::new();

@@ -10,7 +10,7 @@ mod sorting;
 mod sparse;
 
 #[inline]
-fn setup(input: &str) -> (CibouletteBag, CibouletteQueryParametersBuilder<'_>) {
+fn setup(input: &str) -> (CibouletteStore, CibouletteQueryParametersBuilder<'_>) {
     let bag = gen_bag();
     let builder: CibouletteQueryParametersBuilder =
         serde_urlencoded::from_str(input).expect("to parse");

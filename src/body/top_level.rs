@@ -193,7 +193,10 @@ impl<'de> Deserialize<'de> for CibouletteTopLevelBuilder<'de> {
 
 impl<'a> CibouletteTopLevelBuilder<'a> {
     /// Build a [CibouletteTopLevel](CibouletteTopLevel) from the builder
-    pub fn build(self, bag: &'a CibouletteBag) -> Result<CibouletteTopLevel<'a>, CibouletteError> {
+    pub fn build(
+        self,
+        bag: &'a CibouletteStore,
+    ) -> Result<CibouletteTopLevel<'a>, CibouletteError> {
         let res: CibouletteTopLevel<'a>;
 
         let data = match self.data {
@@ -375,7 +378,7 @@ impl<'a> CibouletteTopLevel<'a> {
     /// If it's a single document request, the type of the document is used.
     /// If it's a compound documen request and all the document are the same type, then this type is used.
     /// Else `None` is returned
-    pub fn get_main_type(&self, bag: &'a CibouletteBag) -> Option<&'a CibouletteResourceType> {
+    pub fn get_main_type(&self, bag: &'a CibouletteStore) -> Option<&'a CibouletteResourceType> {
         self.data().as_ref().and_then(|data| match data {
             CibouletteResourceSelector::One(x) => bag.get_type(x.identifier().type_().as_ref()),
             CibouletteResourceSelector::Many(types) => {
