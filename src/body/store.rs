@@ -7,13 +7,21 @@ pub struct CibouletteStore {
     map: BTreeMap<String, petgraph::graph::NodeIndex<u16>>,
 }
 
-impl<'a> CibouletteStore {
-    /// Create a new bag
-    pub fn new() -> Self {
+impl Default for CibouletteStore {
+    #[inline]
+    fn default() -> Self {
         CibouletteStore {
             graph: petgraph::graph::Graph::with_capacity(0, 0),
             map: BTreeMap::new(),
         }
+    }
+}
+
+impl<'a> CibouletteStore {
+    /// Create a new bag
+    #[inline]
+    pub fn new() -> Self {
+        CibouletteStore::default()
     }
 
     /// Get the inner map
@@ -26,6 +34,16 @@ impl<'a> CibouletteStore {
         &self,
     ) -> &petgraph::graph::Graph<CibouletteResourceType, bool, petgraph::Directed, u16> {
         &self.graph
+    }
+
+    /// Get a type from the graph
+    pub fn get_type_with_index(
+        &'a self,
+        name: &str,
+    ) -> Option<(petgraph::graph::NodeIndex<u16>, &'a CibouletteResourceType)> {
+        self.map
+            .get(name)
+            .and_then(|x| self.graph.node_weight(*x).map(|y| (*x, y)))
     }
 
     /// Get a type from the graph
@@ -85,31 +103,56 @@ impl<'a> CibouletteStore {
         &mut self,
         from: &str,
         to: &str,
-        alias: Option<&str>,
+        alias_from: Option<&str>,
+        alias_to: Option<&str>,
         optional: bool,
     ) -> Result<(), CibouletteError> {
         let from_i = self
             .map
             .get(from)
-            .ok_or_else(|| CibouletteError::UnknownType(from.to_string()))?;
+            .ok_or_else(|| CibouletteError::UnknownType(from.to_string()))?; // Get `from` index
         let to_i = self
             .map
             .get(to)
-            .ok_or_else(|| CibouletteError::UnknownType(to.to_string()))?;
-        let edge_i = self.graph.update_edge(*from_i, *to_i, optional);
-        let type_ = self
-            .graph
-            .node_weight_mut(*from_i)
-            .ok_or_else(|| CibouletteError::TypeNotInGraph(from.to_string()))?;
-        let alias = alias.unwrap_or(to);
-        if type_.relationships().contains_key(alias) {
-            self.graph.remove_edge(edge_i); // Cancel the created edge
-            return Err(CibouletteError::UniqRelationship(
-                from.to_string(),
-                alias.to_string(),
-            ));
+            .ok_or_else(|| CibouletteError::UnknownType(to.to_string()))?; // Get `to index
+        let edge_i = self.graph.update_edge(*from_i, *to_i, optional); // Get the edge index
+        let edge_i_reverse = self.graph.update_edge(*to_i, *from_i, false); // Get the edge index
+        {
+            // Handle edge
+            let type_ = self
+                .graph
+                .node_weight_mut(*from_i)
+                .ok_or_else(|| CibouletteError::TypeNotInGraph(from.to_string()))?; // Get the type
+            let alias = alias_to.unwrap_or(to); // Override if there is no alias
+            if type_.relationships().contains_key(alias) {
+                // Check if relationship exists
+                self.graph.remove_edge(edge_i); // Cancel the created edge
+                self.graph.remove_edge(edge_i_reverse); // Cancel the created edge (reverse)
+                return Err(CibouletteError::UniqRelationship(
+                    from.to_string(),
+                    alias.to_string(),
+                ));
+            }
+            type_.relationships_mut().insert(alias.to_string(), edge_i); // Insert the relationship
         }
-        type_.relationships_mut().insert(alias.to_string(), edge_i);
+        {
+            // Handle reverse edge
+            let type_ = self
+                .graph
+                .node_weight_mut(*to_i)
+                .ok_or_else(|| CibouletteError::TypeNotInGraph(to.to_string()))?; // Get the type
+            let alias = alias_from.unwrap_or(from); // Override if there is no alias
+            if type_.relationships().contains_key(alias) {
+                // Check if relationship exists
+                self.graph.remove_edge(edge_i); // Cancel the created edge
+                self.graph.remove_edge(edge_i_reverse); // Cancel the created edge (reverse)
+                return Err(CibouletteError::UniqRelationship(
+                    to.to_string(),
+                    alias.to_string(),
+                ));
+            }
+            type_.relationships_mut().insert(alias.to_string(), edge_i); // Insert the relationship
+        }
         Ok(())
     }
 }

@@ -75,39 +75,43 @@ impl<'a> CibouletteQueryParametersBuilder<'a> {
         bag: &'a CibouletteStore,
         type_list: &[Cow<'a, str>],
     ) -> Result<&'a CibouletteResourceType, CibouletteError> {
-        let mut wtype: &CibouletteResourceType;
+        let mut wtype: (petgraph::graph::NodeIndex<u16>, &CibouletteResourceType);
         let mut types_iter = type_list.iter();
 
-        {
-            let type_ = types_iter
-                .next()
-                .ok_or_else(|| CibouletteError::UnknownType("<empty>".to_string()))?;
-            wtype = bag
-                .get_type(type_.as_ref())
-                .ok_or_else(|| CibouletteError::UnknownType(type_.to_string()))?;
-        }
+        let type_ = types_iter
+            .next()
+            .ok_or_else(|| CibouletteError::UnknownType("<empty>".to_string()))?;
+        wtype = bag
+            .get_type_with_index(type_.as_ref())
+            .ok_or_else(|| CibouletteError::UnknownType(type_.to_string()))?;
         for type_ in types_iter {
-            let rel_edge = match wtype.relationships().get(type_.as_ref()) {
+            let rel_edge = match wtype.1.relationships().get(type_.as_ref()) {
                 Some(i) => i,
                 None => {
                     return Err(CibouletteError::UnknownRelationship(
-                        wtype.name().clone(),
+                        wtype.1.name().clone(),
                         type_.to_string(),
                     ))
                 }
             };
-            let curr_type = bag
+            let nodes = bag
                 .graph()
-                .node_weight(
-                    bag.graph()
-                        .edge_endpoints(*rel_edge)
-                        .ok_or_else(|| CibouletteError::RelNotInGraph(type_.clone().into_owned()))?
-                        .1,
-                )
-                .ok_or_else(|| CibouletteError::TypeNotInGraph(type_.clone().into_owned()))?;
+                .edge_endpoints(*rel_edge)
+                .ok_or_else(|| CibouletteError::RelNotInGraph(type_.clone().into_owned()))?; // Get the nodes
+            let next_node = match nodes.0 == wtype.0 {
+                // Extract the next node
+                true => nodes.1,
+                false => nodes.0,
+            };
+            let curr_type = (
+                next_node,
+                bag.graph()
+                    .node_weight(next_node)
+                    .ok_or_else(|| CibouletteError::TypeNotInGraph(type_.clone().into_owned()))?,
+            );
             wtype = curr_type;
         }
-        Ok(wtype)
+        Ok(wtype.1)
     }
 
     /// Checks that a field exists in a give resource type
