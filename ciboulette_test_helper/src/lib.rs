@@ -88,70 +88,7 @@ fn gen_messy_json_schema_peoples() -> MessyJson {
     )))
 }
 
-// fn gen_messy_json_schema2() -> MessyJson {
-//     MessyJson::Obj(Box::new(MessyJsonObject::new(
-//         vec![
-//             (
-//                 "bonjour".to_string(),
-//                 MessyJson::String(MessyJsonScalar::new(false)),
-//             ),
-//             (
-//                 "monde".to_string(),
-//                 MessyJson::String(MessyJsonScalar::new(false)),
-//             ),
-//         ]
-//         .into_iter()
-//         .collect(),
-//         false,
-//     )))
-// }
-
-// fn gen_messy_json_schema3() -> MessyJson {
-//     MessyJson::Obj(Box::new(MessyJsonObject::new(
-//         vec![(
-//             "p".to_string(),
-//             MessyJson::String(MessyJsonScalar::new(false)),
-//         )]
-//         .into_iter()
-//         .collect(),
-//         false,
-//     )))
-// }
-
 pub fn gen_bag() -> CibouletteStore {
-    // let type1 = CibouletteResourceType::new(
-    //     "articles".to_string(),
-    //     gen_messy_json_schema_articles(),
-    //     vec![
-    //         ("author".to_string(), "peoples".to_string()),
-    //         ("comments".to_string(), "comments".to_string()),
-    //     ],
-    // );
-    // let type2 = CibouletteResourceType::new(
-    //     "comments".to_string(),
-    //     gen_messy_json_schema_comments(),
-    //     vec![
-    //         ("author".to_string(), "peoples".to_string()),
-    //         ("articles".to_string(), "articles".to_string()),
-    //     ],
-    // );
-    // let type3 = CibouletteResourceType::new(
-    //     "peoples".to_string(),
-    //     gen_messy_json_schema_peoples(),
-    //     vec![
-    //         ("comments".to_string(), "comments".to_string()),
-    //         ("articles".to_string(), "articles".to_string()),
-    //     ],
-    // );
-    // CibouletteStore::new(
-    //     vec![
-    //         ("articles".to_string(), type1),
-    //         ("comments".to_string(), type2),
-    //         ("peoples".to_string(), type3),
-    //     ]
-    //     .into_iter()
-    //     .collect(),
-    // )
 	let mut res = CibouletteStore::new();
 
 	res.add_type("articles".to_string(), gen_messy_json_schema_articles()).unwrap();

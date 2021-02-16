@@ -50,8 +50,10 @@ pub enum CibouletteError {
     RelNotInGraph(String),
     #[error("The key `{0}` must be present {1} `{2}`")]
     KeyClash(String, CibouletteClashDirection, String),
-    #[error("The member name {0} doesn't respect the json:api specification`")]
+    #[error("The member name {0} doesn't respect the json:api specification")]
     InvalidMemberName(String),
+    #[error("The `attributes` should be an object")]
+    AttributesIsNotAnObject,
     /// When there is a failure while deserializing the JSON
     #[error("An unkown error occured : {0}")]
     UnknownError(String),

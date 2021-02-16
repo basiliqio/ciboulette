@@ -34,7 +34,6 @@ fn ok() {
         data.attributes()
             .clone()
             .unwrap()
-            .inner()
             .eq(&parse_attribute_comments()),
         true,
         "attributes object mismatch"

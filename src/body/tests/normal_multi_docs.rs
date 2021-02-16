@@ -34,7 +34,6 @@ fn single_ok() {
             .attributes()
             .clone()
             .unwrap()
-            .inner()
             .eq(&parse_attribute_comments()),
         true,
         "attributes object mismatch"

@@ -20,7 +20,7 @@ pub struct CibouletteResourceBuilder<'a> {
 #[getset(get = "pub")]
 pub struct CibouletteResource<'a> {
     identifier: CibouletteResourceIdentifier<'a>,
-    attributes: Option<MessyJsonValueContainer<'a>>,
+    attributes: Option<MessyJsonObjectValue<'a>>,
     relationships: HashMap<Cow<'a, str>, CibouletteRelationshipObject<'a>>,
     links: Option<CibouletteLink<'a>>,
 }
@@ -196,19 +196,21 @@ impl<'a> CibouletteResourceBuilder<'a> {
         self,
         bag: &'a CibouletteStore,
     ) -> Result<CibouletteResource<'a>, CibouletteError> {
-        let attributes: Option<MessyJsonValueContainer<'a>> = match self.attributes {
+        let attributes: Option<MessyJsonObjectValue<'a>> = match self.attributes {
             Some(attributes) => {
                 let type_ident = self.identifier().type_().as_ref();
                 let resource_type = bag
                     .get_type(type_ident)
                     .ok_or_else(|| CibouletteError::UnknownType(type_ident.to_string()))?;
                 let mut deserializer = serde_json::Deserializer::from_str(attributes.get());
-                Some(
-                    resource_type
-                        .schema()
-                        .builder()
-                        .deserialize(&mut deserializer)?,
-                )
+                let container = resource_type
+                    .schema()
+                    .builder()
+                    .deserialize(&mut deserializer)?;
+                match container.take() {
+                    MessyJsonValue::Obj(obj) => Some(obj),
+                    _ => return Err(CibouletteError::AttributesIsNotAnObject),
+                }
             }
             None => None,
         };
@@ -222,14 +224,15 @@ impl<'a> CibouletteResourceBuilder<'a> {
 }
 
 impl<'a> CibouletteResource<'a> {
-    fn check_member_name_routine(val: &MessyJsonValue<'a>) -> Option<String> {
+    #[inline]
+    fn check_member_name_inner(val: &MessyJsonValue<'a>) -> Option<String> {
         match val {
             MessyJsonValue::Obj(map) => {
                 for (k, v) in map.iter() {
                     if !crate::member_name::check_member_name(&*k) {
                         return Some(k.to_string());
                     }
-                    if let Some(x) = Self::check_member_name_routine(v) {
+                    if let Some(x) = Self::check_member_name_inner(v) {
                         return Some(x);
                     }
                 }
@@ -237,7 +240,7 @@ impl<'a> CibouletteResource<'a> {
             }
             MessyJsonValue::Array(arr) => {
                 for element in arr.iter() {
-                    if let Some(x) = Self::check_member_name_routine(element) {
+                    if let Some(x) = Self::check_member_name_inner(element) {
                         return Some(x);
                     }
                 }
@@ -246,11 +249,23 @@ impl<'a> CibouletteResource<'a> {
             _ => None,
         }
     }
+    #[inline]
+    fn check_member_name_top(val: &BTreeMap<Cow<'a, str>, MessyJsonValue<'a>>) -> Option<String> {
+        for (k, v) in val.iter() {
+            if !crate::member_name::check_member_name(&*k) {
+                return Some(k.to_string());
+            }
+            if let Some(x) = Self::check_member_name_inner(v) {
+                return Some(x);
+            }
+        }
+        None
+    }
 
     pub fn check_member_name(&self) -> Result<(), CibouletteError> {
         match self.attributes() {
             Some(attributes) => {
-                if let Some(x) = Self::check_member_name_routine(attributes.inner()) {
+                if let Some(x) = Self::check_member_name_top(attributes) {
                     return Err(CibouletteError::InvalidMemberName(x));
                 }
                 Ok(())
