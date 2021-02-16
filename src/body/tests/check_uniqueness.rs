@@ -175,7 +175,7 @@ fn non_uniq_rel() {
     let doc = CibouletteTopLevelBuilder::deserialize(&mut deserializer).expect("no error");
     let err: CibouletteError = doc.build(&bag).expect_err("uniqueness error");
     match err {
-        CibouletteError::UniqRelationship(type_, id) => {
+        CibouletteError::UniqRelationshipObject(type_, id) => {
             assert_eq!(type_, "peoples".to_string(), "id mismatch");
             assert_eq!(
                 id,
@@ -229,7 +229,7 @@ fn non_uniq_rel2() {
     let doc = CibouletteTopLevelBuilder::deserialize(&mut deserializer).expect("no error");
     let err: CibouletteError = doc.build(&bag).expect_err("uniqueness error");
     match err {
-        CibouletteError::UniqRelationship(type_, id) => {
+        CibouletteError::UniqRelationshipObject(type_, id) => {
             assert_eq!(type_, "peoples".to_string(), "id mismatch");
             assert_eq!(
                 id,

@@ -119,39 +119,54 @@ fn gen_messy_json_schema_peoples() -> MessyJson {
 // }
 
 pub fn gen_bag() -> CibouletteBag {
-    let type1 = CibouletteResourceType::new(
-        "articles".to_string(),
-        gen_messy_json_schema_articles(),
-        vec![
-            ("author".to_string(), "peoples".to_string()),
-            ("comments".to_string(), "comments".to_string()),
-        ],
-    );
-    let type2 = CibouletteResourceType::new(
-        "comments".to_string(),
-        gen_messy_json_schema_comments(),
-        vec![
-            ("author".to_string(), "peoples".to_string()),
-            ("articles".to_string(), "articles".to_string()),
-        ],
-    );
-    let type3 = CibouletteResourceType::new(
-        "peoples".to_string(),
-        gen_messy_json_schema_peoples(),
-        vec![
-            ("comments".to_string(), "comments".to_string()),
-            ("articles".to_string(), "articles".to_string()),
-        ],
-    );
-    CibouletteBag::new(
-        vec![
-            ("articles".to_string(), type1),
-            ("comments".to_string(), type2),
-            ("peoples".to_string(), type3),
-        ]
-        .into_iter()
-        .collect(),
-    )
+    // let type1 = CibouletteResourceType::new(
+    //     "articles".to_string(),
+    //     gen_messy_json_schema_articles(),
+    //     vec![
+    //         ("author".to_string(), "peoples".to_string()),
+    //         ("comments".to_string(), "comments".to_string()),
+    //     ],
+    // );
+    // let type2 = CibouletteResourceType::new(
+    //     "comments".to_string(),
+    //     gen_messy_json_schema_comments(),
+    //     vec![
+    //         ("author".to_string(), "peoples".to_string()),
+    //         ("articles".to_string(), "articles".to_string()),
+    //     ],
+    // );
+    // let type3 = CibouletteResourceType::new(
+    //     "peoples".to_string(),
+    //     gen_messy_json_schema_peoples(),
+    //     vec![
+    //         ("comments".to_string(), "comments".to_string()),
+    //         ("articles".to_string(), "articles".to_string()),
+    //     ],
+    // );
+    // CibouletteBag::new(
+    //     vec![
+    //         ("articles".to_string(), type1),
+    //         ("comments".to_string(), type2),
+    //         ("peoples".to_string(), type3),
+    //     ]
+    //     .into_iter()
+    //     .collect(),
+    // )
+	let mut res = CibouletteBag::new();
+
+	res.add_type("articles".to_string(), gen_messy_json_schema_articles()).unwrap();
+	res.add_type("comments".to_string(), gen_messy_json_schema_comments()).unwrap();
+	res.add_type("peoples".to_string(), gen_messy_json_schema_peoples()).unwrap();
+
+	res.add_rel("articles", "peoples", Some("author"), false).unwrap(); // Articles -> Peoples
+	res.add_rel("articles", "comments", None, false).unwrap(); // Articles -> Comments
+	
+	res.add_rel("comments", "peoples", Some("author"), false).unwrap(); // Comments -> Peoples
+	res.add_rel("comments", "articles", None, false).unwrap(); // Comments -> Articles
+	
+	res.add_rel("peoples", "comments", None, false).unwrap(); // Peoples -> Comments
+	res.add_rel("peoples", "articles", None, false).unwrap(); // Peoples -> Articles
+	res
 }
 
 pub fn check_ident(ident: &CibouletteResourceIdentifier, type_: &str, id: &str) {

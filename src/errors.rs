@@ -34,17 +34,27 @@ pub enum CibouletteError {
     IncompatibleSorting,
     #[error("The resource object ({0}, {1}) should be unique by `type` and `id`")]
     UniqObj(String, String),
+    #[error("The type `{0}` is already defined")]
+    UniqType(String),
     #[error("The resource relationship ({0}, {1}) should be unique by `type` and `id`")]
+    UniqRelationshipObject(String, String),
+    #[error("The relationship between {0} and {1} already exists")]
     UniqRelationship(String, String),
     #[error("The linked object ({0}, {1}) is missing")]
     MissingLink(String, String),
     #[error("The linked object ({0}, {1}) is not completely linked")]
     NoCompleteLinkage(String, String),
+    #[error("Type `{0}` is not in the graph")]
+    TypeNotInGraph(String),
+    #[error("Type `{0}` is not in the graph")]
+    RelNotInGraph(String),
     #[error("The key `{0}` must be present {1} `{2}`")]
     KeyClash(String, CibouletteClashDirection, String),
     #[error("The member name {0} doesn't respect the json:api specification`")]
     InvalidMemberName(String),
     /// When there is a failure while deserializing the JSON
+    #[error("An unkown error occured : {0}")]
+    UnknownError(String),
     #[error(transparent)]
     SerdeJson(#[from] serde_json::Error),
     #[error(transparent)]

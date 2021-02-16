@@ -8,7 +8,7 @@ fn single() {
     assert_eq!(res.include().is_some(), true);
     let include = res.include().as_ref().unwrap();
     assert_eq!(include.len(), 1);
-    assert_eq!(include[0], bag.map().get("comments").unwrap());
+    assert_eq!(include[0], bag.get_type("comments").unwrap());
 }
 
 #[test]
@@ -19,8 +19,8 @@ fn multiple() {
     assert_eq!(res.include().is_some(), true);
     let include = res.include().as_ref().unwrap();
     assert_eq!(include.len(), 2);
-    assert_eq!(include[0], bag.map().get("comments").unwrap());
-    assert_eq!(include[1], bag.map().get("articles").unwrap());
+    assert_eq!(include[0], bag.get_type("comments").unwrap());
+    assert_eq!(include[1], bag.get_type("articles").unwrap());
 }
 
 #[test]
@@ -28,12 +28,12 @@ fn single_with_nesting() {
     let (bag, builder) = setup(r#"include=peoples.comments"#);
 
     let res: CibouletteQueryParameters = builder
-        .build(&bag, Some(bag.map().get("peoples").unwrap()))
+        .build(&bag, Some(bag.get_type("peoples").unwrap()))
         .expect("to build correctly");
     assert_eq!(res.include().is_some(), true);
     let include = res.include().as_ref().unwrap();
     assert_eq!(include.len(), 1);
-    assert_eq!(include[0], bag.map().get("comments").unwrap());
+    assert_eq!(include[0], bag.get_type("comments").unwrap());
 }
 
 #[test]
@@ -41,13 +41,13 @@ fn multiple_with_nesting() {
     let (bag, builder) = setup(r#"include=peoples.comments,peoples.articles"#);
 
     let res: CibouletteQueryParameters = builder
-        .build(&bag, Some(bag.map().get("peoples").unwrap()))
+        .build(&bag, Some(bag.get_type("peoples").unwrap()))
         .expect("to build correctly");
     assert_eq!(res.include().is_some(), true);
     let include = res.include().as_ref().unwrap();
     assert_eq!(include.len(), 2);
-    assert_eq!(include[0], bag.map().get("comments").unwrap());
-    assert_eq!(include[1], bag.map().get("articles").unwrap());
+    assert_eq!(include[0], bag.get_type("comments").unwrap());
+    assert_eq!(include[1], bag.get_type("articles").unwrap());
 }
 
 #[test]
@@ -114,5 +114,5 @@ fn alias_type_with_nested_type() {
 
     let include = res.include().as_ref().unwrap();
     assert_eq!(include.len(), 1);
-    assert_eq!(include[0], bag.map().get("peoples").unwrap());
+    assert_eq!(include[0], bag.get_type("peoples").unwrap());
 }

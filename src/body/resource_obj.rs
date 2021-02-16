@@ -197,8 +197,7 @@ impl<'a> CibouletteResourceBuilder<'a> {
             Some(attributes) => {
                 let type_ident = self.identifier().type_().as_ref();
                 let resource_type = bag
-                    .map()
-                    .get(type_ident)
+                    .get_type(type_ident)
                     .ok_or_else(|| CibouletteError::UnknownType(type_ident.to_string()))?;
                 let mut deserializer = serde_json::Deserializer::from_str(attributes.get());
                 Some(

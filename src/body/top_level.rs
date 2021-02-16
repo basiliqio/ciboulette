@@ -251,7 +251,7 @@ impl<'a> CibouletteTopLevel<'a> {
             match rel.data() {
                 Some(CibouletteResourceIdentifierSelector::One(el)) => {
                     if !linked_set.insert((el.type_(), el.id())) {
-                        return Err(CibouletteError::UniqRelationship(
+                        return Err(CibouletteError::UniqRelationshipObject(
                             el.type_().to_string(),
                             el.id().to_string(),
                         ));
@@ -260,7 +260,7 @@ impl<'a> CibouletteTopLevel<'a> {
                 Some(CibouletteResourceIdentifierSelector::Many(els)) => {
                     for el in els.iter() {
                         if !linked_set.insert((el.type_(), el.id())) {
-                            return Err(CibouletteError::UniqRelationship(
+                            return Err(CibouletteError::UniqRelationshipObject(
                                 el.type_().to_string(),
                                 el.id().to_string(),
                             ));
@@ -377,7 +377,7 @@ impl<'a> CibouletteTopLevel<'a> {
     /// Else `None` is returned
     pub fn get_main_type(&self, bag: &'a CibouletteBag) -> Option<&'a CibouletteResourceType> {
         self.data().as_ref().and_then(|data| match data {
-            CibouletteResourceSelector::One(x) => bag.map().get(x.identifier().type_().as_ref()),
+            CibouletteResourceSelector::One(x) => bag.get_type(x.identifier().type_().as_ref()),
             CibouletteResourceSelector::Many(types) => {
                 let mut titer = types.iter();
                 let first_type = match titer.next() {
@@ -389,7 +389,7 @@ impl<'a> CibouletteTopLevel<'a> {
                         return None;
                     }
                 }
-                bag.map().get(first_type.as_ref())
+                bag.get_type(first_type.as_ref())
             }
         })
     }

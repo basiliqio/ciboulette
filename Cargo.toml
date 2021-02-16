@@ -14,6 +14,8 @@ thiserror = "1"
 getset = "0.1"
 messy_json = { git = "https://gitlab.com/basiliq/messy_json.git"}
 lazy_static = "1.4"
+petgraph = { version = "0.5.1", default-features = false }
+
 
 [dev-dependencies.cargo-husky]
 version = "1"

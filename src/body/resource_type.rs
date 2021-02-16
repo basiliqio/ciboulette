@@ -4,16 +4,16 @@ use super::*;
 #[derive(Clone, Debug, Getters, MutGetters)]
 #[getset(get = "pub", get_mut = "pub")]
 pub struct CibouletteResourceType {
-    relationships: BTreeMap<String, String>,
+    relationships: BTreeMap<String, petgraph::graph::EdgeIndex<u16>>,
     schema: MessyJson,
     name: String,
 }
 
 impl CibouletteResourceType {
     /// Create a new type from a schema and a list of relationships
-    pub fn new(name: String, schema: MessyJson, relationships: Vec<(String, String)>) -> Self {
+    pub fn new(name: String, schema: MessyJson) -> Self {
         CibouletteResourceType {
-            relationships: relationships.into_iter().collect(),
+            relationships: BTreeMap::new(),
             schema,
             name,
         }

@@ -83,13 +83,12 @@ impl<'a> CibouletteQueryParametersBuilder<'a> {
                 .next()
                 .ok_or_else(|| CibouletteError::UnknownType("<empty>".to_string()))?;
             wtype = bag
-                .map()
-                .get(type_.as_ref())
+                .get_type(type_.as_ref())
                 .ok_or_else(|| CibouletteError::UnknownType(type_.to_string()))?;
         }
         for type_ in types_iter {
-            let curr_type_name = match wtype.relationships().get(type_.as_ref()) {
-                Some(name) => name,
+            let rel_edge = match wtype.relationships().get(type_.as_ref()) {
+                Some(i) => i,
                 None => {
                     return Err(CibouletteError::UnknownRelationship(
                         wtype.name().clone(),
@@ -97,9 +96,15 @@ impl<'a> CibouletteQueryParametersBuilder<'a> {
                     ))
                 }
             };
-            let curr_type = bag.map().get(curr_type_name).ok_or_else(|| {
-                CibouletteError::UnknownRelationship(wtype.name().clone(), type_.to_string())
-            })?;
+            let curr_type = bag
+                .graph()
+                .node_weight(
+                    bag.graph()
+                        .edge_endpoints(*rel_edge)
+                        .ok_or_else(|| CibouletteError::RelNotInGraph(type_.clone().into_owned()))?
+                        .1,
+                )
+                .ok_or_else(|| CibouletteError::TypeNotInGraph(type_.clone().into_owned()))?;
             wtype = curr_type;
         }
         Ok(wtype)
