@@ -21,9 +21,9 @@ pub struct CibouletteRequestBuilder<'a> {
 #[derive(Debug, Getters)]
 #[getset(get = "pub")]
 pub struct CibouletteRequest<'a> {
-    query: Option<CibouletteQueryParameters<'a>>,
-    body: Option<CibouletteTopLevel<'a>>,
-    intention: CibouletteIntention,
+    pub query: Option<CibouletteQueryParameters<'a>>,
+    pub body: Option<CibouletteTopLevel<'a>>,
+    pub intention: CibouletteIntention,
 }
 
 impl<'a> CibouletteRequestBuilder<'a> {

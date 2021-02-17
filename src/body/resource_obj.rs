@@ -19,10 +19,10 @@ pub struct CibouletteResourceBuilder<'a> {
 #[derive(Debug, Getters)]
 #[getset(get = "pub")]
 pub struct CibouletteResource<'a> {
-    identifier: CibouletteResourceIdentifier<'a>,
-    attributes: Option<MessyJsonObjectValue<'a>>,
-    relationships: HashMap<Cow<'a, str>, CibouletteRelationshipObject<'a>>,
-    links: Option<CibouletteLink<'a>>,
+    pub identifier: CibouletteResourceIdentifier<'a>,
+    pub attributes: Option<MessyJsonObjectValue<'a>>,
+    pub relationships: HashMap<Cow<'a, str>, CibouletteRelationshipObject<'a>>,
+    pub links: Option<CibouletteLink<'a>>,
 }
 
 impl<'a> CibouletteResourceBuilder<'a> {
