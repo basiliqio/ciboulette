@@ -9,3 +9,19 @@ pub struct CibouletteRelationshipObject<'a> {
     pub data: Option<CibouletteResourceIdentifierSelector<'a>>,
     pub meta: HashMap<Cow<'a, str>, Value>,
 }
+
+#[derive(Debug, Clone, Getters)]
+#[getset(get = "pub")]
+pub struct CibouletteRelationshipBucket {
+    resource: CibouletteResourceType,
+    from: String,
+    to: String,
+}
+
+#[derive(Debug, Clone)]
+pub enum CibouletteRelationshipOption {
+    /// One to one relationship, boolean if the relationship is optional
+    One(bool),
+    /// One to many relationship
+    Many(CibouletteRelationshipBucket),
+}

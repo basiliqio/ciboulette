@@ -3,7 +3,12 @@ use super::*;
 /// ## Map of accepted resource types
 #[derive(Clone, Debug)]
 pub struct CibouletteStore {
-    graph: petgraph::graph::Graph<CibouletteResourceType, bool, petgraph::Directed, u16>,
+    graph: petgraph::graph::Graph<
+        CibouletteResourceType,
+        CibouletteRelationshipOption,
+        petgraph::Directed,
+        u16,
+    >,
     map: BTreeMap<String, petgraph::graph::NodeIndex<u16>>,
 }
 
@@ -32,7 +37,12 @@ impl<'a> CibouletteStore {
     /// Get the inner graph
     pub fn graph(
         &self,
-    ) -> &petgraph::graph::Graph<CibouletteResourceType, bool, petgraph::Directed, u16> {
+    ) -> &petgraph::graph::Graph<
+        CibouletteResourceType,
+        CibouletteRelationshipOption,
+        petgraph::Directed,
+        u16,
+    > {
         &self.graph
     }
 
@@ -56,7 +66,8 @@ impl<'a> CibouletteStore {
         &'a self,
         from: &str,
         to: &str,
-    ) -> Result<(&'a CibouletteResourceType, bool), CibouletteError> {
+    ) -> Result<(&'a CibouletteResourceType, &'a CibouletteRelationshipOption), CibouletteError>
+    {
         let from_i = self
             .map
             .get(from)
@@ -76,12 +87,12 @@ impl<'a> CibouletteStore {
             .graph
             .node_weight(to_type_i)
             .ok_or_else(|| CibouletteError::RelNotInGraph(to.to_string()))?;
-        let optional = self
+        let opt = self
             .graph
             .edge_weight(*rel)
             .ok_or_else(|| CibouletteError::RelNotInGraph(to.to_string()))?;
 
-        Ok((to_type, *optional))
+        Ok((to_type, opt))
     }
 
     /// Add a type to the graph
@@ -91,11 +102,32 @@ impl<'a> CibouletteStore {
         {
             return Err(CibouletteError::UniqType(name));
         }
+        if let MessyJson::Obj(_) = schema {
+            let t = CibouletteResourceType::new(name.clone(), schema);
+            let index = self.graph.add_node(t); // Add the node
+            self.map.insert(name, index); // Save the index to the map
+            Ok(())
+        } else {
+            Err(CibouletteError::AttributesIsNotAnObject)
+        }
+    }
 
-        let t = CibouletteResourceType::new(name.clone(), schema);
-        let index = self.graph.add_node(t); // Add the node
-        self.map.insert(name, index); // Save the index to the map
-        Ok(())
+    fn check_type_has_fields(
+        &'a self,
+        type_: &'a CibouletteResourceType,
+        fields: &'a [&'a str],
+    ) -> Result<Option<&str>, CibouletteError> {
+        match type_.schema() {
+            MessyJson::Obj(obj) => {
+                Ok(fields
+                    .iter()
+                    .find_map(|k| match obj.properties().contains_key(*k) {
+                        true => None,
+                        false => Some(*k),
+                    }))
+            }
+            _ => Err(CibouletteError::AttributesIsNotAnObject),
+        }
     }
 
     /// Add a relationships to the graph
@@ -103,7 +135,7 @@ impl<'a> CibouletteStore {
         &mut self,
         (from, alias_from): (&str, Option<&str>),
         (to, alias_to): (&str, Option<&str>),
-        optional: bool,
+        opt: CibouletteRelationshipOption,
     ) -> Result<(), CibouletteError> {
         let from_i = self
             .map
@@ -113,8 +145,33 @@ impl<'a> CibouletteStore {
             .map
             .get(to)
             .ok_or_else(|| CibouletteError::UnknownType(to.to_string()))?; // Get `to index
-        let edge_i = self.graph.update_edge(*from_i, *to_i, optional); // Get the edge index
-        let edge_i_reverse = self.graph.update_edge(*to_i, *from_i, false); // Get the edge index
+        if let CibouletteRelationshipOption::Many(opt) = &opt {
+            // If a one-to-many relationship
+            let type_fetched = self
+                .map()
+                .get(opt.resource().name())
+                .and_then(|x| self.graph.node_weight(*x)); // Check the bucket type exists
+            match type_fetched {
+                None => return Err(CibouletteError::TypeNotInGraph(from.to_string())), // If it doens't, its an error
+                Some(x) if x != opt.resource() => {
+                    return Err(CibouletteError::TypeNotInGraph(from.to_string()));
+                    // If it exists but types aren't equals, it's also an error
+                }
+                Some(x) => {
+                    let fields: [&str; 2] = [opt.from().as_str(), opt.to().as_str()];
+                    if let Some(missing) = self.check_type_has_fields(x, &fields)? {
+                        return Err(CibouletteError::UnknownField(
+                            opt.resource().name().clone(),
+                            missing.to_string(),
+                        ));
+                    }
+                }
+            }
+        }
+        let edge_i = self.graph.update_edge(*from_i, *to_i, opt); // Get the edge index
+        let edge_i_reverse =
+            self.graph
+                .update_edge(*to_i, *from_i, CibouletteRelationshipOption::One(false)); // Get the edge index
         {
             // Handle edge
             let type_ = self

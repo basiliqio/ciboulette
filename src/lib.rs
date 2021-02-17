@@ -20,7 +20,9 @@ pub use body::errors_obj::{CibouletteErrorLink, CibouletteErrorObj, CibouletteEr
 pub use body::link::{
     CibouletteLink, CibouletteLinkObj, CibouletteTopLevelLink, CibouletteTopLevelPagination,
 };
-pub use body::relationship::CibouletteRelationshipObject;
+pub use body::relationship::{
+    CibouletteRelationshipBucket, CibouletteRelationshipObject, CibouletteRelationshipOption,
+};
 pub use body::resource_identifier::{
     CibouletteResourceIdentifier, CibouletteResourceIdentifierSelector,
 };
