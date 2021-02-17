@@ -4,8 +4,8 @@ use super::*;
 #[derive(Debug, Deserialize, Serialize, Getters)]
 #[getset(get = "pub")]
 pub struct CibouletteLinkObj<'a> {
-    href: Cow<'a, str>,
-    meta: HashMap<Cow<'a, str>, Value>,
+    pub href: Cow<'a, str>,
+    pub meta: HashMap<Cow<'a, str>, Value>,
 }
 
 /// ## A selector between simple or complex `json:api` [link](https://jsonapi.org/format/#document-links) inner object
@@ -22,8 +22,8 @@ pub enum CibouletteLinkSelector<'a> {
 #[serde(default)]
 pub struct CibouletteLink<'a> {
     #[serde(rename = "self")]
-    self_: Option<CibouletteLinkSelector<'a>>,
-    related: Option<CibouletteLinkSelector<'a>>,
+    pub self_: Option<CibouletteLinkSelector<'a>>,
+    pub related: Option<CibouletteLinkSelector<'a>>,
 }
 
 /// ## A `json:api` top-level [link](https://jsonapi.org/format/#document-links) object with pagination support
@@ -31,10 +31,10 @@ pub struct CibouletteLink<'a> {
 #[getset(get = "pub")]
 #[serde(default)]
 pub struct CibouletteTopLevelPagination<'a> {
-    first: Option<Cow<'a, str>>,
-    last: Option<Cow<'a, str>>,
-    prev: Option<Cow<'a, str>>,
-    next: Option<Cow<'a, str>>,
+    pub first: Option<Cow<'a, str>>,
+    pub last: Option<Cow<'a, str>>,
+    pub prev: Option<Cow<'a, str>>,
+    pub next: Option<Cow<'a, str>>,
 }
 
 /// ## A `json:api` top-level [link](https://jsonapi.org/format/#document-links) object with pagination support
@@ -43,7 +43,7 @@ pub struct CibouletteTopLevelPagination<'a> {
 #[serde(default)]
 pub struct CibouletteTopLevelLink<'a> {
     #[serde(flatten)]
-    inner_link: CibouletteLink<'a>,
+    pub inner_link: CibouletteLink<'a>,
     #[serde(flatten)]
-    pagination: CibouletteTopLevelPagination<'a>,
+    pub pagination: CibouletteTopLevelPagination<'a>,
 }

@@ -5,10 +5,10 @@ use super::*;
 #[getset(get = "pub", get_mut = "pub")]
 pub struct CibouletteResourceIdentifier<'a> {
     #[serde(rename = "type")]
-    type_: Cow<'a, str>,
-    id: Cow<'a, str>,
+    pub type_: Cow<'a, str>,
+    pub id: Cow<'a, str>,
     #[serde(default)]
-    meta: Value,
+    pub meta: Value,
 }
 
 impl<'a> CibouletteResourceIdentifier<'a> {

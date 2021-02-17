@@ -5,7 +5,7 @@ use super::*;
 #[getset(get = "pub")]
 #[serde(default)]
 pub struct CibouletteRelationshipObject<'a> {
-    links: Option<CibouletteLink<'a>>,
-    data: Option<CibouletteResourceIdentifierSelector<'a>>,
-    meta: HashMap<Cow<'a, str>, Value>,
+    pub links: Option<CibouletteLink<'a>>,
+    pub data: Option<CibouletteResourceIdentifierSelector<'a>>,
+    pub meta: HashMap<Cow<'a, str>, Value>,
 }

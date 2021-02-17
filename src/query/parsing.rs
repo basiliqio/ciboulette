@@ -5,9 +5,9 @@ use serde::de::{DeserializeSeed, Deserializer};
 #[derive(Debug, Getters)]
 #[getset(get = "pub")]
 pub struct CibouletteSortingElement<'a> {
-    type_: &'a CibouletteResourceType,
-    direction: CibouletteSortingDirection,
-    field: Cow<'a, str>,
+    pub type_: &'a CibouletteResourceType,
+    pub direction: CibouletteSortingDirection,
+    pub field: Cow<'a, str>,
 }
 
 impl<'a> CibouletteSortingElement<'a> {
@@ -42,13 +42,13 @@ pub struct CibouletteQueryParametersBuilder<'a> {
 #[derive(Debug, Getters)]
 #[getset(get = "pub")]
 pub struct CibouletteQueryParameters<'a> {
-    include: Option<Vec<&'a CibouletteResourceType>>,
-    sparse: BTreeMap<&'a CibouletteResourceType, Vec<Cow<'a, str>>>,
-    sorting: Vec<CibouletteSortingElement<'a>>,
-    page: BTreeMap<CiboulettePageType<'a>, Cow<'a, str>>,
-    filter: Option<Cow<'a, str>>,
-    filter_typed: BTreeMap<Cow<'a, str>, Cow<'a, str>>,
-    meta: BTreeMap<Cow<'a, str>, Cow<'a, str>>,
+    pub include: Option<Vec<&'a CibouletteResourceType>>,
+    pub sparse: BTreeMap<&'a CibouletteResourceType, Vec<Cow<'a, str>>>,
+    pub sorting: Vec<CibouletteSortingElement<'a>>,
+    pub page: BTreeMap<CiboulettePageType<'a>, Cow<'a, str>>,
+    pub filter: Option<Cow<'a, str>>,
+    pub filter_typed: BTreeMap<Cow<'a, str>, Cow<'a, str>>,
+    pub meta: BTreeMap<Cow<'a, str>, Cow<'a, str>>,
 }
 
 impl<'de> Deserialize<'de> for CibouletteQueryParametersBuilder<'de> {

@@ -18,12 +18,12 @@ pub struct CibouletteTopLevelBuilder<'a> {
 #[derive(Debug, Getters, MutGetters)]
 #[getset(get = "pub", get_mut = "pub")]
 pub struct CibouletteTopLevel<'a> {
-    data: Option<CibouletteResourceSelector<'a>>,
-    errors: Option<CibouletteErrorObj<'a>>,
-    meta: Value,
-    links: Option<CibouletteTopLevelLink<'a>>,
-    included: Vec<CibouletteResource<'a>>,
-    jsonapi: Option<Cow<'a, str>>, // TODO Semver
+    pub data: Option<CibouletteResourceSelector<'a>>,
+    pub errors: Option<CibouletteErrorObj<'a>>,
+    pub meta: Value,
+    pub links: Option<CibouletteTopLevelLink<'a>>,
+    pub included: Vec<CibouletteResource<'a>>,
+    pub jsonapi: Option<Cow<'a, str>>, // TODO Semver
 }
 
 const CIBOULETTE_TOP_LEVEL_FIELDS: &[&str] =
