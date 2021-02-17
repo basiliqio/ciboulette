@@ -189,6 +189,9 @@ impl<'a> CibouletteStore {
                 ));
             }
             type_.relationships_mut().insert(alias.to_string(), edge_i); // Insert the relationship
+            type_
+                .relationships_type_to_alias_mut()
+                .insert(to.to_string(), alias.to_string()); // And the translation between type_ and alias
         }
         {
             // Handle reverse edge
@@ -207,6 +210,9 @@ impl<'a> CibouletteStore {
                 ));
             }
             type_.relationships_mut().insert(alias.to_string(), edge_i); // Insert the relationship
+            type_
+                .relationships_type_to_alias_mut()
+                .insert(to.to_string(), alias.to_string()); // And the translation between type_ and alias
         }
         Ok(())
     }

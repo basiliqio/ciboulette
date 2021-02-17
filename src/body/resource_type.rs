@@ -5,6 +5,7 @@ use super::*;
 #[getset(get = "pub", get_mut = "pub")]
 pub struct CibouletteResourceType {
     relationships: BTreeMap<String, petgraph::graph::EdgeIndex<u16>>,
+    relationships_type_to_alias: BTreeMap<String, String>,
     schema: MessyJson,
     name: String,
 }
@@ -14,6 +15,7 @@ impl CibouletteResourceType {
     pub fn new(name: String, schema: MessyJson) -> Self {
         CibouletteResourceType {
             relationships: BTreeMap::new(),
+            relationships_type_to_alias: BTreeMap::new(),
             schema,
             name,
         }
