@@ -95,9 +95,9 @@ pub fn gen_bag() -> CibouletteStore {
 	res.add_type("comments".to_string(), gen_messy_json_schema_comments()).unwrap();
 	res.add_type("peoples".to_string(), gen_messy_json_schema_peoples()).unwrap();
 
-	res.add_rel("articles", "comments", None, None, false).unwrap(); // Articles -> Comments
-	res.add_rel("peoples", "comments", Some("author"), None, false).unwrap(); // Peoples -> Comments
-	res.add_rel("peoples", "articles", Some("author"), None, false).unwrap(); // Peoples -> Articles
+	res.add_rel(("articles", None), ("comments", None), false).unwrap(); // Articles -> Comments
+	res.add_rel(("peoples", Some("author")), ("comments", None), false).unwrap(); // Peoples -> Comments
+	res.add_rel(("peoples", Some("author")), ("articles", None), false).unwrap(); // Peoples -> Articles
 	res
 }
 

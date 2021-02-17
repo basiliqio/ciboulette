@@ -101,10 +101,8 @@ impl<'a> CibouletteStore {
     /// Add a relationships to the graph
     pub fn add_rel(
         &mut self,
-        from: &str,
-        to: &str,
-        alias_from: Option<&str>,
-        alias_to: Option<&str>,
+        (from, alias_from): (&str, Option<&str>),
+        (to, alias_to): (&str, Option<&str>),
         optional: bool,
     ) -> Result<(), CibouletteError> {
         let from_i = self
