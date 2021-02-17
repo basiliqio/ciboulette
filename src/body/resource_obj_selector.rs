@@ -16,6 +16,44 @@ pub enum CibouletteResourceSelector<'a, T> {
     Many(Vec<CibouletteResource<'a, T>>),
 }
 
+impl<'a> TryFrom<CibouletteResourceSelector<'a, CibouletteResourceIdentifierPermissive<'a>>>
+    for CibouletteResourceSelector<'a, CibouletteResourceIdentifier<'a>>
+{
+    type Error = CibouletteError;
+
+    fn try_from(
+        value: CibouletteResourceSelector<'a, CibouletteResourceIdentifierPermissive<'a>>,
+    ) -> Result<Self, Self::Error> {
+        match value {
+            CibouletteResourceSelector::One(r) => {
+                Ok(CibouletteResourceSelector::One(r.try_into()?))
+            }
+            CibouletteResourceSelector::Many(rs) => Ok(CibouletteResourceSelector::Many(
+                rs.into_iter().map(|x| x.try_into()).collect::<Result<
+                    Vec<CibouletteResource<'a, CibouletteResourceIdentifier<'a>>>,
+                    CibouletteError,
+                >>()?,
+            )),
+        }
+    }
+}
+
+impl<'a> From<CibouletteResourceSelector<'a, CibouletteResourceIdentifier<'a>>>
+    for CibouletteResourceSelector<'a, CibouletteResourceIdentifierPermissive<'a>>
+{
+    fn from(value: CibouletteResourceSelector<'a, CibouletteResourceIdentifier<'a>>) -> Self {
+        match value {
+			CibouletteResourceSelector::One(r) => CibouletteResourceSelector::One(r.into()),
+			CibouletteResourceSelector::Many(rs) => CibouletteResourceSelector::Many(
+				rs.into_iter()
+					.map(|x| x.into())
+					.collect::<Vec<CibouletteResource<'a, CibouletteResourceIdentifierPermissive<'a>>>>(
+					),
+			),
+		}
+    }
+}
+
 #[derive(Clone, Debug)]
 struct CibouletteResourceSelectorBuilderVisitor;
 

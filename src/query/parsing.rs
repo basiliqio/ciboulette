@@ -2,7 +2,7 @@ use super::*;
 use serde::de::{DeserializeSeed, Deserializer};
 
 /// ## Element of a sorting vector.
-#[derive(Debug, Getters)]
+#[derive(Debug, Getters, Clone)]
 #[getset(get = "pub")]
 pub struct CibouletteSortingElement<'a> {
     pub type_: &'a CibouletteResourceType,
@@ -39,7 +39,7 @@ pub struct CibouletteQueryParametersBuilder<'a> {
 }
 
 /// ## Query parameters for `json:api`
-#[derive(Debug, Getters, Default)]
+#[derive(Debug, Getters, Default, Clone)]
 #[getset(get = "pub")]
 pub struct CibouletteQueryParameters<'a> {
     pub include: Option<Vec<&'a CibouletteResourceType>>,

@@ -25,6 +25,50 @@ pub struct CibouletteResource<'a, T> {
     pub links: Option<CibouletteLink<'a>>,
 }
 
+impl<'a> TryFrom<CibouletteResource<'a, CibouletteResourceIdentifierPermissive<'a>>>
+    for CibouletteResource<'a, CibouletteResourceIdentifier<'a>>
+{
+    type Error = CibouletteError;
+
+    fn try_from(
+        value: CibouletteResource<'a, CibouletteResourceIdentifierPermissive<'a>>,
+    ) -> Result<Self, Self::Error> {
+        let CibouletteResource::<'a, CibouletteResourceIdentifierPermissive<'a>> {
+            identifier,
+            attributes,
+            relationships,
+            links,
+        } = value;
+
+        Ok(CibouletteResource::<'a, CibouletteResourceIdentifier<'a>> {
+            identifier: identifier.try_into()?,
+            attributes,
+            relationships,
+            links,
+        })
+    }
+}
+
+impl<'a> From<CibouletteResource<'a, CibouletteResourceIdentifier<'a>>>
+    for CibouletteResource<'a, CibouletteResourceIdentifierPermissive<'a>>
+{
+    fn from(value: CibouletteResource<'a, CibouletteResourceIdentifier<'a>>) -> Self {
+        let CibouletteResource::<'a, CibouletteResourceIdentifier<'a>> {
+            identifier,
+            attributes,
+            relationships,
+            links,
+        } = value;
+
+        CibouletteResource::<'a, CibouletteResourceIdentifierPermissive<'a>> {
+            identifier: identifier.into(),
+            attributes,
+            relationships,
+            links,
+        }
+    }
+}
+
 impl<'a> CibouletteResourceBuilder<'a> {
     pub fn deserialize<R>(d: &mut serde_json::Deserializer<R>) -> Result<Self, serde_json::Error>
     where

@@ -54,6 +54,12 @@ pub enum CibouletteError {
     InvalidMemberName(String),
     #[error("The `attributes` should be an object")]
     AttributesIsNotAnObject,
+    #[error("The `data` object is missing")]
+    NoData,
+    #[error("Missing `id` field for a resource identifier")]
+    MissingId,
+    #[error("Compound documents are forbidden for that kind of request")]
+    NoCompound,
     #[error("No alias translation for `{1}` in type `{0}`")]
     MissingAliasTranslation(String, String),
     /// When there is a failure while deserializing the JSON

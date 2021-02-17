@@ -15,7 +15,7 @@ pub struct CibouletteBodyBuilder<'a> {
 }
 
 /// ## A `json:api` [document](https://jsonapi.org/format/#document-top-level) object
-#[derive(Debug, Getters, MutGetters)]
+#[derive(Debug, Getters, MutGetters, Default)]
 #[getset(get = "pub", get_mut = "pub")]
 pub struct CibouletteBody<'a> {
     pub data: Option<CibouletteResourceSelector<'a, CibouletteResourceIdentifierPermissive<'a>>>,
