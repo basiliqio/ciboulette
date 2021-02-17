@@ -23,10 +23,10 @@ fn single_ok() {
         .expect("to parse the json:api document");
     let doc = doc_builder.build(&bag).expect("to build the document");
     let data = check_multi(&doc.data().as_ref().expect("data to be defined"));
-    check_ident(
+    check_ident_creator(
         data.get(0).unwrap().identifier(),
         "comments",
-        "6720877a-e27e-4e9e-9ac0-3fff4deb55f2",
+        Some("6720877a-e27e-4e9e-9ac0-3fff4deb55f2"),
     );
     assert_eq!(
         data.get(0)

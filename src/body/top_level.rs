@@ -222,6 +222,8 @@ impl<'a> CibouletteTopLevelBuilder<'a> {
 
 impl<'a> CibouletteTopLevel<'a> {
     /// Check that every objects in `data` is unique by `type` and `id`
+    ///
+    /// Shouldn't be called if creating an
     fn check_obj_uniqueness(&self) -> Result<(), CibouletteError> {
         let mut obj_set: BTreeSet<(&str, &str)> = BTreeSet::new();
 
@@ -230,11 +232,16 @@ impl<'a> CibouletteTopLevel<'a> {
                 CibouletteResourceSelector::One(_) => Ok(()),
                 CibouletteResourceSelector::Many(objs) => {
                     for obj in objs.iter() {
-                        if !obj_set.insert((obj.identifier().type_(), obj.identifier().id())) {
-                            return Err(CibouletteError::UniqObj(
-                                obj.identifier().type_().to_string(),
-                                obj.identifier().id().to_string(),
-                            ));
+                        match obj.identifier().id() {
+                            Some(id) => {
+                                if !obj_set.insert((obj.identifier().type_(), id)) {
+                                    return Err(CibouletteError::UniqObj(
+                                        obj.identifier().type_().to_string(),
+                                        id.to_string(),
+                                    ));
+                                }
+                            }
+                            None => continue, //FIXME
                         }
                     }
                     Ok(())
@@ -308,17 +315,22 @@ impl<'a> CibouletteTopLevel<'a> {
         let mut linked_set: BTreeSet<(&str, &str)> = BTreeSet::new();
 
         for obj in self.included().iter() {
-            if !linked_set.insert((obj.identifier().type_(), obj.identifier().id())) {
-                return Err(CibouletteError::UniqObj(
-                    obj.identifier().type_().to_string(),
-                    obj.identifier().id().to_string(),
-                ));
-            }
-            if check_full_linkage && obj.attributes().is_none() {
-                return Err(CibouletteError::NoCompleteLinkage(
-                    obj.identifier().type_().to_string(),
-                    obj.identifier().id().to_string(),
-                ));
+            match obj.identifier().id() {
+                Some(id) => {
+                    if !linked_set.insert((obj.identifier().type_(), id)) {
+                        return Err(CibouletteError::UniqObj(
+                            obj.identifier().type_().to_string(),
+                            id.to_string(),
+                        ));
+                    }
+                    if check_full_linkage && obj.attributes().is_none() {
+                        return Err(CibouletteError::NoCompleteLinkage(
+                            obj.identifier().type_().to_string(),
+                            id.to_string(),
+                        ));
+                    }
+                }
+                None => continue, //FIXME
             }
         }
         Ok(linked_set)

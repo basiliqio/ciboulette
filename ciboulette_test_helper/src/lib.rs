@@ -106,6 +106,12 @@ pub fn check_ident(ident: &CibouletteResourceIdentifier, type_: &str, id: &str) 
     assert_eq!(ident.type_(), type_, "`type`s mismatch");
 }
 
+pub fn check_ident_creator(ident: &CibouletteResourceIdentifierCreator, type_: &str, id: Option<&str>) {
+    assert_eq!(ident.id().as_ref(), id.map(std::borrow::Cow::Borrowed).as_ref(), "`id`s mismatch");
+    assert_eq!(ident.type_(), type_, "`type`s mismatch");
+}
+
+
 pub fn check_single<'a>(
     selector: &'a CibouletteResourceSelector<'a>,
 ) -> &'a CibouletteResource<'a> {

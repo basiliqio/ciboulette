@@ -24,7 +24,8 @@ pub use body::relationship::{
     CibouletteRelationshipBucket, CibouletteRelationshipObject, CibouletteRelationshipOption,
 };
 pub use body::resource_identifier::{
-    CibouletteResourceIdentifier, CibouletteResourceIdentifierSelector,
+    CibouletteResourceIdentifier, CibouletteResourceIdentifierCreator,
+    CibouletteResourceIdentifierSelector,
 };
 pub use body::resource_obj::{CibouletteResource, CibouletteResourceBuilder};
 pub use body::resource_obj_selector::{

@@ -9,7 +9,7 @@ const CIBOULETTE_RESOURCE_FIELDS: &[&str] =
 #[derive(Debug, Getters)]
 #[getset(get = "pub")]
 pub struct CibouletteResourceBuilder<'a> {
-    identifier: CibouletteResourceIdentifier<'a>,
+    identifier: CibouletteResourceIdentifierCreator<'a>,
     attributes: Option<&'a RawValue>,
     relationships: BTreeMap<Cow<'a, str>, CibouletteRelationshipObject<'a>>,
     links: Option<CibouletteLink<'a>>,
@@ -19,7 +19,7 @@ pub struct CibouletteResourceBuilder<'a> {
 #[derive(Debug, Getters)]
 #[getset(get = "pub")]
 pub struct CibouletteResource<'a> {
-    pub identifier: CibouletteResourceIdentifier<'a>,
+    pub identifier: CibouletteResourceIdentifierCreator<'a>,
     pub attributes: Option<MessyJsonObjectValue<'a>>,
     pub relationships: BTreeMap<Cow<'a, str>, CibouletteRelationshipObject<'a>>,
     pub links: Option<CibouletteLink<'a>>,
@@ -166,7 +166,11 @@ impl<'de> serde::de::Visitor<'de> for CibouletteResourceBuilderVisitor {
         let type_ = type_.ok_or_else(|| <A::Error as serde::de::Error>::missing_field("type"))?;
         let relationships = relationships.unwrap_or_default();
         Ok(CibouletteResourceBuilder {
-            identifier: CibouletteResourceIdentifier::new(id, type_, meta.unwrap_or_default()),
+            identifier: CibouletteResourceIdentifierCreator::new(
+                Some(id),
+                type_,
+                meta.unwrap_or_default(),
+            ),
             attributes,
             relationships,
             links,

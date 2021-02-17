@@ -27,6 +27,18 @@ pub struct CibouletteRequest<'a> {
 }
 
 impl<'a> CibouletteRequestBuilder<'a> {
+    pub fn new(
+        query: Option<&'a str>,
+        body: Option<&'a str>,
+        intention: CibouletteIntention,
+    ) -> Self {
+        CibouletteRequestBuilder {
+            query,
+            body,
+            intention,
+        }
+    }
+
     pub fn build(self, bag: &'a CibouletteStore) -> Result<CibouletteRequest<'a>, CibouletteError> {
         let body: Option<CibouletteTopLevel<'a>> = match self.body {
             // Build body

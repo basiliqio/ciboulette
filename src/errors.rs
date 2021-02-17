@@ -54,6 +54,8 @@ pub enum CibouletteError {
     InvalidMemberName(String),
     #[error("The `attributes` should be an object")]
     AttributesIsNotAnObject,
+    #[error("No alias translation for `{1}` in type `{0}`")]
+    MissingAliasTranslation(String, String),
     /// When there is a failure while deserializing the JSON
     #[error("An unkown error occured : {0}")]
     UnknownError(String),
