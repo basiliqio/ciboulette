@@ -409,10 +409,29 @@ impl<'a> CibouletteTopLevel<'a> {
         })
     }
 
+    /// Check if the request is a compound document
     pub fn is_compound(&self) -> bool {
         matches!(
             self.data().as_ref(),
             Some(CibouletteResourceSelector::Many(_))
         )
+    }
+
+    /// Check if the request has data
+    pub fn has_data(&self) -> bool {
+        matches!(self.data(), Some(_))
+    }
+
+    /// Check if the request has all its `id` set (not always the case in creating requests)
+    ///
+    /// true if there is no data
+    pub fn has_all_ids(&self) -> bool {
+        match self.data().as_ref() {
+            Some(CibouletteResourceSelector::One(r)) => r.identifier().id().is_some(),
+            Some(CibouletteResourceSelector::Many(rs)) => {
+                !rs.iter().any(|r| !r.identifier().id().is_some())
+            }
+            _ => true,
+        }
     }
 }
