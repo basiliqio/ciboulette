@@ -20,6 +20,13 @@ impl CibouletteResourceType {
             name,
         }
     }
+
+    /// Get a the alias of a type related to this type
+    pub fn get_alias<'a>(&'a self, name: &str) -> Result<&String, CibouletteError> {
+        self.relationships_type_to_alias().get(name).ok_or_else(|| {
+            CibouletteError::MissingAliasTranslation(self.name().to_string(), name.to_string())
+        })
+    }
 }
 
 impl Ord for CibouletteResourceType {
