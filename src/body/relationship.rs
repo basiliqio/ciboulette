@@ -18,6 +18,12 @@ pub struct CibouletteRelationshipBucket {
     to: String,
 }
 
+impl CibouletteRelationshipBucket {
+    pub fn new(resource: CibouletteResourceType, from: String, to: String) -> Self {
+        CibouletteRelationshipBucket { resource, from, to }
+    }
+}
+
 #[derive(Debug, Clone)]
 pub enum CibouletteRelationshipOption {
     /// One to one relationship, boolean if the relationship is optional

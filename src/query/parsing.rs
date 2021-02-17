@@ -39,7 +39,7 @@ pub struct CibouletteQueryParametersBuilder<'a> {
 }
 
 /// ## Query parameters for `json:api`
-#[derive(Debug, Getters)]
+#[derive(Debug, Getters, Default)]
 #[getset(get = "pub")]
 pub struct CibouletteQueryParameters<'a> {
     pub include: Option<Vec<&'a CibouletteResourceType>>,

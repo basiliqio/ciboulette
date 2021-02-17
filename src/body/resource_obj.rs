@@ -162,12 +162,12 @@ impl<'de> serde::de::Visitor<'de> for CibouletteResourceBuilderVisitor {
             }
         }
 
-        let id = id.ok_or_else(|| <A::Error as serde::de::Error>::missing_field("id"))?;
+        let id = id;
         let type_ = type_.ok_or_else(|| <A::Error as serde::de::Error>::missing_field("type"))?;
         let relationships = relationships.unwrap_or_default();
         Ok(CibouletteResourceBuilder {
             identifier: CibouletteResourceIdentifierCreator::new(
-                Some(id),
+                id,
                 type_,
                 meta.unwrap_or_default(),
             ),

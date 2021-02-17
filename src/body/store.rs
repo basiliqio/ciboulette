@@ -171,7 +171,7 @@ impl<'a> CibouletteStore {
         let edge_i = self.graph.update_edge(*from_i, *to_i, opt); // Get the edge index
         let edge_i_reverse =
             self.graph
-                .update_edge(*to_i, *from_i, CibouletteRelationshipOption::One(false)); // Get the edge index
+                .update_edge(*to_i, *from_i, CibouletteRelationshipOption::One(true)); // Get the edge index
         {
             // Handle edge
             let type_ = self
