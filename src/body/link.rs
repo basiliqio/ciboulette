@@ -1,7 +1,7 @@
 use super::*;
 
 /// ## A `json:api` inner [link](https://jsonapi.org/format/#document-links) object
-#[derive(Debug, Deserialize, Serialize, Getters)]
+#[derive(Debug, Deserialize, Serialize, Getters, Clone)]
 #[getset(get = "pub")]
 pub struct CibouletteLinkObj<'a> {
     pub href: Cow<'a, str>,
@@ -9,7 +9,7 @@ pub struct CibouletteLinkObj<'a> {
 }
 
 /// ## A selector between simple or complex `json:api` [link](https://jsonapi.org/format/#document-links) inner object
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize, Clone)]
 #[serde(untagged)]
 pub enum CibouletteLinkSelector<'a> {
     Simple(Cow<'a, str>),
@@ -17,7 +17,7 @@ pub enum CibouletteLinkSelector<'a> {
 }
 
 /// ## A `json:api` [link](https://jsonapi.org/format/#document-links) object
-#[derive(Debug, Deserialize, Serialize, Getters, Default)]
+#[derive(Debug, Deserialize, Serialize, Getters, Default, Clone)]
 #[getset(get = "pub")]
 #[serde(default)]
 pub struct CibouletteLink<'a> {
@@ -27,10 +27,10 @@ pub struct CibouletteLink<'a> {
 }
 
 /// ## A `json:api` top-level [link](https://jsonapi.org/format/#document-links) object with pagination support
-#[derive(Debug, Deserialize, Serialize, Getters, Default)]
+#[derive(Debug, Deserialize, Serialize, Getters, Default, Clone)]
 #[getset(get = "pub")]
 #[serde(default)]
-pub struct CibouletteTopLevelPagination<'a> {
+pub struct CibouletteBodyPagination<'a> {
     pub first: Option<Cow<'a, str>>,
     pub last: Option<Cow<'a, str>>,
     pub prev: Option<Cow<'a, str>>,
@@ -38,12 +38,12 @@ pub struct CibouletteTopLevelPagination<'a> {
 }
 
 /// ## A `json:api` top-level [link](https://jsonapi.org/format/#document-links) object with pagination support
-#[derive(Debug, Deserialize, Serialize, Getters, Default)]
+#[derive(Debug, Deserialize, Serialize, Getters, Default, Clone)]
 #[getset(get = "pub")]
 #[serde(default)]
-pub struct CibouletteTopLevelLink<'a> {
+pub struct CibouletteBodyLink<'a> {
     #[serde(flatten)]
     pub inner_link: CibouletteLink<'a>,
     #[serde(flatten)]
-    pub pagination: CibouletteTopLevelPagination<'a>,
+    pub pagination: CibouletteBodyPagination<'a>,
 }

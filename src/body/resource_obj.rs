@@ -9,17 +9,17 @@ const CIBOULETTE_RESOURCE_FIELDS: &[&str] =
 #[derive(Debug, Getters)]
 #[getset(get = "pub")]
 pub struct CibouletteResourceBuilder<'a> {
-    identifier: CibouletteResourceIdentifierCreator<'a>,
+    identifier: CibouletteResourceIdentifierPermissive<'a>,
     attributes: Option<&'a RawValue>,
     relationships: BTreeMap<Cow<'a, str>, CibouletteRelationshipObject<'a>>,
     links: Option<CibouletteLink<'a>>,
 }
 
 /// ## A `json:api` [resource](https://jsonapi.org/format/#document-resource-objects) object
-#[derive(Debug, Getters)]
+#[derive(Debug, Getters, Clone)]
 #[getset(get = "pub")]
-pub struct CibouletteResource<'a> {
-    pub identifier: CibouletteResourceIdentifierCreator<'a>,
+pub struct CibouletteResource<'a, T> {
+    pub identifier: T,
     pub attributes: Option<MessyJsonObjectValue<'a>>,
     pub relationships: BTreeMap<Cow<'a, str>, CibouletteRelationshipObject<'a>>,
     pub links: Option<CibouletteLink<'a>>,
@@ -166,7 +166,7 @@ impl<'de> serde::de::Visitor<'de> for CibouletteResourceBuilderVisitor {
         let type_ = type_.ok_or_else(|| <A::Error as serde::de::Error>::missing_field("type"))?;
         let relationships = relationships.unwrap_or_default();
         Ok(CibouletteResourceBuilder {
-            identifier: CibouletteResourceIdentifierCreator::new(
+            identifier: CibouletteResourceIdentifierPermissive::new(
                 id,
                 type_,
                 meta.unwrap_or_default(),
@@ -199,7 +199,8 @@ impl<'a> CibouletteResourceBuilder<'a> {
     pub fn build(
         self,
         bag: &'a CibouletteStore,
-    ) -> Result<CibouletteResource<'a>, CibouletteError> {
+    ) -> Result<CibouletteResource<'a, CibouletteResourceIdentifierPermissive>, CibouletteError>
+    {
         let attributes: Option<MessyJsonObjectValue<'a>> = match self.attributes {
             Some(attributes) => {
                 let type_ident = self.identifier().type_().as_ref();
@@ -227,7 +228,7 @@ impl<'a> CibouletteResourceBuilder<'a> {
     }
 }
 
-impl<'a> CibouletteResource<'a> {
+impl<'a, T> CibouletteResource<'a, T> {
     #[inline]
     fn check_member_name_inner(val: &MessyJsonValue<'a>) -> Option<String> {
         match val {

@@ -91,7 +91,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
         |b, i| {
             b.iter(|| {
                 let mut deserializer = serde_json::Deserializer::from_str(i);
-                let doc = ciboulette::CibouletteTopLevelBuilder::deserialize(&mut deserializer)
+                let doc = ciboulette::CibouletteBodyBuilder::deserialize(&mut deserializer)
                     .expect("no error");
                 doc.build(&bag).expect("no error");
             })

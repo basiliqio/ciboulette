@@ -21,11 +21,11 @@ fn ok() {
 	}
 	"#;
     let mut deserializer = serde_json::Deserializer::from_str(VAL);
-    let doc_builder = CibouletteTopLevelBuilder::deserialize(&mut deserializer)
+    let doc_builder = CibouletteBodyBuilder::deserialize(&mut deserializer)
         .expect("to parse the json:api document");
     let doc = doc_builder.build(&bag).expect("to build the document");
     let data = check_single(&doc.data().as_ref().expect("data to be defined"));
-    check_ident_creator(
+    check_ident_permissive(
         data.identifier(),
         "comments",
         Some("6720877a-e27e-4e9e-9ac0-3fff4deb55f2"),
@@ -58,7 +58,7 @@ fn unknown_type() {
 	}
 	"#;
     let mut deserializer = serde_json::Deserializer::from_str(VAL);
-    let doc_builder = CibouletteTopLevelBuilder::deserialize(&mut deserializer)
+    let doc_builder = CibouletteBodyBuilder::deserialize(&mut deserializer)
         .expect("to parse the json:api document");
     let doc: CibouletteError = doc_builder
         .build(&bag)
@@ -81,8 +81,7 @@ fn ok_error_simple() {
 	}
 	"#;
     let mut deserializer = serde_json::Deserializer::from_str(VAL);
-    CibouletteTopLevelBuilder::deserialize(&mut deserializer)
-        .expect("to parse the json:api document");
+    CibouletteBodyBuilder::deserialize(&mut deserializer).expect("to parse the json:api document");
 }
 
 #[test]
@@ -112,6 +111,5 @@ fn ok_error_complex() {
 	}
 	"#;
     let mut deserializer = serde_json::Deserializer::from_str(VAL);
-    CibouletteTopLevelBuilder::deserialize(&mut deserializer)
-        .expect("to parse the json:api document");
+    CibouletteBodyBuilder::deserialize(&mut deserializer).expect("to parse the json:api document");
 }

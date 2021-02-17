@@ -55,7 +55,7 @@ fn ok() {
 	}
 	"#;
     let mut deserializer = serde_json::Deserializer::from_str(VAL);
-    let doc_builder = CibouletteTopLevelBuilder::deserialize(&mut deserializer)
+    let doc_builder = CibouletteBodyBuilder::deserialize(&mut deserializer)
         .expect("to parse the json:api document");
     doc_builder.build(&bag).expect("to build the document");
 }
@@ -100,7 +100,7 @@ fn missing_link() {
 	}
 	"#;
     let mut deserializer = serde_json::Deserializer::from_str(VAL);
-    let doc_builder = CibouletteTopLevelBuilder::deserialize(&mut deserializer)
+    let doc_builder = CibouletteBodyBuilder::deserialize(&mut deserializer)
         .expect("to parse the json:api document");
     let err = doc_builder.build(&bag).expect_err("missing link");
     match err {
@@ -166,7 +166,7 @@ fn not_fully_linked() {
 	}
 	"#;
     let mut deserializer = serde_json::Deserializer::from_str(VAL);
-    let doc_builder = CibouletteTopLevelBuilder::deserialize(&mut deserializer)
+    let doc_builder = CibouletteBodyBuilder::deserialize(&mut deserializer)
         .expect("to parse the json:api document");
     let err = doc_builder.build(&bag).expect_err("missing link");
     match err {

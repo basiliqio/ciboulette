@@ -22,7 +22,7 @@ fn key_clash_data_error() {
 	}
 	"#;
     let mut deserializer = serde_json::Deserializer::from_str(VAL);
-    let doc_builder = CibouletteTopLevelBuilder::deserialize(&mut deserializer)
+    let doc_builder = CibouletteBodyBuilder::deserialize(&mut deserializer)
         .expect("to parse the json:api document");
     let err: CibouletteError = doc_builder.build(&bag).expect_err("keyclash error");
     match err {
@@ -63,7 +63,7 @@ fn key_clash_included_without_data() {
 	}
 	"#;
     let mut deserializer = serde_json::Deserializer::from_str(VAL);
-    let doc_builder = CibouletteTopLevelBuilder::deserialize(&mut deserializer)
+    let doc_builder = CibouletteBodyBuilder::deserialize(&mut deserializer)
         .expect("to parse the json:api document");
     let err: CibouletteError = doc_builder.build(&bag).expect_err("keyclash error");
     match err {

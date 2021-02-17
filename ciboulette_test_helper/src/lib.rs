@@ -202,8 +202,8 @@ pub fn check_ident(ident: &CibouletteResourceIdentifier, type_: &str, id: &str) 
 	assert_eq!(ident.type_(), type_, "`type`s mismatch");
 }
 
-pub fn check_ident_creator(
-	ident: &CibouletteResourceIdentifierCreator,
+pub fn check_ident_permissive(
+	ident: &CibouletteResourceIdentifierPermissive,
 	type_: &str,
 	id: Option<&str>,
 ) {
@@ -215,18 +215,18 @@ pub fn check_ident_creator(
 	assert_eq!(ident.type_(), type_, "`type`s mismatch");
 }
 
-pub fn check_single<'a>(
-	selector: &'a CibouletteResourceSelector<'a>,
-) -> &'a CibouletteResource<'a> {
+pub fn check_single<'a, T>(
+	selector: &'a CibouletteResourceSelector<'a, T>,
+) -> &'a CibouletteResource<'a, T> {
 	match selector {
 		CibouletteResourceSelector::One(x) => x,
 		_ => panic!("Expected a single resource"),
 	}
 }
 
-pub fn check_multi<'a>(
-	selector: &'a CibouletteResourceSelector<'a>,
-) -> &'a Vec<CibouletteResource<'a>> {
+pub fn check_multi<'a, T>(
+	selector: &'a CibouletteResourceSelector<'a, T>,
+) -> &'a Vec<CibouletteResource<'a, T>> {
 	match selector {
 		CibouletteResourceSelector::Many(x) => x,
 		_ => panic!("Expected a multiple resources"),

@@ -1,7 +1,7 @@
 use super::*;
 
 /// ## A `json:api` [relationship](https://jsonapi.org/format/#document-resource-object-relationships) object
-#[derive(Debug, Deserialize, Serialize, Getters, Default)]
+#[derive(Debug, Deserialize, Serialize, Getters, Default, Clone)]
 #[getset(get = "pub")]
 #[serde(default)]
 pub struct CibouletteRelationshipObject<'a> {

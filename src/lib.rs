@@ -18,13 +18,14 @@ use std::collections::{BTreeMap, BTreeSet, HashMap};
 
 pub use body::errors_obj::{CibouletteErrorLink, CibouletteErrorObj, CibouletteErrorSource};
 pub use body::link::{
-    CibouletteLink, CibouletteLinkObj, CibouletteTopLevelLink, CibouletteTopLevelPagination,
+    CibouletteBodyLink, CibouletteBodyPagination, CibouletteLink, CibouletteLinkObj,
 };
 pub use body::relationship::{
     CibouletteRelationshipBucket, CibouletteRelationshipObject, CibouletteRelationshipOption,
 };
+pub use body::request_body::{CibouletteBody, CibouletteBodyBuilder};
 pub use body::resource_identifier::{
-    CibouletteResourceIdentifier, CibouletteResourceIdentifierCreator,
+    CibouletteResourceIdentifier, CibouletteResourceIdentifierPermissive,
     CibouletteResourceIdentifierSelector,
 };
 pub use body::resource_obj::{CibouletteResource, CibouletteResourceBuilder};
@@ -33,12 +34,16 @@ pub use body::resource_obj_selector::{
 };
 pub use body::resource_type::CibouletteResourceType;
 pub use body::store::CibouletteStore;
-pub use body::top_level::{CibouletteTopLevel, CibouletteTopLevelBuilder};
 
 pub use query::{
     CiboulettePageType, CibouletteQueryParameters, CibouletteQueryParametersBuilder,
     CibouletteSortingDirection, CibouletteSortingElement,
 };
+
+pub use body::create_request_body::CibouletteCreateRequestBody;
+pub use body::delete_request_body::CibouletteDeleteRequestBody;
+pub use body::read_request_body::CibouletteReadRequestBody;
+pub use body::update_request_body::CibouletteUpdateRequestBody;
 
 pub use config::CibouletteConfig;
 pub use errors::{CibouletteClashDirection, CibouletteError};

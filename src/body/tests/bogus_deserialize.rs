@@ -25,7 +25,7 @@ fn duplicate_field_top_level() {
 	}
 	"#;
     let mut deserializer = serde_json::Deserializer::from_str(VAL);
-    CibouletteTopLevelBuilder::deserialize(&mut deserializer).expect_err("an error");
+    CibouletteBodyBuilder::deserialize(&mut deserializer).expect_err("an error");
 }
 
 #[test]
@@ -45,7 +45,7 @@ fn duplicate_field_data_level() {
 	}
 	"#;
     let mut deserializer = serde_json::Deserializer::from_str(VAL);
-    CibouletteTopLevelBuilder::deserialize(&mut deserializer).expect_err("an error");
+    CibouletteBodyBuilder::deserialize(&mut deserializer).expect_err("an error");
 }
 
 #[test]
@@ -64,7 +64,7 @@ fn wrong_argument_type_id() {
 	}
 	"#;
     let mut deserializer = serde_json::Deserializer::from_str(VAL);
-    CibouletteTopLevelBuilder::deserialize(&mut deserializer).expect_err("an error");
+    CibouletteBodyBuilder::deserialize(&mut deserializer).expect_err("an error");
 }
 
 #[test]
@@ -83,7 +83,7 @@ fn wrong_argument_type_type() {
 	}
 	"#;
     let mut deserializer = serde_json::Deserializer::from_str(VAL);
-    CibouletteTopLevelBuilder::deserialize(&mut deserializer).expect_err("an error");
+    CibouletteBodyBuilder::deserialize(&mut deserializer).expect_err("an error");
 }
 
 #[test]
@@ -94,7 +94,7 @@ fn wrong_argument_data_types() {
 	}
 	"#;
     let mut deserializer = serde_json::Deserializer::from_str(VAL);
-    CibouletteTopLevelBuilder::deserialize(&mut deserializer).expect_err("an error");
+    CibouletteBodyBuilder::deserialize(&mut deserializer).expect_err("an error");
 }
 
 #[test]
@@ -115,7 +115,7 @@ fn unknown_field() {
 	}
 	"#;
     let mut deserializer = serde_json::Deserializer::from_str(VAL);
-    CibouletteTopLevelBuilder::deserialize(&mut deserializer).expect("no error");
+    CibouletteBodyBuilder::deserialize(&mut deserializer).expect("no error");
 }
 
 #[test]
@@ -151,7 +151,7 @@ fn unknown_meta() {
 	}
 	"#;
     let mut deserializer = serde_json::Deserializer::from_str(VAL);
-    let doc = CibouletteTopLevelBuilder::deserialize(&mut deserializer).expect("no error");
+    let doc = CibouletteBodyBuilder::deserialize(&mut deserializer).expect("no error");
     let meta_expected: serde_json::Value = serde_json::from_str(META).unwrap();
     assert_eq!(&meta_expected, doc.meta(), "meta object mismatch");
     match doc.data().as_ref().unwrap() {

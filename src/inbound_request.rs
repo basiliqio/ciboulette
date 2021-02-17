@@ -1,6 +1,6 @@
 use super::*;
 
-/// ## Builder object for [CibouletteTopLevel](CibouletteTopLevel)
+/// ## Builder object for [CibouletteBody](CibouletteBody)
 #[derive(Debug, Copy, Clone)]
 pub enum CibouletteIntention {
     Create,
@@ -9,7 +9,7 @@ pub enum CibouletteIntention {
     Delete,
 }
 
-/// ## Builder object for [CibouletteTopLevel](CibouletteTopLevel)
+/// ## Builder object for [CibouletteBody](CibouletteBody)
 #[derive(Debug, Clone, Getters)]
 #[getset(get = "pub", get_mut = "pub")]
 pub struct CibouletteRequestBuilder<'a> {
@@ -22,7 +22,7 @@ pub struct CibouletteRequestBuilder<'a> {
 #[getset(get = "pub")]
 pub struct CibouletteRequest<'a> {
     pub query: Option<CibouletteQueryParameters<'a>>,
-    pub body: Option<CibouletteTopLevel<'a>>,
+    pub body: Option<CibouletteBody<'a>>,
     pub intention: CibouletteIntention,
 }
 
@@ -40,10 +40,10 @@ impl<'a> CibouletteRequestBuilder<'a> {
     }
 
     pub fn build(self, bag: &'a CibouletteStore) -> Result<CibouletteRequest<'a>, CibouletteError> {
-        let body: Option<CibouletteTopLevel<'a>> = match self.body {
+        let body: Option<CibouletteBody<'a>> = match self.body {
             // Build body
             Some(body) => {
-                let builder: CibouletteTopLevelBuilder<'_> = serde_json::from_str(body)?;
+                let builder: CibouletteBodyBuilder<'_> = serde_json::from_str(body)?;
                 Some(builder.build(bag)?)
             }
             None => None,

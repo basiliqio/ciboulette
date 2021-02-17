@@ -2,14 +2,14 @@ use super::*;
 use serde::de::{Deserializer, Visitor};
 use std::fmt::Formatter;
 
-/// ## Builder object for [CibouletteTopLevel](CibouletteTopLevel)
+/// ## Builder object for [CibouletteBody](CibouletteBody)
 #[derive(Debug, Getters, MutGetters)]
 #[getset(get = "pub", get_mut = "pub")]
-pub struct CibouletteTopLevelBuilder<'a> {
+pub struct CibouletteBodyBuilder<'a> {
     data: Option<CibouletteResourceSelectorBuilder<'a>>,
     errors: Option<CibouletteErrorObj<'a>>,
     meta: Value,
-    links: Option<CibouletteTopLevelLink<'a>>,
+    links: Option<CibouletteBodyLink<'a>>,
     included: Vec<CibouletteResourceBuilder<'a>>,
     jsonapi: Option<Cow<'a, str>>, // TODO Semver
 }
@@ -17,12 +17,12 @@ pub struct CibouletteTopLevelBuilder<'a> {
 /// ## A `json:api` [document](https://jsonapi.org/format/#document-top-level) object
 #[derive(Debug, Getters, MutGetters)]
 #[getset(get = "pub", get_mut = "pub")]
-pub struct CibouletteTopLevel<'a> {
-    pub data: Option<CibouletteResourceSelector<'a>>,
+pub struct CibouletteBody<'a> {
+    pub data: Option<CibouletteResourceSelector<'a, CibouletteResourceIdentifierPermissive<'a>>>,
     pub errors: Option<CibouletteErrorObj<'a>>,
     pub meta: Value,
-    pub links: Option<CibouletteTopLevelLink<'a>>,
-    pub included: Vec<CibouletteResource<'a>>,
+    pub links: Option<CibouletteBodyLink<'a>>,
+    pub included: Vec<CibouletteResource<'a, CibouletteResourceIdentifierPermissive<'a>>>,
     pub jsonapi: Option<Cow<'a, str>>, // TODO Semver
 }
 
@@ -30,9 +30,9 @@ const CIBOULETTE_TOP_LEVEL_FIELDS: &[&str] =
     &["data", "errors", "meta", "links", "included", "jsonapi"];
 
 #[derive(Clone, Debug)]
-struct CibouletteTopLevelBuilderVisitor;
+struct CibouletteBodyBuilderVisitor;
 
-enum CibouletteTopLevelField {
+enum CibouletteBodyField {
     Data,
     Errors,
     Meta,
@@ -42,9 +42,9 @@ enum CibouletteTopLevelField {
     Ignore,
 }
 
-struct CibouletteTopLevelFieldVisitor;
-impl<'de> Visitor<'de> for CibouletteTopLevelFieldVisitor {
-    type Value = CibouletteTopLevelField;
+struct CibouletteBodyFieldVisitor;
+impl<'de> Visitor<'de> for CibouletteBodyFieldVisitor {
+    type Value = CibouletteBodyField;
 
     #[inline]
     fn expecting(&self, formatter: &mut Formatter) -> std::fmt::Result {
@@ -57,13 +57,13 @@ impl<'de> Visitor<'de> for CibouletteTopLevelFieldVisitor {
         E: serde::de::Error,
     {
         match value {
-            "data" => Ok(CibouletteTopLevelField::Data),
-            "errors" => Ok(CibouletteTopLevelField::Errors),
-            "meta" => Ok(CibouletteTopLevelField::Meta),
-            "links" => Ok(CibouletteTopLevelField::Links),
-            "included" => Ok(CibouletteTopLevelField::Included),
-            "jsonapi" => Ok(CibouletteTopLevelField::Jsonapi),
-            _ => Ok(CibouletteTopLevelField::Ignore),
+            "data" => Ok(CibouletteBodyField::Data),
+            "errors" => Ok(CibouletteBodyField::Errors),
+            "meta" => Ok(CibouletteBodyField::Meta),
+            "links" => Ok(CibouletteBodyField::Links),
+            "included" => Ok(CibouletteBodyField::Included),
+            "jsonapi" => Ok(CibouletteBodyField::Jsonapi),
+            _ => Ok(CibouletteBodyField::Ignore),
         }
     }
 
@@ -73,27 +73,27 @@ impl<'de> Visitor<'de> for CibouletteTopLevelFieldVisitor {
         E: serde::de::Error,
     {
         match value {
-            b"data" => Ok(CibouletteTopLevelField::Data),
-            b"errors" => Ok(CibouletteTopLevelField::Errors),
-            b"meta" => Ok(CibouletteTopLevelField::Meta),
-            b"links" => Ok(CibouletteTopLevelField::Links),
-            b"included" => Ok(CibouletteTopLevelField::Included),
-            b"jsonapi" => Ok(CibouletteTopLevelField::Jsonapi),
-            _ => Ok(CibouletteTopLevelField::Ignore),
+            b"data" => Ok(CibouletteBodyField::Data),
+            b"errors" => Ok(CibouletteBodyField::Errors),
+            b"meta" => Ok(CibouletteBodyField::Meta),
+            b"links" => Ok(CibouletteBodyField::Links),
+            b"included" => Ok(CibouletteBodyField::Included),
+            b"jsonapi" => Ok(CibouletteBodyField::Jsonapi),
+            _ => Ok(CibouletteBodyField::Ignore),
         }
     }
 }
-impl<'de> serde::Deserialize<'de> for CibouletteTopLevelField {
+impl<'de> serde::Deserialize<'de> for CibouletteBodyField {
     #[inline]
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
         D: serde::Deserializer<'de>,
     {
-        serde::Deserializer::deserialize_identifier(deserializer, CibouletteTopLevelFieldVisitor)
+        serde::Deserializer::deserialize_identifier(deserializer, CibouletteBodyFieldVisitor)
     }
 }
-impl<'de> serde::de::Visitor<'de> for CibouletteTopLevelBuilderVisitor {
-    type Value = CibouletteTopLevelBuilder<'de>;
+impl<'de> serde::de::Visitor<'de> for CibouletteBodyBuilderVisitor {
+    type Value = CibouletteBodyBuilder<'de>;
 
     #[inline]
     fn expecting(&self, formatter: &mut Formatter) -> std::fmt::Result {
@@ -108,35 +108,34 @@ impl<'de> serde::de::Visitor<'de> for CibouletteTopLevelBuilderVisitor {
         let mut data: Option<CibouletteResourceSelectorBuilder<'de>> = None;
         let mut errors: Option<CibouletteErrorObj<'de>> = None;
         let mut meta: Option<Value> = None;
-        let mut links: Option<CibouletteTopLevelLink<'de>> = None;
+        let mut links: Option<CibouletteBodyLink<'de>> = None;
         let mut included: Option<CibouletteResourceSelectorBuilder<'de>> = None;
         let mut jsonapi: Option<Cow<'de, str>> = None;
 
-        while let Some(key) =
-            match serde::de::MapAccess::next_key::<CibouletteTopLevelField>(&mut map) {
-                Ok(val) => val,
-                Err(err) => {
-                    return Err(err);
-                }
-            }
+        while let Some(key) = match serde::de::MapAccess::next_key::<CibouletteBodyField>(&mut map)
         {
+            Ok(val) => val,
+            Err(err) => {
+                return Err(err);
+            }
+        } {
             match key {
-                CibouletteTopLevelField::Data => {
+                CibouletteBodyField::Data => {
                     super::handle_ident_in_map_stateful(&mut data, &mut map, "data")?
                 }
-                CibouletteTopLevelField::Errors => {
+                CibouletteBodyField::Errors => {
                     super::handle_ident_in_map_stateless(&mut errors, &mut map, "errors")?
                 }
-                CibouletteTopLevelField::Meta => {
+                CibouletteBodyField::Meta => {
                     super::handle_ident_in_map_stateless(&mut meta, &mut map, "meta")?
                 }
-                CibouletteTopLevelField::Links => {
+                CibouletteBodyField::Links => {
                     super::handle_ident_in_map_stateless(&mut links, &mut map, "links")?
                 }
-                CibouletteTopLevelField::Included => {
+                CibouletteBodyField::Included => {
                     super::handle_ident_in_map_stateful(&mut included, &mut map, "included")?
                 }
-                CibouletteTopLevelField::Jsonapi => {
+                CibouletteBodyField::Jsonapi => {
                     super::handle_ident_in_map_stateless(&mut jsonapi, &mut map, "jsonapi")?
                 }
                 _ => {
@@ -166,7 +165,7 @@ impl<'de> serde::de::Visitor<'de> for CibouletteTopLevelBuilderVisitor {
                 "At least one of `data`, `errors` or `meta` should be defined.",
             ));
         };
-        Ok(CibouletteTopLevelBuilder {
+        Ok(CibouletteBodyBuilder {
             data,
             errors,
             meta: meta.unwrap_or_default(),
@@ -177,37 +176,35 @@ impl<'de> serde::de::Visitor<'de> for CibouletteTopLevelBuilderVisitor {
     }
 }
 
-impl<'de> Deserialize<'de> for CibouletteTopLevelBuilder<'de> {
+impl<'de> Deserialize<'de> for CibouletteBodyBuilder<'de> {
     #[inline]
-    fn deserialize<D>(deserializer: D) -> Result<CibouletteTopLevelBuilder<'de>, D::Error>
+    fn deserialize<D>(deserializer: D) -> Result<CibouletteBodyBuilder<'de>, D::Error>
     where
         D: Deserializer<'de>,
     {
         deserializer.deserialize_struct(
             "CibouletteResource",
             CIBOULETTE_TOP_LEVEL_FIELDS,
-            CibouletteTopLevelBuilderVisitor,
+            CibouletteBodyBuilderVisitor,
         )
     }
 }
 
-impl<'a> CibouletteTopLevelBuilder<'a> {
-    /// Build a [CibouletteTopLevel](CibouletteTopLevel) from the builder
-    pub fn build(
-        self,
-        bag: &'a CibouletteStore,
-    ) -> Result<CibouletteTopLevel<'a>, CibouletteError> {
-        let res: CibouletteTopLevel<'a>;
+impl<'a> CibouletteBodyBuilder<'a> {
+    /// Build a [CibouletteBody](CibouletteBody) from the builder
+    pub fn build(self, bag: &'a CibouletteStore) -> Result<CibouletteBody<'a>, CibouletteError> {
+        let res: CibouletteBody<'a>;
 
         let data = match self.data {
             Some(data) => Some(data.build(bag)?),
             None => None,
         };
-        let mut included: Vec<CibouletteResource<'a>> = Vec::with_capacity(self.included.len());
+        let mut included: Vec<CibouletteResource<'a, CibouletteResourceIdentifierPermissive>> =
+            Vec::with_capacity(self.included.len());
         for i in self.included.into_iter() {
             included.push(i.build(&bag)?);
         }
-        res = CibouletteTopLevel {
+        res = CibouletteBody {
             data,
             errors: self.errors,
             meta: self.meta,
@@ -220,7 +217,7 @@ impl<'a> CibouletteTopLevelBuilder<'a> {
     }
 }
 
-impl<'a> CibouletteTopLevel<'a> {
+impl<'a> CibouletteBody<'a> {
     /// Check that every objects in `data` is unique by `type` and `id`
     ///
     /// Shouldn't be called if creating an
@@ -255,7 +252,7 @@ impl<'a> CibouletteTopLevel<'a> {
     /// Check that every relationships in `data` is unique by `type` and `id` for a single object
     fn check_relationships_uniqueness_single(
         linked_set: &mut BTreeSet<(&'a str, &'a str)>,
-        obj: &'a CibouletteResource,
+        obj: &'a CibouletteResource<CibouletteResourceIdentifierPermissive>,
     ) -> Result<(), CibouletteError> {
         for (_link_name, rel) in obj.relationships().iter() {
             match rel.data() {
@@ -388,7 +385,7 @@ impl<'a> CibouletteTopLevel<'a> {
 
     /// Get the main type of the request
     /// If it's a single document request, the type of the document is used.
-    /// If it's a compound documen request and all the document are the same type, then this type is used.
+    /// If it's a compound document request and all the document are the same type, then this type is used.
     /// Else `None` is returned
     pub fn get_main_type(&self, bag: &'a CibouletteStore) -> Option<&'a CibouletteResourceType> {
         self.data().as_ref().and_then(|data| match data {

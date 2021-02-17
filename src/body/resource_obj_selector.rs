@@ -10,10 +10,10 @@ pub enum CibouletteResourceSelectorBuilder<'a> {
 }
 
 /// ## A selector between a single or multiple `json:api` [resource](https://jsonapi.org/format/#document-resource-objects) objects
-#[derive(Debug)]
-pub enum CibouletteResourceSelector<'a> {
-    One(CibouletteResource<'a>),
-    Many(Vec<CibouletteResource<'a>>),
+#[derive(Debug, Clone)]
+pub enum CibouletteResourceSelector<'a, T> {
+    One(CibouletteResource<'a, T>),
+    Many(Vec<CibouletteResource<'a, T>>),
 }
 
 #[derive(Clone, Debug)]
@@ -68,13 +68,17 @@ impl<'a> CibouletteResourceSelectorBuilder<'a> {
     pub fn build(
         self,
         bag: &'a CibouletteStore,
-    ) -> Result<CibouletteResourceSelector<'a>, CibouletteError> {
+    ) -> Result<
+        CibouletteResourceSelector<'a, CibouletteResourceIdentifierPermissive>,
+        CibouletteError,
+    > {
         match self {
             CibouletteResourceSelectorBuilder::One(element) => {
                 Ok(CibouletteResourceSelector::One(element.build(bag)?))
             }
             CibouletteResourceSelectorBuilder::Many(elements) => {
-                let mut res: Vec<CibouletteResource> = Vec::with_capacity(elements.len());
+                let mut res: Vec<CibouletteResource<CibouletteResourceIdentifierPermissive>> =
+                    Vec::with_capacity(elements.len());
 
                 for el in elements.into_iter() {
                     res.push(el.build(bag)?);
@@ -85,7 +89,7 @@ impl<'a> CibouletteResourceSelectorBuilder<'a> {
     }
 }
 
-impl<'a> CibouletteResourceSelector<'a> {
+impl<'a, T> CibouletteResourceSelector<'a, T> {
     pub fn check_member_name(&self) -> Result<(), CibouletteError> {
         match self {
             CibouletteResourceSelector::One(element) => element.check_member_name(),
