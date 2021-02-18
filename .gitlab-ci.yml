@@ -19,7 +19,6 @@ build_and_test_rust:
       do
         echo "Running $file";
         mkdir -p "target/cov/$(basename $file)";
-        cp $file $(basename $file);
-        kcov "target/cov/$(basename $file)" --exclude-pattern="/.cargo,/usr/lib,$PWD/src/tests,$PWD/tests,$PWD/ciboulette_test_helper" $(basename $file);
+        kcov "target/cov/$(basename $file)" --exclude-pattern="/.cargo,/usr/lib,$PWD/src/tests,$PWD/src/body/tests,$PWD/src/query/tests,$PWD/src/path/tests,$PWD/tests,$PWD/ciboulette_test_helper" $file;
       done
     - bash <(curl -s https://codecov.io/bash) -t $CODECOV_TOKEN -s target/cov

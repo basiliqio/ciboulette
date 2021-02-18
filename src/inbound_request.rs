@@ -13,9 +13,10 @@ pub enum CibouletteIntention {
 #[derive(Debug, Clone, Getters)]
 #[getset(get = "pub", get_mut = "pub")]
 pub struct CibouletteRequestBuilder<'a> {
+    path: Option<&'a str>,
+    intention: CibouletteIntention,
     query: Option<&'a str>,
     body: Option<&'a str>,
-    intention: CibouletteIntention,
 }
 
 #[derive(Debug, Getters)]
@@ -28,11 +29,13 @@ pub struct CibouletteRequest<'a> {
 
 impl<'a> CibouletteRequestBuilder<'a> {
     pub fn new(
+        path: Option<&'a str>,
         query: Option<&'a str>,
         body: Option<&'a str>,
         intention: CibouletteIntention,
     ) -> Self {
         CibouletteRequestBuilder {
+            path,
             query,
             body,
             intention,
