@@ -14,7 +14,20 @@ impl<'a> TryFrom<CibouletteRequest<'a>> for CibouletteReadRequest<'a> {
     type Error = CibouletteError;
 
     fn try_from(value: CibouletteRequest<'a>) -> Result<Self, Self::Error> {
-        let CibouletteRequest { query, body, .. } = value;
+        let CibouletteRequest {
+            query,
+            body,
+            intention,
+            path,
+        } = value;
+
+        if !matches!(intention, CibouletteIntention::Read) {
+            return Err(CibouletteError::WrongIntention(
+                intention,
+                CibouletteIntention::Read,
+            ));
+        }
+
         let CibouletteBody {
             data,
             meta,

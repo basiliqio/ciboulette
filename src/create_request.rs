@@ -14,7 +14,29 @@ impl<'a> TryFrom<CibouletteRequest<'a>> for CibouletteCreateRequest<'a> {
     type Error = CibouletteError;
 
     fn try_from(value: CibouletteRequest<'a>) -> Result<Self, Self::Error> {
-        let CibouletteRequest { query, body, .. } = value;
+        let CibouletteRequest {
+            query,
+            body,
+            intention,
+            path,
+        } = value;
+
+        let path_type = CiboulettePathType::from(&path);
+
+        if !matches!(path_type, CiboulettePathType::Type) {
+            return Err(CibouletteError::WrongPathType(
+                path_type,
+                vec![CiboulettePathType::Type],
+            ));
+        }
+
+        if !matches!(intention, CibouletteIntention::Create) {
+            return Err(CibouletteError::WrongIntention(
+                intention,
+                CibouletteIntention::Create,
+            ));
+        }
+
         let CibouletteBody {
             data,
             meta,

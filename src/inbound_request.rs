@@ -9,6 +9,17 @@ pub enum CibouletteIntention {
     Delete,
 }
 
+impl std::fmt::Display for CibouletteIntention {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        match self {
+            CibouletteIntention::Create => write!(f, "Create"),
+            CibouletteIntention::Update => write!(f, "Update"),
+            CibouletteIntention::Read => write!(f, "Read"),
+            CibouletteIntention::Delete => write!(f, "Delete"),
+        }
+    }
+}
+
 /// ## Builder object for [CibouletteBody](CibouletteBody)
 #[derive(Debug, Clone, Getters)]
 #[getset(get = "pub", get_mut = "pub")]

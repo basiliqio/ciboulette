@@ -1,3 +1,4 @@
+use super::*;
 use thiserror::Error;
 
 /// When describing KeyClash, we need to know if the field was supposed be with
@@ -18,6 +19,33 @@ impl std::fmt::Display for CibouletteClashDirection {
                 CibouletteClashDirection::Without => "without",
             }
         )
+    }
+}
+
+#[derive(Debug, PartialEq)]
+pub enum CiboulettePathType {
+    Type,
+    TypeId,
+    TypeIdRelationship,
+}
+
+impl std::fmt::Display for CiboulettePathType {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        match self {
+            CiboulettePathType::Type => write!(f, "Type"),
+            CiboulettePathType::TypeId => write!(f, "TypeId"),
+            CiboulettePathType::TypeIdRelationship => write!(f, "TypeIdRelationship"),
+        }
+    }
+}
+
+impl From<&CiboulettePath<'_>> for CiboulettePathType {
+    fn from(t: &CiboulettePath<'_>) -> Self {
+        match t {
+            CiboulettePath::Type(_) => CiboulettePathType::Type,
+            CiboulettePath::TypeId(_, _) => CiboulettePathType::TypeId,
+            CiboulettePath::TypeIdRelationship(_, _, _) => CiboulettePathType::TypeIdRelationship,
+        }
     }
 }
 
@@ -66,6 +94,10 @@ pub enum CibouletteError {
     MissingTypeInPath,
     #[error("Couldn't parse the path")]
     BadPath,
+    #[error("Wrong request intention, got {0}, expected {1}")]
+    WrongIntention(CibouletteIntention, CibouletteIntention),
+    #[error("Wrong path type, got {0}, expected {1:?}")]
+    WrongPathType(CiboulettePathType, Vec<CiboulettePathType>),
     /// When there is a failure while deserializing the JSON
     #[error("An unkown error occured : {0}")]
     UnknownError(String),

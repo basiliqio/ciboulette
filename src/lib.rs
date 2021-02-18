@@ -57,7 +57,7 @@ pub use request_selector::CibouletteRequestSelector;
 pub use update_request::CibouletteUpdateRequest;
 
 pub use config::CibouletteConfig;
-pub use errors::{CibouletteClashDirection, CibouletteError};
+pub use errors::{CibouletteClashDirection, CibouletteError, CiboulettePathType};
 pub use inbound_request::{CibouletteIntention, CibouletteRequest, CibouletteRequestBuilder};
 pub use member_name::check_member_name;
 
