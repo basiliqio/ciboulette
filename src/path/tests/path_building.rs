@@ -49,6 +49,22 @@ fn type_id() {
 }
 
 #[test]
+fn type_id_related() {
+    let store = gen_bag();
+    const VAL: &str = "/articles/6720877a-e27e-4e9e-9ac0-3fff4deb55f2/author";
+    let url = Url::parse("http://localhost/").unwrap();
+    let opt = url::Url::options().base_url(Some(&url));
+    let curr_url = opt.parse(VAL).unwrap();
+    let builder = CiboulettePathBuilder::parse(&curr_url).unwrap();
+    let res = builder.build(&store);
+
+    assert_eq!(
+        matches!(res.unwrap(), CiboulettePath::TypeIdRelated(x, Cow::Borrowed(y), z) if x == store.get_type("articles").unwrap() && y == "6720877a-e27e-4e9e-9ac0-3fff4deb55f2" && z == store.get_type("peoples").unwrap()),
+        true
+    );
+}
+
+#[test]
 fn type_id_relationship() {
     let store = gen_bag();
     const VAL: &str = "/articles/6720877a-e27e-4e9e-9ac0-3fff4deb55f2/relationships/author";

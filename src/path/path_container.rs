@@ -4,6 +4,7 @@ use super::*;
 pub enum CiboulettePathBuilder<'a> {
     Type(Cow<'a, str>),
     TypeId(Cow<'a, str>, Cow<'a, str>),
+    TypeIdRelated(Cow<'a, str>, Cow<'a, str>, Cow<'a, str>),
     TypeIdRelationship(Cow<'a, str>, Cow<'a, str>, Cow<'a, str>),
 }
 
@@ -12,6 +13,7 @@ impl<'a> CiboulettePath<'a> {
         match self {
             CiboulettePath::Type(x) => x,
             CiboulettePath::TypeId(x, _) => x,
+            CiboulettePath::TypeIdRelated(x, _, _) => x,
             CiboulettePath::TypeIdRelationship(x, _, _) => x,
         }
     }
@@ -21,6 +23,11 @@ impl<'a> CiboulettePath<'a> {
 pub enum CiboulettePath<'a> {
     Type(&'a CibouletteResourceType),
     TypeId(&'a CibouletteResourceType, Cow<'a, str>),
+    TypeIdRelated(
+        &'a CibouletteResourceType,
+        Cow<'a, str>,
+        &'a CibouletteResourceType,
+    ),
     TypeIdRelationship(
         &'a CibouletteResourceType,
         Cow<'a, str>,
@@ -55,6 +62,11 @@ impl<'a> CiboulettePathBuilder<'a> {
                 Cow::Borrowed(ftype),
                 Cow::Borrowed(id),
             )),
+            [Some(ftype), Some(id), Some(stype), None] => Ok(CiboulettePathBuilder::TypeIdRelated(
+                Cow::Borrowed(ftype),
+                Cow::Borrowed(id),
+                Cow::Borrowed(stype),
+            )),
             [Some(ftype), Some(id), Some(rel_keyword), Some(stype)] => {
                 if !rel_keyword.eq("relationships") {
                     return Err(CibouletteError::BadPath);
@@ -67,6 +79,34 @@ impl<'a> CiboulettePathBuilder<'a> {
             }
             _ => Err(CibouletteError::BadPath),
         }
+    }
+
+    fn build_double_typed(
+        store: &'a CibouletteStore,
+        ftype: Cow<'a, str>,
+        stype: Cow<'a, str>,
+    ) -> Result<(&'a CibouletteResourceType, &'a CibouletteResourceType), CibouletteError> {
+        let (nftype_i, nftype) = store
+            .get_type_with_index(ftype.as_ref())
+            .ok_or_else(|| CibouletteError::UnknownType(ftype.to_string()))?;
+        let nstype_edge = nftype.relationships().get(stype.as_ref()).ok_or_else(|| {
+            CibouletteError::UnknownRelationship(ftype.to_string(), stype.to_string())
+        })?;
+        let (nstype_1, nstype_2) = store
+            .graph()
+            .edge_endpoints(*nstype_edge)
+            .ok_or_else(|| CibouletteError::RelNotInGraph(stype.to_string()))?;
+        let nstype = match nftype_i == nstype_1 {
+            true => store
+                .graph()
+                .node_weight(nstype_2)
+                .ok_or_else(|| CibouletteError::TypeNotInGraph(stype.to_string()))?,
+            false => store
+                .graph()
+                .node_weight(nstype_1)
+                .ok_or_else(|| CibouletteError::TypeNotInGraph(stype.to_string()))?,
+        };
+        Ok((nftype, nstype))
     }
 
     pub fn build(self, bag: &'a CibouletteStore) -> Result<CiboulettePath<'a>, CibouletteError> {
@@ -83,27 +123,12 @@ impl<'a> CiboulettePathBuilder<'a> {
                     .ok_or_else(|| CibouletteError::UnknownType(type_.to_string()))?;
                 Ok(CiboulettePath::TypeId(ftype, id))
             }
-            CiboulettePathBuilder::TypeIdRelationship(ftype_, id, stype) => {
-                let (nftype_i, nftype) = bag
-                    .get_type_with_index(ftype_.as_ref())
-                    .ok_or_else(|| CibouletteError::UnknownType(ftype_.to_string()))?;
-                let nstype_edge = nftype.relationships().get(stype.as_ref()).ok_or_else(|| {
-                    CibouletteError::UnknownRelationship(ftype_.to_string(), stype.to_string())
-                })?;
-                let (nstype_1, nstype_2) = bag
-                    .graph()
-                    .edge_endpoints(*nstype_edge)
-                    .ok_or_else(|| CibouletteError::RelNotInGraph(stype.to_string()))?;
-                let nstype = match nftype_i == nstype_1 {
-                    true => bag
-                        .graph()
-                        .node_weight(nstype_2)
-                        .ok_or_else(|| CibouletteError::TypeNotInGraph(stype.to_string()))?,
-                    false => bag
-                        .graph()
-                        .node_weight(nstype_1)
-                        .ok_or_else(|| CibouletteError::TypeNotInGraph(stype.to_string()))?,
-                };
+            CiboulettePathBuilder::TypeIdRelated(ftype, id, stype) => {
+                let (nftype, nstype) = Self::build_double_typed(&bag, ftype, stype)?;
+                Ok(CiboulettePath::TypeIdRelated(nftype, id, nstype))
+            }
+            CiboulettePathBuilder::TypeIdRelationship(ftype, id, stype) => {
+                let (nftype, nstype) = Self::build_double_typed(&bag, ftype, stype)?;
                 Ok(CiboulettePath::TypeIdRelationship(nftype, id, nstype))
             }
         }

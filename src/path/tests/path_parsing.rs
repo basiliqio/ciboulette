@@ -80,12 +80,15 @@ fn type_id_relationship() {
 }
 
 #[test]
-fn type_id_relationship_missing_last_type() {
-    const VAL: &str = "/articles/6720877a-e27e-4e9e-9ac0-3fff4deb55f2/relationships";
+fn type_id_related() {
+    const VAL: &str = "/articles/6720877a-e27e-4e9e-9ac0-3fff4deb55f2/author";
     let url = Url::parse("http://localhost/").unwrap();
     let opt = url::Url::options().base_url(Some(&url));
     let curr_url = opt.parse(VAL).unwrap();
     let res = CiboulettePathBuilder::parse(&curr_url);
 
-    assert_eq!(matches!(res.unwrap_err(), CibouletteError::BadPath), true);
+    assert_eq!(
+        matches!(res.unwrap(), CiboulettePathBuilder::TypeIdRelated(Cow::Borrowed(x), Cow::Borrowed(y), Cow::Borrowed(z)) if x == "articles" && y == "6720877a-e27e-4e9e-9ac0-3fff4deb55f2" && z == "author"),
+        true
+    );
 }

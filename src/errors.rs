@@ -26,6 +26,7 @@ impl std::fmt::Display for CibouletteClashDirection {
 pub enum CiboulettePathType {
     Type,
     TypeId,
+    TypeIdRelated,
     TypeIdRelationship,
 }
 
@@ -34,6 +35,7 @@ impl std::fmt::Display for CiboulettePathType {
         match self {
             CiboulettePathType::Type => write!(f, "Type"),
             CiboulettePathType::TypeId => write!(f, "TypeId"),
+            CiboulettePathType::TypeIdRelated => write!(f, "TypeIdRelated"),
             CiboulettePathType::TypeIdRelationship => write!(f, "TypeIdRelationship"),
         }
     }
@@ -44,6 +46,7 @@ impl From<&CiboulettePath<'_>> for CiboulettePathType {
         match t {
             CiboulettePath::Type(_) => CiboulettePathType::Type,
             CiboulettePath::TypeId(_, _) => CiboulettePathType::TypeId,
+            CiboulettePath::TypeIdRelated(_, _, _) => CiboulettePathType::TypeIdRelated,
             CiboulettePath::TypeIdRelationship(_, _, _) => CiboulettePathType::TypeIdRelationship,
         }
     }
