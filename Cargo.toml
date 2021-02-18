@@ -30,3 +30,6 @@ ciboulette_test_helper = { path = "ciboulette_test_helper" }
 name = "ciboulette_benches"
 path = "benches/main.rs"
 harness = false
+
+[profile.dev]
+panic = "abort"
