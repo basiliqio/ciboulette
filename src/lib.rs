@@ -6,6 +6,7 @@ mod delete_request;
 mod errors;
 mod inbound_request;
 mod member_name;
+mod path;
 mod query;
 mod read_request;
 mod request_selector;
@@ -55,3 +56,5 @@ pub use config::CibouletteConfig;
 pub use errors::{CibouletteClashDirection, CibouletteError};
 pub use inbound_request::{CibouletteIntention, CibouletteRequest, CibouletteRequestBuilder};
 pub use member_name::check_member_name;
+
+pub use path::path_type::{CiboulettePath, CiboulettePathBuilder};
