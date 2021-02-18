@@ -3,6 +3,7 @@ use super::*;
 #[derive(Debug, Clone, Getters, MutGetters)]
 #[getset(get = "pub")]
 pub struct CibouletteReadRequest<'a> {
+    pub path: CiboulettePath<'a>,
     pub query: CibouletteQueryParameters<'a>,
     pub data: CibouletteResourceSelector<'a, CibouletteResourceIdentifier<'a>>,
     pub meta: Value,
@@ -37,6 +38,7 @@ impl<'a> TryFrom<CibouletteRequest<'a>> for CibouletteReadRequest<'a> {
         } = body.unwrap_or_default();
 
         Ok(CibouletteReadRequest {
+            path,
             query: query.unwrap_or_default(),
             data: data
                 .unwrap_or_else(|| {
