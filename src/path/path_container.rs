@@ -7,6 +7,45 @@ pub enum CiboulettePathBuilder<'a> {
     TypeIdRelationship(Cow<'a, str>, Cow<'a, str>, Cow<'a, str>),
 }
 
+impl<'a> CiboulettePathBuilder<'a> {
+    pub fn parse(self, url: &'a Url) -> Result<Self, CibouletteError> {
+        let mut segs: [Option<&str>; 4] = [None; 4];
+        let segs_iter = url
+            .path_segments()
+            .unwrap_or_else(|| "".split('/'))
+            .into_iter()
+            .enumerate();
+
+        for (i, seg) in segs_iter {
+            if i >= 4 {
+                return Err(CibouletteError::BadPath);
+            }
+            segs[i] = Some(seg);
+        }
+        match segs {
+            [None, None, None, None] => Err(CibouletteError::MissingTypeInPath),
+            [Some(ftype), None, None, None] => {
+                Ok(CiboulettePathBuilder::Type(Cow::Borrowed(ftype)))
+            }
+            [Some(ftype), Some(id), None, None] => Ok(CiboulettePathBuilder::TypeId(
+                Cow::Borrowed(ftype),
+                Cow::Borrowed(id),
+            )),
+            [Some(ftype), Some(id), Some(rel_keyword), Some(stype)] => {
+                if !rel_keyword.eq("relationships") {
+                    return Err(CibouletteError::BadPath);
+                }
+                Ok(CiboulettePathBuilder::TypeIdRelationship(
+                    Cow::Borrowed(ftype),
+                    Cow::Borrowed(id),
+                    Cow::Borrowed(stype),
+                ))
+            }
+            _ => Err(CibouletteError::BadPath),
+        }
+    }
+}
+
 #[derive(Debug, Clone)]
 pub enum CiboulettePath<'a> {
     Type(&'a CibouletteResourceType),

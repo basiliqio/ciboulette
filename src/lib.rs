@@ -22,6 +22,7 @@ use serde_utils::{handle_ident_in_map_stateful, handle_ident_in_map_stateless};
 use std::borrow::Cow;
 use std::collections::{BTreeMap, BTreeSet, HashMap};
 use std::convert::{TryFrom, TryInto};
+use url::Url;
 
 pub use body::errors_obj::{CibouletteErrorLink, CibouletteErrorObj, CibouletteErrorSource};
 pub use body::link::{
@@ -57,4 +58,4 @@ pub use errors::{CibouletteClashDirection, CibouletteError};
 pub use inbound_request::{CibouletteIntention, CibouletteRequest, CibouletteRequestBuilder};
 pub use member_name::check_member_name;
 
-pub use path::path_type::{CiboulettePath, CiboulettePathBuilder};
+pub use path::path_container::{CiboulettePath, CiboulettePathBuilder};

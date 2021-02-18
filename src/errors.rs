@@ -62,6 +62,10 @@ pub enum CibouletteError {
     NoCompound,
     #[error("No alias translation for `{1}` in type `{0}`")]
     MissingAliasTranslation(String, String),
+    #[error("Couldn't parse the path, no type were specified")]
+    MissingTypeInPath,
+    #[error("Couldn't parse the path")]
+    BadPath,
     /// When there is a failure while deserializing the JSON
     #[error("An unkown error occured : {0}")]
     UnknownError(String),
@@ -69,4 +73,6 @@ pub enum CibouletteError {
     SerdeJson(#[from] serde_json::Error),
     #[error(transparent)]
     SerdeUrlEncoded(#[from] serde_urlencoded::de::Error),
+    #[error(transparent)]
+    Url(#[from] url::ParseError),
 }
