@@ -1,7 +1,7 @@
 use super::*;
 
 /// ## Builder object for [CibouletteBody](CibouletteBody)
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum CibouletteIntention {
     Create,
     Update,
@@ -13,15 +13,15 @@ pub enum CibouletteIntention {
 #[derive(Debug, Clone, Getters)]
 #[getset(get = "pub", get_mut = "pub")]
 pub struct CibouletteRequestBuilder<'a> {
-    path: Option<&'a str>,
+    req_url: &'a Url,
     intention: CibouletteIntention,
-    query: Option<&'a str>,
-    body: Option<&'a str>,
+    body: &'a Option<&'a str>,
 }
 
 #[derive(Debug, Getters)]
 #[getset(get = "pub")]
 pub struct CibouletteRequest<'a> {
+    pub path: CiboulettePath<'a>,
     pub query: Option<CibouletteQueryParameters<'a>>,
     pub body: Option<CibouletteBody<'a>>,
     pub intention: CibouletteIntention,
@@ -29,14 +29,12 @@ pub struct CibouletteRequest<'a> {
 
 impl<'a> CibouletteRequestBuilder<'a> {
     pub fn new(
-        path: Option<&'a str>,
-        query: Option<&'a str>,
-        body: Option<&'a str>,
         intention: CibouletteIntention,
+        req_url: &'a Url,
+        body: &'a Option<&'a str>,
     ) -> Self {
         CibouletteRequestBuilder {
-            path,
-            query,
+            req_url,
             body,
             intention,
         }
@@ -51,18 +49,19 @@ impl<'a> CibouletteRequestBuilder<'a> {
             }
             None => None,
         };
+        let path: CiboulettePath<'a> = CiboulettePathBuilder::parse(self.req_url)?.build(&bag)?;
 
-        let query: Option<CibouletteQueryParameters<'a>> = match self.query {
+        let query: Option<CibouletteQueryParameters<'a>> = match self.req_url.query() {
             // Build query parameters
             Some(query) => {
                 let builder: CibouletteQueryParametersBuilder<'_> =
                     serde_urlencoded::from_str(query)?;
-                Some(builder.build(bag, body.as_ref().and_then(|x| x.get_main_type(bag)))?)
+                Some(builder.build(bag, Some(path.main_type()))?)
             }
             None => None,
         };
-
         Ok(CibouletteRequest {
+            path,
             body,
             query,
             intention: self.intention,

@@ -7,6 +7,27 @@ pub enum CiboulettePathBuilder<'a> {
     TypeIdRelationship(Cow<'a, str>, Cow<'a, str>, Cow<'a, str>),
 }
 
+impl<'a> CiboulettePath<'a> {
+    pub fn main_type(&self) -> &'a CibouletteResourceType {
+        match self {
+            CiboulettePath::Type(x) => x,
+            CiboulettePath::TypeId(x, _) => x,
+            CiboulettePath::TypeIdRelationship(x, _, _) => x,
+        }
+    }
+}
+
+#[derive(Debug, Clone)]
+pub enum CiboulettePath<'a> {
+    Type(&'a CibouletteResourceType),
+    TypeId(&'a CibouletteResourceType, Cow<'a, str>),
+    TypeIdRelationship(
+        &'a CibouletteResourceType,
+        Cow<'a, str>,
+        &'a CibouletteResourceType,
+    ),
+}
+
 impl<'a> CiboulettePathBuilder<'a> {
     pub fn parse(url: &'a Url) -> Result<Self, CibouletteError> {
         let mut segs: [Option<&str>; 4] = [None; 4];
@@ -47,20 +68,7 @@ impl<'a> CiboulettePathBuilder<'a> {
             _ => Err(CibouletteError::BadPath),
         }
     }
-}
 
-#[derive(Debug, Clone)]
-pub enum CiboulettePath<'a> {
-    Type(&'a CibouletteResourceType),
-    TypeId(&'a CibouletteResourceType, Cow<'a, str>),
-    TypeIdRelationship(
-        &'a CibouletteResourceType,
-        Cow<'a, str>,
-        &'a CibouletteResourceType,
-    ),
-}
-
-impl<'a> CiboulettePathBuilder<'a> {
     pub fn build(self, bag: &'a CibouletteStore) -> Result<CiboulettePath<'a>, CibouletteError> {
         match self {
             CiboulettePathBuilder::Type(type_) => {

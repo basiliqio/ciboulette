@@ -13,6 +13,9 @@ mod request_selector;
 mod serde_utils;
 mod update_request;
 
+#[cfg(test)]
+mod tests;
+
 use body::resource_obj::CibouletteResourceBuilderVisitor;
 use getset::{Getters, MutGetters};
 use messy_json::*;
