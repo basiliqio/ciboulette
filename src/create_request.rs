@@ -3,6 +3,7 @@ use super::*;
 #[derive(Debug, Getters, MutGetters, Clone)]
 #[getset(get = "pub")]
 pub struct CibouletteCreateRequest<'a> {
+    pub path: CiboulettePath<'a>,
     pub query: CibouletteQueryParameters<'a>,
     pub data: CibouletteResource<'a, CibouletteResourceIdentifierPermissive<'a>>,
     pub meta: Value,
@@ -52,6 +53,7 @@ impl<'a> TryFrom<CibouletteRequest<'a>> for CibouletteCreateRequest<'a> {
         };
 
         Ok(CibouletteCreateRequest {
+            path,
             query: query.unwrap_or_default(),
             data,
             meta,

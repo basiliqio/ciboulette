@@ -46,6 +46,11 @@ impl<'a> CibouletteStore {
         &self.graph
     }
 
+    /// Get a type index from the graph
+    pub fn get_type_index(&'a self, name: &str) -> Option<&petgraph::graph::NodeIndex<u16>> {
+        self.map.get(name)
+    }
+
     /// Get a type from the graph
     pub fn get_type_with_index(
         &'a self,
