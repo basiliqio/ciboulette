@@ -8,7 +8,7 @@ pub enum CiboulettePathBuilder<'a> {
 }
 
 impl<'a> CiboulettePathBuilder<'a> {
-    pub fn parse(self, url: &'a Url) -> Result<Self, CibouletteError> {
+    pub fn parse(url: &'a Url) -> Result<Self, CibouletteError> {
         let mut segs: [Option<&str>; 4] = [None; 4];
         let segs_iter = url
             .path_segments()
@@ -19,6 +19,9 @@ impl<'a> CiboulettePathBuilder<'a> {
         for (i, seg) in segs_iter {
             if i >= 4 {
                 return Err(CibouletteError::BadPath);
+            }
+            if seg.is_empty() {
+                continue;
             }
             segs[i] = Some(seg);
         }
