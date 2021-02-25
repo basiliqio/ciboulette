@@ -44,7 +44,7 @@ pub enum CibouletteRelationshipOption {
     /// One to many relationship, without the intermediate node
     ManyDirect(
         CibouletteRelationshipBucket,
-        petgraph::graph::EdgeIndex<u16>,
+        petgraph::graph::NodeIndex<u16>,
     ),
     /// One to many relationship
     Many(CibouletteRelationshipBucket),

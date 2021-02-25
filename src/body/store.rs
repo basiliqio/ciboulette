@@ -246,12 +246,12 @@ impl<'a> CibouletteStore {
         let edge_from_i_direct = self.graph.update_edge(
             *from_i,
             *to_i,
-            CibouletteRelationshipOption::ManyDirect(opt.clone(), edge_from_i),
+            CibouletteRelationshipOption::ManyDirect(opt.clone(), *bucket_i),
         ); // Add the direct edges
         let edge_to_i_direct = self.graph.update_edge(
             *to_i,
             *from_i,
-            CibouletteRelationshipOption::ManyDirect(opt.clone(), edge_to_i),
+            CibouletteRelationshipOption::ManyDirect(opt.clone(), *bucket_i),
         ); // Add the direct edges
         {
             // Handle edge
@@ -262,7 +262,7 @@ impl<'a> CibouletteStore {
             let alias = alias_to.unwrap_or(to); // Override if there is no alias
             if type_.relationships().contains_key(alias) {
                 // Check if relationship exists
-                self.graph.remove_edge(edge_to_i); // Cancel the created edge
+                self.graph.remove_edge(edge_from_i); // Cancel the created edge
                 self.graph.remove_edge(edge_to_i);
                 self.graph.remove_edge(edge_from_i_direct);
                 self.graph.remove_edge(edge_to_i_direct);
@@ -287,7 +287,7 @@ impl<'a> CibouletteStore {
             let alias = alias_from.unwrap_or(from); // Override if there is no alias
             if type_.relationships().contains_key(alias) {
                 // Check if relationship exists
-                self.graph.remove_edge(edge_to_i); // Cancel the created edge
+                self.graph.remove_edge(edge_from_i); // Cancel the created edge
                 self.graph.remove_edge(edge_to_i);
                 self.graph.remove_edge(edge_from_i_direct);
                 self.graph.remove_edge(edge_to_i_direct);
