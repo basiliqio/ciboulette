@@ -18,6 +18,19 @@ pub struct CibouletteRelationshipBucket {
     to: String,
 }
 
+#[derive(Debug, Clone, Getters)]
+#[getset(get = "pub")]
+pub struct CibouletteRelationshipOneToOneOption {
+    key: String,
+    optional: bool,
+}
+
+impl CibouletteRelationshipOneToOneOption {
+    pub fn new(key: String, optional: bool) -> Self {
+        CibouletteRelationshipOneToOneOption { key, optional }
+    }
+}
+
 impl CibouletteRelationshipBucket {
     pub fn new(resource: CibouletteResourceType, from: String, to: String) -> Self {
         CibouletteRelationshipBucket { resource, from, to }
@@ -27,7 +40,7 @@ impl CibouletteRelationshipBucket {
 #[derive(Debug, Clone)]
 pub enum CibouletteRelationshipOption {
     /// One to one relationship, boolean if the relationship is optional
-    One(bool),
+    One(CibouletteRelationshipOneToOneOption),
     /// One to many relationship
     Many(CibouletteRelationshipBucket),
 }

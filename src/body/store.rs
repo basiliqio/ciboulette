@@ -174,9 +174,6 @@ impl<'a> CibouletteStore {
             }
         }
         let edge_i = self.graph.update_edge(*from_i, *to_i, opt); // Get the edge index
-        let edge_i_reverse =
-            self.graph
-                .update_edge(*to_i, *from_i, CibouletteRelationshipOption::One(true)); // Get the edge index
         {
             // Handle edge
             let type_ = self
@@ -187,7 +184,6 @@ impl<'a> CibouletteStore {
             if type_.relationships().contains_key(alias) {
                 // Check if relationship exists
                 self.graph.remove_edge(edge_i); // Cancel the created edge
-                self.graph.remove_edge(edge_i_reverse); // Cancel the created edge (reverse)
                 return Err(CibouletteError::UniqRelationship(
                     from.to_string(),
                     alias.to_string(),
@@ -208,7 +204,6 @@ impl<'a> CibouletteStore {
             if type_.relationships().contains_key(alias) {
                 // Check if relationship exists
                 self.graph.remove_edge(edge_i); // Cancel the created edge
-                self.graph.remove_edge(edge_i_reverse); // Cancel the created edge (reverse)
                 return Err(CibouletteError::UniqRelationship(
                     to.to_string(),
                     alias.to_string(),

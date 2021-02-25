@@ -32,7 +32,8 @@ pub use body::link::{
     CibouletteBodyLink, CibouletteBodyPagination, CibouletteLink, CibouletteLinkObj,
 };
 pub use body::relationship::{
-    CibouletteRelationshipBucket, CibouletteRelationshipObject, CibouletteRelationshipOption,
+    CibouletteRelationshipBucket, CibouletteRelationshipObject,
+    CibouletteRelationshipOneToOneOption, CibouletteRelationshipOption,
 };
 pub use body::request_body::{CibouletteBody, CibouletteBodyBuilder};
 pub use body::resource_identifier::{

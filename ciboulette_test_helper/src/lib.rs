@@ -149,48 +149,29 @@ pub fn gen_bag() -> CibouletteStore {
 	res.add_type("peoples".to_string(), gen_messy_json_schema_peoples())
 		.unwrap();
 	res.add_type(
-		"article-comment".to_string(),
-		gen_messy_json_schema_article_comments(),
-	)
-	.unwrap();
-	res.add_type(
 		"people-article".to_string(),
 		gen_messy_json_schema_people_article(),
 	)
 	.unwrap();
 
-	res.add_type(
-		"people-comment".to_string(),
-		gen_messy_json_schema_people_comments(),
-	)
-	.unwrap();
-
 	res.add_rel(
-		("articles", None),
 		("comments", None),
-		CibouletteRelationshipOption::Many(CibouletteRelationshipBucket::new(
-			res.get_type("article-comment").unwrap().clone(),
-			"article_id".to_string(),
-			"comment_id".to_string(),
-		)),
+		("articles", None),
+		CibouletteRelationshipOption::One(CibouletteRelationshipOneToOneOption::new("article_id".to_string(), false)),
 	)
 	.unwrap(); // Articles -> Comments
 	res.add_rel(
-		("peoples", Some("author")),
 		("comments", None),
-		CibouletteRelationshipOption::Many(CibouletteRelationshipBucket::new(
-			res.get_type("people-comment").unwrap().clone(),
-			"people_id".to_string(),
-			"comment_id".to_string(),
-		))	)
+		("peoples", Some("author")),
+		CibouletteRelationshipOption::One(CibouletteRelationshipOneToOneOption::new("author_id".to_string(), false)))
 	.unwrap(); // Peoples -> Comments
 	res.add_rel(
-		("peoples", Some("author")),
 		("articles", None),
+		("peoples", Some("author")),
 		CibouletteRelationshipOption::Many(CibouletteRelationshipBucket::new(
 			res.get_type("people-article").unwrap().clone(),
-			"people_id".to_string(),
 			"article_id".to_string(),
+			"people_id".to_string(),
 		)),
 	)
 	.unwrap(); // Peoples -> Articles
