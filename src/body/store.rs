@@ -135,12 +135,12 @@ impl<'a> CibouletteStore {
         }
     }
 
-    /// Add a relationships to the graph
-    pub fn add_rel(
+    /// Add a relationships (one-to-one) to the graph
+    pub fn add_rel_single(
         &mut self,
         (from, alias_from): (&str, Option<&str>),
         (to, alias_to): (&str, Option<&str>),
-        opt: CibouletteRelationshipOption,
+        opt: CibouletteRelationshipOneToOneOption,
     ) -> Result<(), CibouletteError> {
         let from_i = self
             .map
@@ -149,31 +149,10 @@ impl<'a> CibouletteStore {
         let to_i = self
             .map
             .get(to)
-            .ok_or_else(|| CibouletteError::UnknownType(to.to_string()))?; // Get `to index
-        if let CibouletteRelationshipOption::Many(opt) = &opt {
-            // If a one-to-many relationship
-            let type_fetched = self
-                .map()
-                .get(opt.resource().name())
-                .and_then(|x| self.graph.node_weight(*x)); // Check the bucket type exists
-            match type_fetched {
-                None => return Err(CibouletteError::TypeNotInGraph(from.to_string())), // If it doens't, its an error
-                Some(x) if x != opt.resource() => {
-                    return Err(CibouletteError::TypeNotInGraph(from.to_string()));
-                    // If it exists but types aren't equals, it's also an error
-                }
-                Some(x) => {
-                    let fields: [&str; 2] = [opt.from().as_str(), opt.to().as_str()];
-                    if let Some(missing) = self.check_type_has_fields(x, &fields)? {
-                        return Err(CibouletteError::UnknownField(
-                            opt.resource().name().clone(),
-                            missing.to_string(),
-                        ));
-                    }
-                }
-            }
-        }
-        let edge_i = self.graph.update_edge(*from_i, *to_i, opt); // Get the edge index
+            .ok_or_else(|| CibouletteError::UnknownType(to.to_string()))?;
+        let edge_i = self
+            .graph
+            .update_edge(*from_i, *to_i, CibouletteRelationshipOption::One(opt)); // Get the edge index
         {
             // Handle edge
             let type_ = self
@@ -210,6 +189,116 @@ impl<'a> CibouletteStore {
                 ));
             }
             type_.relationships_mut().insert(alias.to_string(), edge_i); // Insert the relationship
+            type_
+                .relationships_type_to_alias_mut()
+                .insert(to.to_string(), alias.to_string()); // And the translation between type_ and alias
+        }
+        Ok(())
+    }
+
+    /// Add a relationships (one/many-to-one/many) to the graph
+    pub fn add_rel_multiple(
+        &mut self,
+        (from, alias_from): (&str, Option<&str>),
+        (to, alias_to): (&str, Option<&str>),
+        opt: CibouletteRelationshipBucket,
+    ) -> Result<(), CibouletteError> {
+        let from_i = self
+            .map
+            .get(from)
+            .ok_or_else(|| CibouletteError::UnknownType(from.to_string()))?; // Get `from` index
+        let to_i = self
+            .map
+            .get(to)
+            .ok_or_else(|| CibouletteError::UnknownType(to.to_string()))?; // Get `to index
+        let bucket_i = self
+            .map
+            .get(opt.resource().name())
+            .ok_or_else(|| CibouletteError::UnknownType(opt.resource().name().clone()))?; // Get `to index
+
+        let type_fetched = self.graph.node_weight(*bucket_i); // Check the bucket type exists
+        match type_fetched {
+            None => return Err(CibouletteError::TypeNotInGraph(from.to_string())), // If it doens't, its an error
+            Some(x) if x != opt.resource() => {
+                return Err(CibouletteError::TypeNotInGraph(from.to_string()));
+                // If it exists but types aren't equals, it's also an error
+            }
+            Some(x) => {
+                let fields: [&str; 2] = [opt.from().as_str(), opt.to().as_str()];
+                if let Some(missing) = self.check_type_has_fields(x, &fields)? {
+                    return Err(CibouletteError::UnknownField(
+                        opt.resource().name().clone(),
+                        missing.to_string(),
+                    ));
+                }
+            }
+        };
+        let edge_from_i = self.graph.update_edge(
+            *bucket_i,
+            *from_i,
+            CibouletteRelationshipOption::Many(opt.clone()),
+        ); // Get the edge index
+        let edge_to_i = self.graph.update_edge(
+            *bucket_i,
+            *to_i,
+            CibouletteRelationshipOption::Many(opt.clone()),
+        ); // Get the edge index
+        let edge_from_i_direct = self.graph.update_edge(
+            *from_i,
+            *to_i,
+            CibouletteRelationshipOption::ManyDirect(opt.clone(), edge_from_i),
+        ); // Add the direct edges
+        let edge_to_i_direct = self.graph.update_edge(
+            *to_i,
+            *from_i,
+            CibouletteRelationshipOption::ManyDirect(opt.clone(), edge_to_i),
+        ); // Add the direct edges
+        {
+            // Handle edge
+            let type_ = self
+                .graph
+                .node_weight_mut(*from_i)
+                .ok_or_else(|| CibouletteError::TypeNotInGraph(from.to_string()))?; // Get the type
+            let alias = alias_to.unwrap_or(to); // Override if there is no alias
+            if type_.relationships().contains_key(alias) {
+                // Check if relationship exists
+                self.graph.remove_edge(edge_to_i); // Cancel the created edge
+                self.graph.remove_edge(edge_to_i);
+                self.graph.remove_edge(edge_from_i_direct);
+                self.graph.remove_edge(edge_to_i_direct);
+                return Err(CibouletteError::UniqRelationship(
+                    from.to_string(),
+                    alias.to_string(),
+                ));
+            }
+            type_
+                .relationships_mut()
+                .insert(alias.to_string(), edge_to_i_direct); // Insert the relationship
+            type_
+                .relationships_type_to_alias_mut()
+                .insert(to.to_string(), alias.to_string()); // And the translation between type_ and alias
+        }
+        {
+            // Handle reverse edge
+            let type_ = self
+                .graph
+                .node_weight_mut(*to_i)
+                .ok_or_else(|| CibouletteError::TypeNotInGraph(to.to_string()))?; // Get the type
+            let alias = alias_from.unwrap_or(from); // Override if there is no alias
+            if type_.relationships().contains_key(alias) {
+                // Check if relationship exists
+                self.graph.remove_edge(edge_to_i); // Cancel the created edge
+                self.graph.remove_edge(edge_to_i);
+                self.graph.remove_edge(edge_from_i_direct);
+                self.graph.remove_edge(edge_to_i_direct);
+                return Err(CibouletteError::UniqRelationship(
+                    to.to_string(),
+                    alias.to_string(),
+                ));
+            }
+            type_
+                .relationships_mut()
+                .insert(alias.to_string(), edge_from_i_direct); // Insert the relationship
             type_
                 .relationships_type_to_alias_mut()
                 .insert(to.to_string(), alias.to_string()); // And the translation between type_ and alias

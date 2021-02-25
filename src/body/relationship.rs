@@ -41,6 +41,11 @@ impl CibouletteRelationshipBucket {
 pub enum CibouletteRelationshipOption {
     /// One to one relationship, boolean if the relationship is optional
     One(CibouletteRelationshipOneToOneOption),
+    /// One to many relationship, without the intermediate node
+    ManyDirect(
+        CibouletteRelationshipBucket,
+        petgraph::graph::EdgeIndex<u16>,
+    ),
     /// One to many relationship
     Many(CibouletteRelationshipBucket),
 }

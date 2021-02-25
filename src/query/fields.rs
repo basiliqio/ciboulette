@@ -35,10 +35,7 @@ pub enum CiboulettePageType<'a> {
 
 impl CibouletteQueryParametersFieldVisitor {
     #[inline]
-    fn parse_str<E>(value: Cow<'_, str>) -> Result<CibouletteQueryParametersField<'_>, E>
-    where
-        E: serde::de::Error,
-    {
+    fn parse_str(value: Cow<'_, str>) -> CibouletteQueryParametersField<'_> {
         // Check the simplier types for match
         let preemptive_val = match value.as_ref() {
             "include" => Some(CibouletteQueryParametersField::Include),
@@ -48,7 +45,7 @@ impl CibouletteQueryParametersFieldVisitor {
         };
         if let Some(preemptive_val) = preemptive_val {
             // Return then in case of match
-            return Ok(preemptive_val);
+            return preemptive_val;
         }
         let has_type = value.find('['); // Is it a typed parameter ?
         match has_type {
@@ -61,41 +58,39 @@ impl CibouletteQueryParametersFieldVisitor {
                             typed_param::parse_typed_query_param(&value[type_end_index..]) // Parse inner parameter
                                 .unwrap_or_default();
                         match page_type.as_ref() {
-                            "limit" => Ok(CibouletteQueryParametersField::Page(
-                                CiboulettePageType::Limit,
-                            )),
-                            "size" => Ok(CibouletteQueryParametersField::Page(
-                                CiboulettePageType::Size,
-                            )),
-                            "offset" => Ok(CibouletteQueryParametersField::Page(
-                                CiboulettePageType::Offset,
-                            )),
-                            "number" => Ok(CibouletteQueryParametersField::Page(
-                                CiboulettePageType::Number,
-                            )),
-                            "cursor" => Ok(CibouletteQueryParametersField::Page(
-                                CiboulettePageType::Cursor,
-                            )),
-                            _ => Ok(CibouletteQueryParametersField::Page(
-                                CiboulettePageType::Other(Cow::Owned(page_type.into_owned())),
+                            "limit" => {
+                                CibouletteQueryParametersField::Page(CiboulettePageType::Limit)
+                            }
+                            "size" => {
+                                CibouletteQueryParametersField::Page(CiboulettePageType::Size)
+                            }
+                            "offset" => {
+                                CibouletteQueryParametersField::Page(CiboulettePageType::Offset)
+                            }
+                            "number" => {
+                                CibouletteQueryParametersField::Page(CiboulettePageType::Number)
+                            }
+                            "cursor" => {
+                                CibouletteQueryParametersField::Page(CiboulettePageType::Cursor)
+                            }
+                            _ => CibouletteQueryParametersField::Page(CiboulettePageType::Other(
+                                Cow::Owned(page_type.into_owned()),
                             )),
                         }
                     }
-                    "fields" => Ok(CibouletteQueryParametersField::Sparse(
+                    "fields" => CibouletteQueryParametersField::Sparse(
                         typed_param::parse_typed_query_params(&value[type_end_index..]) // Extract parameters
                             .unwrap_or_default(),
-                    )),
+                    ),
                     "filter" => {
                         let type_ = typed_param::parse_typed_query_param(&value[type_end_index..])
                             .unwrap_or_default();
-                        Ok(CibouletteQueryParametersField::FilterTyped(Cow::Owned(
-                            type_.into_owned(),
-                        )))
+                        CibouletteQueryParametersField::FilterTyped(Cow::Owned(type_.into_owned()))
                     }
-                    _ => Ok(CibouletteQueryParametersField::Meta(value)),
+                    _ => CibouletteQueryParametersField::Meta(value),
                 }
             }
-            None => Ok(CibouletteQueryParametersField::Meta(value)),
+            None => CibouletteQueryParametersField::Meta(value),
         }
     }
 }
@@ -113,7 +108,7 @@ impl<'de> Visitor<'de> for CibouletteQueryParametersFieldVisitor {
     where
         E: serde::de::Error,
     {
-        Self::parse_str(Cow::Borrowed(value))
+        Ok(Self::parse_str(Cow::Borrowed(value)))
     }
 
     #[inline]
@@ -121,7 +116,7 @@ impl<'de> Visitor<'de> for CibouletteQueryParametersFieldVisitor {
     where
         E: serde::de::Error,
     {
-        Self::parse_str(Cow::Owned(value.to_string()))
+        Ok(Self::parse_str(Cow::Owned(value.to_string())))
     }
 
     #[inline]
@@ -129,7 +124,7 @@ impl<'de> Visitor<'de> for CibouletteQueryParametersFieldVisitor {
     where
         E: serde::de::Error,
     {
-        Self::parse_str(Cow::Owned(value))
+        Ok(Self::parse_str(Cow::Owned(value)))
     }
 
     #[inline]

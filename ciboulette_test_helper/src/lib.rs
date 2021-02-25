@@ -60,14 +60,15 @@ fn gen_messy_json_schema_comments() -> MessyJson {
 
 fn gen_messy_json_schema_article_comments() -> MessyJson {
 	MessyJson::Obj(Box::new(MessyJsonObject::new(
-		vec![(
-			"article_id".to_string(),
-			MessyJson::String(MessyJsonScalar::new(false)),
-		),
-		(
-			"comment_id".to_string(),
-			MessyJson::String(MessyJsonScalar::new(false)),
-		)
+		vec![
+			(
+				"article_id".to_string(),
+				MessyJson::String(MessyJsonScalar::new(false)),
+			),
+			(
+				"comment_id".to_string(),
+				MessyJson::String(MessyJsonScalar::new(false)),
+			),
 		]
 		.into_iter()
 		.collect(),
@@ -77,14 +78,15 @@ fn gen_messy_json_schema_article_comments() -> MessyJson {
 
 fn gen_messy_json_schema_people_article() -> MessyJson {
 	MessyJson::Obj(Box::new(MessyJsonObject::new(
-		vec![(
-			"people_id".to_string(),
-			MessyJson::String(MessyJsonScalar::new(false)),
-		),
-		(
-			"article_id".to_string(),
-			MessyJson::String(MessyJsonScalar::new(false)),
-		)
+		vec![
+			(
+				"people_id".to_string(),
+				MessyJson::String(MessyJsonScalar::new(false)),
+			),
+			(
+				"article_id".to_string(),
+				MessyJson::String(MessyJsonScalar::new(false)),
+			),
 		]
 		.into_iter()
 		.collect(),
@@ -94,14 +96,15 @@ fn gen_messy_json_schema_people_article() -> MessyJson {
 
 fn gen_messy_json_schema_people_comments() -> MessyJson {
 	MessyJson::Obj(Box::new(MessyJsonObject::new(
-		vec![(
-			"people_id".to_string(),
-			MessyJson::String(MessyJsonScalar::new(false)),
-		),
-		(
-			"comment_id".to_string(),
-			MessyJson::String(MessyJsonScalar::new(false)),
-		)
+		vec![
+			(
+				"people_id".to_string(),
+				MessyJson::String(MessyJsonScalar::new(false)),
+			),
+			(
+				"comment_id".to_string(),
+				MessyJson::String(MessyJsonScalar::new(false)),
+			),
 		]
 		.into_iter()
 		.collect(),
@@ -154,25 +157,26 @@ pub fn gen_bag() -> CibouletteStore {
 	)
 	.unwrap();
 
-	res.add_rel(
+	res.add_rel_single(
 		("comments", None),
 		("articles", None),
-		CibouletteRelationshipOption::One(CibouletteRelationshipOneToOneOption::new("article_id".to_string(), false)),
+		CibouletteRelationshipOneToOneOption::new("article_id".to_string(), false),
 	)
 	.unwrap(); // Articles -> Comments
-	res.add_rel(
+	res.add_rel_single(
 		("comments", None),
 		("peoples", Some("author")),
-		CibouletteRelationshipOption::One(CibouletteRelationshipOneToOneOption::new("author_id".to_string(), false)))
+		CibouletteRelationshipOneToOneOption::new("author_id".to_string(), false),
+	)
 	.unwrap(); // Peoples -> Comments
-	res.add_rel(
+	res.add_rel_multiple(
 		("articles", None),
 		("peoples", Some("author")),
-		CibouletteRelationshipOption::Many(CibouletteRelationshipBucket::new(
+		CibouletteRelationshipBucket::new(
 			res.get_type("people-article").unwrap().clone(),
 			"article_id".to_string(),
 			"people_id".to_string(),
-		)),
+		),
 	)
 	.unwrap(); // Peoples -> Articles
 	res
