@@ -85,6 +85,8 @@ pub enum CibouletteError {
     InvalidMemberName(String),
     #[error("The `attributes` should be an object")]
     AttributesIsNotAnObject,
+    #[error("There was an empty query attribute")]
+    EmptyQueryAttribute,
     #[error("The `data` object is missing")]
     NoData,
     #[error("Missing `id` field for a resource identifier")]

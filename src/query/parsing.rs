@@ -64,6 +64,7 @@ impl<'de> Deserialize<'de> for CibouletteQueryParametersBuilder<'de> {
 }
 
 impl<'a> CibouletteQueryParametersBuilder<'a> {
+    // }
     /// Check that a relationship exists between a chain of types.
     ///
     /// i.e. "author.comments" makes sense because the author has comments
@@ -183,7 +184,9 @@ impl<'a> CibouletteQueryParametersBuilder<'a> {
         // Check for sparse fields, checking that fields exists
         for (types, fields) in self.sparse.into_iter() {
             let rel = Self::check_relationship_exists(bag, types.as_slice())?;
-            Self::check_fields_exists(rel, fields.as_slice())?;
+            if !fields.is_empty() {
+                Self::check_fields_exists(rel, fields.as_slice())?;
+            }
             sparse.insert(rel, fields);
         }
 

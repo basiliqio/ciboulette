@@ -135,13 +135,12 @@ fn empty_type() {
 fn empty_field() {
     let (bag, builder) = setup(r#"fields[peoples]="#);
 
-    let err: CibouletteError = builder
-        .build(&bag, None)
-        .expect_err("not to build correctly");
-    assert_eq!(
-        matches!(err, CibouletteError::UnknownField(type_, field) if type_.as_str() == "peoples" && field.is_empty()),
-        true
-    );
+    let query: CibouletteQueryParameters = builder.build(&bag, None).expect("to_build correctly");
+    let peoples_sparse = query
+        .sparse()
+        .get(&bag.get_type("peoples").unwrap())
+        .unwrap();
+    assert_eq!(peoples_sparse.len(), 0);
 }
 
 #[test]

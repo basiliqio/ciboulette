@@ -50,17 +50,22 @@ impl CibouletteQueryParametersBuilderVisitor {
     where
         A: serde::de::MapAccess<'de>,
     {
-        if res
-            .insert(
-                type_,
-                serde::de::MapAccess::next_value::<Cow<'de, str>>(&mut map)?
-                    .split(',')
-                    .map(str::to_string)
-                    .map(Cow::Owned)
-                    .collect(),
-            )
-            .is_some()
-        {
+        let mut val: Vec<Cow<'de, str>> =
+            serde::de::MapAccess::next_value::<Cow<'de, str>>(&mut map)?
+                .split(',')
+                .map(str::to_string)
+                .map(Cow::Owned)
+                .collect();
+
+        if val.len() > 1 && val.iter().any(|x| x.is_empty()) {
+            return Err(serde::de::Error::invalid_value(
+                serde::de::Unexpected::Str("<empty>"),
+                &"any non-empty string",
+            ));
+        } else if val.len() == 1 && val[0].is_empty() {
+            val.clear()
+        }
+        if res.insert(type_, val).is_some() {
             return Err(<A::Error as serde::de::Error>::duplicate_field(
                 "fields[<type>]",
             ));
