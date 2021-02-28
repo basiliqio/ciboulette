@@ -192,7 +192,10 @@ impl<'de> Deserialize<'de> for CibouletteBodyBuilder<'de> {
 
 impl<'a> CibouletteBodyBuilder<'a> {
     /// Build a [CibouletteBody](CibouletteBody) from the builder
-    pub fn build(self, bag: &'a CibouletteStore) -> Result<CibouletteBody<'a>, CibouletteError> {
+    pub fn build(
+        self,
+        bag: &'a CibouletteStore<'a>,
+    ) -> Result<CibouletteBody<'a>, CibouletteError> {
         let res: CibouletteBody<'a>;
 
         let data = match self.data {
@@ -387,7 +390,10 @@ impl<'a> CibouletteBody<'a> {
     /// If it's a single document request, the type of the document is used.
     /// If it's a compound document request and all the document are the same type, then this type is used.
     /// Else `None` is returned
-    pub fn get_main_type(&self, bag: &'a CibouletteStore) -> Option<&'a CibouletteResourceType> {
+    pub fn get_main_type(
+        &self,
+        bag: &'a CibouletteStore<'a>,
+    ) -> Option<&'a CibouletteResourceType> {
         self.data().as_ref().and_then(|data| match data {
             CibouletteResourceSelector::One(x) => bag.get_type(x.identifier().type_().as_ref()),
             CibouletteResourceSelector::Many(types) => {

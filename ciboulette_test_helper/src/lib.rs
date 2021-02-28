@@ -1,7 +1,7 @@
 pub use ciboulette;
 use ciboulette::*;
 use messy_json::*;
-
+use std::borrow::Cow;
 // Articles:
 // - attributes:
 //   - title
@@ -28,121 +28,85 @@ use messy_json::*;
 //   - author
 //   - articles
 
-fn gen_messy_json_schema_articles() -> MessyJson {
-	MessyJson::Obj(Box::new(MessyJsonObject::new(
+fn gen_messy_json_schema_articles<'a>() -> MessyJsonObject<'a> {
+	MessyJsonObject::new(
 		vec![
 			(
 				"title".to_string(),
-				MessyJson::String(MessyJsonScalar::new(false)),
+				MessyJson::String(Cow::Owned(MessyJsonScalar::new(false))),
 			),
 			(
 				"body".to_string(),
-				MessyJson::String(MessyJsonScalar::new(true)),
+				MessyJson::String(Cow::Owned(MessyJsonScalar::new(true))),
 			),
 		]
 		.into_iter()
 		.collect(),
 		false,
-	)))
+	)
 }
 
-fn gen_messy_json_schema_comments() -> MessyJson {
-	MessyJson::Obj(Box::new(MessyJsonObject::new(
+fn gen_messy_json_schema_comments<'a>() -> MessyJsonObject<'a> {
+	MessyJsonObject::new(
 		vec![(
 			"body".to_string(),
-			MessyJson::String(MessyJsonScalar::new(false)),
+			MessyJson::String(Cow::Owned(MessyJsonScalar::new(false))),
 		)]
 		.into_iter()
 		.collect(),
 		false,
-	)))
+	)
 }
 
-fn gen_messy_json_schema_article_comments() -> MessyJson {
-	MessyJson::Obj(Box::new(MessyJsonObject::new(
-		vec![
-			(
-				"article_id".to_string(),
-				MessyJson::String(MessyJsonScalar::new(false)),
-			),
-			(
-				"comment_id".to_string(),
-				MessyJson::String(MessyJsonScalar::new(false)),
-			),
-		]
-		.into_iter()
-		.collect(),
-		false,
-	)))
-}
-
-fn gen_messy_json_schema_people_article() -> MessyJson {
-	MessyJson::Obj(Box::new(MessyJsonObject::new(
+fn gen_messy_json_schema_people_article<'a>() -> MessyJsonObject<'a> {
+	MessyJsonObject::new(
 		vec![
 			(
 				"people_id".to_string(),
-				MessyJson::String(MessyJsonScalar::new(false)),
+				MessyJson::String(Cow::Owned(MessyJsonScalar::new(false))),
 			),
 			(
 				"article_id".to_string(),
-				MessyJson::String(MessyJsonScalar::new(false)),
+				MessyJson::String(Cow::Owned(MessyJsonScalar::new(false))),
 			),
 		]
 		.into_iter()
 		.collect(),
 		false,
-	)))
+	)
 }
 
-fn gen_messy_json_schema_people_comments() -> MessyJson {
-	MessyJson::Obj(Box::new(MessyJsonObject::new(
-		vec![
-			(
-				"people_id".to_string(),
-				MessyJson::String(MessyJsonScalar::new(false)),
-			),
-			(
-				"comment_id".to_string(),
-				MessyJson::String(MessyJsonScalar::new(false)),
-			),
-		]
-		.into_iter()
-		.collect(),
-		false,
-	)))
-}
-
-fn gen_messy_json_schema_peoples() -> MessyJson {
-	MessyJson::Obj(Box::new(MessyJsonObject::new(
+fn gen_messy_json_schema_peoples<'a>() -> MessyJsonObject<'a> {
+	MessyJsonObject::new(
 		vec![
 			(
 				"first-name".to_string(),
-				MessyJson::String(MessyJsonScalar::new(false)),
+				MessyJson::String(Cow::Owned(MessyJsonScalar::new(false))),
 			),
 			(
 				"last-name".to_string(),
-				MessyJson::String(MessyJsonScalar::new(false)),
+				MessyJson::String(Cow::Owned(MessyJsonScalar::new(false))),
 			),
 			(
 				"age".to_string(),
-				MessyJson::String(MessyJsonScalar::new(true)),
+				MessyJson::String(Cow::Owned(MessyJsonScalar::new(true))),
 			),
 			(
 				"gender".to_string(),
-				MessyJson::String(MessyJsonScalar::new(true)),
+				MessyJson::String(Cow::Owned(MessyJsonScalar::new(true))),
 			),
 			(
 				"twitter".to_string(),
-				MessyJson::String(MessyJsonScalar::new(true)),
+				MessyJson::String(Cow::Owned(MessyJsonScalar::new(true))),
 			),
 		]
 		.into_iter()
 		.collect(),
 		false,
-	)))
+	)
 }
 
-pub fn gen_bag() -> CibouletteStore {
+pub fn gen_bag<'a>() -> CibouletteStore<'a> {
 	let mut res = CibouletteStore::new();
 
 	res.add_type("articles".to_string(), gen_messy_json_schema_articles())
@@ -182,13 +146,13 @@ pub fn gen_bag() -> CibouletteStore {
 	res
 }
 
-pub fn check_ident(ident: &CibouletteResourceIdentifier, type_: &str, id: &str) {
+pub fn check_ident<'a>(ident: &CibouletteResourceIdentifier<'a>, type_: &str, id: &str) {
 	assert_eq!(ident.id(), id, "`id`s mismatch");
 	assert_eq!(ident.type_(), type_, "`type`s mismatch");
 }
 
-pub fn check_ident_permissive(
-	ident: &CibouletteResourceIdentifierPermissive,
+pub fn check_ident_permissive<'a>(
+	ident: &CibouletteResourceIdentifierPermissive<'a>,
 	type_: &str,
 	id: Option<&str>,
 ) {

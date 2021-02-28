@@ -12,8 +12,8 @@ pub struct CibouletteRelationshipObject<'a> {
 
 #[derive(Debug, Clone, Getters)]
 #[getset(get = "pub")]
-pub struct CibouletteRelationshipBucket {
-    resource: CibouletteResourceType,
+pub struct CibouletteRelationshipBucket<'a> {
+    resource: CibouletteResourceType<'a>,
     from: String,
     to: String,
 }
@@ -31,21 +31,18 @@ impl CibouletteRelationshipOneToOneOption {
     }
 }
 
-impl CibouletteRelationshipBucket {
-    pub fn new(resource: CibouletteResourceType, from: String, to: String) -> Self {
+impl<'a> CibouletteRelationshipBucket<'a> {
+    pub fn new(resource: CibouletteResourceType<'a>, from: String, to: String) -> Self {
         CibouletteRelationshipBucket { resource, from, to }
     }
 }
 
 #[derive(Debug, Clone)]
-pub enum CibouletteRelationshipOption {
+pub enum CibouletteRelationshipOption<'a> {
     /// One to one relationship, boolean if the relationship is optional
     One(CibouletteRelationshipOneToOneOption),
     /// One to many relationship, without the intermediate node
-    ManyDirect(
-        CibouletteRelationshipBucket,
-        petgraph::graph::NodeIndex<u16>,
-    ),
+    ManyDirect(CibouletteRelationshipBucket<'a>),
     /// One to many relationship
-    Many(CibouletteRelationshipBucket),
+    Many(CibouletteRelationshipBucket<'a>),
 }

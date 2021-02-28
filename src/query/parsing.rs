@@ -5,7 +5,7 @@ use serde::de::{DeserializeSeed, Deserializer};
 #[derive(Debug, Getters, Clone)]
 #[getset(get = "pub")]
 pub struct CibouletteSortingElement<'a> {
-    pub type_: &'a CibouletteResourceType,
+    pub type_: &'a CibouletteResourceType<'a>,
     pub direction: CibouletteSortingDirection,
     pub field: Cow<'a, str>,
 }
@@ -13,7 +13,7 @@ pub struct CibouletteSortingElement<'a> {
 impl<'a> CibouletteSortingElement<'a> {
     /// Create a new sorting element
     pub fn new(
-        type_: &'a CibouletteResourceType,
+        type_: &'a CibouletteResourceType<'a>,
         direction: CibouletteSortingDirection,
         field: Cow<'a, str>,
     ) -> Self {
@@ -42,8 +42,8 @@ pub struct CibouletteQueryParametersBuilder<'a> {
 #[derive(Debug, Getters, Default, Clone)]
 #[getset(get = "pub")]
 pub struct CibouletteQueryParameters<'a> {
-    pub include: Option<Vec<&'a CibouletteResourceType>>,
-    pub sparse: BTreeMap<&'a CibouletteResourceType, Vec<Cow<'a, str>>>,
+    pub include: Option<Vec<&'a CibouletteResourceType<'a>>>,
+    pub sparse: BTreeMap<&'a CibouletteResourceType<'a>, Vec<Cow<'a, str>>>,
     pub sorting: Vec<CibouletteSortingElement<'a>>,
     pub page: BTreeMap<CiboulettePageType<'a>, Cow<'a, str>>,
     pub filter: Option<Cow<'a, str>>,
@@ -72,9 +72,9 @@ impl<'a> CibouletteQueryParametersBuilder<'a> {
     /// if there is no relationship between those two resources.
     #[inline]
     fn check_relationship_exists(
-        bag: &'a CibouletteStore,
+        bag: &'a CibouletteStore<'a>,
         type_list: &[Cow<'a, str>],
-    ) -> Result<&'a CibouletteResourceType, CibouletteError> {
+    ) -> Result<&'a CibouletteResourceType<'a>, CibouletteError> {
         let mut wtype: (petgraph::graph::NodeIndex<u16>, &CibouletteResourceType);
         let mut types_iter = type_list.iter();
 
@@ -117,18 +117,12 @@ impl<'a> CibouletteQueryParametersBuilder<'a> {
     /// Checks that a field exists in a give resource type
     #[inline]
     fn check_field_exists(
-        type_: &'a CibouletteResourceType,
+        type_: &'a CibouletteResourceType<'a>,
         field: &str,
     ) -> Result<(), CibouletteError> {
-        match type_.schema() {
-            MessyJson::Obj(obj) => match obj.properties().contains_key(field) {
-                true => Ok(()),
-                false => Err(CibouletteError::UnknownField(
-                    type_.name().clone(),
-                    field.to_string(),
-                )),
-            },
-            _ => Err(CibouletteError::UnknownField(
+        match type_.schema().properties().contains_key(field) {
+            true => Ok(()),
+            false => Err(CibouletteError::UnknownField(
                 type_.name().clone(),
                 field.to_string(),
             )),
@@ -138,36 +132,19 @@ impl<'a> CibouletteQueryParametersBuilder<'a> {
     /// Checks that fields exists in a give resource type
     #[inline]
     fn check_fields_exists(
-        type_: &'a CibouletteResourceType,
+        type_: &'a CibouletteResourceType<'a>,
         field_list: &[Cow<'a, str>],
     ) -> Result<(), CibouletteError> {
-        let mut curr_obj: &MessyJson = type_.schema();
+        let curr_obj: &MessyJsonObject = type_.schema();
         let mut iter = field_list.iter().peekable();
 
         while let Some(field) = iter.next() {
-            match curr_obj {
-                MessyJson::Bool(_)
-                | MessyJson::Number(_)
-                | MessyJson::String(_)
-                | MessyJson::Array(_) => match iter.peek().is_some() {
-                    // Cannot points to those types, so if there is more, it means that it's an error
-                    false => return Ok(()),
-                    true => {
-                        return Err(CibouletteError::UnknownField(
-                            type_.name().clone(),
-                            field.to_string(),
-                        ))
-                    }
-                },
-                MessyJson::Obj(obj) => {
-                    curr_obj = obj.properties().get(field.as_ref()).ok_or_else(|| {
-                        CibouletteError::UnknownField(type_.name().clone(), field.to_string())
-                    })?;
-                    match iter.peek().is_some() {
-                        true => continue,
-                        false => return Ok(()),
-                    }
-                }
+            curr_obj.properties().get(field.as_ref()).ok_or_else(|| {
+                CibouletteError::UnknownField(type_.name().clone(), field.to_string())
+            })?;
+            match iter.peek().is_some() {
+                true => continue,
+                false => return Ok(()),
             }
         }
         match field_list.len() {
@@ -185,8 +162,8 @@ impl<'a> CibouletteQueryParametersBuilder<'a> {
     /// Build a [CibouletteQueryParametersBuilder](CibouletteQueryParametersBuilder) from the builder
     pub fn build(
         self,
-        bag: &'a CibouletteStore,
-        main_type: Option<&'a CibouletteResourceType>,
+        bag: &'a CibouletteStore<'a>,
+        main_type: Option<&'a CibouletteResourceType<'a>>,
     ) -> Result<CibouletteQueryParameters<'a>, CibouletteError> {
         let mut sparse: BTreeMap<&'a CibouletteResourceType, Vec<Cow<'a, str>>> = BTreeMap::new();
         let mut sorting: Vec<CibouletteSortingElement> = Vec::with_capacity(self.sorting.len());

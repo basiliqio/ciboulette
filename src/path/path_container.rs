@@ -9,7 +9,7 @@ pub enum CiboulettePathBuilder<'a> {
 }
 
 impl<'a> CiboulettePath<'a> {
-    pub fn main_type(&self) -> &'a CibouletteResourceType {
+    pub fn main_type(&self) -> &'a CibouletteResourceType<'a> {
         match self {
             CiboulettePath::Type(x) => x,
             CiboulettePath::TypeId(x, _) => x,
@@ -21,17 +21,17 @@ impl<'a> CiboulettePath<'a> {
 
 #[derive(Debug, Clone)]
 pub enum CiboulettePath<'a> {
-    Type(&'a CibouletteResourceType),
-    TypeId(&'a CibouletteResourceType, Cow<'a, str>),
+    Type(&'a CibouletteResourceType<'a>),
+    TypeId(&'a CibouletteResourceType<'a>, Cow<'a, str>),
     TypeIdRelated(
-        &'a CibouletteResourceType,
+        &'a CibouletteResourceType<'a>,
         Cow<'a, str>,
-        &'a CibouletteResourceType,
+        &'a CibouletteResourceType<'a>,
     ),
     TypeIdRelationship(
-        &'a CibouletteResourceType,
+        &'a CibouletteResourceType<'a>,
         Cow<'a, str>,
-        &'a CibouletteResourceType,
+        &'a CibouletteResourceType<'a>,
     ),
 }
 
@@ -82,10 +82,16 @@ impl<'a> CiboulettePathBuilder<'a> {
     }
 
     fn build_double_typed(
-        store: &'a CibouletteStore,
+        store: &'a CibouletteStore<'a>,
         ftype: Cow<'a, str>,
         stype: Cow<'a, str>,
-    ) -> Result<(&'a CibouletteResourceType, &'a CibouletteResourceType), CibouletteError> {
+    ) -> Result<
+        (
+            &'a CibouletteResourceType<'a>,
+            &'a CibouletteResourceType<'a>,
+        ),
+        CibouletteError,
+    > {
         let (nftype_i, nftype) = store
             .get_type_with_index(ftype.as_ref())
             .ok_or_else(|| CibouletteError::UnknownType(ftype.to_string()))?;
@@ -109,7 +115,10 @@ impl<'a> CiboulettePathBuilder<'a> {
         Ok((nftype, nstype))
     }
 
-    pub fn build(self, bag: &'a CibouletteStore) -> Result<CiboulettePath<'a>, CibouletteError> {
+    pub fn build(
+        self,
+        bag: &'a CibouletteStore<'a>,
+    ) -> Result<CiboulettePath<'a>, CibouletteError> {
         match self {
             CiboulettePathBuilder::Type(type_) => {
                 let ftype = bag

@@ -242,8 +242,8 @@ impl<'a> CibouletteResourceBuilder<'a> {
     /// ## build the [CibouletteResource](CibouletteResource) from the builder
     pub fn build(
         self,
-        bag: &'a CibouletteStore,
-    ) -> Result<CibouletteResource<'a, CibouletteResourceIdentifierPermissive>, CibouletteError>
+        bag: &'a CibouletteStore<'a>,
+    ) -> Result<CibouletteResource<'a, CibouletteResourceIdentifierPermissive<'a>>, CibouletteError>
     {
         let attributes: Option<MessyJsonObjectValue<'a>> = match self.attributes {
             Some(attributes) => {

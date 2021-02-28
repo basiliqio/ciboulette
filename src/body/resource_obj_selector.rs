@@ -105,9 +105,9 @@ impl<'a> CibouletteResourceSelectorBuilder<'a> {
     /// Build the resource selector from the builder
     pub fn build(
         self,
-        bag: &'a CibouletteStore,
+        bag: &'a CibouletteStore<'a>,
     ) -> Result<
-        CibouletteResourceSelector<'a, CibouletteResourceIdentifierPermissive>,
+        CibouletteResourceSelector<'a, CibouletteResourceIdentifierPermissive<'a>>,
         CibouletteError,
     > {
         match self {

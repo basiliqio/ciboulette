@@ -3,7 +3,7 @@ use super::*;
 #[derive(Debug, Getters, MutGetters, Clone)]
 #[getset(get = "pub")]
 pub struct CibouletteUpdateRequest<'a> {
-    pub resource_type: &'a CibouletteResourceType,
+    pub resource_type: &'a CibouletteResourceType<'a>,
     pub resource_id: Cow<'a, str>,
     pub query: CibouletteQueryParameters<'a>,
     pub data: Option<CibouletteResource<'a, CibouletteResourceIdentifier<'a>>>,
