@@ -23,7 +23,9 @@ fn ok() {
     let mut deserializer = serde_json::Deserializer::from_str(VAL);
     let doc_builder = CibouletteBodyBuilder::deserialize(&mut deserializer)
         .expect("to parse the json:api document");
-    let doc = doc_builder.build(&bag).expect("to build the document");
+    let doc = doc_builder
+        .build(&bag, &CibouletteIntention::Read)
+        .expect("to build the document");
     let data = check_single(&doc.data().as_ref().expect("data to be defined"));
     check_ident_permissive(
         data.identifier(),
@@ -61,7 +63,7 @@ fn unknown_type() {
     let doc_builder = CibouletteBodyBuilder::deserialize(&mut deserializer)
         .expect("to parse the json:api document");
     let doc: CibouletteError = doc_builder
-        .build(&bag)
+        .build(&bag, &CibouletteIntention::Read)
         .expect_err("the type should be unknown");
     if let CibouletteError::UnknownType(_) = doc {
     } else {

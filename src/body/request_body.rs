@@ -331,6 +331,7 @@ impl<'a> CibouletteBodyBuilder<'a> {
 
     /// Perfom all the document checks
     pub fn check<'b>(
+        intention: &CibouletteIntention,
         data: &'b Option<
             CibouletteResourceSelector<'a, CibouletteResourceIdentifierPermissive<'a>>,
         >,
@@ -355,7 +356,7 @@ impl<'a> CibouletteBodyBuilder<'a> {
                         (true, included_set)
                     }
                 };
-                if check_full_linkage {
+                if check_full_linkage && matches!(intention, CibouletteIntention::Read) {
                     if let Some((type_, id)) = rel_set.difference(&included_set).into_iter().next()
                     {
                         return Err(CibouletteError::MissingLink(
@@ -375,6 +376,7 @@ impl<'a> CibouletteBodyBuilder<'a> {
     pub fn build(
         self,
         bag: &'a CibouletteStore<'a>,
+        intention: &CibouletteIntention,
     ) -> Result<CibouletteBody<'a>, CibouletteError> {
         let res: CibouletteBody<'a>;
 
@@ -387,7 +389,7 @@ impl<'a> CibouletteBodyBuilder<'a> {
         for i in self.included.into_iter() {
             included.push(i.build(&bag)?);
         }
-        Self::check(&data, &included, &self.errors)?;
+        Self::check(&intention, &data, &included, &self.errors)?;
         res = CibouletteBody {
             data,
             errors: self.errors,

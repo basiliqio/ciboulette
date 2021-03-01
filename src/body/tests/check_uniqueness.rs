@@ -28,7 +28,8 @@ fn uniq_obj() {
 	"#;
     let mut deserializer = serde_json::Deserializer::from_str(VAL);
     let doc = CibouletteBodyBuilder::deserialize(&mut deserializer).expect("no error");
-    doc.build(&bag).expect("no error");
+    doc.build(&bag, &CibouletteIntention::Read)
+        .expect("no error");
 }
 
 #[test]
@@ -81,7 +82,8 @@ fn uniq_linked() {
 	"#;
     let mut deserializer = serde_json::Deserializer::from_str(VAL);
     let doc = CibouletteBodyBuilder::deserialize(&mut deserializer).expect("no error");
-    doc.build(&bag).expect("no error");
+    doc.build(&bag, &CibouletteIntention::Read)
+        .expect("no error");
 }
 
 #[test]
@@ -112,7 +114,9 @@ fn non_uniq_obj() {
 	"#;
     let mut deserializer = serde_json::Deserializer::from_str(VAL);
     let doc = CibouletteBodyBuilder::deserialize(&mut deserializer).expect("no error");
-    let err: CibouletteError = doc.build(&bag).expect_err("uniqueness error");
+    let err: CibouletteError = doc
+        .build(&bag, &CibouletteIntention::Read)
+        .expect_err("uniqueness error");
     match err {
         CibouletteError::UniqObj(type_, id) => {
             assert_eq!(type_, "comments".to_string(), "id mismatch");
@@ -173,7 +177,9 @@ fn non_uniq_rel() {
 	"#;
     let mut deserializer = serde_json::Deserializer::from_str(VAL);
     let doc = CibouletteBodyBuilder::deserialize(&mut deserializer).expect("no error");
-    let err: CibouletteError = doc.build(&bag).expect_err("uniqueness error");
+    let err: CibouletteError = doc
+        .build(&bag, &CibouletteIntention::Read)
+        .expect_err("uniqueness error");
     match err {
         CibouletteError::UniqRelationshipObject(type_, id) => {
             assert_eq!(type_, "peoples".to_string(), "id mismatch");
@@ -227,7 +233,9 @@ fn non_uniq_rel2() {
 	"#;
     let mut deserializer = serde_json::Deserializer::from_str(VAL);
     let doc = CibouletteBodyBuilder::deserialize(&mut deserializer).expect("no error");
-    let err: CibouletteError = doc.build(&bag).expect_err("uniqueness error");
+    let err: CibouletteError = doc
+        .build(&bag, &CibouletteIntention::Read)
+        .expect_err("uniqueness error");
     match err {
         CibouletteError::UniqRelationshipObject(type_, id) => {
             assert_eq!(type_, "peoples".to_string(), "id mismatch");
@@ -321,7 +329,8 @@ fn uniq_rel() {
 	"#;
     let mut deserializer = serde_json::Deserializer::from_str(VAL);
     let doc = CibouletteBodyBuilder::deserialize(&mut deserializer).expect("no error");
-    doc.build(&bag).expect("no error");
+    doc.build(&bag, &CibouletteIntention::Read)
+        .expect("no error");
 }
 
 #[test]
@@ -387,7 +396,9 @@ fn non_uniq_linked() {
 	"#;
     let mut deserializer = serde_json::Deserializer::from_str(VAL);
     let doc = CibouletteBodyBuilder::deserialize(&mut deserializer).expect("no error");
-    let err: CibouletteError = doc.build(&bag).expect_err("uniqueness error");
+    let err: CibouletteError = doc
+        .build(&bag, &CibouletteIntention::Read)
+        .expect_err("uniqueness error");
     match err {
         CibouletteError::UniqObj(type_, id) => {
             assert_eq!(type_, "peoples".to_string(), "id mismatch");

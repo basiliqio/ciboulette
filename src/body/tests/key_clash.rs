@@ -24,7 +24,9 @@ fn key_clash_data_error() {
     let mut deserializer = serde_json::Deserializer::from_str(VAL);
     let doc_builder = CibouletteBodyBuilder::deserialize(&mut deserializer)
         .expect("to parse the json:api document");
-    let err: CibouletteError = doc_builder.build(&bag).expect_err("keyclash error");
+    let err: CibouletteError = doc_builder
+        .build(&bag, &CibouletteIntention::Read)
+        .expect_err("keyclash error");
     match err {
         CibouletteError::KeyClash(key1, op, key2) => {
             assert_eq!(key1.as_str(), "data", "key mismatch");
@@ -65,7 +67,9 @@ fn key_clash_included_without_data() {
     let mut deserializer = serde_json::Deserializer::from_str(VAL);
     let doc_builder = CibouletteBodyBuilder::deserialize(&mut deserializer)
         .expect("to parse the json:api document");
-    let err: CibouletteError = doc_builder.build(&bag).expect_err("keyclash error");
+    let err: CibouletteError = doc_builder
+        .build(&bag, &CibouletteIntention::Read)
+        .expect_err("keyclash error");
     match err {
         CibouletteError::KeyClash(key1, op, key2) => {
             assert_eq!(key1.as_str(), "included", "key mismatch");

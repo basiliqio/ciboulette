@@ -23,7 +23,9 @@ fn normal() {
     let mut deserializer = serde_json::Deserializer::from_str(VAL);
     let doc_builder = CibouletteBodyBuilder::deserialize(&mut deserializer)
         .expect("to parse the json:api document");
-    let doc = doc_builder.build(&bag).expect("to build the document");
+    let doc = doc_builder
+        .build(&bag, &CibouletteIntention::Read)
+        .expect("to build the document");
     assert_eq!(doc.is_compound(), false);
     assert_eq!(doc.has_all_ids(), true);
     assert_eq!(doc.has_data(), true);
@@ -44,7 +46,9 @@ fn no_data() {
     let mut deserializer = serde_json::Deserializer::from_str(VAL);
     let doc_builder = CibouletteBodyBuilder::deserialize(&mut deserializer)
         .expect("to parse the json:api document");
-    let doc = doc_builder.build(&bag).expect("to build the document");
+    let doc = doc_builder
+        .build(&bag, &CibouletteIntention::Read)
+        .expect("to build the document");
     assert_eq!(doc.is_compound(), false);
     assert_eq!(doc.has_all_ids(), true);
     assert_eq!(doc.has_data(), false);
@@ -72,7 +76,9 @@ fn has_all_ids() {
     let mut deserializer = serde_json::Deserializer::from_str(VAL);
     let doc_builder = CibouletteBodyBuilder::deserialize(&mut deserializer)
         .expect("to parse the json:api document");
-    let doc = doc_builder.build(&bag).expect("to build the document");
+    let doc = doc_builder
+        .build(&bag, &CibouletteIntention::Read)
+        .expect("to build the document");
     assert_eq!(doc.is_compound(), false);
     assert_eq!(doc.has_all_ids(), false);
     assert_eq!(doc.has_data(), true);
@@ -107,7 +113,9 @@ fn compound_simple() {
     let mut deserializer = serde_json::Deserializer::from_str(VAL);
     let doc_builder = CibouletteBodyBuilder::deserialize(&mut deserializer)
         .expect("to parse the json:api document");
-    let doc = doc_builder.build(&bag).expect("to build the document");
+    let doc = doc_builder
+        .build(&bag, &CibouletteIntention::Read)
+        .expect("to build the document");
     assert_eq!(doc.is_compound(), true);
     assert_eq!(doc.has_all_ids(), true);
     assert_eq!(doc.has_data(), true);
@@ -141,7 +149,9 @@ fn compound_missing_ids() {
     let mut deserializer = serde_json::Deserializer::from_str(VAL);
     let doc_builder = CibouletteBodyBuilder::deserialize(&mut deserializer)
         .expect("to parse the json:api document");
-    let doc = doc_builder.build(&bag).expect("to build the document");
+    let doc = doc_builder
+        .build(&bag, &CibouletteIntention::Read)
+        .expect("to build the document");
     assert_eq!(doc.is_compound(), true);
     assert_eq!(doc.has_all_ids(), false);
     assert_eq!(doc.has_data(), true);
@@ -160,7 +170,9 @@ fn compound_empty() {
     let mut deserializer = serde_json::Deserializer::from_str(VAL);
     let doc_builder = CibouletteBodyBuilder::deserialize(&mut deserializer)
         .expect("to parse the json:api document");
-    let doc = doc_builder.build(&bag).expect("to build the document");
+    let doc = doc_builder
+        .build(&bag, &CibouletteIntention::Read)
+        .expect("to build the document");
     assert_eq!(doc.is_compound(), true);
     assert_eq!(doc.has_all_ids(), true);
     assert_eq!(doc.has_data(), true);
