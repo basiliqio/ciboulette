@@ -147,7 +147,7 @@ pub fn gen_bag<'a>() -> CibouletteStore<'a> {
 	res.add_rel_single(
 		("peoples", None),
 		("favorite_color", None),
-		CibouletteRelationshipOneToOneOption::new("favorite_color".to_string(), false),
+		CibouletteRelationshipOneToOneOption::new("favorite_color".to_string(), true),
 	)
 	.unwrap(); // Articles -> Comments
 	res.add_rel_single(
