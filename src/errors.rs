@@ -77,8 +77,8 @@ pub enum CibouletteError {
     NoCompleteLinkage(String, String),
     #[error("Type `{0}` is not in the graph")]
     TypeNotInGraph(String),
-    #[error("Type `{0}` is not in the graph")]
-    RelNotInGraph(String),
+    #[error("Relation `{0}`-`{1}` is not in the graph")]
+    RelNotInGraph(String, String),
     #[error("The key `{0}` must be present {1} `{2}`")]
     KeyClash(String, CibouletteClashDirection, String),
     #[error("The member name {0} doesn't respect the json:api specification")]

@@ -101,7 +101,7 @@ impl<'a> CiboulettePathBuilder<'a> {
         let (nstype_1, nstype_2) = store
             .graph()
             .edge_endpoints(*nstype_edge)
-            .ok_or_else(|| CibouletteError::RelNotInGraph(stype.to_string()))?;
+            .ok_or_else(|| CibouletteError::RelNotInGraph(ftype.to_string(), stype.to_string()))?;
         let nstype = match nftype_i == nstype_1 {
             true => store
                 .graph()

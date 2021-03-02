@@ -71,15 +71,15 @@ impl<'a> CibouletteStore<'a> {
         let (_from_type_i, to_type_i) = self
             .graph
             .edge_endpoints(*rel)
-            .ok_or_else(|| CibouletteError::RelNotInGraph(to.to_string()))?;
+            .ok_or_else(|| CibouletteError::RelNotInGraph(from.to_string(), to.to_string()))?;
         let to_type = self
             .graph
             .node_weight(to_type_i)
-            .ok_or_else(|| CibouletteError::RelNotInGraph(to.to_string()))?;
+            .ok_or_else(|| CibouletteError::RelNotInGraph(from.to_string(), to.to_string()))?;
         let opt = self
             .graph
             .edge_weight(*rel)
-            .ok_or_else(|| CibouletteError::RelNotInGraph(to.to_string()))?;
+            .ok_or_else(|| CibouletteError::RelNotInGraph(from.to_string(), to.to_string()))?;
 
         Ok((to_type, opt))
     }

@@ -95,10 +95,9 @@ impl<'a> CibouletteQueryParametersBuilder<'a> {
                     ))
                 }
             };
-            let nodes = bag
-                .graph()
-                .edge_endpoints(*rel_edge)
-                .ok_or_else(|| CibouletteError::RelNotInGraph(type_.clone().into_owned()))?; // Get the nodes
+            let nodes = bag.graph().edge_endpoints(*rel_edge).ok_or_else(|| {
+                CibouletteError::RelNotInGraph(wtype.1.name().clone(), type_.clone().into_owned())
+            })?; // Get the nodes
             let next_node = match nodes.0 == wtype.0 {
                 // Extract the next node
                 true => nodes.1,

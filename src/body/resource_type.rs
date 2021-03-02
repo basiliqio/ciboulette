@@ -28,6 +28,31 @@ impl<'a> CibouletteResourceType<'a> {
         })
     }
 
+    pub fn get_relationship(
+        &self,
+        store: &'a CibouletteStore<'a>,
+        alias: &str,
+    ) -> Result<&CibouletteResourceType<'a>, CibouletteError> {
+        let edge_index = self.relationships().get(alias).ok_or_else(|| {
+            CibouletteError::UnknownRelationship(self.name().to_string(), alias.to_string())
+        })?;
+        let self_index = *store
+            .map()
+            .get(self.name().as_str())
+            .ok_or_else(|| CibouletteError::UnknownType(self.name().to_string()))?;
+        let (t1, t2) = store.graph().edge_endpoints(*edge_index).ok_or_else(|| {
+            CibouletteError::RelNotInGraph(self.name().to_string(), alias.to_string())
+        })?;
+        Ok(match t1 == self_index {
+            true => store.graph().node_weight(t2).ok_or_else(|| {
+                CibouletteError::RelNotInGraph(self.name().to_string(), alias.to_string())
+            })?,
+            false => store.graph().node_weight(t1).ok_or_else(|| {
+                CibouletteError::RelNotInGraph(self.name().to_string(), alias.to_string())
+            })?,
+        })
+    }
+
     pub fn has_fields(&self, fields: &[&str]) -> Result<Option<String>, CibouletteError> {
         Ok(fields.iter().find_map(|k| match self.schema.has_field(*k) {
             true => None,
