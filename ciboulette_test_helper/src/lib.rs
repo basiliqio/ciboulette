@@ -18,6 +18,7 @@ use std::borrow::Cow;
 //   - gender?
 //   - twitter?
 // - relationships:
+//   - favorite_color
 //   - articles
 //   - comments
 
@@ -27,6 +28,22 @@ use std::borrow::Cow;
 // - relationships:
 //   - author
 //   - articles
+
+// favorite_color:
+// - attributes:
+//   - color
+
+fn gen_messy_json_schema_favorite_color<'a>() -> MessyJsonObject<'a> {
+	MessyJsonObject::new(
+		vec![(
+			"color".to_string(),
+			MessyJson::String(Cow::Owned(MessyJsonScalar::new(false))),
+		)]
+		.into_iter()
+		.collect(),
+		false,
+	)
+}
 
 fn gen_messy_json_schema_articles<'a>() -> MessyJsonObject<'a> {
 	MessyJsonObject::new(
@@ -116,11 +133,23 @@ pub fn gen_bag<'a>() -> CibouletteStore<'a> {
 	res.add_type("peoples".to_string(), gen_messy_json_schema_peoples())
 		.unwrap();
 	res.add_type(
+		"favorite_color".to_string(),
+		gen_messy_json_schema_favorite_color(),
+	)
+	.unwrap();
+
+	res.add_type(
 		"people-article".to_string(),
 		gen_messy_json_schema_people_article(),
 	)
 	.unwrap();
 
+	res.add_rel_single(
+		("peoples", None),
+		("favorite_color", None),
+		CibouletteRelationshipOneToOneOption::new("favorite_color".to_string(), false),
+	)
+	.unwrap(); // Articles -> Comments
 	res.add_rel_single(
 		("comments", None),
 		("articles", None),
