@@ -5,10 +5,13 @@ fn single() {
     let (bag, builder) = setup(r#"include=comments"#);
 
     let res: CibouletteQueryParameters = builder.build(&bag, None).expect("to build correctly");
-    assert_eq!(res.include().is_some(), true);
-    let include = res.include().as_ref().unwrap();
+    assert_eq!(!res.include().is_empty(), true);
+    let include = res.include();
     assert_eq!(include.len(), 1);
-    assert_eq!(include[0], bag.get_type("comments").unwrap());
+    assert_eq!(
+        include.get(bag.get_type("comments").unwrap()).is_some(),
+        true
+    );
 }
 
 #[test]
@@ -16,11 +19,17 @@ fn multiple() {
     let (bag, builder) = setup(r#"include=comments,articles"#);
 
     let res: CibouletteQueryParameters = builder.build(&bag, None).expect("to build correctly");
-    assert_eq!(res.include().is_some(), true);
-    let include = res.include().as_ref().unwrap();
+    assert_eq!(!res.include().is_empty(), true);
+    let include = res.include();
     assert_eq!(include.len(), 2);
-    assert_eq!(include[0], bag.get_type("comments").unwrap());
-    assert_eq!(include[1], bag.get_type("articles").unwrap());
+    assert_eq!(
+        include.get(bag.get_type("comments").unwrap()).is_some(),
+        true
+    );
+    assert_eq!(
+        include.get(bag.get_type("articles").unwrap()).is_some(),
+        true
+    );
 }
 
 #[test]
@@ -30,10 +39,13 @@ fn single_with_nesting() {
     let res: CibouletteQueryParameters = builder
         .build(&bag, Some(bag.get_type("peoples").unwrap()))
         .expect("to build correctly");
-    assert_eq!(res.include().is_some(), true);
-    let include = res.include().as_ref().unwrap();
+    assert_eq!(!res.include().is_empty(), true);
+    let include = res.include();
     assert_eq!(include.len(), 1);
-    assert_eq!(include[0], bag.get_type("comments").unwrap());
+    assert_eq!(
+        include.get(bag.get_type("comments").unwrap()).is_some(),
+        true
+    );
 }
 
 #[test]
@@ -43,11 +55,17 @@ fn multiple_with_nesting() {
     let res: CibouletteQueryParameters = builder
         .build(&bag, Some(bag.get_type("peoples").unwrap()))
         .expect("to build correctly");
-    assert_eq!(res.include().is_some(), true);
-    let include = res.include().as_ref().unwrap();
+    assert_eq!(!res.include().is_empty(), true);
+    let include = res.include();
     assert_eq!(include.len(), 2);
-    assert_eq!(include[0], bag.get_type("comments").unwrap());
-    assert_eq!(include[1], bag.get_type("articles").unwrap());
+    assert_eq!(
+        include.get(bag.get_type("comments").unwrap()).is_some(),
+        true
+    );
+    assert_eq!(
+        include.get(bag.get_type("articles").unwrap()).is_some(),
+        true
+    );
 }
 
 #[test]
@@ -112,7 +130,10 @@ fn alias_type_with_nested_type() {
 
     let res: CibouletteQueryParameters = builder.build(&bag, None).expect("to build correctly");
 
-    let include = res.include().as_ref().unwrap();
+    let include = res.include();
     assert_eq!(include.len(), 1);
-    assert_eq!(include[0], bag.get_type("peoples").unwrap());
+    assert_eq!(
+        include.get(bag.get_type("peoples").unwrap()).is_some(),
+        true
+    );
 }

@@ -42,7 +42,7 @@ pub struct CibouletteQueryParametersBuilder<'a> {
 #[derive(Debug, Getters, Default, Clone)]
 #[getset(get = "pub")]
 pub struct CibouletteQueryParameters<'a> {
-    pub include: Option<Vec<&'a CibouletteResourceType<'a>>>,
+    pub include: BTreeSet<&'a CibouletteResourceType<'a>>,
     pub sparse: BTreeMap<&'a CibouletteResourceType<'a>, Vec<Cow<'a, str>>>,
     pub sorting: Vec<CibouletteSortingElement<'a>>,
     pub page: BTreeMap<CiboulettePageType<'a>, Cow<'a, str>>,
@@ -169,14 +169,14 @@ impl<'a> CibouletteQueryParametersBuilder<'a> {
         let mut sorting: Vec<CibouletteSortingElement> = Vec::with_capacity(self.sorting.len());
 
         // Check for include relationships and build the array
-        let include: Option<Vec<&'a CibouletteResourceType>> = match self.include {
-            None => None,
+        let include: BTreeSet<&'a CibouletteResourceType> = match self.include {
+            None => BTreeSet::default(),
             Some(include) => {
-                let mut res: Vec<&'a CibouletteResourceType> = Vec::with_capacity(include.len());
+                let mut res: BTreeSet<&'a CibouletteResourceType> = BTreeSet::new();
                 for types in include.into_iter() {
-                    res.push(Self::check_relationship_exists(bag, types.as_slice())?)
+                    res.insert(Self::check_relationship_exists(bag, types.as_slice())?);
                 }
-                Some(res)
+                res
             }
         };
 
