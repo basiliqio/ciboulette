@@ -243,6 +243,7 @@ impl<'a> CibouletteResourceBuilder<'a> {
     pub fn build(
         self,
         bag: &'a CibouletteStore<'a>,
+        intention: &CibouletteIntention,
     ) -> Result<CibouletteResource<'a, CibouletteResourceIdentifierPermissive<'a>>, CibouletteError>
     {
         let attributes: Option<MessyJsonObjectValue<'a>> = match self.attributes {
@@ -254,7 +255,7 @@ impl<'a> CibouletteResourceBuilder<'a> {
                 let mut deserializer = serde_json::Deserializer::from_str(attributes.get());
                 let container = resource_type
                     .schema()
-                    .builder()
+                    .builder(matches!(intention, CibouletteIntention::Update))
                     .deserialize(&mut deserializer)?;
                 match container.take() {
                     MessyJsonValue::Obj(obj) => Some(obj),

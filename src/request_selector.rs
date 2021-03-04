@@ -8,3 +8,14 @@ pub enum CibouletteRequestSelector<'a> {
     Update(CibouletteUpdateRequest<'a>),
     Delete(CibouletteDeleteRequest<'a>),
 }
+
+impl<'a> CibouletteRequestSelector<'a> {
+    pub fn main_type(&self) -> &'a CibouletteResourceType<'a> {
+        match self {
+            CibouletteRequestSelector::Create(x) => x.path().main_type(),
+            CibouletteRequestSelector::Read(x) => x.path().main_type(),
+            CibouletteRequestSelector::Update(x) => x.resource_type(),
+            CibouletteRequestSelector::Delete(x) => x.resource_type(),
+        }
+    }
+}

@@ -6,7 +6,7 @@ pub struct CibouletteUpdateRequest<'a> {
     pub resource_type: &'a CibouletteResourceType<'a>,
     pub resource_id: Cow<'a, str>,
     pub query: CibouletteQueryParameters<'a>,
-    pub data: Option<CibouletteResource<'a, CibouletteResourceIdentifier<'a>>>,
+    pub data: CibouletteResource<'a, CibouletteResourceIdentifier<'a>>,
     pub meta: Value,
     pub links: Option<CibouletteBodyLink<'a>>,
     pub jsonapi: Option<Cow<'a, str>>, // TODO Semver
@@ -49,10 +49,10 @@ impl<'a> TryFrom<CibouletteRequest<'a>> for CibouletteUpdateRequest<'a> {
         } = body.unwrap_or_default();
 
         let data = match data {
-            Some(CibouletteResourceSelector::One(data)) => Some(data.try_into()?),
-            None => None,
+            Some(CibouletteResourceSelector::One(data)) => data.try_into(),
+            None => return Err(CibouletteError::EmptyQueryAttribute),
             _ => return Err(CibouletteError::NoCompound),
-        };
+        }?;
 
         Ok(CibouletteUpdateRequest {
             resource_type,
