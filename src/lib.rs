@@ -56,7 +56,7 @@ pub use query::{
 };
 pub use read_request::CibouletteReadRequest;
 pub use request_selector::CibouletteRequestSelector;
-pub use update_request::CibouletteUpdateRequest;
+pub use update_request::{CibouletteUpdateRequest, CibouletteUpdateRequestType};
 
 pub use config::CibouletteConfig;
 pub use errors::{CibouletteClashDirection, CibouletteError, CiboulettePathType};
