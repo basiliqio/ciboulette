@@ -3,10 +3,15 @@ use super::*;
 #[derive(Debug, Clone)]
 pub enum CibouletteUpdateRequestType<'a> {
     MainType(CibouletteResource<'a, CibouletteResourceIdentifier<'a>>),
-    Relationship(
-        &'a CibouletteResourceType<'a>,
-        CibouletteResourceIdentifierSelector<'a>,
-    ),
+    Relationship(CibouletteUpdateRelationship<'a>),
+}
+
+#[derive(Debug, Getters, Clone)]
+#[getset(get = "pub")]
+pub struct CibouletteUpdateRelationship<'a> {
+    type_: &'a CibouletteResourceType<'a>,
+    present: bool,
+    value: Option<CibouletteResourceIdentifierSelector<'a>>,
 }
 
 #[derive(Debug, Getters, MutGetters, Clone)]
@@ -59,17 +64,31 @@ impl<'a> TryFrom<CibouletteRequest<'a>> for CibouletteUpdateRequest<'a> {
             ..
         } = body.unwrap_or_default();
         let data = match data {
-            CibouletteBodyData::Object(CibouletteResourceSelector::One(data)) => match related_type
-            {
+            CibouletteBodyData::Object(selector) => match related_type {
                 Some(related_type) => {
-                    CibouletteUpdateRequestType::Relationship(related_type, data.try_into()?)
+                    CibouletteUpdateRequestType::Relationship(CibouletteUpdateRelationship {
+                        type_: related_type,
+                        present: true,
+                        value: Some(selector.try_into()?),
+                    })
                 }
-                None => CibouletteUpdateRequestType::MainType(data.try_into()?),
+                None => match selector {
+                    CibouletteResourceSelector::One(value) => {
+                        CibouletteUpdateRequestType::MainType(value.try_into()?)
+                    }
+                    CibouletteResourceSelector::Many(_) => return Err(CibouletteError::NoCompound),
+                },
             },
-            CibouletteBodyData::Object(CibouletteResourceSelector::Many(_)) => {
-                return Err(CibouletteError::NoCompound)
-            }
-            CibouletteBodyData::Null(_) => return Err(CibouletteError::NoData),
+            CibouletteBodyData::Null(present) => match related_type {
+                Some(related_type) => {
+                    CibouletteUpdateRequestType::Relationship(CibouletteUpdateRelationship {
+                        type_: related_type,
+                        present,
+                        value: None,
+                    })
+                }
+                None => return Err(CibouletteError::NoData),
+            },
         };
         Ok(CibouletteUpdateRequest {
             resource_type,
