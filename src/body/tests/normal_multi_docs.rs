@@ -24,7 +24,11 @@ fn single_ok() {
     let doc = doc_builder
         .build(&bag, &CibouletteIntention::Read)
         .expect("to build the document");
-    let data = check_multi(&doc.data().as_ref().expect("data to be defined"));
+    let data = match doc.data() {
+        CibouletteBodyData::Object(x) => x,
+        _ => panic!("data should've been present"),
+    };
+    let data = check_multi(data);
     check_ident_permissive(
         data.get(0).unwrap().identifier(),
         "comments",

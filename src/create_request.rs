@@ -46,7 +46,10 @@ impl<'a> TryFrom<CibouletteRequest<'a>> for CibouletteCreateRequest<'a> {
             ..
         } = body.ok_or(CibouletteError::NoData)?;
 
-        let data = data.ok_or(CibouletteError::NoData)?;
+        let data = match data {
+            CibouletteBodyData::Object(x) => x,
+            CibouletteBodyData::Null(_) => return Err(CibouletteError::NoData),
+        };
         let data = match data {
             CibouletteResourceSelector::One(data) => data,
             _ => return Err(CibouletteError::NoCompound),

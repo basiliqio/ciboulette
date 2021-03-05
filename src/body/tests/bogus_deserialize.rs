@@ -154,12 +154,14 @@ fn unknown_meta() {
     let doc = CibouletteBodyBuilder::deserialize(&mut deserializer).expect("no error");
     let meta_expected: serde_json::Value = serde_json::from_str(META).unwrap();
     assert_eq!(&meta_expected, doc.meta(), "meta object mismatch");
-    match doc.data().as_ref().unwrap() {
-        CibouletteResourceSelectorBuilder::One(data) => assert_eq!(
-            &meta_expected,
-            data.identifier().meta(),
-            "meta object mismatch"
-        ),
+    match doc.data() {
+        CibouletteBodyDataBuilder::Object(CibouletteResourceSelectorBuilder::One(data)) => {
+            assert_eq!(
+                &meta_expected,
+                data.identifier().meta(),
+                "meta object mismatch"
+            )
+        }
         _ => panic!(""),
     };
 }

@@ -69,3 +69,64 @@ pub enum CibouletteResourceIdentifierSelector<'a> {
     One(CibouletteResourceIdentifier<'a>),
     Many(Vec<CibouletteResourceIdentifier<'a>>),
 }
+
+impl<'a> From<CibouletteResource<'a, CibouletteResourceIdentifier<'a>>>
+    for CibouletteResourceIdentifierSelector<'a>
+{
+    fn from(obj: CibouletteResource<'a, CibouletteResourceIdentifier<'a>>) -> Self {
+        CibouletteResourceIdentifierSelector::One(obj.identifier)
+    }
+}
+
+impl<'a> TryFrom<CibouletteResource<'a, CibouletteResourceIdentifierPermissive<'a>>>
+    for CibouletteResourceIdentifierSelector<'a>
+{
+    type Error = CibouletteError;
+
+    fn try_from(
+        obj: CibouletteResource<'a, CibouletteResourceIdentifierPermissive<'a>>,
+    ) -> Result<Self, Self::Error> {
+        Ok(CibouletteResourceIdentifierSelector::One(
+            obj.identifier.try_into()?,
+        ))
+    }
+}
+
+impl<'a> From<CibouletteResourceSelector<'a, CibouletteResourceIdentifier<'a>>>
+    for CibouletteResourceIdentifierSelector<'a>
+{
+    fn from(obj: CibouletteResourceSelector<'a, CibouletteResourceIdentifier<'a>>) -> Self {
+        match obj {
+            CibouletteResourceSelector::One(x) => {
+                CibouletteResourceIdentifierSelector::One(x.identifier)
+            }
+            CibouletteResourceSelector::Many(x) => CibouletteResourceIdentifierSelector::Many(
+                x.into_iter().map(|x| x.identifier).collect(),
+            ),
+        }
+    }
+}
+
+impl<'a> TryFrom<CibouletteResourceSelector<'a, CibouletteResourceIdentifierPermissive<'a>>>
+    for CibouletteResourceIdentifierSelector<'a>
+{
+    type Error = CibouletteError;
+
+    fn try_from(
+        obj: CibouletteResourceSelector<'a, CibouletteResourceIdentifierPermissive<'a>>,
+    ) -> Result<Self, Self::Error> {
+        match obj {
+            CibouletteResourceSelector::One(x) => Ok(CibouletteResourceIdentifierSelector::One(
+                x.identifier.try_into()?,
+            )),
+            CibouletteResourceSelector::Many(x) => {
+                let mut res: Vec<CibouletteResourceIdentifier<'a>> = Vec::with_capacity(x.len());
+
+                for x in x.into_iter() {
+                    res.push(x.identifier.try_into()?);
+                }
+                Ok(CibouletteResourceIdentifierSelector::Many(res))
+            }
+        }
+    }
+}

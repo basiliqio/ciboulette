@@ -36,6 +36,7 @@ pub use body::relationship::{
     CibouletteRelationshipOneToOneOption, CibouletteRelationshipOption,
 };
 pub use body::request_body::{CibouletteBody, CibouletteBodyBuilder};
+pub use body::request_body_data::{CibouletteBodyData, CibouletteBodyDataBuilder};
 pub use body::resource_identifier::{
     CibouletteResourceIdentifier, CibouletteResourceIdentifierPermissive,
     CibouletteResourceIdentifierSelector,

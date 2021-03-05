@@ -6,7 +6,7 @@ use std::fmt::Formatter;
 #[derive(Debug, Getters, MutGetters)]
 #[getset(get = "pub", get_mut = "pub")]
 pub struct CibouletteBodyBuilder<'a> {
-    data: Option<CibouletteResourceSelectorBuilder<'a>>,
+    data: CibouletteBodyDataBuilder<'a>,
     errors: Option<CibouletteErrorObj<'a>>,
     meta: Value,
     links: Option<CibouletteBodyLink<'a>>,
@@ -18,7 +18,7 @@ pub struct CibouletteBodyBuilder<'a> {
 #[derive(Debug, Getters, MutGetters, Default)]
 #[getset(get = "pub", get_mut = "pub")]
 pub struct CibouletteBody<'a> {
-    pub data: Option<CibouletteResourceSelector<'a, CibouletteResourceIdentifierPermissive<'a>>>,
+    pub data: CibouletteBodyData<'a>,
     pub errors: Option<CibouletteErrorObj<'a>>,
     pub meta: Value,
     pub links: Option<CibouletteBodyLink<'a>>,
@@ -105,7 +105,7 @@ impl<'de> serde::de::Visitor<'de> for CibouletteBodyBuilderVisitor {
     where
         A: serde::de::MapAccess<'de>,
     {
-        let mut data: Option<CibouletteResourceSelectorBuilder<'de>> = None;
+        let mut data: Option<CibouletteBodyDataBuilder<'de>> = None;
         let mut errors: Option<CibouletteErrorObj<'de>> = None;
         let mut meta: Option<Value> = None;
         let mut links: Option<CibouletteBodyLink<'de>> = None;
@@ -159,14 +159,13 @@ impl<'de> serde::de::Visitor<'de> for CibouletteBodyBuilderVisitor {
             },
             None => Ok(Vec::new()),
         }?;
-
         if let (None, None, None) = (&data, &errors, &meta) {
             return Err(<A::Error as serde::de::Error>::custom(
                 "At least one of `data`, `errors` or `meta` should be defined.",
             ));
         };
         Ok(CibouletteBodyBuilder {
-            data,
+            data: data.unwrap_or_default(),
             errors,
             meta: meta.unwrap_or_default(),
             links,
@@ -306,20 +305,20 @@ impl<'a> CibouletteBodyBuilder<'a> {
     /// Checks for key clash like `included` without `data`, or `data` with `errors`
     #[inline]
     fn check_key_clash<'b>(
-        data: &'b Option<
-            CibouletteResourceSelector<'a, CibouletteResourceIdentifierPermissive<'a>>,
-        >,
+        data: &'b CibouletteBodyData<'a>,
         included: &'b [CibouletteResource<'a, CibouletteResourceIdentifierPermissive<'a>>],
         errors: &'b Option<CibouletteErrorObj<'a>>,
     ) -> Result<(), CibouletteError> {
-        if data.is_none() && !included.is_empty() {
+        let is_data_null = matches!(data, CibouletteBodyData::Null(_));
+
+        if is_data_null && !included.is_empty() {
             return Err(CibouletteError::KeyClash(
                 "included".to_string(),
                 CibouletteClashDirection::With,
                 "data".to_string(),
             ));
         }
-        if data.is_some() && errors.is_some() {
+        if !is_data_null && errors.is_some() {
             return Err(CibouletteError::KeyClash(
                 "data".to_string(),
                 CibouletteClashDirection::Without,
@@ -332,15 +331,13 @@ impl<'a> CibouletteBodyBuilder<'a> {
     /// Perfom all the document checks
     pub fn check<'b>(
         intention: &CibouletteIntention,
-        data: &'b Option<
-            CibouletteResourceSelector<'a, CibouletteResourceIdentifierPermissive<'a>>,
-        >,
+        data: &'b CibouletteBodyData<'a>,
         included: &'b [CibouletteResource<'a, CibouletteResourceIdentifierPermissive<'a>>],
         errors: &'b Option<CibouletteErrorObj<'a>>,
     ) -> Result<(), CibouletteError> {
         Self::check_key_clash(&data, &included, &errors)?;
         match data {
-            Some(data) => {
+            CibouletteBodyData::Object(data) => {
                 let rel_set: BTreeSet<(&str, &str)>;
 
                 Self::check_obj_uniqueness(&data)?;
@@ -366,7 +363,7 @@ impl<'a> CibouletteBodyBuilder<'a> {
                     }
                 }
             }
-            None => (),
+            CibouletteBodyData::Null(_) => (),
         };
 
         Ok(())
@@ -380,10 +377,7 @@ impl<'a> CibouletteBodyBuilder<'a> {
     ) -> Result<CibouletteBody<'a>, CibouletteError> {
         let res: CibouletteBody<'a>;
 
-        let data = match self.data {
-            Some(data) => Some(data.build(bag, &intention)?),
-            None => None,
-        };
+        let data = self.data.build(&bag, &intention)?;
         let mut included: Vec<CibouletteResource<'a, CibouletteResourceIdentifierPermissive>> =
             Vec::with_capacity(self.included.len());
         for i in self.included.into_iter() {
@@ -411,47 +405,54 @@ impl<'a> CibouletteBody<'a> {
         &self,
         bag: &'a CibouletteStore<'a>,
     ) -> Option<&'a CibouletteResourceType> {
-        self.data().as_ref().and_then(|data| match data {
-            CibouletteResourceSelector::One(x) => bag.get_type(x.identifier().type_().as_ref()),
-            CibouletteResourceSelector::Many(types) => {
-                let mut titer = types.iter();
-                let first_type = match titer.next() {
-                    Some(x) => x.identifier().type_(),
-                    _ => return None,
-                };
-                for type_ in titer {
-                    if type_.identifier().type_() != first_type {
-                        return None;
+        match self.data() {
+            CibouletteBodyData::Object(data) => match data {
+                CibouletteResourceSelector::One(x) => bag.get_type(x.identifier().type_().as_ref()),
+                CibouletteResourceSelector::Many(types) => {
+                    let mut titer = types.iter();
+                    let first_type = match titer.next() {
+                        Some(x) => x.identifier().type_(),
+                        _ => return None,
+                    };
+                    for type_ in titer {
+                        if type_.identifier().type_() != first_type {
+                            return None;
+                        }
                     }
+                    bag.get_type(first_type.as_ref())
                 }
-                bag.get_type(first_type.as_ref())
-            }
-        })
+            },
+            CibouletteBodyData::Null(_) => None,
+        }
     }
 
     /// Check if the request is a compound document
     pub fn is_compound(&self) -> bool {
         matches!(
-            self.data().as_ref(),
-            Some(CibouletteResourceSelector::Many(_))
+            self.data(),
+            CibouletteBodyData::Object(obj)
+            if matches!(obj, CibouletteResourceSelector::Many(_))
         )
     }
 
     /// Check if the request has data
     pub fn has_data(&self) -> bool {
-        matches!(self.data(), Some(_))
+        matches!(self.data(), CibouletteBodyData::Object(_))
     }
 
     /// Check if the request has all its `id` set (not always the case in creating requests)
     ///
     /// true if there is no data
     pub fn has_all_ids(&self) -> bool {
-        match self.data().as_ref() {
-            Some(CibouletteResourceSelector::One(r)) => r.identifier().id().is_some(),
-            Some(CibouletteResourceSelector::Many(rs)) => {
-                !rs.iter().any(|r| !r.identifier().id().is_some())
+        if let CibouletteBodyData::Object(data) = self.data() {
+            match data {
+                CibouletteResourceSelector::One(r) => r.identifier().id().is_some(),
+                CibouletteResourceSelector::Many(rs) => {
+                    !rs.iter().any(|r| !r.identifier().id().is_some())
+                }
             }
-            _ => true,
+        } else {
+            true
         }
     }
 }

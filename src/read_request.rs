@@ -37,16 +37,17 @@ impl<'a> TryFrom<CibouletteRequest<'a>> for CibouletteReadRequest<'a> {
             ..
         } = body.unwrap_or_default();
 
+        let data = match data {
+            CibouletteBodyData::Object(x) => x,
+            CibouletteBodyData::Null(_) => CibouletteResourceSelector::<
+                CibouletteResourceIdentifierPermissive<'_>,
+            >::Many(Vec::new()),
+        }
+        .try_into()?;
         Ok(CibouletteReadRequest {
             path,
             query: query.unwrap_or_default(),
-            data: data
-                .unwrap_or_else(|| {
-                    CibouletteResourceSelector::<CibouletteResourceIdentifierPermissive<'_>>::Many(
-                        Vec::new(),
-                    )
-                })
-                .try_into()?,
+            data,
             meta,
             links,
             jsonapi,
