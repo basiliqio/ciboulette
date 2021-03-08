@@ -226,7 +226,7 @@ impl<'a> CibouletteBodyBuilder<'a> {
     ) -> Result<(), CibouletteError> {
         for (_link_name, rel) in obj.relationships().iter() {
             match rel.data() {
-                Some(CibouletteResourceIdentifierSelector::One(el)) => {
+                CibouletteOptionalData::Object(CibouletteResourceIdentifierSelector::One(el)) => {
                     if !linked_set.insert((el.type_(), el.id())) {
                         return Err(CibouletteError::UniqRelationshipObject(
                             el.type_().to_string(),
@@ -234,7 +234,7 @@ impl<'a> CibouletteBodyBuilder<'a> {
                         ));
                     }
                 }
-                Some(CibouletteResourceIdentifierSelector::Many(els)) => {
+                CibouletteOptionalData::Object(CibouletteResourceIdentifierSelector::Many(els)) => {
                     for el in els.iter() {
                         if !linked_set.insert((el.type_(), el.id())) {
                             return Err(CibouletteError::UniqRelationshipObject(
@@ -244,7 +244,7 @@ impl<'a> CibouletteBodyBuilder<'a> {
                         }
                     }
                 }
-                None => (),
+                CibouletteOptionalData::Null(_) => (),
             }
         }
         Ok(())

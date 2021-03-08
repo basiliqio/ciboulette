@@ -27,6 +27,7 @@ use std::collections::{BTreeMap, BTreeSet, HashMap};
 use std::convert::{TryFrom, TryInto};
 use url::Url;
 
+pub use body::body_optional_data::CibouletteOptionalData;
 pub use body::errors_obj::{CibouletteErrorLink, CibouletteErrorObj, CibouletteErrorSource};
 pub use body::link::{
     CibouletteBodyLink, CibouletteBodyPagination, CibouletteLink, CibouletteLinkObj,

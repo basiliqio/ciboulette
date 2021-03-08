@@ -1,4 +1,5 @@
 use super::*;
+use std::convert::TryFrom;
 
 #[test]
 fn null() {

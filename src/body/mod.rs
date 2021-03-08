@@ -1,5 +1,6 @@
 use super::*;
 
+pub mod body_optional_data;
 pub mod errors_obj;
 pub mod link;
 pub mod relationship;

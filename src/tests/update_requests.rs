@@ -180,3 +180,46 @@ fn no_compound() {
 
     assert_eq!(matches!(res, Err(CibouletteError::NoCompound)), true);
 }
+
+#[test]
+fn relationship_null() {
+    let bag = gen_bag();
+    const VAL: &str = r#"
+	{
+		"data": {
+			"id": "6720877a-e27e-4e9e-9ac0-3fff4deb55f2",
+			"type": "peoples",
+			"attributes":
+			{
+				"first-name": "world",
+				"last-name": "hello"
+			},
+			"relationships":
+			{
+				"favorite_color":
+				{
+					"data": null
+				}
+			}
+		},
+		"meta":
+		{
+			"self": "peoples/6720877a-e27e-4e9e-9ac0-3fff4deb55f2"
+		}
+	}
+	"#;
+    let uri = Url::parse("http://localhost/peoples/6720877a-e27e-4e9e-9ac0-3fff4deb55f2").unwrap();
+    let doc = CibouletteRequestBuilder::new(CibouletteIntention::Update, &uri, &Some(VAL))
+        .build(&bag)
+        .expect("to build the document");
+    let req = CibouletteUpdateRequest::try_from(doc).unwrap();
+    if let CibouletteUpdateRequestType::MainType(obj) = req.data() {
+        let v = obj.relationships().get("favorite_color").unwrap();
+        assert_eq!(
+            matches!(v.data(), CibouletteOptionalData::Null(x) if *x),
+            true
+        );
+    } else {
+        panic!();
+    }
+}

@@ -6,7 +6,7 @@ use super::*;
 #[serde(default)]
 pub struct CibouletteRelationshipObject<'a> {
     pub links: Option<CibouletteLink<'a>>,
-    pub data: Option<CibouletteResourceIdentifierSelector<'a>>,
+    pub data: CibouletteOptionalData<CibouletteResourceIdentifierSelector<'a>>,
     pub meta: HashMap<Cow<'a, str>, Value>,
 }
 
@@ -34,6 +34,12 @@ impl CibouletteRelationshipOneToOneOption {
 impl<'a> CibouletteRelationshipBucket<'a> {
     pub fn new(resource: CibouletteResourceType<'a>, from: String, to: String) -> Self {
         CibouletteRelationshipBucket { resource, from, to }
+    }
+}
+
+impl<'a> Default for CibouletteOptionalData<CibouletteResourceIdentifierSelector<'a>> {
+    fn default() -> Self {
+        CibouletteOptionalData::Null(false)
     }
 }
 
