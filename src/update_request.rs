@@ -10,8 +10,7 @@ pub enum CibouletteUpdateRequestType<'a> {
 #[getset(get = "pub")]
 pub struct CibouletteUpdateRelationship<'a> {
     type_: &'a CibouletteResourceType<'a>,
-    present: bool,
-    value: Option<CibouletteResourceIdentifierSelector<'a>>,
+    value: CibouletteOptionalData<CibouletteResourceIdentifierSelector<'a>>,
 }
 
 #[derive(Debug, Getters, MutGetters, Clone)]
@@ -68,8 +67,7 @@ impl<'a> TryFrom<CibouletteRequest<'a>> for CibouletteUpdateRequest<'a> {
                 Some(related_type) => {
                     CibouletteUpdateRequestType::Relationship(CibouletteUpdateRelationship {
                         type_: related_type,
-                        present: true,
-                        value: Some(selector.try_into()?),
+                        value: CibouletteOptionalData::Object(selector.try_into()?),
                     })
                 }
                 None => match selector {
@@ -83,8 +81,7 @@ impl<'a> TryFrom<CibouletteRequest<'a>> for CibouletteUpdateRequest<'a> {
                 Some(related_type) => {
                     CibouletteUpdateRequestType::Relationship(CibouletteUpdateRelationship {
                         type_: related_type,
-                        present,
-                        value: None,
+                        value: CibouletteOptionalData::Null(present),
                     })
                 }
                 None => return Err(CibouletteError::NoData),
