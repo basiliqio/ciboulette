@@ -5,6 +5,7 @@ use super::*;
 pub struct CibouletteDeleteRequest<'a> {
     pub resource_type: &'a CibouletteResourceType<'a>,
     pub resource_id: Cow<'a, str>,
+    pub related_type: Option<&'a CibouletteResourceType<'a>>,
     pub query: CibouletteQueryParameters<'a>,
     pub meta: Value,
 }
@@ -20,8 +21,9 @@ impl<'a> TryFrom<CibouletteRequest<'a>> for CibouletteDeleteRequest<'a> {
             intention,
         } = value;
 
-        let (resource_type, resource_id) = match path {
-            CiboulettePath::TypeId(type_, id) => (type_, id),
+        let (resource_type, resource_id, related_type) = match path {
+            CiboulettePath::TypeId(type_, id) => (type_, id, None),
+            CiboulettePath::TypeIdRelationship(type_, id, rel_type) => (type_, id, Some(rel_type)),
             _ => {
                 return Err(CibouletteError::WrongPathType(
                     CiboulettePathType::from(&path),
@@ -41,6 +43,7 @@ impl<'a> TryFrom<CibouletteRequest<'a>> for CibouletteDeleteRequest<'a> {
         Ok(CibouletteDeleteRequest {
             resource_type,
             resource_id,
+            related_type,
             query: query.unwrap_or_default(),
             meta,
         })
