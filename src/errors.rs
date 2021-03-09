@@ -63,6 +63,8 @@ pub enum CibouletteError {
     UnknownField(String, String),
     #[error("The current document doesn't allow sorting parameters")]
     IncompatibleSorting,
+    #[error("Nested sorting is forbidden")]
+    NestedSorting,
     #[error("The resource object ({0}, {1}) should be unique by `type` and `id`")]
     UniqObj(String, String),
     #[error("The type `{0}` is already defined")]

@@ -72,9 +72,9 @@ impl<'a> CibouletteQueryParametersBuilder<'a> {
     /// but "comments.email" may not make sense
     /// if there is no relationship between those two resources.
     #[inline]
-    fn check_relationship_exists(
+    pub(super) fn check_relationship_exists(
         bag: &'a CibouletteStore<'a>,
-        type_list: &[Cow<'a, str>],
+        type_list: &[Cow<'_, str>],
     ) -> Result<&'a CibouletteResourceType<'a>, CibouletteError> {
         let mut wtype: (petgraph::graph::NodeIndex<u16>, &CibouletteResourceType);
         let mut types_iter = type_list.iter();
@@ -116,7 +116,7 @@ impl<'a> CibouletteQueryParametersBuilder<'a> {
 
     /// Checks that a field exists in a give resource type
     #[inline]
-    fn check_field_exists(
+    pub(super) fn check_field_exists(
         type_: &'a CibouletteResourceType<'a>,
         field: &str,
     ) -> Result<(), CibouletteError> {
@@ -131,7 +131,7 @@ impl<'a> CibouletteQueryParametersBuilder<'a> {
 
     /// Checks that fields exists in a give resource type
     #[inline]
-    fn check_fields_exists(
+    pub(super) fn check_fields_exists(
         type_: &'a CibouletteResourceType<'a>,
         field_list: &[Cow<'a, str>],
     ) -> Result<(), CibouletteError> {
@@ -194,9 +194,7 @@ impl<'a> CibouletteQueryParametersBuilder<'a> {
             (_, 0) => (),
             (Some(main_type), _) => {
                 for (direction, field) in self.sorting.into_iter() {
-                    Self::check_field_exists(main_type, &field)?;
-                    sorting.push(CibouletteSortingElement::new(main_type, direction, field))
-                    // TODO check that relationship exists
+                    sorting.push(sorting::extract_type(&bag, &main_type, direction, field)?)
                 }
             }
             (None, _) => return Err(CibouletteError::IncompatibleSorting),

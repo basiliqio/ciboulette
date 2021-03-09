@@ -1,13 +1,12 @@
 use super::*;
 
+pub fn dot_separated_typed_field<'a>(s: &str) -> Vec<Cow<'a, str>> {
+    s.split('.').map(str::to_string).map(Cow::Owned).collect()
+}
+
 pub fn parse_typed_query_params<'a>(s: &str) -> Option<Vec<Cow<'a, str>>> {
     if let Some(type_) = parse_typed_query_param(s) {
-        let res: Vec<Cow<'a, str>> = type_
-            .as_ref()
-            .split('.')
-            .map(str::to_string)
-            .map(Cow::Owned)
-            .collect();
+        let res: Vec<Cow<'a, str>> = dot_separated_typed_field(type_.as_ref());
         if !res.is_empty() {
             Some(res)
         } else {
