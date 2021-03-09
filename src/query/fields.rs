@@ -23,7 +23,7 @@ pub enum CibouletteQueryParametersField<'a> {
 }
 
 /// The page type used in the [CibouletteQueryParametersField](CibouletteQueryParametersField)
-#[derive(Clone, Debug, Ord, PartialOrd, Eq, PartialEq)]
+#[derive(Clone, Debug, Ord, PartialOrd, Eq, PartialEq, Hash)]
 pub enum CiboulettePageType<'a> {
     Number,
     Size,

@@ -1,7 +1,7 @@
 use super::*;
 use std::borrow::Borrow;
 
-#[derive(Debug, PartialEq, Eq, Ord, PartialOrd, Clone)]
+#[derive(Debug, PartialEq, Eq, Ord, PartialOrd, Clone, Hash)]
 pub enum CibouletteSortingDirection {
     Asc,
     Desc,

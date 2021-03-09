@@ -2,7 +2,7 @@ use super::*;
 use serde::de::{DeserializeSeed, Deserializer};
 
 /// ## Element of a sorting vector.
-#[derive(Debug, Getters, Clone)]
+#[derive(Debug, Getters, Clone, Hash)]
 #[getset(get = "pub")]
 pub struct CibouletteSortingElement<'a> {
     pub type_: &'a CibouletteResourceType<'a>,
@@ -39,7 +39,7 @@ pub struct CibouletteQueryParametersBuilder<'a> {
 }
 
 /// ## Query parameters for `json:api`
-#[derive(Debug, Getters, Default, Clone)]
+#[derive(Debug, Getters, Default, Clone, Hash)]
 #[getset(get = "pub")]
 pub struct CibouletteQueryParameters<'a> {
     pub include: BTreeSet<&'a CibouletteResourceType<'a>>,
@@ -196,6 +196,7 @@ impl<'a> CibouletteQueryParametersBuilder<'a> {
                 for (direction, field) in self.sorting.into_iter() {
                     Self::check_field_exists(main_type, &field)?;
                     sorting.push(CibouletteSortingElement::new(main_type, direction, field))
+                    // TODO check that relationship exists
                 }
             }
             (None, _) => return Err(CibouletteError::IncompatibleSorting),
