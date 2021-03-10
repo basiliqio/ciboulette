@@ -1,6 +1,6 @@
 use super::*;
+use itertools::Itertools;
 use serde::de::{DeserializeSeed, Deserializer};
-
 /// ## Element of a sorting vector.
 #[derive(Debug, Getters, Clone, Hash)]
 #[getset(get = "pub")]
@@ -45,6 +45,7 @@ pub struct CibouletteQueryParameters<'a> {
     pub include: BTreeSet<&'a CibouletteResourceType<'a>>,
     pub sparse: BTreeMap<&'a CibouletteResourceType<'a>, Vec<Cow<'a, str>>>,
     pub sorting: Vec<CibouletteSortingElement<'a>>,
+    pub sorting_map: BTreeMap<&'a CibouletteResourceType<'a>, Vec<CibouletteSortingElement<'a>>>,
     pub page: BTreeMap<CiboulettePageType<'a>, Cow<'a, str>>,
     pub filter: Option<Cow<'a, str>>,
     pub filter_typed: BTreeMap<Cow<'a, str>, Cow<'a, str>>,
@@ -159,6 +160,36 @@ impl<'a> CibouletteQueryParametersBuilder<'a> {
         }
     }
 
+    /// Extract a sorting map from a list of sorting elements
+    fn extract_sorting_map(
+        sorting: &Vec<CibouletteSortingElement<'a>>,
+    ) -> BTreeMap<&'a CibouletteResourceType<'a>, Vec<CibouletteSortingElement<'a>>> {
+        match sorting.len() {
+            0 => BTreeMap::default(),
+            _ => {
+                let mut sorting_map: BTreeMap<
+                    &CibouletteResourceType,
+                    Vec<CibouletteSortingElement>,
+                > = BTreeMap::new();
+
+                for (k, v) in sorting
+                    .clone()
+                    .into_iter()
+                    .group_by(|x| x.type_)
+                    .into_iter()
+                {
+                    let insert_res = sorting_map.insert(k, v.into_iter().collect());
+                    if let Some(mut old_el) = insert_res {
+                        if let Some(new_el) = sorting_map.get_mut(k) {
+                            new_el.append(&mut old_el);
+                        }
+                    }
+                }
+                sorting_map
+            }
+        }
+    }
+
     /// Build a [CibouletteQueryParametersBuilder](CibouletteQueryParametersBuilder) from the builder
     pub fn build(
         self,
@@ -200,6 +231,7 @@ impl<'a> CibouletteQueryParametersBuilder<'a> {
             (None, _) => return Err(CibouletteError::IncompatibleSorting),
         };
 
+        let sorting_map = Self::extract_sorting_map(&sorting);
         let res = CibouletteQueryParameters {
             include,
             page: self.page,
@@ -207,6 +239,7 @@ impl<'a> CibouletteQueryParametersBuilder<'a> {
             filter: self.filter,
             filter_typed: self.filter_typed,
             sparse,
+            sorting_map,
             sorting,
         };
         Ok(res)
