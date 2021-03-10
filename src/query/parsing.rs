@@ -162,7 +162,7 @@ impl<'a> CibouletteQueryParametersBuilder<'a> {
 
     /// Extract a sorting map from a list of sorting elements
     fn extract_sorting_map(
-        sorting: &Vec<CibouletteSortingElement<'a>>,
+        #[allow(clippy::ptr_arg)] sorting: &Vec<CibouletteSortingElement<'a>>,
     ) -> BTreeMap<&'a CibouletteResourceType<'a>, Vec<CibouletteSortingElement<'a>>> {
         match sorting.len() {
             0 => BTreeMap::default(),
