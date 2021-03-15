@@ -45,6 +45,14 @@ fn number_to_text() {
 }
 
 #[test]
+fn number_to_number() {
+    let builder = CibouletteIdBuilder::Number(42);
+
+    let res = builder.build(&CibouletteIdType::Number).unwrap();
+    assert_eq!(matches!(res, CibouletteId::Number(x) if x == 42), true);
+}
+
+#[test]
 fn number_to_uuid() {
     let builder = CibouletteIdBuilder::Number(42);
 
