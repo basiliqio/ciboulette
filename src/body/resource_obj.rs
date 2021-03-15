@@ -211,7 +211,7 @@ impl<'de> serde::de::Visitor<'de> for CibouletteResourceBuilderVisitor {
         let relationships = relationships.unwrap_or_default();
         Ok(CibouletteResourceBuilder {
             identifier: CibouletteResourceIdentifierPermissive::new(
-                id,
+                id.map(|x| CibouletteId::Text(x)),
                 type_,
                 meta.unwrap_or_default(),
             ),

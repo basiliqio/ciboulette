@@ -93,6 +93,8 @@ pub enum CibouletteError {
     NoData,
     #[error("Missing `id` field for a resource identifier")]
     MissingId,
+    #[error("Bad `id` type: found `{0}`, expected `{1}`")]
+    BadIdType(CibouletteIdType, CibouletteIdType),
     #[error("Compound documents are forbidden for that kind of request")]
     NoCompound,
     #[error("No alias translation for `{1}` in type `{0}`")]

@@ -177,7 +177,7 @@ pub fn gen_bag<'a>() -> CibouletteStore<'a> {
 	res
 }
 
-pub fn check_ident<'a>(ident: &CibouletteResourceIdentifier<'a>, type_: &str, id: &str) {
+pub fn check_ident<'a>(ident: &CibouletteResourceIdentifier<'a>, type_: &str, id: &CibouletteId) {
 	assert_eq!(ident.id(), id, "`id`s mismatch");
 	assert_eq!(ident.type_(), type_, "`type`s mismatch");
 }
@@ -185,11 +185,11 @@ pub fn check_ident<'a>(ident: &CibouletteResourceIdentifier<'a>, type_: &str, id
 pub fn check_ident_permissive<'a>(
 	ident: &CibouletteResourceIdentifierPermissive<'a>,
 	type_: &str,
-	id: Option<&str>,
+	id: &Option<CibouletteId>,
 ) {
 	assert_eq!(
-		ident.id().as_ref(),
-		id.map(std::borrow::Cow::Borrowed).as_ref(),
+		ident.id(),
+		id,
 		"`id`s mismatch"
 	);
 	assert_eq!(ident.type_(), type_, "`type`s mismatch");

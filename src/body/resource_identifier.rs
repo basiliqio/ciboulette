@@ -1,12 +1,11 @@
 use super::*;
-
 /// ## A `json:api` [resource identifier](https://jsonapi.org/format/#document-resource-identifier-objects) object
 #[derive(Deserialize, Serialize, Debug, Getters, MutGetters, Clone)]
 #[getset(get = "pub", get_mut = "pub")]
 pub struct CibouletteResourceIdentifier<'a> {
     #[serde(rename = "type")]
     pub type_: Cow<'a, str>,
-    pub id: Cow<'a, str>,
+    pub id: CibouletteId<'a>,
     #[serde(default)]
     pub meta: Value,
 }
@@ -17,7 +16,7 @@ pub struct CibouletteResourceIdentifier<'a> {
 pub struct CibouletteResourceIdentifierPermissive<'a> {
     #[serde(rename = "type")]
     pub type_: Cow<'a, str>,
-    pub id: Option<Cow<'a, str>>,
+    pub id: Option<CibouletteId<'a>>,
     #[serde(default)]
     pub meta: Value,
 }
@@ -50,14 +49,14 @@ impl<'a> From<CibouletteResourceIdentifier<'a>> for CibouletteResourceIdentifier
 
 impl<'a> CibouletteResourceIdentifier<'a> {
     /// Create a new resource identifier from an id, a type an potentially a meta argument
-    pub fn new(id: Cow<'a, str>, type_: Cow<'a, str>, meta: Value) -> Self {
+    pub fn new(id: CibouletteId<'a>, type_: Cow<'a, str>, meta: Value) -> Self {
         CibouletteResourceIdentifier { id, type_, meta }
     }
 }
 
 impl<'a> CibouletteResourceIdentifierPermissive<'a> {
     /// Create a new resource identifier from an id, a type an potentially a meta argument
-    pub fn new(id: Option<Cow<'a, str>>, type_: Cow<'a, str>, meta: Value) -> Self {
+    pub fn new(id: Option<CibouletteId<'a>>, type_: Cow<'a, str>, meta: Value) -> Self {
         CibouletteResourceIdentifierPermissive { id, type_, meta }
     }
 }

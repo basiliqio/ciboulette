@@ -196,7 +196,7 @@ impl<'a> CibouletteBodyBuilder<'a> {
     fn check_obj_uniqueness(
         data: &CibouletteResourceSelector<'a, CibouletteResourceIdentifierPermissive<'a>>,
     ) -> Result<(), CibouletteError> {
-        let mut obj_set: BTreeSet<(&str, &str)> = BTreeSet::new();
+        let mut obj_set: BTreeSet<(&str, &CibouletteId<'a>)> = BTreeSet::new();
 
         match data {
             CibouletteResourceSelector::One(_) => Ok(()),
@@ -221,7 +221,7 @@ impl<'a> CibouletteBodyBuilder<'a> {
 
     /// Check that every relationships in `data` is unique by `type` and `id` for a single object
     fn check_relationships_uniqueness_single<'b>(
-        linked_set: &mut BTreeSet<(&'b str, &'b str)>,
+        linked_set: &mut BTreeSet<(&'b str, &'b CibouletteId<'b>)>,
         obj: &'b CibouletteResource<CibouletteResourceIdentifierPermissive<'a>>,
     ) -> Result<(), CibouletteError> {
         for (_link_name, rel) in obj.relationships().iter() {
@@ -253,7 +253,7 @@ impl<'a> CibouletteBodyBuilder<'a> {
     /// Check that every relationships in `data` is unique by `type` and `id`
     fn check_relationships_uniqueness<'b>(
         data: &'b CibouletteResourceSelector<'a, CibouletteResourceIdentifierPermissive<'a>>,
-    ) -> Result<BTreeSet<(&'b str, &'b str)>, CibouletteError> {
+    ) -> Result<BTreeSet<(&'b str, &'b CibouletteId<'b>)>, CibouletteError> {
         let mut linked_set = BTreeSet::new();
 
         match data {
@@ -263,7 +263,7 @@ impl<'a> CibouletteBodyBuilder<'a> {
             }
             CibouletteResourceSelector::Many(objs) => {
                 for obj in objs.iter() {
-                    let mut linked_set_inner: BTreeSet<(&str, &str)> = BTreeSet::new();
+                    let mut linked_set_inner: BTreeSet<(&str, &CibouletteId)> = BTreeSet::new();
                     Self::check_relationships_uniqueness_single(&mut linked_set_inner, &obj)?;
                     linked_set.append(&mut linked_set_inner);
                 }
@@ -277,8 +277,8 @@ impl<'a> CibouletteBodyBuilder<'a> {
     fn check_included<'b>(
         included: &'b [CibouletteResource<'a, CibouletteResourceIdentifierPermissive<'a>>],
         check_full_linkage: bool,
-    ) -> Result<BTreeSet<(&'b str, &'b str)>, CibouletteError> {
-        let mut linked_set: BTreeSet<(&str, &str)> = BTreeSet::new();
+    ) -> Result<BTreeSet<(&'b str, &'b CibouletteId<'b>)>, CibouletteError> {
+        let mut linked_set: BTreeSet<(&str, &CibouletteId)> = BTreeSet::new();
 
         for obj in included.iter() {
             match obj.identifier().id() {
@@ -338,7 +338,7 @@ impl<'a> CibouletteBodyBuilder<'a> {
         Self::check_key_clash(&data, &included, &errors)?;
         match data {
             CibouletteBodyData::Object(data) => {
-                let rel_set: BTreeSet<(&str, &str)>;
+                let rel_set: BTreeSet<(&str, &CibouletteId)>;
 
                 Self::check_obj_uniqueness(&data)?;
                 rel_set = Self::check_relationships_uniqueness(&data)?;

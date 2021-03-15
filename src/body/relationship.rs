@@ -7,7 +7,7 @@ use super::*;
 pub struct CibouletteRelationshipObject<'a> {
     pub links: Option<CibouletteLink<'a>>,
     pub data: CibouletteOptionalData<CibouletteResourceIdentifierSelector<'a>>,
-    pub meta: HashMap<Cow<'a, str>, Value>,
+    pub meta: Value,
 }
 
 #[derive(Debug, Clone, Getters)]
