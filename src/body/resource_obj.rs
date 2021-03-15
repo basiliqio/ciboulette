@@ -9,9 +9,9 @@ const CIBOULETTE_RESOURCE_FIELDS: &[&str] =
 #[derive(Debug, Getters)]
 #[getset(get = "pub")]
 pub struct CibouletteResourceBuilder<'a> {
-    identifier: CibouletteResourceIdentifierPermissive<'a>,
+    identifier: CibouletteResourceIdentifierBuilder<'a>,
     attributes: Option<&'a RawValue>,
-    relationships: BTreeMap<Cow<'a, str>, CibouletteRelationshipObject<'a>>,
+    relationships: BTreeMap<Cow<'a, str>, CibouletteRelationshipObjectBuilder<'a>>,
     links: Option<CibouletteLink<'a>>,
 }
 
@@ -158,12 +158,13 @@ impl<'de> serde::de::Visitor<'de> for CibouletteResourceBuilderVisitor {
     where
         A: serde::de::MapAccess<'de>,
     {
-        let mut id: Option<Cow<'de, str>> = None;
+        let mut id: Option<CibouletteIdBuilder<'de>> = None;
         let mut type_: Option<Cow<'de, str>> = None;
         let mut meta: Option<Value> = None;
         let mut attributes: Option<&'de RawValue> = None;
-        let mut relationships: Option<BTreeMap<Cow<'de, str>, CibouletteRelationshipObject<'de>>> =
-            None;
+        let mut relationships: Option<
+            BTreeMap<Cow<'de, str>, CibouletteRelationshipObjectBuilder<'de>>,
+        > = None;
         let mut links: Option<CibouletteLink<'de>> = None;
         while let Some(key) =
             match serde::de::MapAccess::next_key::<CibouletteResourceField>(&mut map) {
@@ -210,8 +211,8 @@ impl<'de> serde::de::Visitor<'de> for CibouletteResourceBuilderVisitor {
         let type_ = type_.ok_or_else(|| <A::Error as serde::de::Error>::missing_field("type"))?;
         let relationships = relationships.unwrap_or_default();
         Ok(CibouletteResourceBuilder {
-            identifier: CibouletteResourceIdentifierPermissive::new(
-                id.map(|x| CibouletteId::Text(x)),
+            identifier: CibouletteResourceIdentifierBuilder::new(
+                id,
                 type_,
                 meta.unwrap_or_default(),
             ),
@@ -244,6 +245,7 @@ impl<'a> CibouletteResourceBuilder<'a> {
         self,
         bag: &'a CibouletteStore<'a>,
         intention: &CibouletteIntention,
+        main_type: &CibouletteResourceType<'a>,
     ) -> Result<CibouletteResource<'a, CibouletteResourceIdentifierPermissive<'a>>, CibouletteError>
     {
         let attributes: Option<MessyJsonObjectValue<'a>> = match self.attributes {
@@ -264,11 +266,16 @@ impl<'a> CibouletteResourceBuilder<'a> {
             }
             None => None,
         };
+        let mut relationships: BTreeMap<Cow<'a, str>, CibouletteRelationshipObject<'a>> =
+            BTreeMap::new();
+        for (k, v) in self.relationships {
+            relationships.insert(k, v.build(&main_type)?);
+        }
         Ok(CibouletteResource {
-            identifier: self.identifier,
+            identifier: self.identifier.build_permissive(&main_type)?,
             attributes,
             links: self.links,
-            relationships: self.relationships,
+            relationships,
         })
     }
 }

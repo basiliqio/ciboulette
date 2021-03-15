@@ -36,13 +36,15 @@ pub use body::link::{
 };
 pub use body::relationship::{
     CibouletteRelationshipBucket, CibouletteRelationshipObject,
-    CibouletteRelationshipOneToOneOption, CibouletteRelationshipOption,
+    CibouletteRelationshipObjectBuilder, CibouletteRelationshipOneToOneOption,
+    CibouletteRelationshipOption,
 };
 pub use body::request_body::{CibouletteBody, CibouletteBodyBuilder};
 pub use body::request_body_data::{CibouletteBodyData, CibouletteBodyDataBuilder};
 pub use body::resource_identifier::{
-    CibouletteResourceIdentifier, CibouletteResourceIdentifierPermissive,
-    CibouletteResourceIdentifierSelector,
+    CibouletteResourceIdentifier, CibouletteResourceIdentifierBuilder,
+    CibouletteResourceIdentifierPermissive, CibouletteResourceIdentifierSelector,
+    CibouletteResourceIdentifierSelectorBuilder,
 };
 pub use body::resource_obj::{CibouletteResource, CibouletteResourceBuilder};
 pub use body::resource_obj_selector::{
@@ -50,7 +52,7 @@ pub use body::resource_obj_selector::{
 };
 pub use body::resource_type::CibouletteResourceType;
 pub use body::store::CibouletteStore;
-pub use id::{CibouletteId, CibouletteIdType};
+pub use id::{CibouletteId, CibouletteIdBuilder, CibouletteIdType};
 
 pub use create_request::CibouletteCreateRequest;
 pub use delete_request::CibouletteDeleteRequest;

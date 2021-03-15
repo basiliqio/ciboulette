@@ -1,15 +1,46 @@
-use crate::CibouletteBodyBuilder;
-
 use super::*;
 use serde::de::{DeserializeSeed, Deserializer, Visitor};
 use std::fmt::Formatter;
 use std::str::FromStr;
+
+#[derive(Debug, Clone, PartialEq, PartialOrd, Eq, Ord, Hash, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum CibouletteIdBuilder<'a> {
+    Number(u64),
+    Text(Cow<'a, str>),
+}
 
 #[derive(Debug, Clone, PartialEq, PartialOrd, Eq, Ord, Hash, Serialize)]
 pub enum CibouletteId<'a> {
     Number(u64),
     Uuid(Uuid),
     Text(Cow<'a, str>),
+}
+
+impl<'a> CibouletteIdBuilder<'a> {
+    pub fn build(self, type_: &CibouletteIdType) -> Result<CibouletteId<'a>, CibouletteError> {
+        match (self, type_) {
+            (CibouletteIdBuilder::Text(x), CibouletteIdType::Text) => {
+                Ok(CibouletteId::Text(x.clone()))
+            }
+            (CibouletteIdBuilder::Text(x), CibouletteIdType::Number) => {
+                Ok(CibouletteId::Number(u64::from_str(x.as_ref())?))
+            }
+            (CibouletteIdBuilder::Text(x), CibouletteIdType::Uuid) => {
+                Ok(CibouletteId::Uuid(Uuid::from_str(x.as_ref())?))
+            }
+
+            (CibouletteIdBuilder::Number(x), CibouletteIdType::Text) => {
+                Ok(CibouletteId::Text(Cow::Owned(x.to_string())))
+            }
+            (CibouletteIdBuilder::Number(x), CibouletteIdType::Number) => {
+                Ok(CibouletteId::Number(x))
+            }
+            (CibouletteIdBuilder::Number(_), CibouletteIdType::Uuid) => Err(
+                CibouletteError::BadIdType(CibouletteIdType::Number, CibouletteIdType::Uuid),
+            ),
+        }
+    }
 }
 
 impl<'a> CibouletteId<'a> {
@@ -19,35 +50,6 @@ impl<'a> CibouletteId<'a> {
             CibouletteIdType::Text => CibouletteId::Text(val),
             CibouletteIdType::Uuid => CibouletteId::Uuid(Uuid::parse_str(val.as_ref())?),
         })
-    }
-
-    pub fn parse_from_other(
-        id_type: CibouletteIdType,
-        other: Self,
-    ) -> Result<Self, CibouletteError> {
-        match id_type {
-            CibouletteIdType::Number => match other {
-                CibouletteId::Number(x) => Ok(CibouletteId::Number(x)),
-                CibouletteId::Text(x) => Ok(CibouletteId::Number(u64::from_str(x.as_ref())?)),
-                CibouletteId::Uuid(x) => Err(CibouletteError::BadIdType(
-                    CibouletteIdType::Uuid,
-                    CibouletteIdType::Number,
-                )),
-            },
-            CibouletteIdType::Text => match other {
-                CibouletteId::Number(x) => Ok(CibouletteId::Text(Cow::Owned(x.to_string()))),
-                CibouletteId::Text(x) => Ok(CibouletteId::Text(x)),
-                CibouletteId::Uuid(x) => Ok(CibouletteId::Text(Cow::Owned(x.to_string()))),
-            },
-            CibouletteIdType::Uuid => match other {
-                CibouletteId::Number(x) => Err(CibouletteError::BadIdType(
-                    CibouletteIdType::Number,
-                    CibouletteIdType::Uuid,
-                )),
-                CibouletteId::Text(x) => Ok(CibouletteId::Uuid(Uuid::parse_str(x.as_ref())?)),
-                CibouletteId::Uuid(x) => Ok(CibouletteId::Uuid(x)),
-            },
-        }
     }
 }
 

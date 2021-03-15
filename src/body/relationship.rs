@@ -1,7 +1,16 @@
 use super::*;
 
-/// ## A `json:api` [relationship](https://jsonapi.org/format/#document-resource-object-relationships) object
 #[derive(Debug, Deserialize, Serialize, Getters, Default, Clone)]
+#[getset(get = "pub")]
+#[serde(default)]
+pub struct CibouletteRelationshipObjectBuilder<'a> {
+    pub links: Option<CibouletteLink<'a>>,
+    pub data: CibouletteOptionalData<CibouletteResourceIdentifierSelectorBuilder<'a>>,
+    pub meta: Value,
+}
+
+/// ## A `json:api` [relationship](https://jsonapi.org/format/#document-resource-object-relationships) object
+#[derive(Debug, Serialize, Getters, Default, Clone)]
 #[getset(get = "pub")]
 #[serde(default)]
 pub struct CibouletteRelationshipObject<'a> {
@@ -43,6 +52,30 @@ impl<'a> CibouletteRelationshipBucket<'a> {
 }
 
 impl<'a> Default for CibouletteOptionalData<CibouletteResourceIdentifierSelector<'a>> {
+    fn default() -> Self {
+        CibouletteOptionalData::Null(false)
+    }
+}
+
+impl<'a> CibouletteRelationshipObjectBuilder<'a> {
+    pub fn build(
+        self,
+        type_: &CibouletteResourceType<'a>,
+    ) -> Result<CibouletteRelationshipObject<'a>, CibouletteError> {
+        Ok(CibouletteRelationshipObject {
+            links: self.links,
+            meta: self.meta,
+            data: match self.data {
+                CibouletteOptionalData::Null(x) => CibouletteOptionalData::Null(x),
+                CibouletteOptionalData::Object(obj) => {
+                    CibouletteOptionalData::Object(obj.build(&type_)?)
+                }
+            },
+        })
+    }
+}
+
+impl<'a> Default for CibouletteOptionalData<CibouletteResourceIdentifierSelectorBuilder<'a>> {
     fn default() -> Self {
         CibouletteOptionalData::Null(false)
     }

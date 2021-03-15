@@ -1,6 +1,17 @@
 use super::*;
-/// ## A `json:api` [resource identifier](https://jsonapi.org/format/#document-resource-identifier-objects) object
+
 #[derive(Deserialize, Serialize, Debug, Getters, MutGetters, Clone)]
+#[getset(get = "pub", get_mut = "pub")]
+pub struct CibouletteResourceIdentifierBuilder<'a> {
+    #[serde(rename = "type")]
+    pub type_: Cow<'a, str>,
+    pub id: Option<CibouletteIdBuilder<'a>>,
+    #[serde(default)]
+    pub meta: Value,
+}
+
+/// ## A `json:api` [resource identifier](https://jsonapi.org/format/#document-resource-identifier-objects) object
+#[derive(Serialize, Debug, Getters, MutGetters, Clone)]
 #[getset(get = "pub", get_mut = "pub")]
 pub struct CibouletteResourceIdentifier<'a> {
     #[serde(rename = "type")]
@@ -11,7 +22,7 @@ pub struct CibouletteResourceIdentifier<'a> {
 }
 
 /// ## A `json:api` [resource identifier](https://jsonapi.org/format/#document-resource-identifier-objects) object
-#[derive(Deserialize, Serialize, Debug, Getters, MutGetters, Clone)]
+#[derive(Serialize, Debug, Getters, MutGetters, Clone)]
 #[getset(get = "pub", get_mut = "pub")]
 pub struct CibouletteResourceIdentifierPermissive<'a> {
     #[serde(rename = "type")]
@@ -19,6 +30,36 @@ pub struct CibouletteResourceIdentifierPermissive<'a> {
     pub id: Option<CibouletteId<'a>>,
     #[serde(default)]
     pub meta: Value,
+}
+
+impl<'a> CibouletteResourceIdentifierBuilder<'a> {
+    pub fn build(
+        self,
+        type_: &CibouletteResourceType<'a>,
+    ) -> Result<CibouletteResourceIdentifier<'a>, CibouletteError> {
+        Ok(CibouletteResourceIdentifier {
+            type_: self.type_,
+            meta: self.meta,
+            id: match self.id {
+                Some(id) => id.build(&type_.id_type())?,
+                None => return Err(CibouletteError::MissingId),
+            },
+        })
+    }
+
+    pub fn build_permissive(
+        self,
+        type_: &CibouletteResourceType<'a>,
+    ) -> Result<CibouletteResourceIdentifierPermissive<'a>, CibouletteError> {
+        Ok(CibouletteResourceIdentifierPermissive {
+            type_: self.type_,
+            meta: self.meta,
+            id: match self.id {
+                Some(id) => Some(id.build(&type_.id_type())?),
+                None => None,
+            },
+        })
+    }
 }
 
 impl<'a> TryFrom<CibouletteResourceIdentifierPermissive<'a>> for CibouletteResourceIdentifier<'a> {
@@ -61,8 +102,43 @@ impl<'a> CibouletteResourceIdentifierPermissive<'a> {
     }
 }
 
-/// ## A selector between a single or multiple `json:api` [resource identifier](https://jsonapi.org/format/#document-resource-identifier-objects) objects
+impl<'a> CibouletteResourceIdentifierBuilder<'a> {
+    /// Create a new resource identifier from an id, a type an potentially a meta argument
+    pub fn new(id: Option<CibouletteIdBuilder<'a>>, type_: Cow<'a, str>, meta: Value) -> Self {
+        CibouletteResourceIdentifierBuilder { id, type_, meta }
+    }
+}
+
 #[derive(Deserialize, Debug, Serialize, Clone)]
+#[serde(untagged)]
+pub enum CibouletteResourceIdentifierSelectorBuilder<'a> {
+    One(CibouletteResourceIdentifierBuilder<'a>),
+    Many(Vec<CibouletteResourceIdentifierBuilder<'a>>),
+}
+
+impl<'a> CibouletteResourceIdentifierSelectorBuilder<'a> {
+    pub fn build(
+        self,
+        type_: &CibouletteResourceType<'a>,
+    ) -> Result<CibouletteResourceIdentifierSelector<'a>, CibouletteError> {
+        match self {
+            CibouletteResourceIdentifierSelectorBuilder::One(x) => {
+                Ok(CibouletteResourceIdentifierSelector::One(x.build(type_)?))
+            }
+            CibouletteResourceIdentifierSelectorBuilder::Many(ids) => {
+                let mut res: Vec<CibouletteResourceIdentifier<'a>> = Vec::with_capacity(ids.len());
+
+                for id in ids.into_iter() {
+                    res.push(id.build(&type_)?);
+                }
+                Ok(CibouletteResourceIdentifierSelector::Many(res))
+            }
+        }
+    }
+}
+
+/// ## A selector between a single or multiple `json:api` [resource identifier](https://jsonapi.org/format/#document-resource-identifier-objects) objects
+#[derive(Debug, Serialize, Clone)]
 #[serde(untagged)]
 pub enum CibouletteResourceIdentifierSelector<'a> {
     One(CibouletteResourceIdentifier<'a>),

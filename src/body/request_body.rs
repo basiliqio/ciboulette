@@ -374,14 +374,15 @@ impl<'a> CibouletteBodyBuilder<'a> {
         self,
         bag: &'a CibouletteStore<'a>,
         intention: &CibouletteIntention,
+        main_type: &CibouletteResourceType<'a>,
     ) -> Result<CibouletteBody<'a>, CibouletteError> {
         let res: CibouletteBody<'a>;
 
-        let data = self.data.build(&bag, &intention)?;
+        let data = self.data.build(&bag, &intention, &main_type)?;
         let mut included: Vec<CibouletteResource<'a, CibouletteResourceIdentifierPermissive>> =
             Vec::with_capacity(self.included.len());
         for i in self.included.into_iter() {
-            included.push(i.build(&bag, &intention)?);
+            included.push(i.build(&bag, &intention, &main_type)?);
         }
         Self::check(&intention, &data, &included, &self.errors)?;
         res = CibouletteBody {

@@ -24,7 +24,11 @@ fn ok() {
     let doc_builder = CibouletteBodyBuilder::deserialize(&mut deserializer)
         .expect("to parse the json:api document");
     let doc = doc_builder
-        .build(&bag, &CibouletteIntention::Read)
+        .build(
+            &bag,
+            &CibouletteIntention::Read,
+            bag.get_type("comments").unwrap(),
+        )
         .expect("to build the document");
     let data = match doc.data() {
         CibouletteBodyData::Object(x) => x,
@@ -69,7 +73,11 @@ fn unknown_type() {
     let doc_builder = CibouletteBodyBuilder::deserialize(&mut deserializer)
         .expect("to parse the json:api document");
     let doc: CibouletteError = doc_builder
-        .build(&bag, &CibouletteIntention::Read)
+        .build(
+            &bag,
+            &CibouletteIntention::Read,
+            bag.get_type("comments").unwrap(),
+        )
         .expect_err("the type should be unknown");
     if let CibouletteError::UnknownType(_) = doc {
     } else {
