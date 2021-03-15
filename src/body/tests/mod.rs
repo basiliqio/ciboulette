@@ -4,6 +4,7 @@ mod check_uniqueness;
 mod key_clash;
 mod normal_multi_docs;
 mod normal_single_doc;
+mod parsing_id;
 mod request_data;
 mod top_level_quick_checks;
 
