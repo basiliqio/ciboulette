@@ -30,7 +30,14 @@ fn ok() {
 
     assert_eq!(res.is_ok(), true);
     let res = res.unwrap();
-    assert_eq!(res.resource_id(), "6720877a-e27e-4e9e-9ac0-3fff4deb55f2");
+    assert_eq!(
+        res.resource_id(),
+        &CibouletteId::parse(
+            CibouletteIdType::Uuid,
+            Cow::Borrowed("6720877a-e27e-4e9e-9ac0-3fff4deb55f2")
+        )
+        .unwrap()
+    );
     assert_eq!(res.resource_type(), &store.get_type("comments").unwrap());
 }
 

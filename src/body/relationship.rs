@@ -22,12 +22,17 @@ pub struct CibouletteRelationshipBucket<'a> {
 #[getset(get = "pub")]
 pub struct CibouletteRelationshipOneToOneOption {
     key: String,
+    id_type: CibouletteIdType,
     optional: bool,
 }
 
 impl CibouletteRelationshipOneToOneOption {
-    pub fn new(key: String, optional: bool) -> Self {
-        CibouletteRelationshipOneToOneOption { key, optional }
+    pub fn new(key: String, id_type: CibouletteIdType, optional: bool) -> Self {
+        CibouletteRelationshipOneToOneOption {
+            key,
+            id_type,
+            optional,
+        }
     }
 }
 

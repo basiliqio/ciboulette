@@ -106,7 +106,7 @@ fn gen_messy_json_schema_peoples<'a>() -> MessyJsonObject<'a> {
 			),
 			(
 				"age".to_string(),
-				MessyJson::String(Cow::Owned(MessyJsonScalar::new(true))),
+				MessyJson::Number(Cow::Owned(MessyJsonNumeric::new(MessyJsonNumberType::U64, true))),
 			),
 			(
 				"gender".to_string(),
@@ -126,20 +126,22 @@ fn gen_messy_json_schema_peoples<'a>() -> MessyJsonObject<'a> {
 pub fn gen_bag<'a>() -> CibouletteStore<'a> {
 	let mut res = CibouletteStore::new();
 
-	res.add_type("articles".to_string(), gen_messy_json_schema_articles())
+	res.add_type("articles".to_string(), CibouletteIdType::Uuid, gen_messy_json_schema_articles())
 		.unwrap();
-	res.add_type("comments".to_string(), gen_messy_json_schema_comments())
+	res.add_type("comments".to_string(), CibouletteIdType::Uuid, gen_messy_json_schema_comments())
 		.unwrap();
-	res.add_type("peoples".to_string(), gen_messy_json_schema_peoples())
+	res.add_type("peoples".to_string(), CibouletteIdType::Uuid, gen_messy_json_schema_peoples())
 		.unwrap();
 	res.add_type(
 		"favorite_color".to_string(),
+		CibouletteIdType::Uuid,
 		gen_messy_json_schema_favorite_color(),
 	)
 	.unwrap();
 
 	res.add_type(
 		"people-article".to_string(),
+		CibouletteIdType::Uuid,
 		gen_messy_json_schema_people_article(),
 	)
 	.unwrap();
@@ -147,19 +149,19 @@ pub fn gen_bag<'a>() -> CibouletteStore<'a> {
 	res.add_rel_single(
 		("peoples", None),
 		("favorite_color", None),
-		CibouletteRelationshipOneToOneOption::new("favorite_color".to_string(), true),
+		CibouletteRelationshipOneToOneOption::new("favorite_color".to_string(), CibouletteIdType::Uuid, true),
 	)
 	.unwrap(); // Articles -> Comments
 	res.add_rel_single(
 		("comments", None),
 		("articles", None),
-		CibouletteRelationshipOneToOneOption::new("article_id".to_string(), false),
+		CibouletteRelationshipOneToOneOption::new("article_id".to_string(), CibouletteIdType::Uuid, false),
 	)
 	.unwrap(); // Articles -> Comments
 	res.add_rel_single(
 		("comments", None),
 		("peoples", Some("author")),
-		CibouletteRelationshipOneToOneOption::new("author_id".to_string(), false),
+		CibouletteRelationshipOneToOneOption::new("author_id".to_string(), CibouletteIdType::Uuid, false),
 	)
 	.unwrap(); // Peoples -> Comments
 	res.add_rel_multiple(

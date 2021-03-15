@@ -4,7 +4,7 @@ use super::*;
 #[getset(get = "pub")]
 pub struct CibouletteDeleteRequest<'a> {
     pub resource_type: &'a CibouletteResourceType<'a>,
-    pub resource_id: Cow<'a, str>,
+    pub resource_id: CibouletteId<'a>,
     pub related_type: Option<&'a CibouletteResourceType<'a>>,
     pub query: CibouletteQueryParameters<'a>,
     pub meta: Value,

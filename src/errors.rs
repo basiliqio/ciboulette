@@ -111,6 +111,10 @@ pub enum CibouletteError {
     #[error(transparent)]
     SerdeJson(#[from] serde_json::Error),
     #[error(transparent)]
+    UuidError(#[from] uuid::Error),
+    #[error(transparent)]
+    ParseIntError(#[from] std::num::ParseIntError),
+    #[error(transparent)]
     SerdeUrlEncoded(#[from] serde_urlencoded::de::Error),
     #[error(transparent)]
     Url(#[from] url::ParseError),

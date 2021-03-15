@@ -7,16 +7,18 @@ pub struct CibouletteResourceType<'a> {
     relationships: BTreeMap<String, petgraph::graph::EdgeIndex<u16>>,
     relationships_type_to_alias: BTreeMap<String, String>,
     schema: MessyJsonObject<'a>,
+    id_type: CibouletteIdType,
     name: String,
 }
 
 impl<'a> CibouletteResourceType<'a> {
     /// Create a new type from a schema and a list of relationships
-    pub fn new(name: String, schema: MessyJsonObject<'a>) -> Self {
+    pub fn new(name: String, id_type: CibouletteIdType, schema: MessyJsonObject<'a>) -> Self {
         CibouletteResourceType {
             relationships: BTreeMap::new(),
             relationships_type_to_alias: BTreeMap::new(),
             schema,
+            id_type,
             name,
         }
     }

@@ -88,6 +88,7 @@ impl<'a> CibouletteStore<'a> {
     pub fn add_type(
         &mut self,
         name: String,
+        id_type: CibouletteIdType,
         schema: MessyJsonObject<'a>,
     ) -> Result<(), CibouletteError> {
         if self.map.contains_key(name.as_str())
@@ -95,7 +96,7 @@ impl<'a> CibouletteStore<'a> {
         {
             return Err(CibouletteError::UniqType(name));
         }
-        let t = CibouletteResourceType::new(name.clone(), schema);
+        let t = CibouletteResourceType::new(name.clone(), id_type, schema);
         let index = self.graph.add_node(t); // Add the node
         self.map.insert(name, index); // Save the index to the map
         Ok(())

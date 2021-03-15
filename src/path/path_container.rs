@@ -22,15 +22,15 @@ impl<'a> CiboulettePath<'a> {
 #[derive(Debug, Clone)]
 pub enum CiboulettePath<'a> {
     Type(&'a CibouletteResourceType<'a>),
-    TypeId(&'a CibouletteResourceType<'a>, Cow<'a, str>),
+    TypeId(&'a CibouletteResourceType<'a>, CibouletteId<'a>),
     TypeIdRelated(
         &'a CibouletteResourceType<'a>,
-        Cow<'a, str>,
+        CibouletteId<'a>,
         &'a CibouletteResourceType<'a>,
     ),
     TypeIdRelationship(
         &'a CibouletteResourceType<'a>,
-        Cow<'a, str>,
+        CibouletteId<'a>,
         &'a CibouletteResourceType<'a>,
     ),
 }
@@ -130,15 +130,26 @@ impl<'a> CiboulettePathBuilder<'a> {
                 let ftype = bag
                     .get_type(type_.as_ref())
                     .ok_or_else(|| CibouletteError::UnknownType(type_.to_string()))?;
-                Ok(CiboulettePath::TypeId(ftype, id))
+                Ok(CiboulettePath::TypeId(
+                    ftype,
+                    CibouletteId::parse(*ftype.id_type(), id)?,
+                ))
             }
             CiboulettePathBuilder::TypeIdRelated(ftype, id, stype) => {
                 let (nftype, nstype) = Self::build_double_typed(&bag, ftype, stype)?;
-                Ok(CiboulettePath::TypeIdRelated(nftype, id, nstype))
+                Ok(CiboulettePath::TypeIdRelated(
+                    nftype,
+                    CibouletteId::parse(*nftype.id_type(), id)?,
+                    nstype,
+                ))
             }
             CiboulettePathBuilder::TypeIdRelationship(ftype, id, stype) => {
                 let (nftype, nstype) = Self::build_double_typed(&bag, ftype, stype)?;
-                Ok(CiboulettePath::TypeIdRelationship(nftype, id, nstype))
+                Ok(CiboulettePath::TypeIdRelationship(
+                    nftype,
+                    CibouletteId::parse(*nftype.id_type(), id)?,
+                    nstype,
+                ))
             }
         }
     }

@@ -4,6 +4,7 @@ mod config;
 mod create_request;
 mod delete_request;
 mod errors;
+mod id;
 mod inbound_request;
 mod member_name;
 mod path;
@@ -26,6 +27,7 @@ use std::borrow::Cow;
 use std::collections::{BTreeMap, BTreeSet, HashMap};
 use std::convert::{TryFrom, TryInto};
 use url::Url;
+use uuid::Uuid;
 
 pub use body::body_optional_data::CibouletteOptionalData;
 pub use body::errors_obj::{CibouletteErrorLink, CibouletteErrorObj, CibouletteErrorSource};
@@ -48,6 +50,7 @@ pub use body::resource_obj_selector::{
 };
 pub use body::resource_type::CibouletteResourceType;
 pub use body::store::CibouletteStore;
+pub use id::{CibouletteId, CibouletteIdType};
 
 pub use create_request::CibouletteCreateRequest;
 pub use delete_request::CibouletteDeleteRequest;
