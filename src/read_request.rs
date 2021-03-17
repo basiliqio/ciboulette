@@ -9,6 +9,7 @@ pub struct CibouletteReadRequest<'a> {
     pub meta: Value,
     pub links: Option<CibouletteBodyLink<'a>>,
     pub jsonapi: Option<Cow<'a, str>>, // TODO Semver
+    pub expected_response_type: CibouletteResponseRequiredType,
 }
 
 impl<'a> TryFrom<CibouletteRequest<'a>> for CibouletteReadRequest<'a> {
@@ -21,7 +22,12 @@ impl<'a> TryFrom<CibouletteRequest<'a>> for CibouletteReadRequest<'a> {
             intention,
             path,
         } = value;
-
+        let expected_response_type: CibouletteResponseRequiredType = match path {
+            CiboulettePath::Type(_)
+            | CiboulettePath::TypeId(_, _)
+            | CiboulettePath::TypeIdRelated(_, _, _) => CibouletteResponseRequiredType::Object,
+            CiboulettePath::TypeIdRelationship(_, _, _) => CibouletteResponseRequiredType::Id,
+        };
         if !matches!(intention, CibouletteIntention::Read) {
             return Err(CibouletteError::WrongIntention(
                 intention,
@@ -51,6 +57,7 @@ impl<'a> TryFrom<CibouletteRequest<'a>> for CibouletteReadRequest<'a> {
             meta,
             links,
             jsonapi,
+            expected_response_type,
         })
     }
 }

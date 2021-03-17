@@ -25,6 +25,7 @@ pub struct CibouletteUpdateRequest<'a> {
     pub meta: Value,
     pub links: Option<CibouletteBodyLink<'a>>,
     pub jsonapi: Option<Cow<'a, str>>, // TODO Semver
+    pub expected_response_type: CibouletteResponseRequiredType,
 }
 
 impl<'a> TryFrom<CibouletteRequest<'a>> for CibouletteUpdateRequest<'a> {
@@ -100,6 +101,7 @@ impl<'a> TryFrom<CibouletteRequest<'a>> for CibouletteUpdateRequest<'a> {
             path,
             links,
             jsonapi,
+            expected_response_type: CibouletteResponseRequiredType::Object,
         })
     }
 }

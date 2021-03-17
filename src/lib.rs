@@ -11,6 +11,7 @@ mod path;
 mod query;
 mod read_request;
 mod request_selector;
+mod response_type;
 mod serde_utils;
 mod update_request;
 
@@ -70,5 +71,6 @@ pub use config::CibouletteConfig;
 pub use errors::{CibouletteClashDirection, CibouletteError, CiboulettePathType};
 pub use inbound_request::{CibouletteIntention, CibouletteRequest, CibouletteRequestBuilder};
 pub use member_name::check_member_name;
+pub use response_type::CibouletteResponseRequiredType;
 
 pub use path::path_container::{CiboulettePath, CiboulettePathBuilder};

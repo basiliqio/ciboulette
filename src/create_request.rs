@@ -9,6 +9,7 @@ pub struct CibouletteCreateRequest<'a> {
     pub meta: Value,
     pub links: Option<CibouletteBodyLink<'a>>,
     pub jsonapi: Option<Cow<'a, str>>, // TODO Semver
+    pub expected_response_type: CibouletteResponseRequiredType,
 }
 
 impl<'a> TryFrom<CibouletteRequest<'a>> for CibouletteCreateRequest<'a> {
@@ -62,6 +63,7 @@ impl<'a> TryFrom<CibouletteRequest<'a>> for CibouletteCreateRequest<'a> {
             meta,
             links,
             jsonapi,
+            expected_response_type: CibouletteResponseRequiredType::Object,
         })
     }
 }

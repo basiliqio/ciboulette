@@ -8,6 +8,7 @@ pub struct CibouletteDeleteRequest<'a> {
     pub related_type: Option<&'a CibouletteResourceType<'a>>,
     pub query: CibouletteQueryParameters<'a>,
     pub meta: Value,
+    pub expected_response_type: CibouletteResponseRequiredType,
 }
 
 impl<'a> TryFrom<CibouletteRequest<'a>> for CibouletteDeleteRequest<'a> {
@@ -46,6 +47,7 @@ impl<'a> TryFrom<CibouletteRequest<'a>> for CibouletteDeleteRequest<'a> {
             related_type,
             query: query.unwrap_or_default(),
             meta,
+            expected_response_type: CibouletteResponseRequiredType::None,
         })
     }
 }
