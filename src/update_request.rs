@@ -19,6 +19,7 @@ pub struct CibouletteUpdateRequest<'a> {
     pub resource_type: &'a CibouletteResourceType<'a>,
     pub resource_id: CibouletteId<'a>,
     pub related_type: Option<&'a CibouletteResourceType<'a>>,
+    pub path: CiboulettePath<'a>,
     pub query: CibouletteQueryParameters<'a>,
     pub data: CibouletteUpdateRequestType<'a>,
     pub meta: Value,
@@ -37,9 +38,11 @@ impl<'a> TryFrom<CibouletteRequest<'a>> for CibouletteUpdateRequest<'a> {
             path,
         } = value;
 
-        let (resource_type, resource_id, related_type) = match path {
-            CiboulettePath::TypeId(type_, id) => (type_, id, None),
-            CiboulettePath::TypeIdRelationship(type_, id, rel_type) => (type_, id, Some(rel_type)),
+        let (resource_type, resource_id, related_type) = match &path {
+            CiboulettePath::TypeId(type_, id) => (*type_, id, None),
+            CiboulettePath::TypeIdRelationship(type_, id, rel_type) => {
+                (*type_, id, Some(*rel_type))
+            }
             _ => {
                 return Err(CibouletteError::WrongPathType(
                     CiboulettePathType::from(&path),
@@ -89,11 +92,12 @@ impl<'a> TryFrom<CibouletteRequest<'a>> for CibouletteUpdateRequest<'a> {
         };
         Ok(CibouletteUpdateRequest {
             resource_type,
-            resource_id,
+            resource_id: resource_id.clone(),
             related_type,
             query: query.unwrap_or_default(),
             data,
             meta,
+            path,
             links,
             jsonapi,
         })
