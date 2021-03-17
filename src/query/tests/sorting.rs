@@ -196,3 +196,20 @@ fn nested_sorting() {
         .expect_err("not to build correctly");
     assert_eq!(matches!(err, CibouletteError::NestedSorting), true);
 }
+
+#[test]
+fn sorting_self_full_path() {
+    let (bag, builder) = setup(r#"sort=peoples.first-name"#);
+
+    let res: CibouletteQueryParameters = builder
+        .build(&bag, Some(bag.get_type("peoples").unwrap()))
+        .expect("to build correctly");
+    let sorting = res.sorting();
+    assert_eq!(sorting.len(), 1);
+    assert_eq!(
+        matches!(sorting[0].direction(), &CibouletteSortingDirection::Asc),
+        true
+    );
+    assert_eq!(sorting[0].field(), "first-name");
+    assert_eq!(sorting[0].type_(), &bag.get_type("peoples").unwrap());
+}
