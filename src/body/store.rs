@@ -208,25 +208,23 @@ impl<'a> CibouletteStore<'a> {
                 .map
                 .get(to)
                 .ok_or_else(|| CibouletteError::UnknownType(to.to_string()))?; // Get `to index
-            let bucket_i = self
-                .map
-                .get(opt.resource().name())
-                .ok_or_else(|| CibouletteError::UnknownType(opt.resource().name().clone()))?; // Get `to index
+            let bucket_i = self.map.get(opt.bucket_resource().name()).ok_or_else(|| {
+                CibouletteError::UnknownType(opt.bucket_resource().name().clone())
+            })?; // Get `to index
             (*from_i, *to_i, *bucket_i)
         };
         {
             let type_fetched = self.graph.node_weight(bucket_i); // Check the bucket type exists
             match type_fetched {
                 None => return Err(CibouletteError::TypeNotInGraph(from.to_string())), // If it doens't, its an error
-                Some(x) if x != opt.resource() => {
+                Some(x) if x != opt.bucket_resource() => {
                     return Err(CibouletteError::TypeNotInGraph(from.to_string()));
                     // If it exists but types aren't equals, it's also an error
                 }
                 Some(x) => {
-                    let fields: [&str; 2] = [opt.from().as_str(), opt.to().as_str()];
-                    if let Some(missing) = x.has_fields(&fields)? {
+                    if let Some(missing) = x.has_fields(opt.keys().iter().map(|x| x.1.as_str()))? {
                         return Err(CibouletteError::UnknownField(
-                            opt.resource().name().clone(),
+                            opt.bucket_resource().name().clone(),
                             missing,
                         ));
                     }

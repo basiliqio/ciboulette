@@ -55,11 +55,16 @@ impl<'a> CibouletteResourceType<'a> {
         })
     }
 
-    pub fn has_fields(&self, fields: &[&str]) -> Result<Option<String>, CibouletteError> {
-        Ok(fields.iter().find_map(|k| match self.schema.has_field(*k) {
-            true => None,
-            false => Some(k.to_string()),
-        }))
+    pub fn has_fields<'b, I>(&self, fields: I) -> Result<Option<String>, CibouletteError>
+    where
+        I: Iterator<Item = &'b str>,
+    {
+        Ok(fields
+            .into_iter()
+            .find_map(|k| match self.schema.has_field(k) {
+                true => None,
+                false => Some(k.to_string()),
+            }))
     }
 }
 

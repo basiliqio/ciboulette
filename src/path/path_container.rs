@@ -13,7 +13,7 @@ impl<'a> CiboulettePath<'a> {
         match self {
             CiboulettePath::Type(x) => x,
             CiboulettePath::TypeId(x, _) => x,
-            CiboulettePath::TypeIdRelated(x, _, _) => x,
+            CiboulettePath::TypeIdRelated(_, _, y) => y,
             CiboulettePath::TypeIdRelationship(x, _, _) => x,
         }
     }

@@ -22,9 +22,8 @@ pub struct CibouletteRelationshipObject<'a> {
 #[derive(Debug, Clone, Getters)]
 #[getset(get = "pub")]
 pub struct CibouletteRelationshipBucket<'a> {
-    resource: CibouletteResourceType<'a>,
-    from: String,
-    to: String,
+    bucket_resource: CibouletteResourceType<'a>,
+    keys: [(CibouletteResourceType<'a>, String); 2],
 }
 
 #[derive(Debug, Clone, Getters)]
@@ -46,8 +45,30 @@ impl CibouletteRelationshipOneToOneOption {
 }
 
 impl<'a> CibouletteRelationshipBucket<'a> {
-    pub fn new(resource: CibouletteResourceType<'a>, from: String, to: String) -> Self {
-        CibouletteRelationshipBucket { resource, from, to }
+    pub fn new(
+        bucket_resource: CibouletteResourceType<'a>,
+        keys: [(CibouletteResourceType<'a>, String); 2],
+    ) -> Self {
+        CibouletteRelationshipBucket {
+            bucket_resource,
+            keys,
+        }
+    }
+
+    pub fn keys_for_type(
+        &'a self,
+        type_: &'a CibouletteResourceType<'a>,
+    ) -> Result<&'a str, CibouletteError> {
+        self.keys
+            .iter()
+            .find(|(k, _)| k == type_)
+            .map(|x| x.1.as_str())
+            .ok_or_else(|| {
+                CibouletteError::UnknownRelationship(
+                    self.bucket_resource().name().clone(),
+                    type_.name().clone(),
+                )
+            })
     }
 }
 
