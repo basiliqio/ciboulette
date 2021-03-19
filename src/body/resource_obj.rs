@@ -245,15 +245,13 @@ impl<'a> CibouletteResourceBuilder<'a> {
         self,
         bag: &'a CibouletteStore<'a>,
         intention: &CibouletteIntention,
-        main_type: &CibouletteResourceType<'a>,
     ) -> Result<CibouletteResource<'a, CibouletteResourceIdentifierPermissive<'a>>, CibouletteError>
     {
+        let current_type = bag.get_type(self.identifier().type_().as_ref())?;
         let attributes: Option<MessyJsonObjectValue<'a>> = match self.attributes {
             Some(attributes) => {
                 let type_ident = self.identifier().type_().as_ref();
-                let resource_type = bag
-                    .get_type(type_ident)
-                    .ok_or_else(|| CibouletteError::UnknownType(type_ident.to_string()))?;
+                let resource_type = bag.get_type(type_ident)?;
                 let mut deserializer = serde_json::Deserializer::from_str(attributes.get());
                 let container = resource_type
                     .schema()
@@ -269,10 +267,16 @@ impl<'a> CibouletteResourceBuilder<'a> {
         let mut relationships: BTreeMap<Cow<'a, str>, CibouletteRelationshipObject<'a>> =
             BTreeMap::new();
         for (k, v) in self.relationships {
-            relationships.insert(k, v.build(&main_type)?);
+            if !current_type.relationships().contains_key(k.as_ref()) {
+                return Err(CibouletteError::UnknownRelationship(
+                    current_type.name().to_string(),
+                    k.to_string(),
+                ));
+            }
+            relationships.insert(k, v.build(&current_type)?);
         }
         Ok(CibouletteResource {
-            identifier: self.identifier.build_permissive(&main_type)?,
+            identifier: self.identifier.build_permissive(&current_type)?,
             attributes,
             links: self.links,
             relationships,

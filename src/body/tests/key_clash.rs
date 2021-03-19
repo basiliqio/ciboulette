@@ -25,11 +25,7 @@ fn key_clash_data_error() {
     let doc_builder = CibouletteBodyBuilder::deserialize(&mut deserializer)
         .expect("to parse the json:api document");
     let err: CibouletteError = doc_builder
-        .build(
-            &bag,
-            &CibouletteIntention::Read,
-            bag.get_type("comments").unwrap(),
-        )
+        .build(&bag, &CibouletteIntention::Read)
         .expect_err("keyclash error");
     match err {
         CibouletteError::KeyClash(key1, op, key2) => {
@@ -72,11 +68,7 @@ fn key_clash_included_without_data() {
     let doc_builder = CibouletteBodyBuilder::deserialize(&mut deserializer)
         .expect("to parse the json:api document");
     let err: CibouletteError = doc_builder
-        .build(
-            &bag,
-            &CibouletteIntention::Read,
-            bag.get_type("comments").unwrap(),
-        )
+        .build(&bag, &CibouletteIntention::Read)
         .expect_err("keyclash error");
     match err {
         CibouletteError::KeyClash(key1, op, key2) => {

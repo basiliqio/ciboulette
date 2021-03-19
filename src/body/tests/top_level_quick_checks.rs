@@ -24,11 +24,7 @@ fn normal() {
     let doc_builder = CibouletteBodyBuilder::deserialize(&mut deserializer)
         .expect("to parse the json:api document");
     let doc = doc_builder
-        .build(
-            &bag,
-            &CibouletteIntention::Read,
-            bag.get_type("comments").unwrap(),
-        )
+        .build(&bag, &CibouletteIntention::Read)
         .expect("to build the document");
     assert_eq!(doc.is_compound(), false);
     assert_eq!(doc.has_all_ids(), true);
@@ -51,11 +47,7 @@ fn no_data() {
     let doc_builder = CibouletteBodyBuilder::deserialize(&mut deserializer)
         .expect("to parse the json:api document");
     let doc = doc_builder
-        .build(
-            &bag,
-            &CibouletteIntention::Read,
-            bag.get_type("comments").unwrap(),
-        )
+        .build(&bag, &CibouletteIntention::Read)
         .expect("to build the document");
     assert_eq!(doc.is_compound(), false);
     assert_eq!(doc.has_all_ids(), true);
@@ -85,11 +77,7 @@ fn has_all_ids() {
     let doc_builder = CibouletteBodyBuilder::deserialize(&mut deserializer)
         .expect("to parse the json:api document");
     let doc = doc_builder
-        .build(
-            &bag,
-            &CibouletteIntention::Read,
-            bag.get_type("comments").unwrap(),
-        )
+        .build(&bag, &CibouletteIntention::Read)
         .expect("to build the document");
     assert_eq!(doc.is_compound(), false);
     assert_eq!(doc.has_all_ids(), false);
@@ -126,11 +114,7 @@ fn compound_simple() {
     let doc_builder = CibouletteBodyBuilder::deserialize(&mut deserializer)
         .expect("to parse the json:api document");
     let doc = doc_builder
-        .build(
-            &bag,
-            &CibouletteIntention::Read,
-            bag.get_type("comments").unwrap(),
-        )
+        .build(&bag, &CibouletteIntention::Read)
         .expect("to build the document");
     assert_eq!(doc.is_compound(), true);
     assert_eq!(doc.has_all_ids(), true);
@@ -166,11 +150,7 @@ fn compound_missing_ids() {
     let doc_builder = CibouletteBodyBuilder::deserialize(&mut deserializer)
         .expect("to parse the json:api document");
     let doc = doc_builder
-        .build(
-            &bag,
-            &CibouletteIntention::Read,
-            bag.get_type("comments").unwrap(),
-        )
+        .build(&bag, &CibouletteIntention::Read)
         .expect("to build the document");
     assert_eq!(doc.is_compound(), true);
     assert_eq!(doc.has_all_ids(), false);
@@ -191,11 +171,7 @@ fn compound_empty() {
     let doc_builder = CibouletteBodyBuilder::deserialize(&mut deserializer)
         .expect("to parse the json:api document");
     let doc = doc_builder
-        .build(
-            &bag,
-            &CibouletteIntention::Read,
-            bag.get_type("comments").unwrap(),
-        )
+        .build(&bag, &CibouletteIntention::Read)
         .expect("to build the document");
     assert_eq!(doc.is_compound(), true);
     assert_eq!(doc.has_all_ids(), true);

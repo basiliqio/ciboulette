@@ -45,9 +45,17 @@ impl<'a> CibouletteStore<'a> {
             .and_then(|x| self.graph.node_weight(*x).map(|y| (*x, y)))
     }
 
-    /// Get a type from the graph
-    pub fn get_type(&self, name: &str) -> Option<&CibouletteResourceType<'a>> {
+    /// Get a type from the graph, returning an error if not found
+    pub fn get_type_if_exists(&self, name: &str) -> Option<&CibouletteResourceType<'a>> {
         self.map.get(name).and_then(|x| self.graph.node_weight(*x))
+    }
+
+    /// Get a type from the graph, returning an error if not found
+    pub fn get_type(&self, name: &str) -> Result<&CibouletteResourceType<'a>, CibouletteError> {
+        self.map
+            .get(name)
+            .and_then(|x| self.graph.node_weight(*x))
+            .ok_or_else(|| CibouletteError::UnknownType(name.to_string()))
     }
 
     /// Get a relationship from the graph

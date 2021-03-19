@@ -60,7 +60,7 @@ impl<'a> CibouletteRequestBuilder<'a> {
             // Build body
             Some(body) => {
                 let builder: CibouletteBodyBuilder<'_> = serde_json::from_str(body)?;
-                Some(builder.build(bag, self.intention(), path.main_type())?)
+                Some(builder.build(bag, self.intention())?)
             }
             None => None,
         };

@@ -24,12 +24,11 @@ impl<'a> CibouletteBodyDataBuilder<'a> {
         self,
         bag: &'a CibouletteStore<'a>,
         intention: &CibouletteIntention,
-        main_type: &CibouletteResourceType<'a>,
     ) -> Result<CibouletteBodyData<'a>, CibouletteError> {
         match self {
-            CibouletteBodyDataBuilder::Object(x) => Ok(CibouletteBodyData::Object(
-                x.build(bag, intention, &main_type)?,
-            )),
+            CibouletteBodyDataBuilder::Object(x) => {
+                Ok(CibouletteBodyData::Object(x.build(bag, intention)?))
+            }
             CibouletteBodyDataBuilder::Null(x) => Ok(CibouletteBodyData::Null(x)),
         }
     }

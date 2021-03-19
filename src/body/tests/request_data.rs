@@ -16,11 +16,7 @@ fn null() {
     let doc_builder = CibouletteBodyBuilder::deserialize(&mut deserializer)
         .expect("to parse the json:api document");
     let doc = doc_builder
-        .build(
-            &bag,
-            &CibouletteIntention::Read,
-            bag.get_type("comments").unwrap(),
-        )
+        .build(&bag, &CibouletteIntention::Read)
         .expect("to build the document");
     match doc.data() {
         CibouletteBodyData::Null(x) => assert_eq!(x, &true),
@@ -48,11 +44,7 @@ fn identifier_only() {
     let doc_builder = CibouletteBodyBuilder::deserialize(&mut deserializer)
         .expect("to parse the json:api document");
     let doc = doc_builder
-        .build(
-            &bag,
-            &CibouletteIntention::Read,
-            bag.get_type("articles").unwrap(),
-        )
+        .build(&bag, &CibouletteIntention::Read)
         .expect("to build the document");
     // match doc.data() {
     //     CibouletteBodyData::Null(x) => assert_eq!(x, &true),
@@ -86,11 +78,7 @@ fn identifiers_only() {
     let doc_builder = CibouletteBodyBuilder::deserialize(&mut deserializer)
         .expect("to parse the json:api document");
     let doc = doc_builder
-        .build(
-            &bag,
-            &CibouletteIntention::Read,
-            bag.get_type("articles").unwrap(),
-        )
+        .build(&bag, &CibouletteIntention::Read)
         .expect("to build the document");
     // match doc.data() {
     //     CibouletteBodyData::Null(x) => assert_eq!(x, &true),
@@ -114,15 +102,44 @@ fn absent() {
     let doc_builder = CibouletteBodyBuilder::deserialize(&mut deserializer)
         .expect("to parse the json:api document");
     let doc = doc_builder
-        .build(
-            &bag,
-            &CibouletteIntention::Read,
-            bag.get_type("comments").unwrap(),
-        )
+        .build(&bag, &CibouletteIntention::Read)
         .expect("to build the document");
     match doc.data() {
         CibouletteBodyData::Null(x) => assert_eq!(x, &false),
         _ => panic!("data should've been present"),
     };
     println!("{:#?}", doc);
+}
+
+#[test]
+fn unknown_relationships() {
+    let bag = gen_bag();
+    const VAL: &str = r#"
+	{
+		"data": {
+			"type": "peoples",
+			"id": "6720877a-e27e-4e9e-9ac0-3fff4deb55f2",		
+			"relationships": {
+				"people-article":
+				{
+					"data": null
+				}
+			}
+		},
+		"meta":
+		{
+			"self": "peoples/6720877a-e27e-4e9e-9ac0-3fff4deb55f2"
+		}
+	}
+	"#;
+    let mut deserializer = serde_json::Deserializer::from_str(VAL);
+    let doc_builder = CibouletteBodyBuilder::deserialize(&mut deserializer)
+        .expect("to parse the json:api document");
+    let err = doc_builder
+        .build(&bag, &CibouletteIntention::Read)
+        .expect_err("to build the document");
+    assert_eq!(
+        matches!(err, CibouletteError::UnknownRelationship(x, y) if x == "peoples" && y == "people-article"),
+        true
+    );
 }

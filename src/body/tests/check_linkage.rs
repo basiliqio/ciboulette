@@ -58,11 +58,7 @@ fn ok() {
     let doc_builder = CibouletteBodyBuilder::deserialize(&mut deserializer)
         .expect("to parse the json:api document");
     doc_builder
-        .build(
-            &bag,
-            &CibouletteIntention::Read,
-            bag.get_type("comments").unwrap(),
-        )
+        .build(&bag, &CibouletteIntention::Read)
         .expect("to build the document");
 }
 
@@ -109,11 +105,7 @@ fn missing_link() {
     let doc_builder = CibouletteBodyBuilder::deserialize(&mut deserializer)
         .expect("to parse the json:api document");
     let err = doc_builder
-        .build(
-            &bag,
-            &CibouletteIntention::Read,
-            bag.get_type("comments").unwrap(),
-        )
+        .build(&bag, &CibouletteIntention::Read)
         .expect_err("missing link");
     match err {
         CibouletteError::MissingLink(type_, id) => {
@@ -181,11 +173,7 @@ fn not_fully_linked() {
     let doc_builder = CibouletteBodyBuilder::deserialize(&mut deserializer)
         .expect("to parse the json:api document");
     let err = doc_builder
-        .build(
-            &bag,
-            &CibouletteIntention::Read,
-            bag.get_type("comments").unwrap(),
-        )
+        .build(&bag, &CibouletteIntention::Read)
         .expect_err("missing link");
     match err {
         CibouletteError::NoCompleteLinkage(type_, id) => {

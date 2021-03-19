@@ -374,15 +374,14 @@ impl<'a> CibouletteBodyBuilder<'a> {
         self,
         bag: &'a CibouletteStore<'a>,
         intention: &CibouletteIntention,
-        main_type: &CibouletteResourceType<'a>,
     ) -> Result<CibouletteBody<'a>, CibouletteError> {
         let res: CibouletteBody<'a>;
 
-        let data = self.data.build(&bag, &intention, &main_type)?;
+        let data = self.data.build(&bag, &intention)?;
         let mut included: Vec<CibouletteResource<'a, CibouletteResourceIdentifierPermissive>> =
             Vec::with_capacity(self.included.len());
         for i in self.included.into_iter() {
-            included.push(i.build(&bag, &intention, &main_type)?);
+            included.push(i.build(&bag, &intention)?);
         }
         Self::check(&intention, &data, &included, &self.errors)?;
         res = CibouletteBody {
@@ -408,7 +407,9 @@ impl<'a> CibouletteBody<'a> {
     ) -> Option<&CibouletteResourceType<'a>> {
         match self.data() {
             CibouletteBodyData::Object(data) => match data {
-                CibouletteResourceSelector::One(x) => bag.get_type(x.identifier().type_().as_ref()),
+                CibouletteResourceSelector::One(x) => {
+                    bag.get_type_if_exists(x.identifier().type_().as_ref())
+                }
                 CibouletteResourceSelector::Many(types) => {
                     let mut titer = types.iter();
                     let first_type = match titer.next() {
@@ -420,7 +421,7 @@ impl<'a> CibouletteBody<'a> {
                             return None;
                         }
                     }
-                    bag.get_type(first_type.as_ref())
+                    bag.get_type_if_exists(first_type.as_ref())
                 }
             },
             CibouletteBodyData::Null(_) => None,

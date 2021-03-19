@@ -121,15 +121,11 @@ impl<'a> CiboulettePathBuilder<'a> {
     ) -> Result<CiboulettePath<'a>, CibouletteError> {
         match self {
             CiboulettePathBuilder::Type(type_) => {
-                let ftype = bag
-                    .get_type(type_.as_ref())
-                    .ok_or_else(|| CibouletteError::UnknownType(type_.to_string()))?;
+                let ftype = bag.get_type(type_.as_ref())?;
                 Ok(CiboulettePath::Type(ftype))
             }
             CiboulettePathBuilder::TypeId(type_, id) => {
-                let ftype = bag
-                    .get_type(type_.as_ref())
-                    .ok_or_else(|| CibouletteError::UnknownType(type_.to_string()))?;
+                let ftype = bag.get_type(type_.as_ref())?;
                 Ok(CiboulettePath::TypeId(
                     ftype,
                     CibouletteId::parse(*ftype.id_type(), id)?,

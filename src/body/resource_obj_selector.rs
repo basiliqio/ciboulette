@@ -107,21 +107,20 @@ impl<'a> CibouletteResourceSelectorBuilder<'a> {
         self,
         bag: &'a CibouletteStore<'a>,
         intention: &CibouletteIntention,
-        main_type: &CibouletteResourceType<'a>,
     ) -> Result<
         CibouletteResourceSelector<'a, CibouletteResourceIdentifierPermissive<'a>>,
         CibouletteError,
     > {
         match self {
             CibouletteResourceSelectorBuilder::One(element) => Ok(CibouletteResourceSelector::One(
-                element.build(bag, &intention, &main_type)?,
+                element.build(bag, &intention)?,
             )),
             CibouletteResourceSelectorBuilder::Many(elements) => {
                 let mut res: Vec<CibouletteResource<CibouletteResourceIdentifierPermissive>> =
                     Vec::with_capacity(elements.len());
 
                 for el in elements.into_iter() {
-                    res.push(el.build(bag, &intention, &main_type)?);
+                    res.push(el.build(bag, &intention)?);
                 }
                 Ok(CibouletteResourceSelector::Many(res))
             }
