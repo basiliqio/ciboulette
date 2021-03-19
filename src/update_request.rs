@@ -76,7 +76,12 @@ impl<'a> TryFrom<CibouletteRequest<'a>> for CibouletteUpdateRequest<'a> {
                 }
                 None => match selector {
                     CibouletteResourceSelector::One(value) => {
-                        CibouletteUpdateRequestType::MainType(value.try_into()?)
+                        let type_: CibouletteResource<'a, CibouletteResourceIdentifier<'a>> =
+                            value.try_into()?;
+                        if type_.identifier().type_() != path.main_type().name() {
+                            return Err(CibouletteError::MainTypeClash);
+                        }
+                        CibouletteUpdateRequestType::MainType(type_)
                     }
                     CibouletteResourceSelector::Many(_) => return Err(CibouletteError::NoCompound),
                 },

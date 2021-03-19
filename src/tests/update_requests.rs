@@ -230,3 +230,34 @@ fn relationship_null() {
         panic!();
     }
 }
+
+#[test]
+fn main_key_clash_main() {
+    let store = gen_bag();
+    let url = Url::parse("http://localhost/").unwrap();
+    let opt = url::Url::options().base_url(Some(&url));
+    const URL: &str = "/comments/6720877a-e27e-4e9e-9ac0-3fff4deb55f2";
+    const INTENTION: CibouletteIntention = CibouletteIntention::Update;
+    const BODY: Option<&str> = Some(
+        r#"
+	{
+		"data":
+		{
+			"id": "6720877a-e27e-4e9e-9ac0-3fff4deb55f2",
+			"type": "peoples",
+			"attributes":
+			{
+				"first-name": "world"
+			}
+		}
+	}
+	"#,
+    );
+
+    let parsed_url = opt.parse(URL).unwrap();
+    let builder = CibouletteRequestBuilder::new(INTENTION, &parsed_url, &BODY);
+    let request = builder.build(&store).unwrap();
+    let res = CibouletteUpdateRequest::try_from(request);
+
+    assert_eq!(matches!(res, Err(CibouletteError::MainTypeClash)), true);
+}

@@ -405,7 +405,7 @@ impl<'a> CibouletteBody<'a> {
     pub fn get_main_type(
         &self,
         bag: &'a CibouletteStore<'a>,
-    ) -> Option<&'a CibouletteResourceType> {
+    ) -> Option<&CibouletteResourceType<'a>> {
         match self.data() {
             CibouletteBodyData::Object(data) => match data {
                 CibouletteResourceSelector::One(x) => bag.get_type(x.identifier().type_().as_ref()),

@@ -52,7 +52,12 @@ impl<'a> TryFrom<CibouletteRequest<'a>> for CibouletteCreateRequest<'a> {
             CibouletteBodyData::Null(_) => return Err(CibouletteError::NoData),
         };
         let data = match data {
-            CibouletteResourceSelector::One(data) => data,
+            CibouletteResourceSelector::One(data) => {
+                if data.identifier().type_() != path.main_type().name() {
+                    return Err(CibouletteError::MainTypeClash);
+                }
+                data
+            }
             _ => return Err(CibouletteError::NoCompound),
         };
 

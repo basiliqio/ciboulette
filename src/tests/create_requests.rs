@@ -218,3 +218,33 @@ fn no_compound() {
 
     assert_eq!(matches!(res, Err(CibouletteError::NoCompound)), true);
 }
+
+#[test]
+fn main_type_clash() {
+    let store = gen_bag();
+    let url = Url::parse("http://localhost/").unwrap();
+    let opt = url::Url::options().base_url(Some(&url));
+    const URL: &str = "/comments";
+    const INTENTION: CibouletteIntention = CibouletteIntention::Create;
+    const BODY: Option<&str> = Some(
+        r#"
+	{
+		"data":
+		{
+			"type": "peoples",
+			"attributes":
+			{
+				"first-name": "Hello",
+				"last-name": "World"
+			}
+		}
+	}
+	"#,
+    );
+    let parsed_url = opt.parse(URL).unwrap();
+    let builder = CibouletteRequestBuilder::new(INTENTION, &parsed_url, &BODY);
+    let request = builder.build(&store).unwrap();
+    let res = CibouletteCreateRequest::try_from(request);
+
+    assert_eq!(matches!(res, Err(CibouletteError::MainTypeClash)), true);
+}

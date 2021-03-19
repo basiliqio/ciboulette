@@ -44,7 +44,7 @@ impl<'a> TryFrom<CibouletteRequest<'a>> for CibouletteReadRequest<'a> {
         } = body.unwrap_or_default();
 
         let data = match data {
-            CibouletteBodyData::Object(x) => x,
+            CibouletteBodyData::Object(obj) => obj,
             CibouletteBodyData::Null(_) => CibouletteResourceSelector::<
                 CibouletteResourceIdentifierPermissive<'_>,
             >::Many(Vec::new()),

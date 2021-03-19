@@ -55,6 +55,8 @@ impl From<&CiboulettePath<'_>> for CiboulettePathType {
 /// # An error throwable by [Ciboulette](crate)
 #[derive(Error, Debug)]
 pub enum CibouletteError {
+    #[error("The main type in the path and in the body are not the same")]
+    MainTypeClash,
     #[error("The json:api type `{0}` is unknown.")]
     UnknownType(String),
     #[error("No relationship `{1}` for type `{0}`.")]

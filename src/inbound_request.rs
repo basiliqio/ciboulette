@@ -74,6 +74,7 @@ impl<'a> CibouletteRequestBuilder<'a> {
             }
             None => None,
         };
+
         Ok(CibouletteRequest {
             path,
             body,
