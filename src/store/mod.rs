@@ -6,6 +6,9 @@ mod many_to_many;
 mod one_to_many;
 mod one_to_one;
 
+#[cfg(test)]
+mod tests;
+
 /// ## Map of accepted resource types
 #[derive(Clone, Debug, Getters, MutGetters)]
 #[getset(get = "pub", get_mut)]
@@ -101,10 +104,11 @@ impl<'a> CibouletteStore<'a> {
     /// Add a type to the graph
     pub fn add_type(
         &mut self,
-        name: String,
+        name: &str,
         id_type: CibouletteIdType,
         schema: MessyJsonObject<'a>,
     ) -> Result<(), CibouletteError> {
+        let name = name.to_string();
         if self.map.contains_key(name.as_str())
         // Check if type exists
         {

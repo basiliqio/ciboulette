@@ -33,7 +33,7 @@ use std::borrow::Cow;
 // - attributes:
 //   - color
 
-fn gen_messy_json_schema_favorite_color<'a>() -> MessyJsonObject<'a> {
+pub fn gen_messy_json_schema_favorite_color<'a>() -> MessyJsonObject<'a> {
     MessyJsonObject::new(
         vec![(
             "color".to_string(),
@@ -45,7 +45,7 @@ fn gen_messy_json_schema_favorite_color<'a>() -> MessyJsonObject<'a> {
     )
 }
 
-fn gen_messy_json_schema_articles<'a>() -> MessyJsonObject<'a> {
+pub fn gen_messy_json_schema_articles<'a>() -> MessyJsonObject<'a> {
     MessyJsonObject::new(
         vec![
             (
@@ -63,7 +63,7 @@ fn gen_messy_json_schema_articles<'a>() -> MessyJsonObject<'a> {
     )
 }
 
-fn gen_messy_json_schema_comments<'a>() -> MessyJsonObject<'a> {
+pub fn gen_messy_json_schema_comments<'a>() -> MessyJsonObject<'a> {
     MessyJsonObject::new(
         vec![(
             "body".to_string(),
@@ -75,7 +75,7 @@ fn gen_messy_json_schema_comments<'a>() -> MessyJsonObject<'a> {
     )
 }
 
-fn gen_messy_json_schema_people_article<'a>() -> MessyJsonObject<'a> {
+pub fn gen_messy_json_schema_people_article<'a>() -> MessyJsonObject<'a> {
     MessyJsonObject::new(
         vec![
             (
@@ -93,7 +93,7 @@ fn gen_messy_json_schema_people_article<'a>() -> MessyJsonObject<'a> {
     )
 }
 
-fn gen_messy_json_schema_peoples<'a>() -> MessyJsonObject<'a> {
+pub fn gen_messy_json_schema_peoples<'a>() -> MessyJsonObject<'a> {
     MessyJsonObject::new(
         vec![
             (
@@ -130,32 +130,32 @@ pub fn gen_bag<'a>() -> CibouletteStore<'a> {
     let mut res = CibouletteStore::new();
 
     res.add_type(
-        "articles".to_string(),
+        "articles",
         CibouletteIdType::Uuid,
         gen_messy_json_schema_articles(),
     )
     .unwrap();
     res.add_type(
-        "comments".to_string(),
+        "comments",
         CibouletteIdType::Uuid,
         gen_messy_json_schema_comments(),
     )
     .unwrap();
     res.add_type(
-        "peoples".to_string(),
+        "peoples",
         CibouletteIdType::Uuid,
         gen_messy_json_schema_peoples(),
     )
     .unwrap();
     res.add_type(
-        "favorite_color".to_string(),
+        "favorite_color",
         CibouletteIdType::Uuid,
         gen_messy_json_schema_favorite_color(),
     )
     .unwrap();
 
     res.add_type(
-        "people-article".to_string(),
+        "people-article",
         CibouletteIdType::Uuid,
         gen_messy_json_schema_people_article(),
     )
@@ -165,7 +165,7 @@ pub fn gen_bag<'a>() -> CibouletteStore<'a> {
         ("peoples", None),
         ("favorite_color", None),
         CibouletteRelationshipOneToOneOption::new(
-            "favorite_color".to_string(),
+            "favorite_color",
             CibouletteIdType::Uuid,
             true,
         ),

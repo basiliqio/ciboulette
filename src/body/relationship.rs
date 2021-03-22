@@ -19,14 +19,14 @@ pub struct CibouletteRelationshipObject<'a> {
     pub meta: Value,
 }
 
-#[derive(Debug, Clone, Getters)]
+#[derive(Debug, Clone, Getters, PartialEq)]
 #[getset(get = "pub")]
 pub struct CibouletteRelationshipManyToManyOption<'a> {
     bucket_resource: CibouletteResourceType<'a>,
     keys: [(CibouletteResourceType<'a>, String); 2],
 }
 
-#[derive(Debug, Clone, Getters)]
+#[derive(Debug, Clone, Getters, PartialEq)]
 #[getset(get = "pub")]
 pub struct CibouletteRelationshipOneToManyOption<'a> {
     one_table: CibouletteResourceType<'a>,
@@ -34,7 +34,7 @@ pub struct CibouletteRelationshipOneToManyOption<'a> {
     many_table_key: String,
 }
 
-#[derive(Debug, Clone, Getters)]
+#[derive(Debug, Clone, Getters, PartialEq)]
 #[getset(get = "pub")]
 pub struct CibouletteRelationshipOneToOneOption {
     key: String,
@@ -43,9 +43,9 @@ pub struct CibouletteRelationshipOneToOneOption {
 }
 
 impl CibouletteRelationshipOneToOneOption {
-    pub fn new(key: String, id_type: CibouletteIdType, optional: bool) -> Self {
+    pub fn new(key: &str, id_type: CibouletteIdType, optional: bool) -> Self {
         CibouletteRelationshipOneToOneOption {
-            key,
+            key: key.to_string(),
             id_type,
             optional,
         }
