@@ -10,7 +10,6 @@ pub mod resource_identifier;
 pub mod resource_obj;
 pub mod resource_obj_selector;
 pub mod resource_type;
-pub mod store;
 
 #[cfg(test)]
 mod tests;

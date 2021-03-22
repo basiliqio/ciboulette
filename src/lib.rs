@@ -13,6 +13,7 @@ mod read_request;
 mod request_selector;
 mod response_type;
 mod serde_utils;
+pub mod store;
 mod update_request;
 
 #[cfg(test)]
@@ -36,7 +37,7 @@ pub use body::link::{
     CibouletteBodyLink, CibouletteBodyPagination, CibouletteLink, CibouletteLinkObj,
 };
 pub use body::relationship::{
-    CibouletteRelationshipBucket, CibouletteRelationshipObject,
+    CibouletteRelationshipManyToManyOption, CibouletteRelationshipObject,
     CibouletteRelationshipObjectBuilder, CibouletteRelationshipOneToOneOption,
     CibouletteRelationshipOption,
 };
@@ -52,8 +53,8 @@ pub use body::resource_obj_selector::{
     CibouletteResourceSelector, CibouletteResourceSelectorBuilder,
 };
 pub use body::resource_type::CibouletteResourceType;
-pub use body::store::CibouletteStore;
 pub use id::{CibouletteId, CibouletteIdBuilder, CibouletteIdType};
+pub use store::CibouletteStore;
 
 pub use create_request::CibouletteCreateRequest;
 pub use delete_request::CibouletteDeleteRequest;

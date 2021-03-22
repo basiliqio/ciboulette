@@ -21,8 +21,14 @@ pub struct CibouletteRelationshipObject<'a> {
 
 #[derive(Debug, Clone, Getters)]
 #[getset(get = "pub")]
-pub struct CibouletteRelationshipBucket<'a> {
+pub struct CibouletteRelationshipManyToManyOption<'a> {
     bucket_resource: CibouletteResourceType<'a>,
+    keys: [(CibouletteResourceType<'a>, String); 2],
+}
+
+#[derive(Debug, Clone, Getters)]
+#[getset(get = "pub")]
+pub struct CibouletteRelationshipOneToManyOption<'a> {
     keys: [(CibouletteResourceType<'a>, String); 2],
 }
 
@@ -44,12 +50,12 @@ impl CibouletteRelationshipOneToOneOption {
     }
 }
 
-impl<'a> CibouletteRelationshipBucket<'a> {
+impl<'a> CibouletteRelationshipManyToManyOption<'a> {
     pub fn new(
         bucket_resource: CibouletteResourceType<'a>,
         keys: [(CibouletteResourceType<'a>, String); 2],
     ) -> Self {
-        CibouletteRelationshipBucket {
+        CibouletteRelationshipManyToManyOption {
             bucket_resource,
             keys,
         }
@@ -66,6 +72,40 @@ impl<'a> CibouletteRelationshipBucket<'a> {
             .ok_or_else(|| {
                 CibouletteError::UnknownRelationship(
                     self.bucket_resource().name().clone(),
+                    type_.name().clone(),
+                )
+            })
+    }
+}
+
+impl<'a> From<&CibouletteRelationshipManyToManyOption<'a>>
+    for CibouletteRelationshipOneToManyOption<'a>
+{
+    fn from(
+        other: &CibouletteRelationshipManyToManyOption<'a>,
+    ) -> CibouletteRelationshipOneToManyOption<'a> {
+        CibouletteRelationshipOneToManyOption {
+            keys: other.keys.clone(),
+        }
+    }
+}
+
+impl<'a> CibouletteRelationshipOneToManyOption<'a> {
+    pub fn new(keys: [(CibouletteResourceType<'a>, String); 2]) -> Self {
+        CibouletteRelationshipOneToManyOption { keys }
+    }
+
+    pub fn keys_for_type(
+        &'a self,
+        type_: &'a CibouletteResourceType<'a>,
+    ) -> Result<&'a str, CibouletteError> {
+        self.keys
+            .iter()
+            .find(|(k, _)| k == type_)
+            .map(|x| x.1.as_str())
+            .ok_or_else(|| {
+                CibouletteError::UnknownRelationship(
+                    self.keys()[0].0.name().clone(), // TODO Better
                     type_.name().clone(),
                 )
             })
@@ -105,9 +145,9 @@ impl<'a> Default for CibouletteOptionalData<CibouletteResourceIdentifierSelector
 #[derive(Debug, Clone)]
 pub enum CibouletteRelationshipOption<'a> {
     /// One to one relationship, boolean if the relationship is optional
-    One(CibouletteRelationshipOneToOneOption),
+    OneToOne(CibouletteRelationshipOneToOneOption),
     /// One to many relationship, without the intermediate node
-    ManyDirect(CibouletteRelationshipBucket<'a>),
+    OneToMany(CibouletteRelationshipOneToManyOption<'a>),
     /// One to many relationship
-    Many(CibouletteRelationshipBucket<'a>),
+    ManyToMany(CibouletteRelationshipManyToManyOption<'a>),
 }

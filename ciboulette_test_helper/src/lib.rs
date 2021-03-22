@@ -161,7 +161,7 @@ pub fn gen_bag<'a>() -> CibouletteStore<'a> {
     )
     .unwrap();
 
-    res.add_rel_single(
+    res.add_one_to_one_rel(
         ("peoples", None),
         ("favorite_color", None),
         CibouletteRelationshipOneToOneOption::new(
@@ -171,7 +171,7 @@ pub fn gen_bag<'a>() -> CibouletteStore<'a> {
         ),
     )
     .unwrap(); // Articles -> Comments
-    res.add_rel_single(
+    res.add_one_to_one_rel(
         ("comments", None),
         ("articles", None),
         CibouletteRelationshipOneToOneOption::new(
@@ -181,7 +181,7 @@ pub fn gen_bag<'a>() -> CibouletteStore<'a> {
         ),
     )
     .unwrap(); // Articles -> Comments
-    res.add_rel_single(
+    res.add_one_to_one_rel(
         ("comments", None),
         ("peoples", Some("author")),
         CibouletteRelationshipOneToOneOption::new(
@@ -191,10 +191,10 @@ pub fn gen_bag<'a>() -> CibouletteStore<'a> {
         ),
     )
     .unwrap(); // Peoples -> Comments
-    res.add_rel_multiple(
+    res.add_many_to_many_rel(
         ("articles", None),
         ("peoples", Some("author")),
-        CibouletteRelationshipBucket::new(
+        CibouletteRelationshipManyToManyOption::new(
             res.get_type("people-article").unwrap().clone(),
             [
                 (res.get_type("articles").unwrap().clone(), "article_id".to_string()),
