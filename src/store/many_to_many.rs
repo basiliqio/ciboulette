@@ -91,26 +91,6 @@ impl<'a> CibouletteStore<'a> {
             })?;
             (from_type.clone(), to_type.clone(), bucket_type.clone())
         };
-        let from_key = opt.keys_for_type(&from_type)?.to_string();
-        let edge_from_i = self.graph_mut().update_edge(
-            indexes.bucket(),
-            indexes.from(),
-            CibouletteRelationshipOption::OneToMany(CibouletteRelationshipOneToManyOption::new(
-                from_type,
-                bucket_type.clone(),
-                from_key,
-            )),
-        );
-        let to_key = opt.keys_for_type(&to_type)?.to_string();
-        let edge_to_i = self.graph_mut().update_edge(
-            indexes.bucket(),
-            indexes.to(),
-            CibouletteRelationshipOption::OneToMany(CibouletteRelationshipOneToManyOption::new(
-                to_type,
-                bucket_type.clone(),
-                to_key,
-            )),
-        );
         let edge_from_i_direct = self.graph_mut().update_edge(
             indexes.from(),
             indexes.to(),
@@ -120,6 +100,32 @@ impl<'a> CibouletteStore<'a> {
             indexes.to(),
             indexes.from(),
             CibouletteRelationshipOption::ManyToMany(opt.clone()),
+        );
+        let from_key = opt.keys_for_type(&from_type)?.to_string();
+        let edge_from_i = self.graph_mut().update_edge(
+            indexes.bucket(),
+            indexes.from(),
+            CibouletteRelationshipOption::OneToMany(
+                CibouletteRelationshipOneToManyOption::new_from_many_to_many(
+                    from_type,
+                    bucket_type.clone(),
+                    from_key,
+                    edge_from_i_direct,
+                ),
+            ),
+        );
+        let to_key = opt.keys_for_type(&to_type)?.to_string();
+        let edge_to_i = self.graph_mut().update_edge(
+            indexes.bucket(),
+            indexes.to(),
+            CibouletteRelationshipOption::OneToMany(
+                CibouletteRelationshipOneToManyOption::new_from_many_to_many(
+                    to_type,
+                    bucket_type.clone(),
+                    to_key,
+                    edge_to_i_direct,
+                ),
+            ),
         );
         Ok(CibouletteManyToManyEdgeIndexes {
             from: edge_from_i,

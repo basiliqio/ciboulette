@@ -32,6 +32,7 @@ pub struct CibouletteRelationshipOneToManyOption<'a> {
     one_table: CibouletteResourceType<'a>,
     many_table: CibouletteResourceType<'a>,
     many_table_key: String,
+    part_of_many_to_many: Option<petgraph::graph::EdgeIndex<u16>>,
 }
 
 #[derive(Debug, Clone, Getters, PartialEq)]
@@ -90,6 +91,21 @@ impl<'a> CibouletteRelationshipOneToManyOption<'a> {
             one_table,
             many_table,
             many_table_key,
+            part_of_many_to_many: None,
+        }
+    }
+
+    pub(crate) fn new_from_many_to_many(
+        one_table: CibouletteResourceType<'a>,
+        many_table: CibouletteResourceType<'a>,
+        many_table_key: String,
+        part_of_many_to_many: petgraph::graph::EdgeIndex<u16>,
+    ) -> Self {
+        CibouletteRelationshipOneToManyOption {
+            one_table,
+            many_table,
+            many_table_key,
+            part_of_many_to_many: Some(part_of_many_to_many),
         }
     }
 }
