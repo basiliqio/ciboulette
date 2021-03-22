@@ -29,7 +29,9 @@ pub struct CibouletteRelationshipManyToManyOption<'a> {
 #[derive(Debug, Clone, Getters)]
 #[getset(get = "pub")]
 pub struct CibouletteRelationshipOneToManyOption<'a> {
-    keys: [(CibouletteResourceType<'a>, String); 2],
+    one_table: CibouletteResourceType<'a>,
+    many_table: CibouletteResourceType<'a>,
+    many_table_key: String,
 }
 
 #[derive(Debug, Clone, Getters)]
@@ -62,9 +64,9 @@ impl<'a> CibouletteRelationshipManyToManyOption<'a> {
     }
 
     pub fn keys_for_type(
-        &'a self,
-        type_: &'a CibouletteResourceType<'a>,
-    ) -> Result<&'a str, CibouletteError> {
+        &self,
+        type_: &CibouletteResourceType<'a>,
+    ) -> Result<&str, CibouletteError> {
         self.keys
             .iter()
             .find(|(k, _)| k == type_)
@@ -78,37 +80,17 @@ impl<'a> CibouletteRelationshipManyToManyOption<'a> {
     }
 }
 
-impl<'a> From<&CibouletteRelationshipManyToManyOption<'a>>
-    for CibouletteRelationshipOneToManyOption<'a>
-{
-    fn from(
-        other: &CibouletteRelationshipManyToManyOption<'a>,
-    ) -> CibouletteRelationshipOneToManyOption<'a> {
-        CibouletteRelationshipOneToManyOption {
-            keys: other.keys.clone(),
-        }
-    }
-}
-
 impl<'a> CibouletteRelationshipOneToManyOption<'a> {
-    pub fn new(keys: [(CibouletteResourceType<'a>, String); 2]) -> Self {
-        CibouletteRelationshipOneToManyOption { keys }
-    }
-
-    pub fn keys_for_type(
-        &'a self,
-        type_: &'a CibouletteResourceType<'a>,
-    ) -> Result<&'a str, CibouletteError> {
-        self.keys
-            .iter()
-            .find(|(k, _)| k == type_)
-            .map(|x| x.1.as_str())
-            .ok_or_else(|| {
-                CibouletteError::UnknownRelationship(
-                    self.keys()[0].0.name().clone(), // TODO Better
-                    type_.name().clone(),
-                )
-            })
+    pub fn new(
+        one_table: CibouletteResourceType<'a>,
+        many_table: CibouletteResourceType<'a>,
+        many_table_key: String,
+    ) -> Self {
+        CibouletteRelationshipOneToManyOption {
+            one_table,
+            many_table,
+            many_table_key,
+        }
     }
 }
 

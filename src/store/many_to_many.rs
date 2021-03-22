@@ -26,7 +26,7 @@ impl<'a> CibouletteStore<'a> {
     ) -> Result<(), CibouletteError> {
         let node_indexes = self.get_many_to_many_node_indexes(from, to, &opt)?;
         self.check_bucket_exists(node_indexes.bucket(), from, &opt)?;
-        let edge_indexes = self.get_many_to_many_edge_indexes(&node_indexes, opt);
+        let edge_indexes = self.get_many_to_many_edge_indexes(&node_indexes, opt)?;
         self.add_many_to_many_rel_routine(
             (from, node_indexes.from()),
             (to, alias_to),
@@ -78,37 +78,55 @@ impl<'a> CibouletteStore<'a> {
         &mut self,
         indexes: &CibouletteManyToManyNodeIndexes,
         opt: CibouletteRelationshipManyToManyOption<'a>,
-    ) -> CibouletteManyToManyEdgeIndexes {
+    ) -> Result<CibouletteManyToManyEdgeIndexes, CibouletteError> {
+        let (from_type, to_type, bucket_type) = {
+            let from_type = self.graph().node_weight(indexes.from()).ok_or_else(|| {
+                CibouletteError::TypeNotInGraph(format!("<index {}>", indexes.from().index()))
+            })?;
+            let to_type = self.graph().node_weight(indexes.to()).ok_or_else(|| {
+                CibouletteError::TypeNotInGraph(format!("<index {}>", indexes.to().index()))
+            })?;
+            let bucket_type = self.graph().node_weight(indexes.bucket()).ok_or_else(|| {
+                CibouletteError::TypeNotInGraph(format!("<index {}>", indexes.bucket().index()))
+            })?;
+            (from_type.clone(), to_type.clone(), bucket_type.clone())
+        };
+        let from_key = opt.keys_for_type(&from_type)?.to_string();
         let edge_from_i = self.graph_mut().update_edge(
             indexes.bucket(),
             indexes.from(),
-            CibouletteRelationshipOption::ManyToMany(opt.clone()),
+            CibouletteRelationshipOption::OneToMany(CibouletteRelationshipOneToManyOption::new(
+                from_type,
+                bucket_type.clone(),
+                from_key,
+            )),
         );
+        let to_key = opt.keys_for_type(&to_type)?.to_string();
         let edge_to_i = self.graph_mut().update_edge(
             indexes.bucket(),
             indexes.to(),
-            CibouletteRelationshipOption::ManyToMany(opt.clone()),
+            CibouletteRelationshipOption::OneToMany(CibouletteRelationshipOneToManyOption::new(
+                to_type,
+                bucket_type.clone(),
+                to_key,
+            )),
         );
         let edge_from_i_direct = self.graph_mut().update_edge(
             indexes.from(),
             indexes.to(),
-            CibouletteRelationshipOption::OneToMany(CibouletteRelationshipOneToManyOption::from(
-                &opt,
-            )),
+            CibouletteRelationshipOption::ManyToMany(opt.clone()),
         );
         let edge_to_i_direct = self.graph_mut().update_edge(
             indexes.to(),
             indexes.from(),
-            CibouletteRelationshipOption::OneToMany(CibouletteRelationshipOneToManyOption::from(
-                &opt,
-            )),
+            CibouletteRelationshipOption::ManyToMany(opt.clone()),
         );
-        CibouletteManyToManyEdgeIndexes {
+        Ok(CibouletteManyToManyEdgeIndexes {
             from: edge_from_i,
             to: edge_to_i,
             from_direct: edge_from_i_direct,
             to_direct: edge_to_i_direct,
-        }
+        })
     }
 
     fn check_bucket_exists(

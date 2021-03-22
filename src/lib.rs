@@ -38,8 +38,8 @@ pub use body::link::{
 };
 pub use body::relationship::{
     CibouletteRelationshipManyToManyOption, CibouletteRelationshipObject,
-    CibouletteRelationshipObjectBuilder, CibouletteRelationshipOneToOneOption,
-    CibouletteRelationshipOption,
+    CibouletteRelationshipObjectBuilder, CibouletteRelationshipOneToManyOption,
+    CibouletteRelationshipOneToOneOption, CibouletteRelationshipOption,
 };
 pub use body::request_body::{CibouletteBody, CibouletteBodyBuilder};
 pub use body::request_body_data::{CibouletteBodyData, CibouletteBodyDataBuilder};
