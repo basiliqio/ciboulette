@@ -29,6 +29,7 @@ fn ok() {
         store.get_type("peoples").unwrap().clone(),
         store.get_type("comments").unwrap().clone(),
         "author".to_string(),
+        false,
     );
     store
         .add_one_to_many_rel(opt.clone(), Some("author"), None)
@@ -69,6 +70,7 @@ fn ok_reverse() {
         store.get_type("peoples").unwrap().clone(),
         store.get_type("comments").unwrap().clone(),
         "author".to_string(),
+        false,
     );
     store
         .add_one_to_many_rel(opt.clone(), Some("author"), None)
@@ -109,6 +111,7 @@ fn duplicate() {
         store.get_type("peoples").unwrap().clone(),
         store.get_type("comments").unwrap().clone(),
         "author".to_string(),
+        false,
     );
     store
         .add_one_to_many_rel(opt.clone(), Some("author"), None)

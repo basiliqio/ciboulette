@@ -176,6 +176,7 @@ pub fn gen_bag<'a>() -> CibouletteStore<'a> {
             res.get_type("articles").unwrap().clone(),
             res.get_type("comments").unwrap().clone(),
             "article".to_string(),
+			false,
         ),
         None,
         None,
@@ -186,6 +187,7 @@ pub fn gen_bag<'a>() -> CibouletteStore<'a> {
             res.get_type("peoples").unwrap().clone(),
             res.get_type("comments").unwrap().clone(),
             "author".to_string(),
+			false
         ),
         Some("author"),
         None,

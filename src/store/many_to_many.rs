@@ -26,16 +26,18 @@ impl<'a> CibouletteStore<'a> {
     ) -> Result<(), CibouletteError> {
         let node_indexes = self.get_many_to_many_node_indexes(from, to, &opt)?;
         self.check_bucket_exists(node_indexes.bucket(), from, &opt)?;
-        let edge_indexes = self.get_many_to_many_edge_indexes(&node_indexes, opt)?;
+        let edge_indexes = self.get_many_to_many_edge_indexes(&node_indexes, &opt)?;
         self.add_many_to_many_rel_routine(
             (from, node_indexes.from()),
             (to, alias_to),
+            &opt.bucket_resource(),
             &edge_indexes,
             edge_indexes.to_direct(),
         )?;
         self.add_many_to_many_rel_routine(
             (to, node_indexes.to()),
             (from, alias_from),
+            &opt.bucket_resource(),
             &edge_indexes,
             edge_indexes.from_direct(),
         )?;
@@ -46,6 +48,7 @@ impl<'a> CibouletteStore<'a> {
         &mut self,
         (orig, orig_i): (&str, petgraph::graph::NodeIndex<u16>),
         (dest, alias_dest): (&str, Option<&str>),
+        bucket: &CibouletteResourceType<'a>,
         edge_indexes: &CibouletteManyToManyEdgeIndexes,
         rel_to_insert: petgraph::graph::EdgeIndex<u16>,
     ) -> Result<(), CibouletteError> {
@@ -71,13 +74,16 @@ impl<'a> CibouletteStore<'a> {
         type_
             .relationships_type_to_alias_mut()
             .insert(dest.to_string(), alias.to_string());
+        type_
+            .relationships_type_to_alias_mut()
+            .insert(bucket.name().clone(), bucket.name().clone());
         Ok(())
     }
 
     fn get_many_to_many_edge_indexes(
         &mut self,
         indexes: &CibouletteManyToManyNodeIndexes,
-        opt: CibouletteRelationshipManyToManyOption<'a>,
+        opt: &CibouletteRelationshipManyToManyOption<'a>,
     ) -> Result<CibouletteManyToManyEdgeIndexes, CibouletteError> {
         let (from_type, to_type, bucket_type) = {
             let from_type = self.graph().node_weight(indexes.from()).ok_or_else(|| {
@@ -110,6 +116,7 @@ impl<'a> CibouletteStore<'a> {
                     from_type,
                     bucket_type.clone(),
                     from_key,
+                    false,
                     edge_from_i_direct,
                 ),
             ),
@@ -123,6 +130,7 @@ impl<'a> CibouletteStore<'a> {
                     to_type,
                     bucket_type.clone(),
                     to_key,
+                    false,
                     edge_to_i_direct,
                 ),
             ),

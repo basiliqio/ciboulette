@@ -9,6 +9,7 @@ pub struct CibouletteDeleteRequest<'a> {
     pub query: CibouletteQueryParameters<'a>,
     pub meta: Value,
     pub expected_response_type: CibouletteResponseRequiredType,
+    pub path: CiboulettePath<'a>,
 }
 
 impl<'a> TryFrom<CibouletteRequest<'a>> for CibouletteDeleteRequest<'a> {
@@ -22,9 +23,11 @@ impl<'a> TryFrom<CibouletteRequest<'a>> for CibouletteDeleteRequest<'a> {
             intention,
         } = value;
 
-        let (resource_type, resource_id, related_type) = match path {
-            CiboulettePath::TypeId(type_, id) => (type_, id, None),
-            CiboulettePath::TypeIdRelationship(type_, id, rel_type) => (type_, id, Some(rel_type)),
+        let (resource_type, resource_id, related_type) = match &path {
+            CiboulettePath::TypeId(type_, id) => (*type_, id, None),
+            CiboulettePath::TypeIdRelationship(type_, id, rel_type) => {
+                (*type_, id, Some(*rel_type))
+            }
             _ => {
                 return Err(CibouletteError::WrongPathType(
                     CiboulettePathType::from(&path),
@@ -43,8 +46,9 @@ impl<'a> TryFrom<CibouletteRequest<'a>> for CibouletteDeleteRequest<'a> {
         let CibouletteBody { meta, .. } = body.unwrap_or_default();
         Ok(CibouletteDeleteRequest {
             resource_type,
-            resource_id,
+            resource_id: resource_id.clone(),
             related_type,
+            path,
             query: query.unwrap_or_default(),
             meta,
             expected_response_type: CibouletteResponseRequiredType::None,

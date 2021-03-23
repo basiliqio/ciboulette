@@ -32,6 +32,7 @@ pub struct CibouletteRelationshipOneToManyOption<'a> {
     one_table: CibouletteResourceType<'a>,
     many_table: CibouletteResourceType<'a>,
     many_table_key: String,
+    optional: bool,
     part_of_many_to_many: Option<petgraph::graph::EdgeIndex<u16>>,
 }
 
@@ -86,12 +87,14 @@ impl<'a> CibouletteRelationshipOneToManyOption<'a> {
         one_table: CibouletteResourceType<'a>,
         many_table: CibouletteResourceType<'a>,
         many_table_key: String,
+        optional: bool,
     ) -> Self {
         CibouletteRelationshipOneToManyOption {
             one_table,
             many_table,
             many_table_key,
             part_of_many_to_many: None,
+            optional,
         }
     }
 
@@ -99,6 +102,7 @@ impl<'a> CibouletteRelationshipOneToManyOption<'a> {
         one_table: CibouletteResourceType<'a>,
         many_table: CibouletteResourceType<'a>,
         many_table_key: String,
+        optional: bool,
         part_of_many_to_many: petgraph::graph::EdgeIndex<u16>,
     ) -> Self {
         CibouletteRelationshipOneToManyOption {
@@ -106,6 +110,7 @@ impl<'a> CibouletteRelationshipOneToManyOption<'a> {
             many_table,
             many_table_key,
             part_of_many_to_many: Some(part_of_many_to_many),
+            optional,
         }
     }
 }
@@ -146,6 +151,8 @@ pub enum CibouletteRelationshipOption<'a> {
     OneToOne(CibouletteRelationshipOneToOneOption),
     /// One to many relationship, without the intermediate node
     OneToMany(CibouletteRelationshipOneToManyOption<'a>),
+    /// One to many relationship, without the intermediate node
+    ManyToOne(CibouletteRelationshipOneToManyOption<'a>),
     /// One to many relationship
     ManyToMany(CibouletteRelationshipManyToManyOption<'a>),
 }
