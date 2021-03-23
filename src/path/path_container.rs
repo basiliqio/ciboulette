@@ -14,7 +14,7 @@ impl<'a> CiboulettePath<'a> {
             CiboulettePath::Type(x) => x,
             CiboulettePath::TypeId(x, _) => x,
             CiboulettePath::TypeIdRelated(_, _, y) => y,
-            CiboulettePath::TypeIdRelationship(x, _, _) => x,
+            CiboulettePath::TypeIdRelationship(_, _, y) => y,
         }
     }
 }

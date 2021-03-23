@@ -77,7 +77,7 @@ fn ok_reverse() {
         .unwrap();
     let rel = store.get_rel("comments", "author").unwrap();
     assert_eq!(
-        matches!(rel.1, CibouletteRelationshipOption::OneToMany(x) if x == &opt),
+        matches!(rel.1, CibouletteRelationshipOption::ManyToOne(x) if x == &opt),
         true
     );
 }
