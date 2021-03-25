@@ -5,6 +5,7 @@ use super::*;
 pub struct CibouletteOutboundRequestBuilder<'a> {
     inbound_request: CibouletteInboundRequest<'a>,
     body: Option<CibouletteBody<'a>>,
+    status: CibouletteResponseStatus,
 }
 
 #[derive(Debug, Getters)]
@@ -12,16 +13,19 @@ pub struct CibouletteOutboundRequestBuilder<'a> {
 pub struct CibouletteOutboundRequest<'a> {
     pub inbound_request: CibouletteInboundRequest<'a>,
     pub body: Option<CibouletteBody<'a>>,
+    pub status: CibouletteResponseStatus,
 }
 
 impl<'a> CibouletteOutboundRequestBuilder<'a> {
     pub fn new(
         inbound_request: CibouletteInboundRequest<'a>,
         body: Option<CibouletteBody<'a>>,
+        status: CibouletteResponseStatus,
     ) -> Self {
         CibouletteOutboundRequestBuilder {
             inbound_request,
             body,
+            status,
         }
     }
 
@@ -32,6 +36,7 @@ impl<'a> CibouletteOutboundRequestBuilder<'a> {
         Ok(CibouletteOutboundRequest {
             inbound_request: self.inbound_request,
             body: self.body,
+            status: self.status,
         })
     }
 }
