@@ -23,6 +23,8 @@ pub struct CibouletteResource<'a, B, T> {
     pub attributes: Option<B>,
     pub relationships: BTreeMap<Cow<'a, str>, CibouletteRelationshipObject<'a>>,
     pub links: Option<CibouletteLink<'a>>,
+    #[serde(skip_serializing)]
+    pub type_: &'a CibouletteResourceType<'a>,
 }
 
 impl<'a, B> TryFrom<CibouletteResource<'a, B, CibouletteResourceIdentifierPermissive<'a>>>
@@ -38,6 +40,7 @@ impl<'a, B> TryFrom<CibouletteResource<'a, B, CibouletteResourceIdentifierPermis
             attributes,
             relationships,
             links,
+            type_,
         } = value;
 
         Ok(
@@ -46,6 +49,7 @@ impl<'a, B> TryFrom<CibouletteResource<'a, B, CibouletteResourceIdentifierPermis
                 attributes,
                 relationships,
                 links,
+                type_,
             },
         )
     }
@@ -60,6 +64,7 @@ impl<'a, B> From<CibouletteResource<'a, B, CibouletteResourceIdentifier<'a>>>
             attributes,
             relationships,
             links,
+            type_,
         } = value;
 
         CibouletteResource::<'a, B, CibouletteResourceIdentifierPermissive<'a>> {
@@ -67,6 +72,7 @@ impl<'a, B> From<CibouletteResource<'a, B, CibouletteResourceIdentifier<'a>>>
             attributes,
             relationships,
             links,
+            type_,
         }
     }
 }
@@ -288,6 +294,7 @@ impl<'a> CibouletteResourceBuilder<'a> {
             attributes,
             links: self.links,
             relationships,
+            type_: current_type,
         })
     }
 }

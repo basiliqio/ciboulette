@@ -2,8 +2,8 @@ use super::*;
 use serde::de::{DeserializeSeed, Deserializer, Visitor};
 #[cfg(feature = "sqlx_postgres")]
 use sqlx::{TypeInfo, ValueRef};
-use std::str::FromStr;
 use std::fmt::Formatter;
+use std::str::FromStr;
 #[derive(Debug, Clone, PartialEq, PartialOrd, Eq, Ord, Hash, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CibouletteIdBuilder<'a> {
