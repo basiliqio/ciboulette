@@ -6,7 +6,9 @@ mod delete_request;
 mod errors;
 mod id;
 mod inbound_request;
+mod intention;
 mod member_name;
+mod outbound_request;
 mod path;
 mod query;
 mod read_request;
@@ -54,6 +56,8 @@ pub use body::resource_obj_selector::{
 };
 pub use body::resource_type::CibouletteResourceType;
 pub use id::{CibouletteId, CibouletteIdBuilder, CibouletteIdType};
+pub use intention::CibouletteIntention;
+pub use outbound_request::{CibouletteOutboundRequest, CibouletteOutboundRequestBuilder};
 pub use store::CibouletteStore;
 
 pub use create_request::CibouletteCreateRequest;
@@ -70,7 +74,7 @@ pub use update_request::{
 
 pub use config::CibouletteConfig;
 pub use errors::{CibouletteClashDirection, CibouletteError, CiboulettePathType};
-pub use inbound_request::{CibouletteIntention, CibouletteRequest, CibouletteRequestBuilder};
+pub use inbound_request::{CibouletteInboundRequest, CibouletteInboundRequestBuilder};
 pub use member_name::check_member_name;
 pub use response_type::CibouletteResponseRequiredType;
 

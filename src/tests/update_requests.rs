@@ -24,7 +24,7 @@ fn ok() {
     );
 
     let parsed_url = opt.parse(URL).unwrap();
-    let builder = CibouletteRequestBuilder::new(INTENTION, &parsed_url, &BODY);
+    let builder = CibouletteInboundRequestBuilder::new(INTENTION, &parsed_url, &BODY);
     let request = builder.build(&store).unwrap();
     let res = CibouletteUpdateRequest::try_from(request);
 
@@ -64,7 +64,7 @@ fn without_id() {
     );
 
     let parsed_url = opt.parse(URL).unwrap();
-    let builder = CibouletteRequestBuilder::new(INTENTION, &parsed_url, &BODY);
+    let builder = CibouletteInboundRequestBuilder::new(INTENTION, &parsed_url, &BODY);
     let request = builder.build(&store).unwrap();
     let res = CibouletteUpdateRequest::try_from(request);
 
@@ -95,7 +95,7 @@ fn wrong_path_type() {
     );
 
     let parsed_url = opt.parse(URL).unwrap();
-    let builder = CibouletteRequestBuilder::new(INTENTION, &parsed_url, &BODY);
+    let builder = CibouletteInboundRequestBuilder::new(INTENTION, &parsed_url, &BODY);
     let request = builder.build(&store).unwrap();
     let res = CibouletteUpdateRequest::try_from(request);
 
@@ -133,7 +133,7 @@ fn wrong_intention() {
     );
 
     let parsed_url = opt.parse(URL).unwrap();
-    let builder = CibouletteRequestBuilder::new(INTENTION, &parsed_url, &BODY);
+    let builder = CibouletteInboundRequestBuilder::new(INTENTION, &parsed_url, &BODY);
     let request = builder.build(&store).unwrap();
     let res = CibouletteUpdateRequest::try_from(request);
 
@@ -181,7 +181,7 @@ fn no_compound() {
     );
 
     let parsed_url = opt.parse(URL).unwrap();
-    let builder = CibouletteRequestBuilder::new(INTENTION, &parsed_url, &BODY);
+    let builder = CibouletteInboundRequestBuilder::new(INTENTION, &parsed_url, &BODY);
     let request = builder.build(&store).unwrap();
     let res = CibouletteUpdateRequest::try_from(request);
 
@@ -216,7 +216,7 @@ fn relationship_null() {
 	}
 	"#;
     let uri = Url::parse("http://localhost/peoples/6720877a-e27e-4e9e-9ac0-3fff4deb55f2").unwrap();
-    let doc = CibouletteRequestBuilder::new(CibouletteIntention::Update, &uri, &Some(VAL))
+    let doc = CibouletteInboundRequestBuilder::new(CibouletteIntention::Update, &uri, &Some(VAL))
         .build(&bag)
         .expect("to build the document");
     let req = CibouletteUpdateRequest::try_from(doc).unwrap();
@@ -255,7 +255,7 @@ fn main_key_clash_main() {
     );
 
     let parsed_url = opt.parse(URL).unwrap();
-    let builder = CibouletteRequestBuilder::new(INTENTION, &parsed_url, &BODY);
+    let builder = CibouletteInboundRequestBuilder::new(INTENTION, &parsed_url, &BODY);
     let request = builder.build(&store).unwrap();
     let res = CibouletteUpdateRequest::try_from(request);
 

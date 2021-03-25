@@ -12,11 +12,11 @@ pub struct CibouletteReadRequest<'a> {
     pub expected_response_type: CibouletteResponseRequiredType,
 }
 
-impl<'a> TryFrom<CibouletteRequest<'a>> for CibouletteReadRequest<'a> {
+impl<'a> TryFrom<CibouletteInboundRequest<'a>> for CibouletteReadRequest<'a> {
     type Error = CibouletteError;
 
-    fn try_from(value: CibouletteRequest<'a>) -> Result<Self, Self::Error> {
-        let CibouletteRequest {
+    fn try_from(value: CibouletteInboundRequest<'a>) -> Result<Self, Self::Error> {
+        let CibouletteInboundRequest {
             query,
             body,
             intention,

@@ -15,7 +15,7 @@ pub struct CibouletteBodyBuilder<'a> {
 }
 
 /// ## A `json:api` [document](https://jsonapi.org/format/#document-top-level) object
-#[derive(Debug, Getters, MutGetters, Default)]
+#[derive(Debug, Getters, MutGetters, Default, Clone)]
 #[getset(get = "pub", get_mut = "pub")]
 pub struct CibouletteBody<'a> {
     pub data: CibouletteBodyData<'a>,

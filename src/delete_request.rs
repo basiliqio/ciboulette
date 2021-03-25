@@ -12,11 +12,11 @@ pub struct CibouletteDeleteRequest<'a> {
     pub path: CiboulettePath<'a>,
 }
 
-impl<'a> TryFrom<CibouletteRequest<'a>> for CibouletteDeleteRequest<'a> {
+impl<'a> TryFrom<CibouletteInboundRequest<'a>> for CibouletteDeleteRequest<'a> {
     type Error = CibouletteError;
 
-    fn try_from(value: CibouletteRequest<'a>) -> Result<Self, Self::Error> {
-        let CibouletteRequest {
+    fn try_from(value: CibouletteInboundRequest<'a>) -> Result<Self, Self::Error> {
+        let CibouletteInboundRequest {
             query,
             body,
             path,

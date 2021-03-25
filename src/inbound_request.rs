@@ -1,50 +1,30 @@
 use super::*;
 
 /// ## Builder object for [CibouletteBody](CibouletteBody)
-#[derive(Debug, Copy, Clone, PartialEq, Eq)]
-pub enum CibouletteIntention {
-    Create,
-    Update,
-    Read,
-    Delete,
-}
-
-impl std::fmt::Display for CibouletteIntention {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        match self {
-            CibouletteIntention::Create => write!(f, "Create"),
-            CibouletteIntention::Update => write!(f, "Update"),
-            CibouletteIntention::Read => write!(f, "Read"),
-            CibouletteIntention::Delete => write!(f, "Delete"),
-        }
-    }
-}
-
-/// ## Builder object for [CibouletteBody](CibouletteBody)
 #[derive(Debug, Clone, Getters)]
 #[getset(get = "pub", get_mut = "pub")]
-pub struct CibouletteRequestBuilder<'a> {
+pub struct CibouletteInboundRequestBuilder<'a> {
     req_url: &'a Url,
     intention: CibouletteIntention,
     body: &'a Option<&'a str>,
 }
 
-#[derive(Debug, Getters)]
+#[derive(Debug, Getters, Clone)]
 #[getset(get = "pub")]
-pub struct CibouletteRequest<'a> {
+pub struct CibouletteInboundRequest<'a> {
     pub path: CiboulettePath<'a>,
     pub query: Option<CibouletteQueryParameters<'a>>,
     pub body: Option<CibouletteBody<'a>>,
     pub intention: CibouletteIntention,
 }
 
-impl<'a> CibouletteRequestBuilder<'a> {
+impl<'a> CibouletteInboundRequestBuilder<'a> {
     pub fn new(
         intention: CibouletteIntention,
         req_url: &'a Url,
         body: &'a Option<&'a str>,
     ) -> Self {
-        CibouletteRequestBuilder {
+        CibouletteInboundRequestBuilder {
             req_url,
             body,
             intention,
@@ -54,7 +34,7 @@ impl<'a> CibouletteRequestBuilder<'a> {
     pub fn build(
         self,
         bag: &'a CibouletteStore<'a>,
-    ) -> Result<CibouletteRequest<'a>, CibouletteError> {
+    ) -> Result<CibouletteInboundRequest<'a>, CibouletteError> {
         let path = CiboulettePathBuilder::parse(self.req_url)?.build(&bag)?;
         let body: Option<CibouletteBody<'a>> = match self.body {
             // Build body
@@ -75,7 +55,7 @@ impl<'a> CibouletteRequestBuilder<'a> {
             None => None,
         };
 
-        Ok(CibouletteRequest {
+        Ok(CibouletteInboundRequest {
             path,
             body,
             query,

@@ -24,7 +24,7 @@ fn ok() {
     );
 
     let parsed_url = opt.parse(URL).unwrap();
-    let builder = CibouletteRequestBuilder::new(INTENTION, &parsed_url, &BODY);
+    let builder = CibouletteInboundRequestBuilder::new(INTENTION, &parsed_url, &BODY);
     let request = builder.build(&store).unwrap();
     let res = CibouletteReadRequest::try_from(request);
 
@@ -55,7 +55,7 @@ fn wrong_intention() {
     );
 
     let parsed_url = opt.parse(URL).unwrap();
-    let builder = CibouletteRequestBuilder::new(INTENTION, &parsed_url, &BODY);
+    let builder = CibouletteInboundRequestBuilder::new(INTENTION, &parsed_url, &BODY);
     let request = builder.build(&store).unwrap();
     let res = CibouletteReadRequest::try_from(request);
 

@@ -10,7 +10,7 @@ fn ok() {
     const BODY: Option<&str> = None;
 
     let parsed_url = opt.parse(URL).unwrap();
-    let builder = CibouletteRequestBuilder::new(INTENTION, &parsed_url, &BODY);
+    let builder = CibouletteInboundRequestBuilder::new(INTENTION, &parsed_url, &BODY);
     let request = builder.build(&store).unwrap();
     let res = CibouletteDeleteRequest::try_from(request);
 
@@ -38,7 +38,7 @@ fn wrong_path_type() {
     const BODY: Option<&str> = None;
 
     let parsed_url = opt.parse(URL).unwrap();
-    let builder = CibouletteRequestBuilder::new(INTENTION, &parsed_url, &BODY);
+    let builder = CibouletteInboundRequestBuilder::new(INTENTION, &parsed_url, &BODY);
     let request = builder.build(&store).unwrap();
     let res = CibouletteDeleteRequest::try_from(request);
 
@@ -76,7 +76,7 @@ fn wrong_intention() {
     );
 
     let parsed_url = opt.parse(URL).unwrap();
-    let builder = CibouletteRequestBuilder::new(INTENTION, &parsed_url, &BODY);
+    let builder = CibouletteInboundRequestBuilder::new(INTENTION, &parsed_url, &BODY);
     let request = builder.build(&store).unwrap();
     let res = CibouletteDeleteRequest::try_from(request);
 

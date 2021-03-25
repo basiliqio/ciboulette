@@ -23,7 +23,7 @@ fn ok() {
     );
 
     let parsed_url = opt.parse(URL).unwrap();
-    let builder = CibouletteRequestBuilder::new(INTENTION, &parsed_url, &BODY);
+    let builder = CibouletteInboundRequestBuilder::new(INTENTION, &parsed_url, &BODY);
     let request = builder.build(&store).unwrap();
     let res = CibouletteCreateRequest::try_from(request);
 
@@ -54,7 +54,7 @@ fn ok_with_id() {
     );
 
     let parsed_url = opt.parse(URL).unwrap();
-    let builder = CibouletteRequestBuilder::new(INTENTION, &parsed_url, &BODY);
+    let builder = CibouletteInboundRequestBuilder::new(INTENTION, &parsed_url, &BODY);
     let request = builder.build(&store).unwrap();
     let res = CibouletteCreateRequest::try_from(request);
 
@@ -84,7 +84,7 @@ fn wrong_path_type() {
     );
 
     let parsed_url = opt.parse(URL).unwrap();
-    let builder = CibouletteRequestBuilder::new(INTENTION, &parsed_url, &BODY);
+    let builder = CibouletteInboundRequestBuilder::new(INTENTION, &parsed_url, &BODY);
     let request = builder.build(&store).unwrap();
     let res = CibouletteCreateRequest::try_from(request);
 
@@ -123,7 +123,7 @@ fn wrong_intention() {
     );
 
     let parsed_url = opt.parse(URL).unwrap();
-    let builder = CibouletteRequestBuilder::new(INTENTION, &parsed_url, &BODY);
+    let builder = CibouletteInboundRequestBuilder::new(INTENTION, &parsed_url, &BODY);
     let request = builder.build(&store).unwrap();
     let res = CibouletteCreateRequest::try_from(request);
 
@@ -149,7 +149,7 @@ fn no_body() {
     const BODY: Option<&str> = None;
 
     let parsed_url = opt.parse(URL).unwrap();
-    let builder = CibouletteRequestBuilder::new(INTENTION, &parsed_url, &BODY);
+    let builder = CibouletteInboundRequestBuilder::new(INTENTION, &parsed_url, &BODY);
     let request = builder.build(&store).unwrap();
     let res = CibouletteCreateRequest::try_from(request);
 
@@ -174,7 +174,7 @@ fn no_data() {
 	"#,
     );
     let parsed_url = opt.parse(URL).unwrap();
-    let builder = CibouletteRequestBuilder::new(INTENTION, &parsed_url, &BODY);
+    let builder = CibouletteInboundRequestBuilder::new(INTENTION, &parsed_url, &BODY);
     let request = builder.build(&store).unwrap();
     let res = CibouletteCreateRequest::try_from(request);
 
@@ -212,7 +212,7 @@ fn no_compound() {
 	"#,
     );
     let parsed_url = opt.parse(URL).unwrap();
-    let builder = CibouletteRequestBuilder::new(INTENTION, &parsed_url, &BODY);
+    let builder = CibouletteInboundRequestBuilder::new(INTENTION, &parsed_url, &BODY);
     let request = builder.build(&store).unwrap();
     let res = CibouletteCreateRequest::try_from(request);
 
@@ -242,7 +242,7 @@ fn main_type_clash() {
 	"#,
     );
     let parsed_url = opt.parse(URL).unwrap();
-    let builder = CibouletteRequestBuilder::new(INTENTION, &parsed_url, &BODY);
+    let builder = CibouletteInboundRequestBuilder::new(INTENTION, &parsed_url, &BODY);
     let request = builder.build(&store).unwrap();
     let res = CibouletteCreateRequest::try_from(request);
 
