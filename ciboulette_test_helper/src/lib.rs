@@ -127,7 +127,7 @@ pub fn gen_messy_json_schema_peoples<'a>() -> MessyJsonObject<'a> {
 }
 
 pub fn gen_bag<'a>() -> CibouletteStore<'a> {
-    let mut res = CibouletteStore::new();
+    let mut res = CibouletteStore::default();
 
     res.add_type(
         "articles",

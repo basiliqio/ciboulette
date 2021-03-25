@@ -2,7 +2,7 @@ use super::*;
 
 #[test]
 fn ok() {
-    let mut store = CibouletteStore::new();
+    let mut store = CibouletteStore::default();
 
     store
         .add_type(
@@ -31,7 +31,7 @@ fn ok() {
 
 #[test]
 fn ok_reverse() {
-    let mut store = CibouletteStore::new();
+    let mut store = CibouletteStore::default();
 
     store
         .add_type(
@@ -60,7 +60,7 @@ fn ok_reverse() {
 
 #[test]
 fn duplicate() {
-    let mut store = CibouletteStore::new();
+    let mut store = CibouletteStore::default();
 
     store
         .add_type(
@@ -91,7 +91,7 @@ fn duplicate() {
 
 #[test]
 fn unknown_type_1() {
-    let mut store = CibouletteStore::new();
+    let mut store = CibouletteStore::default();
 
     store
         .add_type(
@@ -119,7 +119,7 @@ fn unknown_type_1() {
 
 #[test]
 fn unknown_type_2() {
-    let mut store = CibouletteStore::new();
+    let mut store = CibouletteStore::default();
 
     store
         .add_type(

@@ -20,6 +20,7 @@ pub struct CibouletteStore<'a> {
         u16,
     >,
     map: BTreeMap<String, petgraph::graph::NodeIndex<u16>>,
+    config: CibouletteConfig,
 }
 
 impl<'a> Default for CibouletteStore<'a> {
@@ -28,6 +29,7 @@ impl<'a> Default for CibouletteStore<'a> {
         CibouletteStore {
             graph: petgraph::graph::Graph::with_capacity(0, 0),
             map: BTreeMap::new(),
+            config: CibouletteConfig::default(),
         }
     }
 }
@@ -35,8 +37,12 @@ impl<'a> Default for CibouletteStore<'a> {
 impl<'a> CibouletteStore<'a> {
     /// Create a new bag
     #[inline]
-    pub fn new() -> Self {
-        CibouletteStore::default()
+    pub fn new(config: CibouletteConfig) -> Self {
+        CibouletteStore {
+            config,
+            graph: petgraph::graph::Graph::default(),
+            map: BTreeMap::default(),
+        }
     }
 
     /// Get a type index from the graph
