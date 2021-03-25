@@ -68,7 +68,9 @@ impl<'a> TryFrom<CibouletteInboundRequest<'a>> for CibouletteCreateRequest<'a> {
             meta,
             links,
             jsonapi,
-            expected_response_type: CibouletteResponseRequiredType::Object,
+            expected_response_type: CibouletteResponseRequiredType::Object(
+                CibouletteResponseQuantity::Single,
+            ),
         })
     }
 }

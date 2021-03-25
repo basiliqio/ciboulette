@@ -1,6 +1,12 @@
 #[derive(Debug, Clone, Copy)]
+pub enum CibouletteResponseQuantity {
+    Single,
+    Multiple,
+}
+
+#[derive(Debug, Clone, Copy)]
 pub enum CibouletteResponseRequiredType {
-    Object,
-    Id,
+    Object(CibouletteResponseQuantity),
+    Id(CibouletteResponseQuantity),
     None,
 }

@@ -78,6 +78,6 @@ pub use config::CibouletteConfig;
 pub use errors::{CibouletteClashDirection, CibouletteError, CiboulettePathType};
 pub use inbound_request::{CibouletteInboundRequest, CibouletteInboundRequestBuilder};
 pub use member_name::check_member_name;
-pub use response_type::CibouletteResponseRequiredType;
+pub use response_type::{CibouletteResponseQuantity, CibouletteResponseRequiredType};
 
 pub use path::path_container::{CiboulettePath, CiboulettePathBuilder};

@@ -25,8 +25,12 @@ impl<'a> TryFrom<CibouletteInboundRequest<'a>> for CibouletteReadRequest<'a> {
         let expected_response_type: CibouletteResponseRequiredType = match path {
             CiboulettePath::Type(_)
             | CiboulettePath::TypeId(_, _)
-            | CiboulettePath::TypeIdRelated(_, _, _) => CibouletteResponseRequiredType::Object,
-            CiboulettePath::TypeIdRelationship(_, _, _) => CibouletteResponseRequiredType::Id,
+            | CiboulettePath::TypeIdRelated(_, _, _) => {
+                CibouletteResponseRequiredType::Object(CibouletteResponseQuantity::Multiple)
+            }
+            CiboulettePath::TypeIdRelationship(_, _, _) => {
+                CibouletteResponseRequiredType::Id(CibouletteResponseQuantity::Multiple)
+            }
         };
         if !matches!(intention, CibouletteIntention::Read) {
             return Err(CibouletteError::WrongIntention(

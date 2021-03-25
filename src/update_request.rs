@@ -106,7 +106,9 @@ impl<'a> TryFrom<CibouletteInboundRequest<'a>> for CibouletteUpdateRequest<'a> {
             path,
             links,
             jsonapi,
-            expected_response_type: CibouletteResponseRequiredType::Object,
+            expected_response_type: CibouletteResponseRequiredType::Object(
+                CibouletteResponseQuantity::Single,
+            ),
         })
     }
 }
