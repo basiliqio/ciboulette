@@ -2,8 +2,8 @@ use super::*;
 use serde::de::{DeserializeSeed, Deserializer, Visitor};
 #[cfg(feature = "sqlx_postgres")]
 use sqlx::{TypeInfo, ValueRef};
-use std::fmt::Formatter;
 use std::str::FromStr;
+use std::fmt::Formatter;
 #[derive(Debug, Clone, PartialEq, PartialOrd, Eq, Ord, Hash, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CibouletteIdBuilder<'a> {
@@ -22,10 +22,8 @@ pub enum CibouletteId<'a> {
 #[cfg(feature = "sqlx_postgres")]
 impl<'r> sqlx::Decode<'r, sqlx::Postgres> for CibouletteId<'r>
 where
-    // we want to delegate some of the work to string decoding so let's make sure strings
-    // are supported by the database
     &'r str: sqlx::Decode<'r, sqlx::Postgres>,
-    u64: sqlx::Decode<'r, sqlx::Postgres>,
+    f64: sqlx::Decode<'r, sqlx::Postgres>,
 {
     fn decode(
         value: sqlx::postgres::PgValueRef<'r>,
@@ -37,12 +35,27 @@ where
             "SERIAL" => Ok(CibouletteId::Uuid(Uuid::parse_str(
                 <&'r str as sqlx::Decode<sqlx::Postgres>>::decode(value)?,
             )?)),
-            "UUID" => Ok(CibouletteId::Number(<u64 as sqlx::Decode<
-                sqlx::Postgres,
-            >>::decode(value)?)),
+            "UUID" => Ok(CibouletteId::Number(
+                <f64 as sqlx::Decode<sqlx::Postgres>>::decode(value)? as u64,
+            )),
             _ => Err(Box::new(CibouletteError::UnknownIdType(
                 value.type_info().name().to_string(),
             ))),
+        }
+    }
+}
+
+#[cfg(feature = "sqlx_postgres")]
+impl<'r> sqlx::Type<sqlx::Postgres> for CibouletteId<'r> {
+    fn type_info() -> sqlx::postgres::PgTypeInfo {
+        sqlx::postgres::PgTypeInfo::with_name("TEXT")
+    }
+
+    fn compatible(ty: &sqlx::postgres::PgTypeInfo) -> bool {
+        #[allow(clippy::match_like_matches_macro)]
+        match ty.name() {
+            "UUID" | "TEXT" | "SERIAL" => true,
+            _ => false,
         }
     }
 }
