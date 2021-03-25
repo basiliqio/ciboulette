@@ -12,6 +12,21 @@ pub struct CibouletteDeleteRequest<'a> {
     pub path: CiboulettePath<'a>,
 }
 
+impl<'a> CibouletteInboundRequestCommons<'a> for CibouletteDeleteRequest<'a> {
+    fn path(&self) -> &CiboulettePath<'a> {
+        &self.path
+    }
+    fn query(&self) -> &CibouletteQueryParameters<'a> {
+        &self.query
+    }
+    fn intention(&self) -> CibouletteIntention {
+        CibouletteIntention::Delete
+    }
+    fn expected_response_type(&self) -> &CibouletteResponseRequiredType {
+        &self.expected_response_type
+    }
+}
+
 impl<'a> TryFrom<CibouletteInboundRequest<'a>> for CibouletteDeleteRequest<'a> {
     type Error = CibouletteError;
 
@@ -49,7 +64,7 @@ impl<'a> TryFrom<CibouletteInboundRequest<'a>> for CibouletteDeleteRequest<'a> {
             resource_id: resource_id.clone(),
             related_type,
             path,
-            query: query.unwrap_or_default(),
+            query,
             meta,
             expected_response_type: CibouletteResponseRequiredType::None,
         })

@@ -13,9 +13,16 @@ pub struct CibouletteInboundRequestBuilder<'a> {
 #[getset(get = "pub")]
 pub struct CibouletteInboundRequest<'a> {
     pub path: CiboulettePath<'a>,
-    pub query: Option<CibouletteQueryParameters<'a>>,
+    pub query: CibouletteQueryParameters<'a>,
     pub body: Option<CibouletteBody<'a>>,
     pub intention: CibouletteIntention,
+}
+
+pub trait CibouletteInboundRequestCommons<'a> {
+    fn path(&self) -> &CiboulettePath<'a>;
+    fn query(&self) -> &CibouletteQueryParameters<'a>;
+    fn intention(&self) -> CibouletteIntention;
+    fn expected_response_type(&self) -> &CibouletteResponseRequiredType;
 }
 
 impl<'a> CibouletteInboundRequestBuilder<'a> {
@@ -58,7 +65,7 @@ impl<'a> CibouletteInboundRequestBuilder<'a> {
         Ok(CibouletteInboundRequest {
             path,
             body,
-            query,
+            query: query.unwrap_or_default(),
             intention: self.intention,
         })
     }

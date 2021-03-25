@@ -76,7 +76,9 @@ pub use update_request::{
 
 pub use config::CibouletteConfig;
 pub use errors::{CibouletteClashDirection, CibouletteError, CiboulettePathType};
-pub use inbound_request::{CibouletteInboundRequest, CibouletteInboundRequestBuilder};
+pub use inbound_request::{
+    CibouletteInboundRequest, CibouletteInboundRequestBuilder, CibouletteInboundRequestCommons,
+};
 pub use member_name::check_member_name;
 pub use response_type::{CibouletteResponseQuantity, CibouletteResponseRequiredType};
 

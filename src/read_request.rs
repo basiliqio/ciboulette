@@ -12,6 +12,21 @@ pub struct CibouletteReadRequest<'a> {
     pub expected_response_type: CibouletteResponseRequiredType,
 }
 
+impl<'a> CibouletteInboundRequestCommons<'a> for CibouletteReadRequest<'a> {
+    fn path(&self) -> &CiboulettePath<'a> {
+        &self.path
+    }
+    fn query(&self) -> &CibouletteQueryParameters<'a> {
+        &self.query
+    }
+    fn intention(&self) -> CibouletteIntention {
+        CibouletteIntention::Read
+    }
+    fn expected_response_type(&self) -> &CibouletteResponseRequiredType {
+        &self.expected_response_type
+    }
+}
+
 impl<'a> TryFrom<CibouletteInboundRequest<'a>> for CibouletteReadRequest<'a> {
     type Error = CibouletteError;
 
@@ -56,7 +71,7 @@ impl<'a> TryFrom<CibouletteInboundRequest<'a>> for CibouletteReadRequest<'a> {
         .try_into()?;
         Ok(CibouletteReadRequest {
             path,
-            query: query.unwrap_or_default(),
+            query,
             data,
             meta,
             links,

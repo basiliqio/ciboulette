@@ -28,6 +28,21 @@ pub struct CibouletteUpdateRequest<'a> {
     pub expected_response_type: CibouletteResponseRequiredType,
 }
 
+impl<'a> CibouletteInboundRequestCommons<'a> for CibouletteUpdateRequest<'a> {
+    fn path(&self) -> &CiboulettePath<'a> {
+        &self.path
+    }
+    fn query(&self) -> &CibouletteQueryParameters<'a> {
+        &self.query
+    }
+    fn intention(&self) -> CibouletteIntention {
+        CibouletteIntention::Update
+    }
+    fn expected_response_type(&self) -> &CibouletteResponseRequiredType {
+        &self.expected_response_type
+    }
+}
+
 impl<'a> TryFrom<CibouletteInboundRequest<'a>> for CibouletteUpdateRequest<'a> {
     type Error = CibouletteError;
 
@@ -100,7 +115,7 @@ impl<'a> TryFrom<CibouletteInboundRequest<'a>> for CibouletteUpdateRequest<'a> {
             resource_type,
             resource_id: resource_id.clone(),
             related_type,
-            query: query.unwrap_or_default(),
+            query,
             data,
             meta,
             path,
