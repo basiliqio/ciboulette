@@ -2,7 +2,7 @@ use super::*;
 
 #[derive(Debug, Clone)]
 pub enum CibouletteUpdateRequestType<'a> {
-    MainType(CibouletteResource<'a, CibouletteResourceIdentifier<'a>>),
+    MainType(CibouletteResource<'a, MessyJsonObjectValue<'a>, CibouletteResourceIdentifier<'a>>),
     Relationship(CibouletteUpdateRelationship<'a>),
 }
 
@@ -91,8 +91,11 @@ impl<'a> TryFrom<CibouletteInboundRequest<'a>> for CibouletteUpdateRequest<'a> {
                 }
                 None => match selector {
                     CibouletteResourceSelector::One(value) => {
-                        let type_: CibouletteResource<'a, CibouletteResourceIdentifier<'a>> =
-                            value.try_into()?;
+                        let type_: CibouletteResource<
+                            'a,
+                            MessyJsonObjectValue<'a>,
+                            CibouletteResourceIdentifier<'a>,
+                        > = value.try_into()?;
                         if type_.identifier().type_() != path.main_type().name() {
                             return Err(CibouletteError::MainTypeClash);
                         }

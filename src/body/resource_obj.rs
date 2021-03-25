@@ -16,51 +16,53 @@ pub struct CibouletteResourceBuilder<'a> {
 }
 
 /// ## A `json:api` [resource](https://jsonapi.org/format/#document-resource-objects) object
-#[derive(Debug, Getters, Clone)]
+#[derive(Debug, Getters, Clone, Serialize)]
 #[getset(get = "pub")]
-pub struct CibouletteResource<'a, T> {
+pub struct CibouletteResource<'a, B, T> {
     pub identifier: T,
-    pub attributes: Option<MessyJsonObjectValue<'a>>,
+    pub attributes: Option<B>,
     pub relationships: BTreeMap<Cow<'a, str>, CibouletteRelationshipObject<'a>>,
     pub links: Option<CibouletteLink<'a>>,
 }
 
-impl<'a> TryFrom<CibouletteResource<'a, CibouletteResourceIdentifierPermissive<'a>>>
-    for CibouletteResource<'a, CibouletteResourceIdentifier<'a>>
+impl<'a, B> TryFrom<CibouletteResource<'a, B, CibouletteResourceIdentifierPermissive<'a>>>
+    for CibouletteResource<'a, B, CibouletteResourceIdentifier<'a>>
 {
     type Error = CibouletteError;
 
     fn try_from(
-        value: CibouletteResource<'a, CibouletteResourceIdentifierPermissive<'a>>,
+        value: CibouletteResource<'a, B, CibouletteResourceIdentifierPermissive<'a>>,
     ) -> Result<Self, Self::Error> {
-        let CibouletteResource::<'a, CibouletteResourceIdentifierPermissive<'a>> {
+        let CibouletteResource::<'a, B, CibouletteResourceIdentifierPermissive<'a>> {
             identifier,
             attributes,
             relationships,
             links,
         } = value;
 
-        Ok(CibouletteResource::<'a, CibouletteResourceIdentifier<'a>> {
-            identifier: identifier.try_into()?,
-            attributes,
-            relationships,
-            links,
-        })
+        Ok(
+            CibouletteResource::<'a, B, CibouletteResourceIdentifier<'a>> {
+                identifier: identifier.try_into()?,
+                attributes,
+                relationships,
+                links,
+            },
+        )
     }
 }
 
-impl<'a> From<CibouletteResource<'a, CibouletteResourceIdentifier<'a>>>
-    for CibouletteResource<'a, CibouletteResourceIdentifierPermissive<'a>>
+impl<'a, B> From<CibouletteResource<'a, B, CibouletteResourceIdentifier<'a>>>
+    for CibouletteResource<'a, B, CibouletteResourceIdentifierPermissive<'a>>
 {
-    fn from(value: CibouletteResource<'a, CibouletteResourceIdentifier<'a>>) -> Self {
-        let CibouletteResource::<'a, CibouletteResourceIdentifier<'a>> {
+    fn from(value: CibouletteResource<'a, B, CibouletteResourceIdentifier<'a>>) -> Self {
+        let CibouletteResource::<'a, B, CibouletteResourceIdentifier<'a>> {
             identifier,
             attributes,
             relationships,
             links,
         } = value;
 
-        CibouletteResource::<'a, CibouletteResourceIdentifierPermissive<'a>> {
+        CibouletteResource::<'a, B, CibouletteResourceIdentifierPermissive<'a>> {
             identifier: identifier.into(),
             attributes,
             relationships,
@@ -245,8 +247,14 @@ impl<'a> CibouletteResourceBuilder<'a> {
         self,
         bag: &'a CibouletteStore<'a>,
         intention: &CibouletteIntention,
-    ) -> Result<CibouletteResource<'a, CibouletteResourceIdentifierPermissive<'a>>, CibouletteError>
-    {
+    ) -> Result<
+        CibouletteResource<
+            'a,
+            MessyJsonObjectValue<'a>,
+            CibouletteResourceIdentifierPermissive<'a>,
+        >,
+        CibouletteError,
+    > {
         let current_type = bag.get_type(self.identifier().type_().as_ref())?;
         let attributes: Option<MessyJsonObjectValue<'a>> = match self.attributes {
             Some(attributes) => {
@@ -284,7 +292,7 @@ impl<'a> CibouletteResourceBuilder<'a> {
     }
 }
 
-impl<'a, T> CibouletteResource<'a, T> {
+impl<'a, T> CibouletteResource<'a, MessyJsonObjectValue<'a>, T> {
     #[inline]
     fn check_member_name_inner(val: &MessyJsonValue<'a>) -> Option<String> {
         match val {

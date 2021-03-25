@@ -228,9 +228,9 @@ pub fn check_ident_permissive<'a>(
     assert_eq!(ident.type_(), type_, "`type`s mismatch");
 }
 
-pub fn check_single<'a, T>(
-    selector: &'a CibouletteResourceSelector<'a, T>,
-) -> &'a CibouletteResource<'a, T> {
+pub fn check_single<'a, MessyJsonObjectValue, T>(
+    selector: &'a CibouletteResourceSelector<'a, MessyJsonObjectValue, T>,
+) -> &'a CibouletteResource<'a, MessyJsonObjectValue, T> {
     match selector {
         CibouletteResourceSelector::One(x) => x,
         _ => panic!("Expected a single resource"),
@@ -238,8 +238,8 @@ pub fn check_single<'a, T>(
 }
 
 pub fn check_multi<'a, T>(
-    selector: &'a CibouletteResourceSelector<'a, T>,
-) -> &'a Vec<CibouletteResource<'a, T>> {
+    selector: &'a CibouletteResourceSelector<'a, MessyJsonObjectValue<'a>, T>,
+) -> &'a Vec<CibouletteResource<'a, MessyJsonObjectValue<'a>, T>> {
     match selector {
         CibouletteResourceSelector::Many(x) => x,
         _ => panic!("Expected a multiple resources"),

@@ -5,7 +5,8 @@ use super::*;
 pub struct CibouletteReadRequest<'a> {
     pub path: CiboulettePath<'a>,
     pub query: CibouletteQueryParameters<'a>,
-    pub data: CibouletteResourceSelector<'a, CibouletteResourceIdentifier<'a>>,
+    pub data:
+        CibouletteResourceSelector<'a, MessyJsonObjectValue<'a>, CibouletteResourceIdentifier<'a>>,
     pub meta: Value,
     pub links: Option<CibouletteBodyLink<'a>>,
     pub jsonapi: Option<Cow<'a, str>>, // TODO Semver
@@ -65,6 +66,7 @@ impl<'a> TryFrom<CibouletteInboundRequest<'a>> for CibouletteReadRequest<'a> {
         let data = match data {
             CibouletteBodyData::Object(obj) => obj,
             CibouletteBodyData::Null(_) => CibouletteResourceSelector::<
+                MessyJsonObjectValue<'a>,
                 CibouletteResourceIdentifierPermissive<'_>,
             >::Many(Vec::new()),
         }

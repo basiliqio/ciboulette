@@ -5,7 +5,11 @@ use super::*;
 pub struct CibouletteCreateRequest<'a> {
     pub path: CiboulettePath<'a>,
     pub query: CibouletteQueryParameters<'a>,
-    pub data: CibouletteResource<'a, CibouletteResourceIdentifierPermissive<'a>>,
+    pub data: CibouletteResource<
+        'a,
+        MessyJsonObjectValue<'a>,
+        CibouletteResourceIdentifierPermissive<'a>,
+    >,
     pub meta: Value,
     pub links: Option<CibouletteBodyLink<'a>>,
     pub jsonapi: Option<Cow<'a, str>>, // TODO Semver
