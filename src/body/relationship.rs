@@ -1,7 +1,7 @@
 use super::*;
 
-#[derive(Debug, Deserialize, Serialize, Getters, Default, Clone)]
-#[getset(get = "pub")]
+#[derive(Debug, Deserialize, Serialize, Getters, MutGetters, Default, Clone)]
+#[getset(get = "pub", get_mut = "pub")]
 #[serde(default)]
 pub struct CibouletteRelationshipObjectBuilder<'a> {
     pub links: Option<CibouletteLink<'a>>,
@@ -10,8 +10,8 @@ pub struct CibouletteRelationshipObjectBuilder<'a> {
 }
 
 /// ## A `json:api` [relationship](https://jsonapi.org/format/#document-resource-object-relationships) object
-#[derive(Debug, Serialize, Getters, Default, Clone)]
-#[getset(get = "pub")]
+#[derive(Debug, Serialize, Getters, MutGetters, Default, Clone)]
+#[getset(get = "pub", get_mut = "pub")]
 #[serde(default)]
 pub struct CibouletteRelationshipObject<'a> {
     pub links: Option<CibouletteLink<'a>>,

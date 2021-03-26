@@ -13,8 +13,7 @@ mod path;
 mod query;
 mod read_request;
 mod request_selector;
-mod response_status;
-mod response_type;
+mod response;
 mod serde_utils;
 pub mod store;
 mod update_request;
@@ -59,7 +58,7 @@ pub use body::resource_type::CibouletteResourceType;
 pub use id::{CibouletteId, CibouletteIdBuilder, CibouletteIdType};
 pub use intention::CibouletteIntention;
 pub use outbound_request::{CibouletteOutboundRequest, CibouletteOutboundRequestBuilder};
-pub use response_status::CibouletteResponseStatus;
+pub use response::status::CibouletteResponseStatus;
 pub use store::CibouletteStore;
 
 pub use create_request::CibouletteCreateRequest;
@@ -80,6 +79,6 @@ pub use inbound_request::{
     CibouletteInboundRequest, CibouletteInboundRequestBuilder, CibouletteInboundRequestCommons,
 };
 pub use member_name::check_member_name;
-pub use response_type::{CibouletteResponseQuantity, CibouletteResponseRequiredType};
+pub use response::type_::{CibouletteResponseQuantity, CibouletteResponseRequiredType};
 
 pub use path::path_container::{CiboulettePath, CiboulettePathBuilder};

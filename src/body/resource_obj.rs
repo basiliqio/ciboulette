@@ -16,8 +16,8 @@ pub struct CibouletteResourceBuilder<'a> {
 }
 
 /// ## A `json:api` [resource](https://jsonapi.org/format/#document-resource-objects) object
-#[derive(Debug, Getters, Clone, Serialize)]
-#[getset(get = "pub")]
+#[derive(Debug, Getters, MutGetters, Clone, Serialize)]
+#[getset(get = "pub", get_mut = "pub")]
 pub struct CibouletteResource<'a, B, T> {
     pub identifier: T,
     pub attributes: Option<B>,
