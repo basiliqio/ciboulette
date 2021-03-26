@@ -38,7 +38,7 @@ pub use body::relationship::{
     CibouletteRelationshipObjectBuilder, CibouletteRelationshipOneToManyOption,
     CibouletteRelationshipOneToOneOption, CibouletteRelationshipOption,
 };
-pub use body::request_body::{CibouletteBody, CibouletteBodyBuilder};
+pub use body::request_body::{CibouletteBody, CibouletteBodyBuilder, CibouletteJsonApiVersion};
 pub use body::request_body_data::{CibouletteBodyData, CibouletteBodyDataBuilder};
 pub use body::resource_identifier::{
     CibouletteResourceIdentifier, CibouletteResourceIdentifierBuilder,
@@ -62,6 +62,8 @@ pub use inbound_request::read::CibouletteReadRequest;
 pub use inbound_request::update::{
     CibouletteUpdateRelationship, CibouletteUpdateRequest, CibouletteUpdateRequestType,
 };
+pub use outbound_request::element::CibouletteResponseElement;
+pub use outbound_request::request_data_builder::CibouletteOutboundRequestDataBuilder;
 pub use query::{
     CiboulettePageType, CibouletteQueryParameters, CibouletteQueryParametersBuilder,
     CibouletteSortingDirection, CibouletteSortingElement,

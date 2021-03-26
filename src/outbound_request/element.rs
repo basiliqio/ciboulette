@@ -10,7 +10,6 @@ pub struct CibouletteResponseElement<'a, B> {
 }
 
 pub(super) fn fold_elements<'a, B, I>(
-    ciboulette_store: &'a CibouletteStore<'a>,
     elements: I,
     acc: CibouletteOutboundRequestDataAccumulator<'a, B>,
     inbound_request: &dyn CibouletteInboundRequestCommons<'a>,
@@ -22,10 +21,10 @@ where
     elements.into_iter().try_fold(acc, |mut acc, x| {
         match x.identifier().type_() == inbound_request.path().main_type().name().as_str() {
             true => match acc.only_ids() {
-                true => fold_elements_id(&ciboulette_store, inbound_request, &mut acc, x)?,
-                false => fold_elements_obj(&ciboulette_store, inbound_request, &mut acc, x)?,
+                true => fold_elements_id(&mut acc, x),
+                false => fold_elements_obj(&mut acc, x),
             },
-            false => fold_elements_obj_other(&ciboulette_store, inbound_request, &mut acc, x),
+            false => fold_elements_obj_other(&mut acc, x),
         }
         if let Some(max) = acc.max_elements() {
             if acc.main_data().len() >= *max {
@@ -37,11 +36,9 @@ where
 }
 
 pub(super) fn fold_elements_id<'a, B>(
-    ciboulette_store: &'a CibouletteStore<'a>,
-    request: &dyn CibouletteInboundRequestCommons<'a>,
     acc: &mut CibouletteOutboundRequestDataAccumulator<'a, B>,
     element: CibouletteResponseElement<'a, B>,
-) -> Result<(), CibouletteError> {
+) {
     if element.data.is_some() {
         todo!();
     }
@@ -59,15 +56,12 @@ pub(super) fn fold_elements_id<'a, B>(
     ) {
         todo!()
     }
-    Ok(())
 }
 
 pub(super) fn fold_elements_obj<'a, B>(
-    ciboulette_store: &'a CibouletteStore<'a>,
-    request: &dyn CibouletteInboundRequestCommons<'a>,
     acc: &mut CibouletteOutboundRequestDataAccumulator<'a, B>,
     element: CibouletteResponseElement<'a, B>,
-) -> Result<(), CibouletteError> {
+) {
     let resource = CibouletteResource {
         type_: element.type_,
         identifier: element.identifier,
@@ -82,12 +76,9 @@ pub(super) fn fold_elements_obj<'a, B>(
     ) {
         todo!()
     }
-    Ok(())
 }
 
 pub(super) fn fold_elements_obj_other<'a, B>(
-    ciboulette_store: &'a CibouletteStore<'a>,
-    request: &dyn CibouletteInboundRequestCommons<'a>,
     acc: &mut CibouletteOutboundRequestDataAccumulator<'a, B>,
     element: CibouletteResponseElement<'a, B>,
 ) {

@@ -9,3 +9,6 @@ pub mod type_;
 
 use accumulator::CibouletteOutboundRequestDataAccumulator;
 use element::CibouletteResponseElement;
+
+#[cfg(test)]
+mod tests;

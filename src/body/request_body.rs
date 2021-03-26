@@ -1,6 +1,18 @@
 use super::*;
 use serde::de::{Deserializer, Visitor};
 use std::fmt::Formatter;
+/// ## Object holder `json:api` version
+#[derive(Debug, Clone, Getters, MutGetters, Deserialize, Serialize)]
+#[getset(get = "pub", get_mut = "pub")]
+pub struct CibouletteJsonApiVersion<'a> {
+    version: Cow<'a, str>,
+}
+
+impl<'a> CibouletteJsonApiVersion<'a> {
+    pub fn new(version: Cow<'a, str>) -> CibouletteJsonApiVersion<'a> {
+        CibouletteJsonApiVersion { version }
+    }
+}
 
 /// ## Builder object for [CibouletteBody](CibouletteBody)
 #[derive(Debug, Getters, MutGetters)]
@@ -11,7 +23,7 @@ pub struct CibouletteBodyBuilder<'a> {
     meta: Value,
     links: Option<CibouletteBodyLink<'a>>,
     included: Vec<CibouletteResourceBuilder<'a>>,
-    jsonapi: Option<Cow<'a, str>>, // TODO Semver
+    jsonapi: Option<CibouletteJsonApiVersion<'a>>, // TODO Semver
 }
 
 /// ## A `json:api` [document](https://jsonapi.org/format/#document-top-level) object
@@ -23,7 +35,7 @@ pub struct CibouletteBody<'a, I, B> {
     pub meta: Value,
     pub links: Option<CibouletteBodyLink<'a>>,
     pub included: Vec<CibouletteResource<'a, B, I>>,
-    pub jsonapi: Option<Cow<'a, str>>, // TODO Semver
+    pub jsonapi: Option<CibouletteJsonApiVersion<'a>>, // TODO Semver
 }
 
 impl<'a, I, B> Default for CibouletteBody<'a, I, B>
@@ -126,7 +138,7 @@ impl<'de> serde::de::Visitor<'de> for CibouletteBodyBuilderVisitor {
         let mut meta: Option<Value> = None;
         let mut links: Option<CibouletteBodyLink<'de>> = None;
         let mut included: Option<CibouletteResourceSelectorBuilder<'de>> = None;
-        let mut jsonapi: Option<Cow<'de, str>> = None;
+        let mut jsonapi: Option<CibouletteJsonApiVersion<'de>> = None;
 
         while let Some(key) = match serde::de::MapAccess::next_key::<CibouletteBodyField>(&mut map)
         {

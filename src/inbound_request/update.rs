@@ -24,7 +24,7 @@ pub struct CibouletteUpdateRequest<'a> {
     pub data: CibouletteUpdateRequestType<'a>,
     pub meta: Value,
     pub links: Option<CibouletteBodyLink<'a>>,
-    pub jsonapi: Option<Cow<'a, str>>, // TODO Semver
+    pub jsonapi: Option<CibouletteJsonApiVersion<'a>>, // TODO Semver
     pub expected_response_type: CibouletteResponseRequiredType,
 }
 

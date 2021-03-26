@@ -125,7 +125,7 @@ impl<'a, B> CibouletteOutboundRequestDataAccumulator<'a, B> {
     }
     fn insert_included_data_as_relationships(
         el: CibouletteResponseElement<'a, B>,
-        mut main_data: &mut BTreeMap<
+        main_data: &mut BTreeMap<
             CibouletteResourceIdentifier<'a>,
             CibouletteResource<'a, B, CibouletteResourceIdentifier<'a>>,
         >,
