@@ -57,9 +57,6 @@ pub(super) fn fold_elements_id<'a, B>(
     acc: &mut CibouletteOutboundRequestDataAccumulator<'a, B>,
     element: CibouletteResponseElement<'a, B>,
 ) {
-    if element.data.is_some() {
-        todo!();
-    }
     let resource = CibouletteResource {
         type_: element.type_,
         identifier: element.identifier,
@@ -68,13 +65,8 @@ pub(super) fn fold_elements_id<'a, B>(
         links: Option::default(),
         meta: None, //FIXME
     };
-    if matches!(
-        acc.main_data_mut()
-            .insert(resource.identifier().clone(), resource),
-        Some(_)
-    ) {
-        todo!()
-    }
+    acc.main_data_mut()
+        .insert(resource.identifier().clone(), resource);
 }
 
 pub(super) fn fold_elements_obj<'a, B>(
@@ -89,13 +81,8 @@ pub(super) fn fold_elements_obj<'a, B>(
         links: Option::default(),
         meta: None, //FIXME
     };
-    if matches!(
-        acc.main_data_mut()
-            .insert(resource.identifier().clone(), resource),
-        Some(_)
-    ) {
-        todo!()
-    }
+    acc.main_data_mut()
+        .insert(resource.identifier().clone(), resource);
 }
 
 pub(super) fn fold_elements_obj_other<'a, B>(

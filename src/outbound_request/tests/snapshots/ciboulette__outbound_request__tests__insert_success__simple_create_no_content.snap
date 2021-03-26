@@ -1,0 +1,11 @@
+---
+source: src/outbound_request/tests/insert_success.rs
+expression: response
+
+---
+{
+  "jsonapi": {
+    "version": "1.0"
+  },
+  "data": null
+}

@@ -134,17 +134,9 @@ impl<'a, B> CibouletteOutboundRequestDataAccumulator<'a, B> {
             Some(x) => x,
             None => todo!(),
         };
-        match main_data.get_mut(&related) {
-            Some(main_el) => {
-                insert_relationships_into_existing(main_el, el.identifier().clone())?;
-            }
-            None => {
-                return Err(CibouletteError::OutboundUnknownIncludedDocument(
-                    related.type_().to_string(),
-                    related.id().to_string(),
-                ));
-            }
-        };
+        if let Some(main_el) = main_data.get_mut(&related) {
+            insert_relationships_into_existing(main_el, el.identifier().clone())?;
+        }
         let resource = CibouletteResource::<B, CibouletteResourceIdentifier<'a>> {
             type_: el.type_,
             identifier: el.identifier,

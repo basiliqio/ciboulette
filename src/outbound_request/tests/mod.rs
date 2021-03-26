@@ -1,3 +1,4 @@
+use serde_json::json;
 use std::borrow::Cow;
 use std::convert::TryFrom;
 use url::Url;
@@ -6,7 +7,11 @@ use ciboulette_test_helper::ciboulette::*;
 use ciboulette_test_helper::*;
 use insta::*;
 
+mod build_failure;
+mod delete_success;
+mod insert_success;
 mod select_success;
+mod update_success;
 
 fn gen_data_row<'a>(
     store: &'a CibouletteStore<'a>,

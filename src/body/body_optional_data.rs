@@ -6,7 +6,15 @@ use std::fmt::Formatter;
 #[serde(untagged)]
 pub enum CibouletteOptionalData<T> {
     Object(T),
+    #[serde(serialize_with = "serialize_null_for_optional_data")]
     Null(bool),
+}
+
+fn serialize_null_for_optional_data<S>(_val: &bool, serializer: S) -> Result<S::Ok, S::Error>
+where
+    S: serde::Serializer,
+{
+    serializer.serialize_none()
 }
 
 impl<T> CibouletteOptionalData<T> {

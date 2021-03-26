@@ -21,7 +21,7 @@ where
     }
 
     fn build_body(
-        inbound_request: &dyn CibouletteInboundRequestCommons<'a>,
+        inbound_request: &'a dyn CibouletteInboundRequestCommons<'a>,
         elements: I,
     ) -> Result<CibouletteBody<'a, CibouletteResourceIdentifier<'a>, B>, CibouletteError> {
         let acc = CibouletteOutboundRequestDataAccumulator::init_from_request(inbound_request);

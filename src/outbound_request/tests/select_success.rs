@@ -1,7 +1,7 @@
 use super::*;
 
 #[test]
-fn simple_read_mult() {
+fn simple_read_multi() {
     let store = gen_bag();
     let url = Url::parse("http://localhost/").unwrap();
     let opt = url::Url::options().base_url(Some(&url));
@@ -23,8 +23,8 @@ fn simple_read_mult() {
     )
     .build()
     .unwrap();
-    assert_json_snapshot!(response);
     assert_eq!(response.status(), CibouletteResponseStatus::Ok);
+    assert_json_snapshot!(response);
 }
 
 #[test]
