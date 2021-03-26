@@ -111,6 +111,10 @@ pub enum CibouletteError {
     WrongIntention(CibouletteIntention, CibouletteIntention),
     #[error("Wrong path type, got {0}, expected {1:?}")]
     WrongPathType(CiboulettePathType, Vec<CiboulettePathType>),
+    #[error("Too many main data to build the outbound document for type `{0}`")]
+    OutboundTooManyMainData(String),
+    #[error("No record with type `{0}` and id `{1}` in outbound document")]
+    OutboundUnknownIncludedDocument(String, String),
     /// When there is a failure while deserializing the JSON
     #[error("An unkown error occured : {0}")]
     UnknownError(String),

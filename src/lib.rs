@@ -64,6 +64,7 @@ pub use inbound_request::update::{
 };
 pub use outbound_request::element::CibouletteResponseElement;
 pub use outbound_request::request_data_builder::CibouletteOutboundRequestDataBuilder;
+
 pub use query::{
     CiboulettePageType, CibouletteQueryParameters, CibouletteQueryParametersBuilder,
     CibouletteSortingDirection, CibouletteSortingElement,

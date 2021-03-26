@@ -1,0 +1,22 @@
+---
+source: src/outbound_request/tests/select_success.rs
+expression: response
+
+---
+{
+  "jsonapi": {
+    "version": "1.0"
+  },
+  "data": [
+    {
+      "type": "peoples",
+      "id": "01b8fb1f-989b-4ec0-86a0-72786017682b",
+      "attributes": "<some data>"
+    },
+    {
+      "type": "peoples",
+      "id": "073b5936-0acb-4601-b4b7-9de607dfc2ef",
+      "attributes": "<some data>"
+    }
+  ]
+}

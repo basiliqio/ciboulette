@@ -6,7 +6,7 @@ use super::*;
 pub struct CibouletteRelationshipObjectBuilder<'a> {
     pub links: Option<CibouletteLink<'a>>,
     pub data: CibouletteOptionalData<CibouletteResourceIdentifierSelectorBuilder<'a>>,
-    pub meta: Value,
+    pub meta: Option<Value>,
 }
 
 /// ## A `json:api` [relationship](https://jsonapi.org/format/#document-resource-object-relationships) object
@@ -14,9 +14,12 @@ pub struct CibouletteRelationshipObjectBuilder<'a> {
 #[getset(get = "pub", get_mut = "pub")]
 #[serde(default)]
 pub struct CibouletteRelationshipObject<'a> {
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub links: Option<CibouletteLink<'a>>,
+    #[serde(skip_serializing_if = "CibouletteOptionalData::is_absent")]
     pub data: CibouletteOptionalData<CibouletteResourceIdentifierSelector<'a>>,
-    pub meta: Value,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub meta: Option<Value>,
 }
 
 #[derive(Debug, Clone, Getters, PartialEq)]

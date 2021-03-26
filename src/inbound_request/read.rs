@@ -43,9 +43,10 @@ impl<'a> TryFrom<CibouletteInboundRequest<'a>> for CibouletteReadRequest<'a> {
             path,
         } = value;
         let expected_response_type: CibouletteResponseRequiredType = match path {
-            CiboulettePath::Type(_)
-            | CiboulettePath::TypeId(_, _)
-            | CiboulettePath::TypeIdRelated(_, _, _) => {
+            CiboulettePath::TypeId(_, _) => {
+                CibouletteResponseRequiredType::Object(CibouletteResponseQuantity::Single)
+            }
+            CiboulettePath::Type(_) | CiboulettePath::TypeIdRelated(_, _, _) => {
                 CibouletteResponseRequiredType::Object(CibouletteResponseQuantity::Multiple)
             }
             CiboulettePath::TypeIdRelationship(_, _, _) => {

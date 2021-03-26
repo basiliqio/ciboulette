@@ -136,14 +136,19 @@ impl<'a, B> CibouletteOutboundRequestDataAccumulator<'a, B> {
         };
         match main_data.get_mut(&related) {
             Some(main_el) => {
-                insert_relationships_into_existing(main_el, &related, el.identifier().clone())?;
+                insert_relationships_into_existing(main_el, el.identifier().clone())?;
             }
-            None => todo!(),
+            None => {
+                return Err(CibouletteError::OutboundUnknownIncludedDocument(
+                    related.type_().to_string(),
+                    related.id().to_string(),
+                ));
+            }
         };
         let resource = CibouletteResource::<B, CibouletteResourceIdentifier<'a>> {
             type_: el.type_,
             identifier: el.identifier,
-            attributes: None,
+            attributes: el.data,
             relationships: BTreeMap::default(),
             links: Option::default(),
             meta: None, //FIXME
@@ -154,10 +159,9 @@ impl<'a, B> CibouletteOutboundRequestDataAccumulator<'a, B> {
 
 fn insert_relationships_into_existing<'a, B>(
     obj: &mut CibouletteResource<'a, B, CibouletteResourceIdentifier>,
-    related: &CibouletteResourceIdentifier<'a>,
     identifier: CibouletteResourceIdentifier<'a>,
 ) -> Result<(), CibouletteError> {
-    let alias = obj.type_().get_alias(related.type_())?;
+    let alias = obj.type_().get_alias(identifier.type_())?;
     if let Some(rel) = obj.relationships_mut().get_mut(alias.as_str()) {
         let data = rel.data_mut();
         match data {
