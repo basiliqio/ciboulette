@@ -41,6 +41,10 @@ impl<'a> CibouletteInboundRequestCommons<'a> for CibouletteUpdateRequest<'a> {
     fn expected_response_type(&self) -> &CibouletteResponseRequiredType {
         &self.expected_response_type
     }
+
+    fn meta(&self) -> &serde_json::Value {
+        &self.meta
+    }
 }
 
 impl<'a> TryFrom<CibouletteInboundRequest<'a>> for CibouletteUpdateRequest<'a> {
