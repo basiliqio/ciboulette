@@ -1,8 +1,6 @@
 #![warn(clippy::all)]
 mod body;
 mod config;
-mod create_request;
-mod delete_request;
 mod errors;
 mod id;
 mod inbound_request;
@@ -11,12 +9,9 @@ mod member_name;
 mod outbound_request;
 mod path;
 mod query;
-mod read_request;
 mod request_selector;
-mod response;
 mod serde_utils;
 pub mod store;
-mod update_request;
 
 #[cfg(test)]
 mod tests;
@@ -57,28 +52,28 @@ pub use body::resource_obj_selector::{
 pub use body::resource_type::CibouletteResourceType;
 pub use id::{CibouletteId, CibouletteIdBuilder, CibouletteIdType};
 pub use intention::CibouletteIntention;
-pub use outbound_request::{CibouletteOutboundRequest, CibouletteOutboundRequestBuilder};
-pub use response::status::CibouletteResponseStatus;
+pub use outbound_request::request::{CibouletteOutboundRequest, CibouletteOutboundRequestBuilder};
+pub use outbound_request::status::CibouletteResponseStatus;
 pub use store::CibouletteStore;
 
-pub use create_request::CibouletteCreateRequest;
-pub use delete_request::CibouletteDeleteRequest;
+pub use inbound_request::create::CibouletteCreateRequest;
+pub use inbound_request::delete::CibouletteDeleteRequest;
+pub use inbound_request::read::CibouletteReadRequest;
+pub use inbound_request::update::{
+    CibouletteUpdateRelationship, CibouletteUpdateRequest, CibouletteUpdateRequestType,
+};
 pub use query::{
     CiboulettePageType, CibouletteQueryParameters, CibouletteQueryParametersBuilder,
     CibouletteSortingDirection, CibouletteSortingElement,
 };
-pub use read_request::CibouletteReadRequest;
 pub use request_selector::CibouletteRequestSelector;
-pub use update_request::{
-    CibouletteUpdateRelationship, CibouletteUpdateRequest, CibouletteUpdateRequestType,
-};
 
 pub use config::CibouletteConfig;
 pub use errors::{CibouletteClashDirection, CibouletteError, CiboulettePathType};
-pub use inbound_request::{
+pub use inbound_request::request::{
     CibouletteInboundRequest, CibouletteInboundRequestBuilder, CibouletteInboundRequestCommons,
 };
 pub use member_name::check_member_name;
-pub use response::type_::{CibouletteResponseQuantity, CibouletteResponseRequiredType};
+pub use outbound_request::type_::{CibouletteResponseQuantity, CibouletteResponseRequiredType};
 
 pub use path::path_container::{CiboulettePath, CiboulettePathBuilder};
