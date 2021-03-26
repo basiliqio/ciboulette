@@ -14,7 +14,9 @@ pub struct CibouletteInboundRequestBuilder<'a> {
 pub struct CibouletteInboundRequest<'a> {
     pub path: CiboulettePath<'a>,
     pub query: CibouletteQueryParameters<'a>,
-    pub body: Option<CibouletteBody<'a, MessyJsonObjectValue<'a>>>,
+    pub body: Option<
+        CibouletteBody<'a, CibouletteResourceIdentifierPermissive<'a>, MessyJsonObjectValue<'a>>,
+    >,
     pub intention: CibouletteIntention,
 }
 
@@ -43,7 +45,13 @@ impl<'a> CibouletteInboundRequestBuilder<'a> {
         bag: &'a CibouletteStore<'a>,
     ) -> Result<CibouletteInboundRequest<'a>, CibouletteError> {
         let path = CiboulettePathBuilder::parse(self.req_url)?.build(&bag)?;
-        let body: Option<CibouletteBody<'a, MessyJsonObjectValue<'a>>> = match self.body {
+        let body: Option<
+            CibouletteBody<
+                'a,
+                CibouletteResourceIdentifierPermissive<'a>,
+                MessyJsonObjectValue<'a>,
+            >,
+        > = match self.body {
             // Build body
             Some(body) => {
                 let builder: CibouletteBodyBuilder<'_> = serde_json::from_str(body)?;

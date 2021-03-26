@@ -17,16 +17,16 @@ pub struct CibouletteBodyBuilder<'a> {
 /// ## A `json:api` [document](https://jsonapi.org/format/#document-top-level) object
 #[derive(Debug, Getters, MutGetters, Clone, Serialize)]
 #[getset(get = "pub", get_mut = "pub")]
-pub struct CibouletteBody<'a, B> {
-    pub data: CibouletteBodyData<'a, B>,
+pub struct CibouletteBody<'a, I, B> {
+    pub data: CibouletteBodyData<'a, I, B>,
     pub errors: Option<CibouletteErrorObj<'a>>,
     pub meta: Value,
     pub links: Option<CibouletteBodyLink<'a>>,
-    pub included: Vec<CibouletteResource<'a, B, CibouletteResourceIdentifierPermissive<'a>>>,
+    pub included: Vec<CibouletteResource<'a, B, I>>,
     pub jsonapi: Option<Cow<'a, str>>, // TODO Semver
 }
 
-impl<'a, B> Default for CibouletteBody<'a, B>
+impl<'a, I, B> Default for CibouletteBody<'a, I, B>
 where
     B: Default,
 {
@@ -337,7 +337,11 @@ impl<'a> CibouletteBodyBuilder<'a> {
     /// Checks for key clash like `included` without `data`, or `data` with `errors`
     #[inline]
     fn check_key_clash<'b>(
-        data: &'b CibouletteBodyData<'a, MessyJsonObjectValue<'a>>,
+        data: &'b CibouletteBodyData<
+            'a,
+            CibouletteResourceIdentifierPermissive<'a>,
+            MessyJsonObjectValue<'a>,
+        >,
         included: &'b [CibouletteResource<
             'a,
             MessyJsonObjectValue<'a>,
@@ -367,7 +371,11 @@ impl<'a> CibouletteBodyBuilder<'a> {
     /// Perfom all the document checks
     pub fn check<'b>(
         intention: &CibouletteIntention,
-        data: &'b CibouletteBodyData<'a, MessyJsonObjectValue<'a>>,
+        data: &'b CibouletteBodyData<
+            'a,
+            CibouletteResourceIdentifierPermissive<'a>,
+            MessyJsonObjectValue<'a>,
+        >,
         included: &'b [CibouletteResource<
             'a,
             MessyJsonObjectValue<'a>,
@@ -414,8 +422,15 @@ impl<'a> CibouletteBodyBuilder<'a> {
         self,
         bag: &'a CibouletteStore<'a>,
         intention: &CibouletteIntention,
-    ) -> Result<CibouletteBody<'a, MessyJsonObjectValue<'a>>, CibouletteError> {
-        let res: CibouletteBody<'a, MessyJsonObjectValue<'a>>;
+    ) -> Result<
+        CibouletteBody<'a, CibouletteResourceIdentifierPermissive<'a>, MessyJsonObjectValue<'a>>,
+        CibouletteError,
+    > {
+        let res: CibouletteBody<
+            'a,
+            CibouletteResourceIdentifierPermissive<'a>,
+            MessyJsonObjectValue<'a>,
+        >;
 
         let data = self.data.build(&bag, &intention)?;
         let mut included: Vec<
@@ -441,7 +456,23 @@ impl<'a> CibouletteBodyBuilder<'a> {
     }
 }
 
-impl<'a, B> CibouletteBody<'a, B> {
+impl<'a, I, B> CibouletteBody<'a, I, B> {
+    /// Check if the request is a compound document
+    pub fn is_compound(&self) -> bool {
+        matches!(
+            self.data(),
+            CibouletteBodyData::Object(obj)
+            if matches!(obj, CibouletteResourceSelector::Many(_))
+        )
+    }
+
+    /// Check if the request has data
+    pub fn has_data(&self) -> bool {
+        matches!(self.data(), CibouletteBodyData::Object(_))
+    }
+}
+
+impl<'a, B> CibouletteBody<'a, CibouletteResourceIdentifierPermissive<'a>, B> {
     /// Get the main type of the request
     /// If it's a single document request, the type of the document is used.
     /// If it's a compound document request and all the document are the same type, then this type is used.
@@ -471,20 +502,6 @@ impl<'a, B> CibouletteBody<'a, B> {
             },
             CibouletteBodyData::Null(_) => None,
         }
-    }
-
-    /// Check if the request is a compound document
-    pub fn is_compound(&self) -> bool {
-        matches!(
-            self.data(),
-            CibouletteBodyData::Object(obj)
-            if matches!(obj, CibouletteResourceSelector::Many(_))
-        )
-    }
-
-    /// Check if the request has data
-    pub fn has_data(&self) -> bool {
-        matches!(self.data(), CibouletteBodyData::Object(_))
     }
 
     /// Check if the request has all its `id` set (not always the case in creating requests)

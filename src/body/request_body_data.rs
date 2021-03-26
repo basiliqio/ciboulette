@@ -2,9 +2,8 @@ use super::*;
 
 pub type CibouletteBodyDataBuilder<'a> =
     CibouletteOptionalData<CibouletteResourceSelectorBuilder<'a>>;
-pub type CibouletteBodyData<'a, B> = CibouletteOptionalData<
-    CibouletteResourceSelector<'a, B, CibouletteResourceIdentifierPermissive<'a>>,
->;
+pub type CibouletteBodyData<'a, I, B> =
+    CibouletteOptionalData<CibouletteResourceSelector<'a, B, I>>;
 
 impl<'a> Default for CibouletteBodyDataBuilder<'a> {
     fn default() -> Self {
@@ -13,7 +12,7 @@ impl<'a> Default for CibouletteBodyDataBuilder<'a> {
 }
 // CibouletteResourceSelector<'a, CibouletteResourceIdentifierPermissive<'a>>
 
-impl<'a, B> Default for CibouletteBodyData<'a, B> {
+impl<'a, I, B> Default for CibouletteBodyData<'a, I, B> {
     fn default() -> Self {
         CibouletteBodyData::Null(false)
     }
@@ -24,7 +23,14 @@ impl<'a> CibouletteBodyDataBuilder<'a> {
         self,
         bag: &'a CibouletteStore<'a>,
         intention: &CibouletteIntention,
-    ) -> Result<CibouletteBodyData<'a, MessyJsonObjectValue<'a>>, CibouletteError> {
+    ) -> Result<
+        CibouletteBodyData<
+            'a,
+            CibouletteResourceIdentifierPermissive<'a>,
+            MessyJsonObjectValue<'a>,
+        >,
+        CibouletteError,
+    > {
         match self {
             CibouletteBodyDataBuilder::Object(x) => {
                 Ok(CibouletteBodyData::Object(x.build(bag, intention)?))

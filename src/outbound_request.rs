@@ -4,7 +4,7 @@ use super::*;
 #[getset(get = "pub", get_mut = "pub")]
 pub struct CibouletteOutboundRequestBuilder<'a, B> {
     inbound_request: CibouletteInboundRequest<'a>,
-    body: Option<CibouletteBody<'a, B>>,
+    body: Option<CibouletteBody<'a, CibouletteResourceIdentifier<'a>, B>>,
     status: CibouletteResponseStatus,
 }
 
@@ -14,7 +14,7 @@ pub struct CibouletteOutboundRequest<'a, B> {
     #[serde(skip_serializing)]
     pub inbound_request: CibouletteInboundRequest<'a>,
     #[serde(flatten)]
-    pub body: Option<CibouletteBody<'a, B>>,
+    pub body: Option<CibouletteBody<'a, CibouletteResourceIdentifier<'a>, B>>,
     #[serde(skip_serializing)]
     pub status: CibouletteResponseStatus,
 }
@@ -25,7 +25,7 @@ where
 {
     pub fn new(
         inbound_request: CibouletteInboundRequest<'a>,
-        body: Option<CibouletteBody<'a, B>>,
+        body: Option<CibouletteBody<'a, CibouletteResourceIdentifier<'a>, B>>,
         status: CibouletteResponseStatus,
     ) -> Self {
         CibouletteOutboundRequestBuilder {
