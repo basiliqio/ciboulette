@@ -1,5 +1,6 @@
 use super::*;
 
+/// The status a response should send
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum CibouletteResponseStatus {
     Ok,
@@ -12,6 +13,9 @@ pub enum CibouletteResponseStatus {
 }
 
 impl CibouletteResponseStatus {
+    /// Get a response status for a given request type and data.
+    ///
+    /// Applicable only if the request was a success
     pub fn get_status_for_ok_response<'a, B>(
         request: &dyn CibouletteInboundRequestCommons<'a>,
         response_body: &CibouletteBody<CibouletteResourceIdentifier, B>,

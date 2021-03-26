@@ -1,5 +1,6 @@
 use super::*;
 
+/// Hold data while building the outbound response
 #[derive(Debug, Getters, MutGetters)]
 #[getset(get = "pub", get_mut = "pub")]
 pub(super) struct CibouletteOutboundRequestDataAccumulator<'a, B> {
@@ -28,6 +29,7 @@ impl<'a, B> CibouletteOutboundRequestDataAccumulator<'a, B> {
         }
     }
 
+    /// Init an accumulator from an existing request
     pub fn init_from_request(
         inbound_request: &dyn CibouletteInboundRequestCommons<'a>,
     ) -> CibouletteOutboundRequestDataAccumulator<'a, B> {
@@ -52,6 +54,7 @@ impl<'a, B> CibouletteOutboundRequestDataAccumulator<'a, B> {
         acc
     }
 
+    /// Extract the accumulated data
     pub fn extract(
         self,
         inbound_request: &dyn CibouletteInboundRequestCommons<'a>,
@@ -149,6 +152,7 @@ impl<'a, B> CibouletteOutboundRequestDataAccumulator<'a, B> {
     }
 }
 
+/// Inserts into an existing relationships a new entry, updating its format if necessary
 fn insert_relationships_into_existing<'a, B>(
     obj: &mut CibouletteResource<'a, B, CibouletteResourceIdentifier>,
     identifier: CibouletteResourceIdentifier<'a>,

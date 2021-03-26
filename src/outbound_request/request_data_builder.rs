@@ -1,10 +1,13 @@
 use super::*;
 
+/// A builder structure for [CibouletteOutboundRequest](CibouletteOutboundRequest)
 pub struct CibouletteOutboundRequestDataBuilder<'a, B, I>
 where
     I: IntoIterator<Item = CibouletteResponseElement<'a, B>>,
 {
+    /// The inbound request is made from
     inbound_request: &'a dyn CibouletteInboundRequestCommons<'a>,
+    /// An iterator over its elements
     elements: I,
 }
 
@@ -13,6 +16,7 @@ where
     B: Serialize,
     I: IntoIterator<Item = CibouletteResponseElement<'a, B>>,
 {
+    /// Create a new builder from its parts
     pub fn new(inbound_request: &'a dyn CibouletteInboundRequestCommons<'a>, elements: I) -> Self {
         CibouletteOutboundRequestDataBuilder {
             inbound_request,
@@ -37,6 +41,7 @@ where
         })
     }
 
+    /// Build the outbound request
     pub fn build(self) -> Result<CibouletteOutboundRequest<'a, B>, CibouletteError> {
         let body = Self::build_body(self.inbound_request, self.elements)?;
         Ok(CibouletteOutboundRequest {
