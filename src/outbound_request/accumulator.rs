@@ -146,6 +146,7 @@ impl<'a, B> CibouletteOutboundRequestDataAccumulator<'a, B> {
             attributes: None,
             relationships: BTreeMap::default(),
             links: Option::default(),
+            meta: None, //FIXME
         };
         Ok(resource)
     }

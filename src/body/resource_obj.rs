@@ -13,18 +13,25 @@ pub struct CibouletteResourceBuilder<'a> {
     attributes: Option<&'a RawValue>,
     relationships: BTreeMap<Cow<'a, str>, CibouletteRelationshipObjectBuilder<'a>>,
     links: Option<CibouletteLink<'a>>,
+    meta: Option<Value>,
 }
 
 /// ## A `json:api` [resource](https://jsonapi.org/format/#document-resource-objects) object
 #[derive(Debug, Getters, MutGetters, Clone, Serialize)]
 #[getset(get = "pub", get_mut = "pub")]
 pub struct CibouletteResource<'a, B, T> {
+    #[serde(flatten)]
     pub identifier: T,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub attributes: Option<B>,
+    #[serde(skip_serializing_if = "BTreeMap::is_empty")]
     pub relationships: BTreeMap<Cow<'a, str>, CibouletteRelationshipObject<'a>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub links: Option<CibouletteLink<'a>>,
     #[serde(skip_serializing)]
     pub type_: &'a CibouletteResourceType<'a>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub meta: Option<Value>,
 }
 
 impl<'a, B> TryFrom<CibouletteResource<'a, B, CibouletteResourceIdentifierPermissive<'a>>>
@@ -41,6 +48,7 @@ impl<'a, B> TryFrom<CibouletteResource<'a, B, CibouletteResourceIdentifierPermis
             relationships,
             links,
             type_,
+            meta,
         } = value;
 
         Ok(
@@ -50,6 +58,7 @@ impl<'a, B> TryFrom<CibouletteResource<'a, B, CibouletteResourceIdentifierPermis
                 relationships,
                 links,
                 type_,
+                meta,
             },
         )
     }
@@ -65,6 +74,7 @@ impl<'a, B> From<CibouletteResource<'a, B, CibouletteResourceIdentifier<'a>>>
             relationships,
             links,
             type_,
+            meta,
         } = value;
 
         CibouletteResource::<'a, B, CibouletteResourceIdentifierPermissive<'a>> {
@@ -73,6 +83,7 @@ impl<'a, B> From<CibouletteResource<'a, B, CibouletteResourceIdentifier<'a>>>
             relationships,
             links,
             type_,
+            meta,
         }
     }
 }
@@ -219,14 +230,11 @@ impl<'de> serde::de::Visitor<'de> for CibouletteResourceBuilderVisitor {
         let type_ = type_.ok_or_else(|| <A::Error as serde::de::Error>::missing_field("type"))?;
         let relationships = relationships.unwrap_or_default();
         Ok(CibouletteResourceBuilder {
-            identifier: CibouletteResourceIdentifierBuilder::new(
-                id,
-                type_,
-                meta.unwrap_or_default(),
-            ),
+            identifier: CibouletteResourceIdentifierBuilder::new(id, type_),
             attributes,
             relationships,
             links,
+            meta,
         })
     }
 }
@@ -295,6 +303,7 @@ impl<'a> CibouletteResourceBuilder<'a> {
             links: self.links,
             relationships,
             type_: current_type,
+            meta: self.meta,
         })
     }
 }

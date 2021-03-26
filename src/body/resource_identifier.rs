@@ -7,8 +7,6 @@ pub struct CibouletteResourceIdentifierBuilder<'a> {
     #[serde(rename = "type")]
     pub type_: Cow<'a, str>,
     pub id: Option<CibouletteIdBuilder<'a>>,
-    #[serde(default)]
-    pub meta: Value,
 }
 
 /// ## A `json:api` [resource identifier](https://jsonapi.org/format/#document-resource-identifier-objects) object
@@ -18,8 +16,6 @@ pub struct CibouletteResourceIdentifier<'a> {
     #[serde(rename = "type")]
     pub type_: Cow<'a, str>,
     pub id: CibouletteId<'a>,
-    #[serde(default)]
-    pub meta: Value,
 }
 
 impl<'a> Ord for CibouletteResourceIdentifier<'a> {
@@ -57,18 +53,27 @@ pub struct CibouletteResourceIdentifierPermissive<'a> {
     #[serde(rename = "type")]
     pub type_: Cow<'a, str>,
     pub id: Option<CibouletteId<'a>>,
-    #[serde(default)]
-    pub meta: Value,
 }
 
 impl<'a> CibouletteResourceIdentifierBuilder<'a> {
+    pub fn build_from_store(
+        self,
+        store: &'a CibouletteStore<'a>,
+    ) -> Result<CibouletteResourceIdentifier<'a>, CibouletteError> {
+        Ok(CibouletteResourceIdentifier {
+            id: match self.id {
+                Some(id) => id.build(&store.get_type(&self.type_)?.id_type())?,
+                None => return Err(CibouletteError::MissingId),
+            },
+            type_: self.type_,
+        })
+    }
     pub fn build(
         self,
         type_: &CibouletteResourceType<'a>,
     ) -> Result<CibouletteResourceIdentifier<'a>, CibouletteError> {
         Ok(CibouletteResourceIdentifier {
             type_: self.type_,
-            meta: self.meta,
             id: match self.id {
                 Some(id) => id.build(&type_.id_type())?,
                 None => return Err(CibouletteError::MissingId),
@@ -82,7 +87,6 @@ impl<'a> CibouletteResourceIdentifierBuilder<'a> {
     ) -> Result<CibouletteResourceIdentifierPermissive<'a>, CibouletteError> {
         Ok(CibouletteResourceIdentifierPermissive {
             type_: self.type_,
-            meta: self.meta,
             id: match self.id {
                 Some(id) => Some(id.build(&type_.id_type())?),
                 None => None,
@@ -95,11 +99,10 @@ impl<'a> TryFrom<CibouletteResourceIdentifierPermissive<'a>> for CibouletteResou
     type Error = CibouletteError;
 
     fn try_from(value: CibouletteResourceIdentifierPermissive<'a>) -> Result<Self, Self::Error> {
-        let CibouletteResourceIdentifierPermissive { type_, id, meta } = value;
+        let CibouletteResourceIdentifierPermissive { type_, id } = value;
 
         Ok(CibouletteResourceIdentifier {
             type_,
-            meta,
             id: id.ok_or(CibouletteError::MissingId)?,
         })
     }
@@ -107,11 +110,10 @@ impl<'a> TryFrom<CibouletteResourceIdentifierPermissive<'a>> for CibouletteResou
 
 impl<'a> From<CibouletteResourceIdentifier<'a>> for CibouletteResourceIdentifierPermissive<'a> {
     fn from(value: CibouletteResourceIdentifier<'a>) -> Self {
-        let CibouletteResourceIdentifier { type_, id, meta } = value;
+        let CibouletteResourceIdentifier { type_, id } = value;
 
         CibouletteResourceIdentifierPermissive {
             type_,
-            meta,
             id: Some(id),
         }
     }
@@ -119,22 +121,22 @@ impl<'a> From<CibouletteResourceIdentifier<'a>> for CibouletteResourceIdentifier
 
 impl<'a> CibouletteResourceIdentifier<'a> {
     /// Create a new resource identifier from an id, a type an potentially a meta argument
-    pub fn new(id: CibouletteId<'a>, type_: Cow<'a, str>, meta: Value) -> Self {
-        CibouletteResourceIdentifier { id, type_, meta }
+    pub fn new(id: CibouletteId<'a>, type_: Cow<'a, str>) -> Self {
+        CibouletteResourceIdentifier { id, type_ }
     }
 }
 
 impl<'a> CibouletteResourceIdentifierPermissive<'a> {
     /// Create a new resource identifier from an id, a type an potentially a meta argument
-    pub fn new(id: Option<CibouletteId<'a>>, type_: Cow<'a, str>, meta: Value) -> Self {
-        CibouletteResourceIdentifierPermissive { id, type_, meta }
+    pub fn new(id: Option<CibouletteId<'a>>, type_: Cow<'a, str>) -> Self {
+        CibouletteResourceIdentifierPermissive { id, type_ }
     }
 }
 
 impl<'a> CibouletteResourceIdentifierBuilder<'a> {
     /// Create a new resource identifier from an id, a type an potentially a meta argument
-    pub fn new(id: Option<CibouletteIdBuilder<'a>>, type_: Cow<'a, str>, meta: Value) -> Self {
-        CibouletteResourceIdentifierBuilder { id, type_, meta }
+    pub fn new(id: Option<CibouletteIdBuilder<'a>>, type_: Cow<'a, str>) -> Self {
+        CibouletteResourceIdentifierBuilder { id, type_ }
     }
 }
 

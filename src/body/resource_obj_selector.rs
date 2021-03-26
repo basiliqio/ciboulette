@@ -11,6 +11,7 @@ pub enum CibouletteResourceSelectorBuilder<'a> {
 
 /// ## A selector between a single or multiple `json:api` [resource](https://jsonapi.org/format/#document-resource-objects) objects
 #[derive(Debug, Clone, Serialize)]
+#[serde(untagged)]
 pub enum CibouletteResourceSelector<'a, B, T> {
     One(CibouletteResource<'a, B, T>),
     Many(Vec<CibouletteResource<'a, B, T>>),

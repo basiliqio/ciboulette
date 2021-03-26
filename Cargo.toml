@@ -33,6 +33,7 @@ features = ["precommit-hook", "run-cargo-check", "run-cargo-fmt"]
 [dev-dependencies]
 criterion = { version = "0.3.4", features = [ "html_reports", "cargo_bench_support" ] }
 ciboulette_test_helper = { path = "ciboulette_test_helper" }
+insta = { version = "1.7", features = [ "redactions" ] }
 
 [[bench]]
 name = "ciboulette_benches"

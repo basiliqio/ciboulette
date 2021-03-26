@@ -9,6 +9,22 @@ pub struct CibouletteResponseElement<'a, B> {
     pub(crate) related: Option<CibouletteResourceIdentifier<'a>>,
 }
 
+impl<'a, B> CibouletteResponseElement<'a, B> {
+    pub fn new(
+        store: &'a CibouletteStore<'a>,
+        identifier: CibouletteResourceIdentifier<'a>,
+        data: Option<B>,
+        related: Option<CibouletteResourceIdentifier<'a>>,
+    ) -> Result<Self, CibouletteError> {
+        Ok(CibouletteResponseElement {
+            type_: store.get_type(identifier.type_().as_ref())?,
+            identifier,
+            data,
+            related,
+        })
+    }
+}
+
 pub(super) fn fold_elements<'a, B, I>(
     elements: I,
     acc: CibouletteOutboundRequestDataAccumulator<'a, B>,
@@ -48,6 +64,7 @@ pub(super) fn fold_elements_id<'a, B>(
         attributes: None,
         relationships: BTreeMap::default(),
         links: Option::default(),
+        meta: None, //FIXME
     };
     if matches!(
         acc.main_data_mut()
@@ -68,6 +85,7 @@ pub(super) fn fold_elements_obj<'a, B>(
         attributes: element.data,
         relationships: BTreeMap::default(),
         links: Option::default(),
+        meta: None, //FIXME
     };
     if matches!(
         acc.main_data_mut()

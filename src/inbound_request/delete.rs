@@ -7,7 +7,7 @@ pub struct CibouletteDeleteRequest<'a> {
     pub resource_id: CibouletteId<'a>,
     pub related_type: Option<&'a CibouletteResourceType<'a>>,
     pub query: CibouletteQueryParameters<'a>,
-    pub meta: Value,
+    pub meta: Option<Value>,
     pub expected_response_type: CibouletteResponseRequiredType,
     pub path: CiboulettePath<'a>,
 }
@@ -26,7 +26,7 @@ impl<'a> CibouletteInboundRequestCommons<'a> for CibouletteDeleteRequest<'a> {
         &self.expected_response_type
     }
 
-    fn meta(&self) -> &serde_json::Value {
+    fn meta(&self) -> &Option<serde_json::Value> {
         &self.meta
     }
 }

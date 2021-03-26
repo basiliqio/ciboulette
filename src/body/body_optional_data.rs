@@ -3,9 +3,16 @@ use serde::de::{Deserialize, Deserializer, Visitor};
 use std::fmt::Formatter;
 
 #[derive(Debug, Clone, Serialize)]
+#[serde(untagged)]
 pub enum CibouletteOptionalData<T> {
     Object(T),
     Null(bool),
+}
+
+impl<T> CibouletteOptionalData<T> {
+    pub fn is_absent(&self) -> bool {
+        matches!(self, CibouletteOptionalData::Null(false))
+    }
 }
 
 #[derive(Clone, Copy, Debug)]

@@ -10,7 +10,7 @@ pub struct CibouletteCreateRequest<'a> {
         MessyJsonObjectValue<'a>,
         CibouletteResourceIdentifierPermissive<'a>,
     >,
-    pub meta: Value,
+    pub meta: Option<Value>,
     pub links: Option<CibouletteBodyLink<'a>>,
     pub jsonapi: Option<CibouletteJsonApiVersion<'a>>,
     pub expected_response_type: CibouletteResponseRequiredType,
@@ -30,7 +30,7 @@ impl<'a> CibouletteInboundRequestCommons<'a> for CibouletteCreateRequest<'a> {
         &self.expected_response_type
     }
 
-    fn meta(&self) -> &serde_json::Value {
+    fn meta(&self) -> &Option<serde_json::Value> {
         &self.meta
     }
 }

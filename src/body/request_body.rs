@@ -20,7 +20,7 @@ impl<'a> CibouletteJsonApiVersion<'a> {
 pub struct CibouletteBodyBuilder<'a> {
     data: CibouletteBodyDataBuilder<'a>,
     errors: Option<CibouletteErrorObj<'a>>,
-    meta: Value,
+    meta: Option<Value>,
     links: Option<CibouletteBodyLink<'a>>,
     included: Vec<CibouletteResourceBuilder<'a>>,
     jsonapi: Option<CibouletteJsonApiVersion<'a>>, // TODO Semver
@@ -30,12 +30,18 @@ pub struct CibouletteBodyBuilder<'a> {
 #[derive(Debug, Getters, MutGetters, Clone, Serialize)]
 #[getset(get = "pub", get_mut = "pub")]
 pub struct CibouletteBody<'a, I, B> {
-    pub data: CibouletteBodyData<'a, I, B>,
-    pub errors: Option<CibouletteErrorObj<'a>>,
-    pub meta: Value,
-    pub links: Option<CibouletteBodyLink<'a>>,
-    pub included: Vec<CibouletteResource<'a, B, I>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub jsonapi: Option<CibouletteJsonApiVersion<'a>>, // TODO Semver
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub links: Option<CibouletteBodyLink<'a>>,
+    #[serde(skip_serializing_if = "CibouletteOptionalData::is_absent")]
+    pub data: CibouletteBodyData<'a, I, B>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub errors: Option<CibouletteErrorObj<'a>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub meta: Option<Value>,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub included: Vec<CibouletteResource<'a, B, I>>,
 }
 
 impl<'a, I, B> Default for CibouletteBody<'a, I, B>
@@ -46,7 +52,7 @@ where
         CibouletteBody {
             data: CibouletteBodyData::default(),
             errors: Option::default(),
-            meta: Value::default(),
+            meta: Option::default(),
             links: Option::default(),
             included: Vec::default(),
             jsonapi: Option::default(),
@@ -195,7 +201,7 @@ impl<'de> serde::de::Visitor<'de> for CibouletteBodyBuilderVisitor {
         Ok(CibouletteBodyBuilder {
             data: data.unwrap_or_default(),
             errors,
-            meta: meta.unwrap_or_default(),
+            meta,
             links,
             included,
             jsonapi,

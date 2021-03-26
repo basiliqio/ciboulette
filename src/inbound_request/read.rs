@@ -7,7 +7,7 @@ pub struct CibouletteReadRequest<'a> {
     pub query: CibouletteQueryParameters<'a>,
     pub data:
         CibouletteResourceSelector<'a, MessyJsonObjectValue<'a>, CibouletteResourceIdentifier<'a>>,
-    pub meta: Value,
+    pub meta: Option<Value>,
     pub links: Option<CibouletteBodyLink<'a>>,
     pub jsonapi: Option<CibouletteJsonApiVersion<'a>>, // TODO Semver
     pub expected_response_type: CibouletteResponseRequiredType,
@@ -27,7 +27,7 @@ impl<'a> CibouletteInboundRequestCommons<'a> for CibouletteReadRequest<'a> {
         &self.expected_response_type
     }
 
-    fn meta(&self) -> &serde_json::Value {
+    fn meta(&self) -> &Option<serde_json::Value> {
         &self.meta
     }
 }

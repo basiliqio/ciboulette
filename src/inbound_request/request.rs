@@ -26,7 +26,7 @@ pub trait CibouletteInboundRequestCommons<'a> {
     fn intention(&self) -> CibouletteIntention;
     fn expected_response_type(&self) -> &CibouletteResponseRequiredType;
 
-    fn meta(&self) -> &serde_json::Value;
+    fn meta(&self) -> &Option<serde_json::Value>;
 }
 
 impl<'a> CibouletteInboundRequestBuilder<'a> {

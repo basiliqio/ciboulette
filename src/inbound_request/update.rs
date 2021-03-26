@@ -22,7 +22,7 @@ pub struct CibouletteUpdateRequest<'a> {
     pub path: CiboulettePath<'a>,
     pub query: CibouletteQueryParameters<'a>,
     pub data: CibouletteUpdateRequestType<'a>,
-    pub meta: Value,
+    pub meta: Option<Value>,
     pub links: Option<CibouletteBodyLink<'a>>,
     pub jsonapi: Option<CibouletteJsonApiVersion<'a>>, // TODO Semver
     pub expected_response_type: CibouletteResponseRequiredType,
@@ -42,7 +42,7 @@ impl<'a> CibouletteInboundRequestCommons<'a> for CibouletteUpdateRequest<'a> {
         &self.expected_response_type
     }
 
-    fn meta(&self) -> &serde_json::Value {
+    fn meta(&self) -> &Option<serde_json::Value> {
         &self.meta
     }
 }
