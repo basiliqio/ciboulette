@@ -154,6 +154,8 @@ pub enum CibouletteRelationshipOption<'a> {
     OneToOne(CibouletteRelationshipOneToOneOption),
     /// One to many relationship, without the intermediate node
     OneToMany(CibouletteRelationshipOneToManyOption<'a>),
+    /// One to many relationship, without the intermediate node
+    ManyToOne(CibouletteRelationshipOneToManyOption<'a>),
     /// One to many relationship
     ManyToMany(CibouletteRelationshipManyToManyOption<'a>),
 }
