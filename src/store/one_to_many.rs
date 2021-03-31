@@ -94,7 +94,11 @@ impl<'a> CibouletteStore<'a> {
         let edge_to_i = self.graph_mut().update_edge(
             *to_i,
             *from_i,
-            CibouletteRelationshipOption::ManyToOne(opt.clone()),
+            CibouletteRelationshipOption::OneToOne(CibouletteRelationshipOneToOneOption::new(
+                opt.many_table_key(),
+                *opt.many_table().id_type(),
+                *opt.optional(),
+            )),
         );
         (edge_from_i, edge_to_i)
     }
