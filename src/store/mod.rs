@@ -4,7 +4,6 @@ use getset::CopyGetters;
 
 mod many_to_many;
 mod one_to_many;
-mod one_to_one;
 
 #[cfg(test)]
 mod tests;

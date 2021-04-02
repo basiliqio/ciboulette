@@ -161,14 +161,15 @@ pub fn gen_bag<'a>() -> CibouletteStore<'a> {
     )
     .unwrap();
 
-    res.add_one_to_one_rel(
-        ("peoples", None),
-        ("favorite_color", None),
-        CibouletteRelationshipOneToOneOption::new(
-            "favorite_color",
-            CibouletteIdType::Uuid,
-            true,
+    res.add_one_to_many_rel(
+        CibouletteRelationshipOneToManyOption::new(
+            res.get_type("favorite_color").unwrap().clone(),
+            res.get_type("peoples").unwrap().clone(),
+            "favorite_color".to_string(),
+			true,
         ),
+        None,
+		None
     )
     .unwrap(); // Articles -> Comments
     res.add_one_to_many_rel(

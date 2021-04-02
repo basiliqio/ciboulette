@@ -150,8 +150,6 @@ impl<'a> Default for CibouletteOptionalData<CibouletteResourceIdentifierSelector
 
 #[derive(Debug, Clone)]
 pub enum CibouletteRelationshipOption<'a> {
-    /// One to one relationship, boolean if the relationship is optional
-    OneToOne(CibouletteRelationshipOneToOneOption),
     /// One to many relationship, without the intermediate node
     OneToMany(CibouletteRelationshipOneToManyOption<'a>),
     /// One to many relationship, without the intermediate node
