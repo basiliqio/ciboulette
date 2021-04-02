@@ -2,7 +2,7 @@ use super::*;
 
 #[test]
 fn ok() {
-    let mut store = CibouletteStore::default();
+    let mut store = CibouletteStoreBuilder::default();
 
     store
         .add_type(
@@ -25,7 +25,7 @@ fn ok() {
             ciboulette_test_helper::gen_messy_json_schema_people_article(),
         )
         .unwrap();
-    let opt = CibouletteRelationshipManyToManyOption::new(
+    let opt = CibouletteRelationshipManyToManyOptionBuilder::new(
         store.get_type("people-article").unwrap().clone(),
         [
             (
@@ -43,14 +43,14 @@ fn ok() {
         .unwrap();
     let rel = store.get_rel("peoples", "articles").unwrap();
     assert_eq!(
-        matches!(rel.1, CibouletteRelationshipOption::ManyToMany(x) if x == &opt),
+        matches!(rel.1, CibouletteRelationshipOptionBuilder::ManyToMany(x) if x == &opt),
         true
     );
 }
 
 #[test]
 fn ok_reverse() {
-    let mut store = CibouletteStore::default();
+    let mut store = CibouletteStoreBuilder::default();
 
     store
         .add_type(
@@ -73,7 +73,7 @@ fn ok_reverse() {
             ciboulette_test_helper::gen_messy_json_schema_people_article(),
         )
         .unwrap();
-    let opt = CibouletteRelationshipManyToManyOption::new(
+    let opt = CibouletteRelationshipManyToManyOptionBuilder::new(
         store.get_type("people-article").unwrap().clone(),
         [
             (
@@ -91,14 +91,14 @@ fn ok_reverse() {
         .unwrap();
     let rel = store.get_rel("articles", "author").unwrap();
     assert_eq!(
-        matches!(rel.1, CibouletteRelationshipOption::ManyToMany(x) if x == &opt),
+        matches!(rel.1, CibouletteRelationshipOptionBuilder::ManyToMany(x) if x == &opt),
         true
     );
 }
 
 #[test]
 fn duplicate() {
-    let mut store = CibouletteStore::default();
+    let mut store = CibouletteStoreBuilder::default();
 
     store
         .add_type(
@@ -121,7 +121,7 @@ fn duplicate() {
             ciboulette_test_helper::gen_messy_json_schema_people_article(),
         )
         .unwrap();
-    let opt = CibouletteRelationshipManyToManyOption::new(
+    let opt = CibouletteRelationshipManyToManyOptionBuilder::new(
         store.get_type("people-article").unwrap().clone(),
         [
             (
@@ -148,7 +148,7 @@ fn duplicate() {
 
 #[test]
 fn alias() {
-    let mut store = CibouletteStore::default();
+    let mut store = CibouletteStoreBuilder::default();
 
     store
         .add_type(
@@ -171,7 +171,7 @@ fn alias() {
             ciboulette_test_helper::gen_messy_json_schema_people_article(),
         )
         .unwrap();
-    let opt = CibouletteRelationshipManyToManyOption::new(
+    let opt = CibouletteRelationshipManyToManyOptionBuilder::new(
         store.get_type("people-article").unwrap().clone(),
         [
             (

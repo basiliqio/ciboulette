@@ -14,7 +14,10 @@ fn single_asc() {
         true
     );
     assert_eq!(sorting[0].field(), "first-name");
-    assert_eq!(sorting[0].type_(), &bag.get_type("peoples").unwrap());
+    assert_eq!(
+        sorting[0].type_(),
+        &bag.get_type("peoples").unwrap().as_ref()
+    );
 }
 
 #[test]
@@ -31,7 +34,10 @@ fn single_asc_with_positive() {
         true
     );
     assert_eq!(sorting[0].field(), "first-name");
-    assert_eq!(sorting[0].type_(), &bag.get_type("peoples").unwrap());
+    assert_eq!(
+        sorting[0].type_(),
+        &bag.get_type("peoples").unwrap().as_ref()
+    );
 }
 
 #[test]
@@ -48,7 +54,10 @@ fn single_desc() {
         true
     );
     assert_eq!(sorting[0].field(), "first-name");
-    assert_eq!(sorting[0].type_(), &bag.get_type("peoples").unwrap());
+    assert_eq!(
+        sorting[0].type_(),
+        &bag.get_type("peoples").unwrap().as_ref()
+    );
 }
 
 #[test]
@@ -65,13 +74,19 @@ fn multiple_mixed() {
         true
     );
     assert_eq!(sorting[0].field(), "last-name");
-    assert_eq!(sorting[0].type_(), &bag.get_type("peoples").unwrap());
+    assert_eq!(
+        sorting[0].type_(),
+        &bag.get_type("peoples").unwrap().as_ref()
+    );
     assert_eq!(
         matches!(sorting[1].direction(), &CibouletteSortingDirection::Desc),
         true
     );
     assert_eq!(sorting[1].field(), "first-name");
-    assert_eq!(sorting[1].type_(), &bag.get_type("peoples").unwrap());
+    assert_eq!(
+        sorting[1].type_(),
+        &bag.get_type("peoples").unwrap().as_ref()
+    );
 }
 
 #[test]
@@ -114,7 +129,10 @@ fn relationship_field() {
         true
     );
     assert_eq!(sorting[0].field(), "title");
-    assert_eq!(sorting[0].type_(), &bag.get_type("articles").unwrap());
+    assert_eq!(
+        sorting[0].type_(),
+        &bag.get_type("articles").unwrap().as_ref()
+    );
 }
 
 #[test]
@@ -131,21 +149,30 @@ fn mixed_relationship_and_self() {
         true
     );
     assert_eq!(sorting[0].field(), "title");
-    assert_eq!(sorting[0].type_(), &bag.get_type("articles").unwrap());
+    assert_eq!(
+        sorting[0].type_(),
+        &bag.get_type("articles").unwrap().as_ref()
+    );
 
     assert_eq!(
         matches!(sorting[1].direction(), &CibouletteSortingDirection::Desc),
         true
     );
     assert_eq!(sorting[1].field(), "color");
-    assert_eq!(sorting[1].type_(), &bag.get_type("favorite_color").unwrap());
+    assert_eq!(
+        sorting[1].type_(),
+        &bag.get_type("favorite_color").unwrap().as_ref()
+    );
 
     assert_eq!(
         matches!(sorting[2].direction(), &CibouletteSortingDirection::Asc),
         true
     );
     assert_eq!(sorting[2].field(), "first-name");
-    assert_eq!(sorting[2].type_(), &bag.get_type("peoples").unwrap());
+    assert_eq!(
+        sorting[2].type_(),
+        &bag.get_type("peoples").unwrap().as_ref()
+    );
 }
 
 #[test]
@@ -211,5 +238,8 @@ fn sorting_self_full_path() {
         true
     );
     assert_eq!(sorting[0].field(), "first-name");
-    assert_eq!(sorting[0].type_(), &bag.get_type("peoples").unwrap());
+    assert_eq!(
+        sorting[0].type_(),
+        &bag.get_type("peoples").unwrap().as_ref()
+    );
 }

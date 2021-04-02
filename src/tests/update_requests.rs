@@ -38,7 +38,10 @@ fn ok() {
         )
         .unwrap()
     );
-    assert_eq!(res.resource_type(), &store.get_type("comments").unwrap());
+    assert_eq!(
+        res.resource_type(),
+        &store.get_type("comments").unwrap().as_ref()
+    );
 }
 
 #[test]

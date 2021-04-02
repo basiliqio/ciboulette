@@ -2,7 +2,7 @@ use super::*;
 
 #[test]
 fn add_ok() {
-    let mut store = CibouletteStore::default();
+    let mut store = CibouletteStoreBuilder::default();
 
     store
         .add_type("toto", CibouletteIdType::Uuid, MessyJsonObject::default())
@@ -11,7 +11,7 @@ fn add_ok() {
 
 #[test]
 fn add_duplicate() {
-    let mut store = CibouletteStore::default();
+    let mut store = CibouletteStoreBuilder::default();
 
     store
         .add_type("toto", CibouletteIdType::Uuid, MessyJsonObject::default())
@@ -27,7 +27,7 @@ fn add_duplicate() {
 
 #[test]
 fn get_ok() {
-    let mut store = CibouletteStore::default();
+    let mut store = CibouletteStoreBuilder::default();
 
     store
         .add_type("toto", CibouletteIdType::Uuid, MessyJsonObject::default())
@@ -38,7 +38,7 @@ fn get_ok() {
 
 #[test]
 fn get_not_found() {
-    let mut store = CibouletteStore::default();
+    let mut store = CibouletteStoreBuilder::default();
 
     store
         .add_type("toto", CibouletteIdType::Uuid, MessyJsonObject::default())
@@ -52,7 +52,7 @@ fn get_not_found() {
 
 #[test]
 fn get_optional_found() {
-    let mut store = CibouletteStore::default();
+    let mut store = CibouletteStoreBuilder::default();
 
     store
         .add_type("toto", CibouletteIdType::Uuid, MessyJsonObject::default())
@@ -63,7 +63,7 @@ fn get_optional_found() {
 
 #[test]
 fn get_optional_not_found() {
-    let mut store = CibouletteStore::default();
+    let mut store = CibouletteStoreBuilder::default();
 
     store
         .add_type("toto", CibouletteIdType::Uuid, MessyJsonObject::default())
@@ -74,7 +74,7 @@ fn get_optional_not_found() {
 
 #[test]
 fn get_index() {
-    let mut store = CibouletteStore::default();
+    let mut store = CibouletteStoreBuilder::default();
 
     store
         .add_type("toto", CibouletteIdType::Uuid, MessyJsonObject::default())
@@ -86,7 +86,7 @@ fn get_index() {
 
 #[test]
 fn get_index_not_found() {
-    let mut store = CibouletteStore::default();
+    let mut store = CibouletteStoreBuilder::default();
 
     store
         .add_type("toto", CibouletteIdType::Uuid, MessyJsonObject::default())
@@ -97,7 +97,7 @@ fn get_index_not_found() {
 
 #[test]
 fn get_type_with_index() {
-    let mut store = CibouletteStore::default();
+    let mut store = CibouletteStoreBuilder::default();
 
     store
         .add_type("toto", CibouletteIdType::Uuid, MessyJsonObject::default())

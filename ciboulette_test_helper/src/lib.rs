@@ -127,7 +127,7 @@ pub fn gen_messy_json_schema_peoples<'a>() -> MessyJsonObject<'a> {
 }
 
 pub fn gen_bag<'a>() -> CibouletteStore<'a> {
-    let mut res = CibouletteStore::default();
+    let mut res = CibouletteStoreBuilder::default();
 
     res.add_type(
         "articles",
@@ -162,7 +162,7 @@ pub fn gen_bag<'a>() -> CibouletteStore<'a> {
     .unwrap();
 
     res.add_one_to_many_rel(
-        CibouletteRelationshipOneToManyOption::new(
+        CibouletteRelationshipOneToManyOptionBuilder::new(
             res.get_type("favorite_color").unwrap().clone(),
             res.get_type("peoples").unwrap().clone(),
             "favorite_color".to_string(),
@@ -173,7 +173,7 @@ pub fn gen_bag<'a>() -> CibouletteStore<'a> {
     )
     .unwrap(); // Articles -> Comments
     res.add_one_to_many_rel(
-        CibouletteRelationshipOneToManyOption::new(
+        CibouletteRelationshipOneToManyOptionBuilder::new(
             res.get_type("articles").unwrap().clone(),
             res.get_type("comments").unwrap().clone(),
             "article".to_string(),
@@ -184,7 +184,7 @@ pub fn gen_bag<'a>() -> CibouletteStore<'a> {
     )
     .unwrap(); // Peoples -> Comments
     res.add_one_to_many_rel(
-        CibouletteRelationshipOneToManyOption::new(
+        CibouletteRelationshipOneToManyOptionBuilder::new(
             res.get_type("peoples").unwrap().clone(),
             res.get_type("comments").unwrap().clone(),
             "author".to_string(),
@@ -197,7 +197,7 @@ pub fn gen_bag<'a>() -> CibouletteStore<'a> {
     res.add_many_to_many_rel(
         ("articles", None),
         ("peoples", Some("author")),
-        CibouletteRelationshipManyToManyOption::new(
+        CibouletteRelationshipManyToManyOptionBuilder::new(
             res.get_type("people-article").unwrap().clone(),
             [
                 (
@@ -212,7 +212,7 @@ pub fn gen_bag<'a>() -> CibouletteStore<'a> {
         ),
     )
     .unwrap(); // Peoples -> Articles
-    res
+    res.build().unwrap()
 }
 
 pub fn check_ident<'a>(ident: &CibouletteResourceIdentifier<'a>, type_: &str, id: &CibouletteId) {

@@ -16,13 +16,13 @@ struct CibouletteManyToManyEdgeIndexes {
     to_direct: petgraph::graph::EdgeIndex<u16>,
 }
 
-impl<'a> CibouletteStore<'a> {
+impl<'a> CibouletteStoreBuilder<'a> {
     /// Add a relationships (one/many-to-one/many) to the graph
     pub fn add_many_to_many_rel(
         &mut self,
         (from, alias_from): (&str, Option<&str>),
         (to, alias_to): (&str, Option<&str>),
-        opt: CibouletteRelationshipManyToManyOption<'a>,
+        opt: CibouletteRelationshipManyToManyOptionBuilder<'a>,
     ) -> Result<(), CibouletteError> {
         let node_indexes = self.get_many_to_many_node_indexes(from, to, &opt)?;
         self.check_bucket_exists(node_indexes.bucket(), from, &opt)?;
@@ -83,7 +83,7 @@ impl<'a> CibouletteStore<'a> {
     fn get_many_to_many_edge_indexes(
         &mut self,
         indexes: &CibouletteManyToManyNodeIndexes,
-        opt: &CibouletteRelationshipManyToManyOption<'a>,
+        opt: &CibouletteRelationshipManyToManyOptionBuilder<'a>,
     ) -> Result<CibouletteManyToManyEdgeIndexes, CibouletteError> {
         let (from_type, to_type, bucket_type) = {
             let from_type = self.graph().node_weight(indexes.from()).ok_or_else(|| {
@@ -100,19 +100,19 @@ impl<'a> CibouletteStore<'a> {
         let edge_from_i_direct = self.graph_mut().update_edge(
             indexes.from(),
             indexes.to(),
-            CibouletteRelationshipOption::ManyToMany(opt.clone()),
+            CibouletteRelationshipOptionBuilder::ManyToMany(opt.clone()),
         );
         let edge_to_i_direct = self.graph_mut().update_edge(
             indexes.to(),
             indexes.from(),
-            CibouletteRelationshipOption::ManyToMany(opt.clone()),
+            CibouletteRelationshipOptionBuilder::ManyToMany(opt.clone()),
         );
         let from_key = opt.keys_for_type(&from_type)?.to_string();
         let edge_from_i = self.graph_mut().update_edge(
             indexes.bucket(),
             indexes.from(),
-            CibouletteRelationshipOption::OneToMany(
-                CibouletteRelationshipOneToManyOption::new_from_many_to_many(
+            CibouletteRelationshipOptionBuilder::OneToMany(
+                CibouletteRelationshipOneToManyOptionBuilder::new_from_many_to_many(
                     from_type,
                     bucket_type.clone(),
                     from_key,
@@ -125,8 +125,8 @@ impl<'a> CibouletteStore<'a> {
         let edge_to_i = self.graph_mut().update_edge(
             indexes.bucket(),
             indexes.to(),
-            CibouletteRelationshipOption::OneToMany(
-                CibouletteRelationshipOneToManyOption::new_from_many_to_many(
+            CibouletteRelationshipOptionBuilder::OneToMany(
+                CibouletteRelationshipOneToManyOptionBuilder::new_from_many_to_many(
                     to_type,
                     bucket_type.clone(),
                     to_key,
@@ -147,7 +147,7 @@ impl<'a> CibouletteStore<'a> {
         &mut self,
         bucket_i: petgraph::graph::NodeIndex<u16>,
         from: &str,
-        opt: &CibouletteRelationshipManyToManyOption<'a>,
+        opt: &CibouletteRelationshipManyToManyOptionBuilder<'a>,
     ) -> Result<(), CibouletteError> {
         let type_fetched = self.graph.node_weight(bucket_i);
         match type_fetched {
@@ -172,7 +172,7 @@ impl<'a> CibouletteStore<'a> {
         &mut self,
         from: &str,
         to: &str,
-        opt: &CibouletteRelationshipManyToManyOption,
+        opt: &CibouletteRelationshipManyToManyOptionBuilder,
     ) -> Result<CibouletteManyToManyNodeIndexes, CibouletteError> {
         let from_i = self
             .map

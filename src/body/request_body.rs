@@ -498,7 +498,7 @@ impl<'a, B> CibouletteBody<'a, CibouletteResourceIdentifierPermissive<'a>, B> {
     pub fn get_main_type(
         &self,
         bag: &'a CibouletteStore<'a>,
-    ) -> Option<&CibouletteResourceType<'a>> {
+    ) -> Option<&Arc<CibouletteResourceType<'a>>> {
         match self.data() {
             CibouletteBodyData::Object(data) => match data {
                 CibouletteResourceSelector::One(x) => {

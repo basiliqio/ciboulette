@@ -11,7 +11,7 @@ fn single_type() {
     let res = builder.build(&store);
 
     assert_eq!(
-        matches!(res.unwrap(), CiboulettePath::Type(x) if x == store.get_type("articles").unwrap()),
+        matches!(res.unwrap(), CiboulettePath::Type(x) if x == store.get_type("articles").unwrap().as_ref()),
         true
     );
 }
@@ -43,7 +43,7 @@ fn type_id() {
     let res = builder.build(&store);
 
     assert_eq!(
-        matches!(res.unwrap(), CiboulettePath::TypeId(x, CibouletteId::Uuid(y)) if x == store.get_type("articles").unwrap() && y == Uuid::parse_str("6720877a-e27e-4e9e-9ac0-3fff4deb55f2").unwrap()),
+        matches!(res.unwrap(), CiboulettePath::TypeId(x, CibouletteId::Uuid(y)) if x == store.get_type("articles").unwrap().as_ref() && y == Uuid::parse_str("6720877a-e27e-4e9e-9ac0-3fff4deb55f2").unwrap()),
         true
     );
 }
@@ -59,7 +59,7 @@ fn type_id_related() {
     let res = builder.build(&store);
 
     assert_eq!(
-        matches!(res.unwrap(), CiboulettePath::TypeIdRelated(x, CibouletteId::Uuid(y), z) if x == store.get_type("articles").unwrap() && y == Uuid::parse_str("6720877a-e27e-4e9e-9ac0-3fff4deb55f2").unwrap() && z == store.get_type("peoples").unwrap()),
+        matches!(res.unwrap(), CiboulettePath::TypeIdRelated(x, CibouletteId::Uuid(y), z) if x == store.get_type("articles").unwrap().as_ref() && y == Uuid::parse_str("6720877a-e27e-4e9e-9ac0-3fff4deb55f2").unwrap() && z == store.get_type("peoples").unwrap().as_ref()),
         true
     );
 }
@@ -75,7 +75,7 @@ fn type_id_relationship() {
     let res = builder.build(&store);
 
     assert_eq!(
-        matches!(res.unwrap(), CiboulettePath::TypeIdRelationship(x, CibouletteId::Uuid(y), z) if x == store.get_type("articles").unwrap() && y == Uuid::parse_str("6720877a-e27e-4e9e-9ac0-3fff4deb55f2").unwrap() && z == store.get_type("peoples").unwrap()),
+        matches!(res.unwrap(), CiboulettePath::TypeIdRelationship(x, CibouletteId::Uuid(y), z) if x == store.get_type("articles").unwrap().as_ref() && y == Uuid::parse_str("6720877a-e27e-4e9e-9ac0-3fff4deb55f2").unwrap() && z == store.get_type("peoples").unwrap().as_ref()),
         true
     );
 }

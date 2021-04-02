@@ -2,7 +2,7 @@ use super::*;
 
 #[test]
 fn ok() {
-    let mut store = CibouletteStore::default();
+    let mut store = CibouletteStoreBuilder::default();
 
     store
         .add_type(
@@ -18,7 +18,7 @@ fn ok() {
             ciboulette_test_helper::gen_messy_json_schema_favorite_color(),
         )
         .unwrap();
-    let opt = CibouletteRelationshipOneToManyOption::new(
+    let opt = CibouletteRelationshipOneToManyOptionBuilder::new(
         store.get_type("favorite_color").unwrap().clone(),
         store.get_type("peoples").unwrap().clone(),
         "favorite_color".to_string(),
@@ -27,14 +27,14 @@ fn ok() {
     store.add_one_to_many_rel(opt.clone(), None, None).unwrap();
     let rel = store.get_rel("peoples", "favorite_color").unwrap();
     assert_eq!(
-        matches!(rel.1, CibouletteRelationshipOption::ManyToOne(x) if x == &opt),
+        matches!(rel.1, CibouletteRelationshipOptionBuilder::ManyToOne(x) if x == &opt),
         true
     );
 }
 
 #[test]
 fn ok_reverse() {
-    let mut store = CibouletteStore::default();
+    let mut store = CibouletteStoreBuilder::default();
 
     store
         .add_type(
@@ -50,7 +50,7 @@ fn ok_reverse() {
             ciboulette_test_helper::gen_messy_json_schema_favorite_color(),
         )
         .unwrap();
-    let opt = CibouletteRelationshipOneToManyOption::new(
+    let opt = CibouletteRelationshipOneToManyOptionBuilder::new(
         store.get_type("favorite_color").unwrap().clone(),
         store.get_type("peoples").unwrap().clone(),
         "favorite_color".to_string(),
@@ -59,14 +59,14 @@ fn ok_reverse() {
     store.add_one_to_many_rel(opt.clone(), None, None).unwrap();
     let rel = store.get_rel("favorite_color", "peoples").unwrap();
     assert_eq!(
-        matches!(rel.1, CibouletteRelationshipOption::OneToMany(x) if x == &opt),
+        matches!(rel.1, CibouletteRelationshipOptionBuilder::OneToMany(x) if x == &opt),
         true
     );
 }
 
 #[test]
 fn duplicate() {
-    let mut store = CibouletteStore::default();
+    let mut store = CibouletteStoreBuilder::default();
 
     store
         .add_type(
@@ -82,7 +82,7 @@ fn duplicate() {
             ciboulette_test_helper::gen_messy_json_schema_favorite_color(),
         )
         .unwrap();
-    let opt = CibouletteRelationshipOneToManyOption::new(
+    let opt = CibouletteRelationshipOneToManyOptionBuilder::new(
         store.get_type("favorite_color").unwrap().clone(),
         store.get_type("peoples").unwrap().clone(),
         "favorite_color".to_string(),

@@ -76,8 +76,11 @@ impl<'a> CibouletteQueryParametersBuilder<'a> {
     pub(super) fn check_relationship_exists(
         bag: &'a CibouletteStore<'a>,
         type_list: &[Cow<'_, str>],
-    ) -> Result<&'a CibouletteResourceType<'a>, CibouletteError> {
-        let mut wtype: (petgraph::graph::NodeIndex<u16>, &CibouletteResourceType);
+    ) -> Result<&'a Arc<CibouletteResourceType<'a>>, CibouletteError> {
+        let mut wtype: (
+            petgraph::graph::NodeIndex<u16>,
+            &Arc<CibouletteResourceType>,
+        );
         let mut types_iter = type_list.iter();
 
         let type_ = types_iter

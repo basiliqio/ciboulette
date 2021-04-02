@@ -9,7 +9,9 @@ fn single() {
     let include = res.include();
     assert_eq!(include.len(), 1);
     assert_eq!(
-        include.get(bag.get_type("comments").unwrap()).is_some(),
+        include
+            .get(bag.get_type("comments").unwrap().as_ref())
+            .is_some(),
         true
     );
 }
@@ -23,11 +25,15 @@ fn multiple() {
     let include = res.include();
     assert_eq!(include.len(), 2);
     assert_eq!(
-        include.get(bag.get_type("comments").unwrap()).is_some(),
+        include
+            .get(bag.get_type("comments").unwrap().as_ref())
+            .is_some(),
         true
     );
     assert_eq!(
-        include.get(bag.get_type("articles").unwrap()).is_some(),
+        include
+            .get(bag.get_type("articles").unwrap().as_ref())
+            .is_some(),
         true
     );
 }
@@ -43,7 +49,9 @@ fn single_with_nesting() {
     let include = res.include();
     assert_eq!(include.len(), 1);
     assert_eq!(
-        include.get(bag.get_type("comments").unwrap()).is_some(),
+        include
+            .get(bag.get_type("comments").unwrap().as_ref())
+            .is_some(),
         true
     );
 }
@@ -59,11 +67,15 @@ fn multiple_with_nesting() {
     let include = res.include();
     assert_eq!(include.len(), 2);
     assert_eq!(
-        include.get(bag.get_type("comments").unwrap()).is_some(),
+        include
+            .get(bag.get_type("comments").unwrap().as_ref())
+            .is_some(),
         true
     );
     assert_eq!(
-        include.get(bag.get_type("articles").unwrap()).is_some(),
+        include
+            .get(bag.get_type("articles").unwrap().as_ref())
+            .is_some(),
         true
     );
 }
@@ -133,7 +145,9 @@ fn alias_type_with_nested_type() {
     let include = res.include();
     assert_eq!(include.len(), 1);
     assert_eq!(
-        include.get(bag.get_type("peoples").unwrap()).is_some(),
+        include
+            .get(bag.get_type("peoples").unwrap().as_ref())
+            .is_some(),
         true
     );
 }

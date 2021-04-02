@@ -2,7 +2,7 @@ use super::*;
 
 #[test]
 fn ok() {
-    let mut store = CibouletteStore::default();
+    let mut store = CibouletteStoreBuilder::default();
 
     store
         .add_type(
@@ -25,7 +25,7 @@ fn ok() {
             ciboulette_test_helper::gen_messy_json_schema_comments(),
         )
         .unwrap();
-    let opt = CibouletteRelationshipOneToManyOption::new(
+    let opt = CibouletteRelationshipOneToManyOptionBuilder::new(
         store.get_type("peoples").unwrap().clone(),
         store.get_type("comments").unwrap().clone(),
         "author".to_string(),
@@ -36,14 +36,14 @@ fn ok() {
         .unwrap();
     let rel = store.get_rel("peoples", "comments").unwrap();
     assert_eq!(
-        matches!(rel.1, CibouletteRelationshipOption::OneToMany(x) if x == &opt),
+        matches!(rel.1, CibouletteRelationshipOptionBuilder::OneToMany(x) if x == &opt),
         true
     );
 }
 
 #[test]
 fn ok_reverse() {
-    let mut store = CibouletteStore::default();
+    let mut store = CibouletteStoreBuilder::default();
 
     store
         .add_type(
@@ -66,7 +66,7 @@ fn ok_reverse() {
             ciboulette_test_helper::gen_messy_json_schema_comments(),
         )
         .unwrap();
-    let opt = CibouletteRelationshipOneToManyOption::new(
+    let opt = CibouletteRelationshipOneToManyOptionBuilder::new(
         store.get_type("peoples").unwrap().clone(),
         store.get_type("comments").unwrap().clone(),
         "author".to_string(),
@@ -77,14 +77,14 @@ fn ok_reverse() {
         .unwrap();
     let rel = store.get_rel("comments", "author").unwrap();
     assert_eq!(
-        matches!(rel.1, CibouletteRelationshipOption::ManyToOne(x) if x == &opt),
+        matches!(rel.1, CibouletteRelationshipOptionBuilder::ManyToOne(x) if x == &opt),
         true
     );
 }
 
 #[test]
 fn duplicate() {
-    let mut store = CibouletteStore::default();
+    let mut store = CibouletteStoreBuilder::default();
 
     store
         .add_type(
@@ -107,7 +107,7 @@ fn duplicate() {
             ciboulette_test_helper::gen_messy_json_schema_comments(),
         )
         .unwrap();
-    let opt = CibouletteRelationshipOneToManyOption::new(
+    let opt = CibouletteRelationshipOneToManyOptionBuilder::new(
         store.get_type("peoples").unwrap().clone(),
         store.get_type("comments").unwrap().clone(),
         "author".to_string(),

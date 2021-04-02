@@ -16,11 +16,11 @@ struct CibouletteManyToManyEdgeIndexes {
     to_direct: petgraph::graph::EdgeIndex<u16>,
 }
 
-impl<'a> CibouletteStore<'a> {
+impl<'a> CibouletteStoreBuilder<'a> {
     /// Add a relationships (one-to-many) to the graph
     pub fn add_one_to_many_rel(
         &mut self,
-        opt: CibouletteRelationshipOneToManyOption<'a>,
+        opt: CibouletteRelationshipOneToManyOptionBuilder<'a>,
         alias_one_table: Option<&str>,
         alias_many_table: Option<&str>,
     ) -> Result<(), CibouletteError> {
@@ -81,7 +81,7 @@ impl<'a> CibouletteStore<'a> {
         &mut self,
         from_i: &petgraph::graph::NodeIndex<u16>,
         to_i: &petgraph::graph::NodeIndex<u16>,
-        opt: &CibouletteRelationshipOneToManyOption<'a>,
+        opt: &CibouletteRelationshipOneToManyOptionBuilder<'a>,
     ) -> (
         petgraph::graph::EdgeIndex<u16>,
         petgraph::graph::EdgeIndex<u16>,
@@ -89,19 +89,19 @@ impl<'a> CibouletteStore<'a> {
         let edge_from_i = self.graph_mut().update_edge(
             *from_i,
             *to_i,
-            CibouletteRelationshipOption::OneToMany(opt.clone()),
+            CibouletteRelationshipOptionBuilder::OneToMany(opt.clone()),
         );
         let edge_to_i = self.graph_mut().update_edge(
             *to_i,
             *from_i,
-            CibouletteRelationshipOption::ManyToOne(opt.clone()),
+            CibouletteRelationshipOptionBuilder::ManyToOne(opt.clone()),
         );
         (edge_from_i, edge_to_i)
     }
 
     fn get_one_to_many_node_indexes(
         &mut self,
-        opt: &CibouletteRelationshipOneToManyOption,
+        opt: &CibouletteRelationshipOneToManyOptionBuilder,
     ) -> Result<
         (
             petgraph::graph::NodeIndex<u16>,

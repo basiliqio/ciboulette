@@ -1,9 +1,13 @@
 use super::*;
-use crate::body::relationship::CibouletteRelationshipOneToManyOption;
 use getset::CopyGetters;
 
+mod builder;
 mod many_to_many;
 mod one_to_many;
+pub mod relationships_options;
+pub mod relationships_options_builder;
+pub use builder::CibouletteStoreBuilder;
+use relationships_options::CibouletteRelationshipOneToManyOption;
 
 #[cfg(test)]
 mod tests;
@@ -13,7 +17,7 @@ mod tests;
 #[getset(get = "pub", get_mut)]
 pub struct CibouletteStore<'a> {
     graph: petgraph::graph::Graph<
-        CibouletteResourceType<'a>,
+        Arc<CibouletteResourceType<'a>>,
         CibouletteRelationshipOption<'a>,
         petgraph::Directed,
         u16,
@@ -22,28 +26,7 @@ pub struct CibouletteStore<'a> {
     config: CibouletteConfig,
 }
 
-impl<'a> Default for CibouletteStore<'a> {
-    #[inline]
-    fn default() -> Self {
-        CibouletteStore {
-            graph: petgraph::graph::Graph::with_capacity(0, 0),
-            map: BTreeMap::new(),
-            config: CibouletteConfig::default(),
-        }
-    }
-}
-
 impl<'a> CibouletteStore<'a> {
-    /// Create a new bag
-    #[inline]
-    pub fn new(config: CibouletteConfig) -> Self {
-        CibouletteStore {
-            config,
-            graph: petgraph::graph::Graph::default(),
-            map: BTreeMap::default(),
-        }
-    }
-
     /// Get a type index from the graph
     pub fn get_type_index(&self, name: &str) -> Option<&petgraph::graph::NodeIndex<u16>> {
         self.map.get(name)
@@ -53,19 +36,25 @@ impl<'a> CibouletteStore<'a> {
     pub fn get_type_with_index(
         &self,
         name: &str,
-    ) -> Option<(petgraph::graph::NodeIndex<u16>, &CibouletteResourceType<'a>)> {
+    ) -> Option<(
+        petgraph::graph::NodeIndex<u16>,
+        &Arc<CibouletteResourceType<'a>>,
+    )> {
         self.map
             .get(name)
             .and_then(|x| self.graph.node_weight(*x).map(|y| (*x, y)))
     }
 
     /// Get a type from the graph, returning an error if not found
-    pub fn get_type_if_exists(&self, name: &str) -> Option<&CibouletteResourceType<'a>> {
+    pub fn get_type_if_exists(&self, name: &str) -> Option<&Arc<CibouletteResourceType<'a>>> {
         self.map.get(name).and_then(|x| self.graph.node_weight(*x))
     }
 
     /// Get a type from the graph, returning an error if not found
-    pub fn get_type(&self, name: &str) -> Result<&CibouletteResourceType<'a>, CibouletteError> {
+    pub fn get_type(
+        &self,
+        name: &str,
+    ) -> Result<&Arc<CibouletteResourceType<'a>>, CibouletteError> {
         self.map
             .get(name)
             .and_then(|x| self.graph.node_weight(*x))
@@ -104,24 +93,5 @@ impl<'a> CibouletteStore<'a> {
             .ok_or_else(|| CibouletteError::RelNotInGraph(from.to_string(), to.to_string()))?;
 
         Ok((to_type, opt))
-    }
-
-    /// Add a type to the graph
-    pub fn add_type(
-        &mut self,
-        name: &str,
-        id_type: CibouletteIdType,
-        schema: MessyJsonObject<'a>,
-    ) -> Result<(), CibouletteError> {
-        let name = name.to_string();
-        if self.map.contains_key(name.as_str())
-        // Check if type exists
-        {
-            return Err(CibouletteError::UniqType(name));
-        }
-        let t = CibouletteResourceType::new(name.clone(), id_type, schema);
-        let index = self.graph.add_node(t); // Add the node
-        self.map.insert(name, index); // Save the index to the map
-        Ok(())
     }
 }
