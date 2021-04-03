@@ -38,11 +38,11 @@ impl CibouletteRelationshipOneToOneOption {
 impl<'a> CibouletteRelationshipManyToManyOption<'a> {
     pub fn keys_for_type(
         &self,
-        type_: &Arc<CibouletteResourceType<'a>>,
+        type_: &CibouletteResourceType<'a>,
     ) -> Result<&str, CibouletteError> {
         self.keys
             .iter()
-            .find(|(k, _)| k == type_)
+            .find(|(k, _)| k.as_ref() == type_)
             .map(|x| x.1.as_str())
             .ok_or_else(|| {
                 CibouletteError::UnknownRelationship(
