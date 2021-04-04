@@ -145,7 +145,11 @@ impl<'a> CibouletteStoreBuilder<'a> {
         }
         Ok(CibouletteStore {
             config: self.config,
-            map: self.map,
+            map: self
+                .map
+                .into_iter()
+                .map(|(k, v)| (ArcStr::from(k), v))
+                .collect(),
             graph: tmp_graph,
         })
     }

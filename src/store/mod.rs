@@ -22,7 +22,7 @@ pub struct CibouletteStore<'a> {
         petgraph::Directed,
         u16,
     >,
-    map: BTreeMap<String, petgraph::graph::NodeIndex<u16>>,
+    map: BTreeMap<ArcStr, petgraph::graph::NodeIndex<u16>>,
     config: CibouletteConfig,
 }
 
