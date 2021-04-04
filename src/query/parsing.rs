@@ -94,13 +94,16 @@ impl<'a> CibouletteQueryParametersBuilder<'a> {
                 Some(i) => i,
                 None => {
                     return Err(CibouletteError::UnknownRelationship(
-                        wtype.1.name().clone(),
+                        wtype.1.name().to_string(),
                         type_.to_string(),
                     ))
                 }
             };
             let nodes = bag.graph().edge_endpoints(*rel_edge).ok_or_else(|| {
-                CibouletteError::RelNotInGraph(wtype.1.name().clone(), type_.clone().into_owned())
+                CibouletteError::RelNotInGraph(
+                    wtype.1.name().to_string(),
+                    type_.clone().into_owned(),
+                )
             })?; // Get the nodes
             let next_node = match nodes.0 == wtype.0 {
                 // Extract the next node
@@ -127,7 +130,7 @@ impl<'a> CibouletteQueryParametersBuilder<'a> {
         match type_.schema().properties().contains_key(field) {
             true => Ok(()),
             false => Err(CibouletteError::UnknownField(
-                type_.name().clone(),
+                type_.name().to_string(),
                 field.to_string(),
             )),
         }
@@ -144,7 +147,7 @@ impl<'a> CibouletteQueryParametersBuilder<'a> {
 
         while let Some(field) = iter.next() {
             curr_obj.properties().get(field.as_ref()).ok_or_else(|| {
-                CibouletteError::UnknownField(type_.name().clone(), field.to_string())
+                CibouletteError::UnknownField(type_.name().to_string(), field.to_string())
             })?;
             match iter.peek().is_some() {
                 true => continue,
@@ -153,11 +156,11 @@ impl<'a> CibouletteQueryParametersBuilder<'a> {
         }
         match field_list.len() {
             0 => Err(CibouletteError::UnknownField(
-                type_.name().clone(),
+                type_.name().to_string(),
                 "<empty>".to_string(),
             )),
             _ => Err(CibouletteError::UnknownField(
-                type_.name().clone(),
+                type_.name().to_string(),
                 field_list.join("."),
             )),
         }

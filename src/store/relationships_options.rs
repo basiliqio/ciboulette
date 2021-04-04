@@ -12,7 +12,7 @@ pub struct CibouletteRelationshipManyToManyOption<'a> {
 pub struct CibouletteRelationshipOneToManyOption<'a> {
     pub(crate) one_table: Arc<CibouletteResourceType<'a>>,
     pub(crate) many_table: Arc<CibouletteResourceType<'a>>,
-    pub(crate) many_table_key: String,
+    pub(crate) many_table_key: ArcStr,
     pub(crate) optional: bool,
     pub(crate) part_of_many_to_many: Option<petgraph::graph::EdgeIndex<u16>>,
 }
@@ -20,7 +20,7 @@ pub struct CibouletteRelationshipOneToManyOption<'a> {
 #[derive(Debug, Clone, Getters, PartialEq)]
 #[getset(get = "pub")]
 pub struct CibouletteRelationshipOneToOneOption {
-    key: String,
+    key: ArcStr,
     id_type: CibouletteIdType,
     optional: bool,
 }
@@ -28,7 +28,7 @@ pub struct CibouletteRelationshipOneToOneOption {
 impl CibouletteRelationshipOneToOneOption {
     pub fn new(key: &str, id_type: CibouletteIdType, optional: bool) -> Self {
         CibouletteRelationshipOneToOneOption {
-            key: key.to_string(),
+            key: ArcStr::from(key),
             id_type,
             optional,
         }
@@ -46,8 +46,8 @@ impl<'a> CibouletteRelationshipManyToManyOption<'a> {
             .map(|x| x.1.as_str())
             .ok_or_else(|| {
                 CibouletteError::UnknownRelationship(
-                    self.bucket_resource().name().clone(),
-                    type_.name().clone(),
+                    self.bucket_resource().name().to_string(),
+                    type_.name().to_string(),
                 )
             })
     }

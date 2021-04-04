@@ -51,7 +51,7 @@ where
         if let Some(max) = acc.max_elements() {
             if acc.main_data().len() > *max {
                 return Err(CibouletteError::OutboundTooManyMainData(
-                    inbound_request.path().main_type().name().clone(),
+                    inbound_request.path().main_type().name().to_string(),
                 ));
             }
         }

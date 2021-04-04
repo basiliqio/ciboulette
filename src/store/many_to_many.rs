@@ -68,15 +68,17 @@ impl<'a> CibouletteStoreBuilder<'a> {
                 alias.to_string(),
             ));
         }
+        let alias_arc = ArcStr::from(alias);
+        let bucket_arc = ArcStr::from(bucket.name());
         type_
             .relationships_mut()
-            .insert(alias.to_string(), rel_to_insert);
+            .insert(alias_arc.clone(), rel_to_insert);
         type_
             .relationships_type_to_alias_mut()
-            .insert(dest.to_string(), alias.to_string());
+            .insert(ArcStr::from(dest), alias_arc);
         type_
             .relationships_type_to_alias_mut()
-            .insert(bucket.name().clone(), bucket.name().clone());
+            .insert(bucket_arc.clone(), bucket_arc);
         Ok(())
     }
 
@@ -159,7 +161,7 @@ impl<'a> CibouletteStoreBuilder<'a> {
             Some(x) => {
                 if let Some(missing) = x.has_fields(opt.keys().iter().map(|x| x.1.as_str()))? {
                     return Err(CibouletteError::UnknownField(
-                        opt.bucket_resource().name().clone(),
+                        opt.bucket_resource().name().to_string(),
                         missing,
                     ));
                 }
@@ -184,8 +186,10 @@ impl<'a> CibouletteStoreBuilder<'a> {
             .ok_or_else(|| CibouletteError::UnknownType(to.to_string()))?;
         let bucket_i = self
             .map
-            .get(opt.bucket_resource().name())
-            .ok_or_else(|| CibouletteError::UnknownType(opt.bucket_resource().name().clone()))?;
+            .get(opt.bucket_resource().name().as_str())
+            .ok_or_else(|| {
+                CibouletteError::UnknownType(opt.bucket_resource().name().to_string())
+            })?;
         Ok(CibouletteManyToManyNodeIndexes {
             from: *from_i,
             to: *to_i,

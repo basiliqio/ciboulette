@@ -4,11 +4,11 @@ use super::*;
 #[derive(Clone, Debug, Getters, MutGetters, Hash)]
 #[getset(get = "pub", get_mut = "pub")]
 pub struct CibouletteResourceType<'a> {
-    relationships: BTreeMap<String, petgraph::graph::EdgeIndex<u16>>,
-    relationships_type_to_alias: BTreeMap<String, String>,
+    relationships: BTreeMap<ArcStr, petgraph::graph::EdgeIndex<u16>>,
+    relationships_type_to_alias: BTreeMap<ArcStr, ArcStr>,
     schema: MessyJsonObject<'a>,
     id_type: CibouletteIdType,
-    name: String,
+    name: ArcStr,
 }
 
 impl<'a> CibouletteResourceType<'a> {
@@ -19,12 +19,12 @@ impl<'a> CibouletteResourceType<'a> {
             relationships_type_to_alias: BTreeMap::new(),
             schema,
             id_type,
-            name,
+            name: ArcStr::from(name),
         }
     }
 
     /// Get a the alias of a type related to this type
-    pub fn get_alias(&self, name: &str) -> Result<&String, CibouletteError> {
+    pub fn get_alias(&self, name: &str) -> Result<&ArcStr, CibouletteError> {
         self.relationships_type_to_alias().get(name).ok_or_else(|| {
             CibouletteError::MissingAliasTranslation(self.name().to_string(), name.to_string())
         })
@@ -34,7 +34,7 @@ impl<'a> CibouletteResourceType<'a> {
         &self,
         store: &'a CibouletteStore<'a>,
         alias: &str,
-    ) -> Result<&CibouletteResourceType<'a>, CibouletteError> {
+    ) -> Result<&Arc<CibouletteResourceType<'a>>, CibouletteError> {
         let edge_index = self.relationships().get(alias).ok_or_else(|| {
             CibouletteError::UnknownRelationship(self.name().to_string(), alias.to_string())
         })?;

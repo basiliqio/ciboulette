@@ -38,8 +38,8 @@ impl<'a> CibouletteRelationshipManyToManyOptionBuilder<'a> {
             .map(|x| x.1.as_str())
             .ok_or_else(|| {
                 CibouletteError::UnknownRelationship(
-                    self.bucket_resource().name().clone(),
-                    type_.name().clone(),
+                    self.bucket_resource().name().to_string(),
+                    type_.name().to_string(),
                 )
             })
     }
@@ -56,20 +56,20 @@ impl<'a> CibouletteRelationshipManyToManyOptionBuilder<'a> {
         let bucket_table = store_builder
             .get_type_index(self.bucket_resource().name())
             .ok_or_else(|| {
-                CibouletteError::TypeNotInGraph(self.bucket_resource().name().clone())
+                CibouletteError::TypeNotInGraph(self.bucket_resource().name().to_string())
             })?;
         let table1 = store_builder
             .get_type_index(self.keys()[0].0.name())
-            .ok_or_else(|| CibouletteError::TypeNotInGraph(self.keys()[0].0.name().clone()))?;
+            .ok_or_else(|| CibouletteError::TypeNotInGraph(self.keys()[0].0.name().to_string()))?;
         let table2 = store_builder
             .get_type_index(self.keys()[1].0.name())
-            .ok_or_else(|| CibouletteError::TypeNotInGraph(self.keys()[1].0.name().clone()))?;
+            .ok_or_else(|| CibouletteError::TypeNotInGraph(self.keys()[1].0.name().to_string()))?;
 
         Ok(CibouletteRelationshipManyToManyOption {
             bucket_resource: graph
                 .node_weight(*bucket_table)
                 .ok_or_else(|| {
-                    CibouletteError::TypeNotInGraph(self.bucket_resource().name().clone())
+                    CibouletteError::TypeNotInGraph(self.bucket_resource().name().to_string())
                 })?
                 .clone(),
             keys: [
@@ -77,7 +77,7 @@ impl<'a> CibouletteRelationshipManyToManyOptionBuilder<'a> {
                     graph
                         .node_weight(*table1)
                         .ok_or_else(|| {
-                            CibouletteError::TypeNotInGraph(self.keys()[0].0.name().clone())
+                            CibouletteError::TypeNotInGraph(self.keys()[0].0.name().to_string())
                         })?
                         .clone(),
                     self.keys[0].1.clone(),
@@ -86,7 +86,7 @@ impl<'a> CibouletteRelationshipManyToManyOptionBuilder<'a> {
                     graph
                         .node_weight(*table2)
                         .ok_or_else(|| {
-                            CibouletteError::TypeNotInGraph(self.keys()[1].0.name().clone())
+                            CibouletteError::TypeNotInGraph(self.keys()[1].0.name().to_string())
                         })?
                         .clone(),
                     self.keys[1].1.clone(),
@@ -140,21 +140,25 @@ impl<'a> CibouletteRelationshipOneToManyOptionBuilder<'a> {
     ) -> Result<CibouletteRelationshipOneToManyOption<'a>, CibouletteError> {
         let one_table = store_builder
             .get_type_index(self.one_table().name())
-            .ok_or_else(|| CibouletteError::TypeNotInGraph(self.one_table().name().clone()))?;
+            .ok_or_else(|| CibouletteError::TypeNotInGraph(self.one_table().name().to_string()))?;
         let many_table = store_builder
             .get_type_index(self.many_table().name())
-            .ok_or_else(|| CibouletteError::TypeNotInGraph(self.many_table().name().clone()))?;
+            .ok_or_else(|| CibouletteError::TypeNotInGraph(self.many_table().name().to_string()))?;
 
         Ok(CibouletteRelationshipOneToManyOption {
             one_table: graph
                 .node_weight(*one_table)
-                .ok_or_else(|| CibouletteError::TypeNotInGraph(self.one_table().name().clone()))?
+                .ok_or_else(|| {
+                    CibouletteError::TypeNotInGraph(self.one_table().name().to_string())
+                })?
                 .clone(),
             many_table: graph
                 .node_weight(*many_table)
-                .ok_or_else(|| CibouletteError::TypeNotInGraph(self.many_table().name().clone()))?
+                .ok_or_else(|| {
+                    CibouletteError::TypeNotInGraph(self.many_table().name().to_string())
+                })?
                 .clone(),
-            many_table_key: self.many_table_key.clone(),
+            many_table_key: ArcStr::from(self.many_table_key()),
             optional: self.optional,
             part_of_many_to_many: self.part_of_many_to_many,
         })

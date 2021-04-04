@@ -16,6 +16,7 @@ pub mod store;
 #[cfg(test)]
 mod tests;
 
+use arcstr::ArcStr;
 use body::resource_obj::CibouletteResourceBuilderVisitor;
 use getset::{Getters, MutGetters};
 use messy_json::*;

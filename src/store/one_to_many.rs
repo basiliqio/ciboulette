@@ -68,12 +68,13 @@ impl<'a> CibouletteStoreBuilder<'a> {
                 alias.to_string(),
             ));
         }
+        let alias_arc = ArcStr::from(alias);
         type_
             .relationships_mut()
-            .insert(alias.to_string(), orig_rel_i);
+            .insert(alias_arc.clone(), orig_rel_i);
         type_
             .relationships_type_to_alias_mut()
-            .insert(dest.name().to_string(), alias.to_string());
+            .insert(ArcStr::from(dest.name()), alias_arc);
         Ok(())
     }
 
@@ -111,11 +112,11 @@ impl<'a> CibouletteStoreBuilder<'a> {
     > {
         let from_i = self
             .map
-            .get(opt.one_table().name())
+            .get(opt.one_table().name().as_str())
             .ok_or_else(|| CibouletteError::UnknownType(opt.one_table().name().to_string()))?;
         let to_i = self
             .map
-            .get(opt.many_table().name())
+            .get(opt.many_table().name().as_str())
             .ok_or_else(|| CibouletteError::UnknownType(opt.many_table().name().to_string()))?;
         Ok((*from_i, *to_i))
     }
