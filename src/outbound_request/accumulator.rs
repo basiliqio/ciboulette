@@ -184,7 +184,7 @@ fn insert_relationships_into_existing<'a, B>(
         }
     } else {
         obj.relationships_mut().insert(
-            Cow::Borrowed(alias.as_str()),
+            alias.clone(),
             CibouletteRelationshipObject {
                 // TODO links
                 data: CibouletteOptionalData::Object(CibouletteResourceIdentifierSelector::One(

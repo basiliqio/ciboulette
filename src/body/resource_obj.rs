@@ -25,7 +25,7 @@ pub struct CibouletteResource<'a, B, T> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub attributes: Option<B>,
     #[serde(skip_serializing_if = "BTreeMap::is_empty")]
-    pub relationships: BTreeMap<Cow<'a, str>, CibouletteRelationshipObject<'a>>,
+    pub relationships: BTreeMap<ArcStr, CibouletteRelationshipObject<'a>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub links: Option<CibouletteLink<'a>>,
     #[serde(skip_serializing)]
@@ -286,16 +286,19 @@ impl<'a> CibouletteResourceBuilder<'a> {
             }
             None => None,
         };
-        let mut relationships: BTreeMap<Cow<'a, str>, CibouletteRelationshipObject<'a>> =
-            BTreeMap::new();
+        let mut relationships: BTreeMap<ArcStr, CibouletteRelationshipObject<'a>> = BTreeMap::new();
         for (k, v) in self.relationships {
-            if !current_type.relationships().contains_key(k.as_ref()) {
-                return Err(CibouletteError::UnknownRelationship(
-                    current_type.name().to_string(),
-                    k.to_string(),
-                ));
+            match current_type.relationships().get_key_value(k.as_ref()) {
+                Some((k, _)) => {
+                    relationships.insert(k.clone(), v.build(&current_type)?);
+                }
+                None => {
+                    return Err(CibouletteError::UnknownRelationship(
+                        current_type.name().to_string(),
+                        k.to_string(),
+                    ))
+                }
             }
-            relationships.insert(k, v.build(&current_type)?);
         }
         Ok(CibouletteResource {
             identifier: self.identifier.build_permissive(&current_type)?,
