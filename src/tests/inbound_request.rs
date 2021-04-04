@@ -16,7 +16,7 @@ fn ok_path_only() {
     assert_eq!(res.intention(), &INTENTION);
     assert_eq!(res.body().is_none(), true);
     assert_eq!(
-        matches!(res.path(), CiboulettePath::Type(x) if x == &store.get_type("articles").unwrap().as_ref()),
+        matches!(res.path(), CiboulettePath::Type(x) if x.as_ref() == store.get_type("articles").unwrap().as_ref()),
         true
     );
 }
@@ -51,7 +51,7 @@ fn body() {
     assert_eq!(res.intention(), &INTENTION);
     assert_eq!(res.body().is_some(), true);
     assert_eq!(
-        matches!(res.path(), CiboulettePath::Type(x) if x == &store.get_type("comments").unwrap().as_ref()),
+        matches!(res.path(), CiboulettePath::Type(x) if x.as_ref() == store.get_type("comments").unwrap().as_ref()),
         true
     );
 }
@@ -72,7 +72,7 @@ fn query() {
     assert_eq!(res.intention(), &INTENTION);
     assert_eq!(res.body().is_none(), true);
     assert_eq!(
-        matches!(res.path(), CiboulettePath::Type(x) if x == &store.get_type("comments").unwrap().as_ref()),
+        matches!(res.path(), CiboulettePath::Type(x) if x.as_ref() == store.get_type("comments").unwrap().as_ref()),
         true
     );
 }

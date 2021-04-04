@@ -10,7 +10,7 @@ pub enum CibouletteRequestSelector<'a> {
 }
 
 impl<'a> CibouletteRequestSelector<'a> {
-    pub fn main_type(&self) -> &'a CibouletteResourceType<'a> {
+    pub fn main_type(&'a self) -> &'a CibouletteResourceType<'a> {
         match self {
             CibouletteRequestSelector::Create(x) => x.path().main_type(),
             CibouletteRequestSelector::Read(x) => x.path().main_type(),

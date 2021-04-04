@@ -26,8 +26,8 @@ fn ok() {
         .unwrap()
     );
     assert_eq!(
-        res.resource_type(),
-        &store.get_type("comments").unwrap().as_ref()
+        res.resource_type().as_ref(),
+        store.get_type("comments").unwrap().as_ref()
     );
 }
 

@@ -43,7 +43,7 @@ fn single_with_nesting() {
     let (bag, builder) = setup(r#"include=peoples.comments"#);
 
     let res: CibouletteQueryParameters = builder
-        .build(&bag, Some(bag.get_type("peoples").unwrap()))
+        .build(&bag, Some(bag.get_type("peoples").unwrap().clone()))
         .expect("to build correctly");
     assert_eq!(!res.include().is_empty(), true);
     let include = res.include();
@@ -61,7 +61,7 @@ fn multiple_with_nesting() {
     let (bag, builder) = setup(r#"include=peoples.comments,peoples.articles"#);
 
     let res: CibouletteQueryParameters = builder
-        .build(&bag, Some(bag.get_type("peoples").unwrap()))
+        .build(&bag, Some(bag.get_type("peoples").unwrap().clone()))
         .expect("to build correctly");
     assert_eq!(!res.include().is_empty(), true);
     let include = res.include();

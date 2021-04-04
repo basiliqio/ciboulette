@@ -9,7 +9,7 @@ pub enum CiboulettePathBuilder<'a> {
 }
 
 impl<'a> CiboulettePath<'a> {
-    pub fn main_type(&self) -> &'a CibouletteResourceType<'a> {
+    pub fn main_type(&self) -> &Arc<CibouletteResourceType<'a>> {
         match self {
             CiboulettePath::Type(x) => x,
             CiboulettePath::TypeId(x, _) => x,
@@ -21,17 +21,17 @@ impl<'a> CiboulettePath<'a> {
 
 #[derive(Debug, Clone)]
 pub enum CiboulettePath<'a> {
-    Type(&'a CibouletteResourceType<'a>),
-    TypeId(&'a CibouletteResourceType<'a>, CibouletteId<'a>),
+    Type(Arc<CibouletteResourceType<'a>>),
+    TypeId(Arc<CibouletteResourceType<'a>>, CibouletteId<'a>),
     TypeIdRelated(
-        &'a CibouletteResourceType<'a>,
+        Arc<CibouletteResourceType<'a>>,
         CibouletteId<'a>,
-        &'a CibouletteResourceType<'a>,
+        Arc<CibouletteResourceType<'a>>,
     ),
     TypeIdRelationship(
-        &'a CibouletteResourceType<'a>,
+        Arc<CibouletteResourceType<'a>>,
         CibouletteId<'a>,
-        &'a CibouletteResourceType<'a>,
+        Arc<CibouletteResourceType<'a>>,
     ),
 }
 
@@ -87,8 +87,8 @@ impl<'a> CiboulettePathBuilder<'a> {
         stype: Cow<'a, str>,
     ) -> Result<
         (
-            &'a CibouletteResourceType<'a>,
-            &'a CibouletteResourceType<'a>,
+            Arc<CibouletteResourceType<'a>>,
+            Arc<CibouletteResourceType<'a>>,
         ),
         CibouletteError,
     > {
@@ -112,7 +112,7 @@ impl<'a> CiboulettePathBuilder<'a> {
                 .node_weight(nstype_1)
                 .ok_or_else(|| CibouletteError::TypeNotInGraph(stype.to_string()))?,
         };
-        Ok((nftype, nstype))
+        Ok((nftype.clone(), nstype.clone()))
     }
 
     pub fn build(
@@ -122,29 +122,29 @@ impl<'a> CiboulettePathBuilder<'a> {
         match self {
             CiboulettePathBuilder::Type(type_) => {
                 let ftype = bag.get_type(type_.as_ref())?;
-                Ok(CiboulettePath::Type(ftype))
+                Ok(CiboulettePath::Type(ftype.clone()))
             }
             CiboulettePathBuilder::TypeId(type_, id) => {
                 let ftype = bag.get_type(type_.as_ref())?;
                 Ok(CiboulettePath::TypeId(
-                    ftype,
+                    ftype.clone(),
                     CibouletteId::parse(*ftype.id_type(), id)?,
                 ))
             }
             CiboulettePathBuilder::TypeIdRelated(ftype, id, stype) => {
                 let (nftype, nstype) = Self::build_double_typed(&bag, ftype, stype)?;
                 Ok(CiboulettePath::TypeIdRelated(
-                    nftype,
+                    nftype.clone(),
                     CibouletteId::parse(*nftype.id_type(), id)?,
-                    nstype,
+                    nstype.clone(),
                 ))
             }
             CiboulettePathBuilder::TypeIdRelationship(ftype, id, stype) => {
                 let (nftype, nstype) = Self::build_double_typed(&bag, ftype, stype)?;
                 Ok(CiboulettePath::TypeIdRelationship(
-                    nftype,
+                    nftype.clone(),
                     CibouletteId::parse(*nftype.id_type(), id)?,
-                    nstype,
+                    nstype.clone(),
                 ))
             }
         }

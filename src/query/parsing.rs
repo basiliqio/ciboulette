@@ -5,7 +5,7 @@ use serde::de::{DeserializeSeed, Deserializer};
 #[derive(Debug, Getters, Clone, Hash)]
 #[getset(get = "pub")]
 pub struct CibouletteSortingElement<'a> {
-    pub type_: &'a CibouletteResourceType<'a>,
+    pub type_: Arc<CibouletteResourceType<'a>>,
     pub direction: CibouletteSortingDirection,
     pub field: Cow<'a, str>,
 }
@@ -13,7 +13,7 @@ pub struct CibouletteSortingElement<'a> {
 impl<'a> CibouletteSortingElement<'a> {
     /// Create a new sorting element
     pub fn new(
-        type_: &'a CibouletteResourceType<'a>,
+        type_: Arc<CibouletteResourceType<'a>>,
         direction: CibouletteSortingDirection,
         field: Cow<'a, str>,
     ) -> Self {
@@ -45,7 +45,7 @@ pub struct CibouletteQueryParameters<'a> {
     pub include: BTreeSet<&'a CibouletteResourceType<'a>>,
     pub sparse: BTreeMap<&'a CibouletteResourceType<'a>, Vec<Cow<'a, str>>>,
     pub sorting: Vec<CibouletteSortingElement<'a>>,
-    pub sorting_map: BTreeMap<&'a CibouletteResourceType<'a>, Vec<CibouletteSortingElement<'a>>>,
+    pub sorting_map: BTreeMap<Arc<CibouletteResourceType<'a>>, Vec<CibouletteSortingElement<'a>>>,
     pub page: BTreeMap<CiboulettePageType<'a>, Cow<'a, str>>,
     pub filter: Option<Cow<'a, str>>,
     pub filter_typed: BTreeMap<Cow<'a, str>, Cow<'a, str>>,
@@ -121,7 +121,7 @@ impl<'a> CibouletteQueryParametersBuilder<'a> {
     /// Checks that a field exists in a give resource type
     #[inline]
     pub(super) fn check_field_exists(
-        type_: &'a CibouletteResourceType<'a>,
+        type_: &CibouletteResourceType<'a>,
         field: &str,
     ) -> Result<(), CibouletteError> {
         match type_.schema().properties().contains_key(field) {
@@ -166,24 +166,24 @@ impl<'a> CibouletteQueryParametersBuilder<'a> {
     /// Extract a sorting map from a list of sorting elements
     fn extract_sorting_map(
         #[allow(clippy::ptr_arg)] sorting: &Vec<CibouletteSortingElement<'a>>,
-    ) -> BTreeMap<&'a CibouletteResourceType<'a>, Vec<CibouletteSortingElement<'a>>> {
+    ) -> BTreeMap<Arc<CibouletteResourceType<'a>>, Vec<CibouletteSortingElement<'a>>> {
         match sorting.len() {
             0 => BTreeMap::default(),
             _ => {
                 let mut sorting_map: BTreeMap<
-                    &CibouletteResourceType,
+                    Arc<CibouletteResourceType<'a>>,
                     Vec<CibouletteSortingElement>,
                 > = BTreeMap::new();
 
                 for (k, v) in sorting
                     .clone()
                     .into_iter()
-                    .group_by(|x| x.type_)
+                    .group_by(|x| x.type_().clone())
                     .into_iter()
                 {
-                    let insert_res = sorting_map.insert(k, v.into_iter().collect());
+                    let insert_res = sorting_map.insert(k.clone(), v.into_iter().collect());
                     if let Some(mut old_el) = insert_res {
-                        if let Some(new_el) = sorting_map.get_mut(k) {
+                        if let Some(new_el) = sorting_map.get_mut(&k) {
                             new_el.append(&mut old_el);
                         }
                     }
@@ -197,7 +197,7 @@ impl<'a> CibouletteQueryParametersBuilder<'a> {
     pub fn build(
         self,
         bag: &'a CibouletteStore<'a>,
-        main_type: Option<&'a CibouletteResourceType<'a>>,
+        main_type: Option<Arc<CibouletteResourceType<'a>>>,
     ) -> Result<CibouletteQueryParameters<'a>, CibouletteError> {
         let mut sparse: BTreeMap<&'a CibouletteResourceType, Vec<Cow<'a, str>>> = BTreeMap::new();
         let mut sorting: Vec<CibouletteSortingElement> = Vec::with_capacity(self.sorting.len());
@@ -228,7 +228,12 @@ impl<'a> CibouletteQueryParametersBuilder<'a> {
             (_, 0) => (),
             (Some(main_type), _) => {
                 for (direction, field) in self.sorting.into_iter() {
-                    sorting.push(sorting::extract_type(&bag, &main_type, direction, field)?)
+                    sorting.push(sorting::extract_type(
+                        &bag,
+                        main_type.clone(),
+                        direction,
+                        field,
+                    )?)
                 }
             }
             (None, _) => return Err(CibouletteError::IncompatibleSorting),

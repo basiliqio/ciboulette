@@ -9,16 +9,16 @@ pub enum CibouletteUpdateRequestType<'a> {
 #[derive(Debug, Getters, Clone)]
 #[getset(get = "pub")]
 pub struct CibouletteUpdateRelationship<'a> {
-    type_: &'a CibouletteResourceType<'a>,
+    type_: Arc<CibouletteResourceType<'a>>,
     value: CibouletteOptionalData<CibouletteResourceIdentifierSelector<'a>>,
 }
 
 #[derive(Debug, Getters, MutGetters, Clone)]
 #[getset(get = "pub")]
 pub struct CibouletteUpdateRequest<'a> {
-    pub resource_type: &'a CibouletteResourceType<'a>,
+    pub resource_type: Arc<CibouletteResourceType<'a>>,
     pub resource_id: CibouletteId<'a>,
-    pub related_type: Option<&'a CibouletteResourceType<'a>>,
+    pub related_type: Option<Arc<CibouletteResourceType<'a>>>,
     pub path: CiboulettePath<'a>,
     pub query: CibouletteQueryParameters<'a>,
     pub data: CibouletteUpdateRequestType<'a>,
@@ -59,9 +59,9 @@ impl<'a> TryFrom<CibouletteInboundRequest<'a>> for CibouletteUpdateRequest<'a> {
         } = value;
 
         let (resource_type, resource_id, related_type) = match &path {
-            CiboulettePath::TypeId(type_, id) => (*type_, id, None),
+            CiboulettePath::TypeId(type_, id) => (type_.clone(), id, None),
             CiboulettePath::TypeIdRelationship(type_, id, rel_type) => {
-                (*type_, id, Some(*rel_type))
+                (type_.clone(), id, Some(rel_type.clone()))
             }
             _ => {
                 return Err(CibouletteError::WrongPathType(
@@ -86,10 +86,10 @@ impl<'a> TryFrom<CibouletteInboundRequest<'a>> for CibouletteUpdateRequest<'a> {
             ..
         } = body.unwrap_or_default();
         let data = match data {
-            CibouletteBodyData::Object(selector) => match related_type {
+            CibouletteBodyData::Object(selector) => match related_type.clone() {
                 Some(related_type) => {
                     CibouletteUpdateRequestType::Relationship(CibouletteUpdateRelationship {
-                        type_: related_type,
+                        type_: related_type.clone(),
                         value: CibouletteOptionalData::Object(selector.try_into()?),
                     })
                 }
@@ -108,7 +108,7 @@ impl<'a> TryFrom<CibouletteInboundRequest<'a>> for CibouletteUpdateRequest<'a> {
                     CibouletteResourceSelector::Many(_) => return Err(CibouletteError::NoCompound),
                 },
             },
-            CibouletteBodyData::Null(present) => match related_type {
+            CibouletteBodyData::Null(present) => match related_type.clone() {
                 Some(related_type) => {
                     CibouletteUpdateRequestType::Relationship(CibouletteUpdateRelationship {
                         type_: related_type,

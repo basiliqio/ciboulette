@@ -3,9 +3,9 @@ use super::*;
 #[derive(Debug, Getters, MutGetters, Clone)]
 #[getset(get = "pub")]
 pub struct CibouletteDeleteRequest<'a> {
-    pub resource_type: &'a CibouletteResourceType<'a>,
+    pub resource_type: Arc<CibouletteResourceType<'a>>,
     pub resource_id: CibouletteId<'a>,
-    pub related_type: Option<&'a CibouletteResourceType<'a>>,
+    pub related_type: Option<Arc<CibouletteResourceType<'a>>>,
     pub query: CibouletteQueryParameters<'a>,
     pub meta: Option<Value>,
     pub expected_response_type: CibouletteResponseRequiredType,
@@ -43,9 +43,9 @@ impl<'a> TryFrom<CibouletteInboundRequest<'a>> for CibouletteDeleteRequest<'a> {
         } = value;
 
         let (resource_type, resource_id, related_type) = match &path {
-            CiboulettePath::TypeId(type_, id) => (*type_, id, None),
+            CiboulettePath::TypeId(type_, id) => (type_.clone(), id, None),
             CiboulettePath::TypeIdRelationship(type_, id, rel_type) => {
-                (*type_, id, Some(*rel_type))
+                (type_.clone(), id, Some(rel_type.clone()))
             }
             _ => {
                 return Err(CibouletteError::WrongPathType(
