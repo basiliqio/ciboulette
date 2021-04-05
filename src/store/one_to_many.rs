@@ -87,12 +87,12 @@ impl<'a> CibouletteStoreBuilder<'a> {
         petgraph::graph::EdgeIndex<u16>,
         petgraph::graph::EdgeIndex<u16>,
     ) {
-        let edge_from_i = self.graph_mut().update_edge(
+        let edge_from_i = self.graph_mut().add_edge(
             *from_i,
             *to_i,
             CibouletteRelationshipOptionBuilder::OneToMany(opt.clone()),
         );
-        let edge_to_i = self.graph_mut().update_edge(
+        let edge_to_i = self.graph_mut().add_edge(
             *to_i,
             *from_i,
             CibouletteRelationshipOptionBuilder::ManyToOne(opt.clone()),

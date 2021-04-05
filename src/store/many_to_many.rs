@@ -99,18 +99,18 @@ impl<'a> CibouletteStoreBuilder<'a> {
             })?;
             (from_type.clone(), to_type.clone(), bucket_type.clone())
         };
-        let edge_from_i_direct = self.graph_mut().update_edge(
+        let edge_from_i_direct = self.graph_mut().add_edge(
             indexes.from(),
             indexes.to(),
             CibouletteRelationshipOptionBuilder::ManyToMany(opt.clone()),
         );
-        let edge_to_i_direct = self.graph_mut().update_edge(
+        let edge_to_i_direct = self.graph_mut().add_edge(
             indexes.to(),
             indexes.from(),
             CibouletteRelationshipOptionBuilder::ManyToMany(opt.clone()),
         );
         let from_key = opt.keys_for_type(&from_type)?.to_string();
-        let edge_from_i = self.graph_mut().update_edge(
+        let edge_from_i = self.graph_mut().add_edge(
             indexes.bucket(),
             indexes.from(),
             CibouletteRelationshipOptionBuilder::OneToMany(
@@ -124,7 +124,7 @@ impl<'a> CibouletteStoreBuilder<'a> {
             ),
         );
         let to_key = opt.keys_for_type(&to_type)?.to_string();
-        let edge_to_i = self.graph_mut().update_edge(
+        let edge_to_i = self.graph_mut().add_edge(
             indexes.bucket(),
             indexes.to(),
             CibouletteRelationshipOptionBuilder::OneToMany(
@@ -158,14 +158,7 @@ impl<'a> CibouletteStoreBuilder<'a> {
                 return Err(CibouletteError::TypeNotInGraph(from.to_string()));
                 // If it exists but types aren't equals, it's also an error
             }
-            Some(x) => {
-                if let Some(missing) = x.has_fields(opt.keys().iter().map(|x| x.1.as_str()))? {
-                    return Err(CibouletteError::UnknownField(
-                        opt.bucket_resource().name().to_string(),
-                        missing,
-                    ));
-                }
-            }
+            Some(_) => (), // TODO maybe make more checks
         };
         Ok(())
     }
