@@ -64,6 +64,25 @@ impl<'a> CibouletteStoreBuilder<'a> {
         Ok(())
     }
 
+    /// Add a relationships (one-to-many) to the graph, without the reverse relationship
+    pub fn add_many_to_one_rel_no_reverse(
+        &mut self,
+        opt: CibouletteRelationshipOneToManyOptionBuilder<'a>,
+        alias_one_table: Option<&str>,
+    ) -> Result<(), CibouletteError> {
+        let (from_i, to_i) = self.get_one_to_many_node_indexes(&opt)?;
+        let (from_rel_i, to_rel_i) = self.get_one_to_many_edge_indexes(&from_i, &to_i, &opt);
+        self.add_one_to_many_rel_routine(
+            opt.many_table(),
+            opt.one_table(),
+            to_i,
+            to_rel_i,
+            alias_one_table,
+            from_rel_i,
+        )?;
+        Ok(())
+    }
+
     fn add_one_to_many_rel_routine(
         &mut self,
         orig: &CibouletteResourceType<'a>,

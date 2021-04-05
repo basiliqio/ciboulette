@@ -89,14 +89,14 @@ fn no_reverse() {
         true,
     );
     store
-        .add_one_to_many_rel_no_reverse(opt.clone(), None)
+        .add_many_to_one_rel_no_reverse(opt.clone(), None)
         .unwrap();
-    let err = store.get_rel("peoples", "favorite_color").unwrap_err();
+    let err = store.get_rel("favorite_color", "peoples").unwrap_err();
     assert_eq!(
-        matches!(err, CibouletteError::UnknownRelationship(x, y) if x == "peoples" && y == "favorite_color"),
+        matches!(err, CibouletteError::UnknownRelationship(x, y) if x == "favorite_color" && y == "peoples"),
         true
     );
-    store.get_rel("favorite_color", "peoples").unwrap();
+    store.get_rel("peoples", "favorite_color").unwrap();
 }
 
 #[test]
