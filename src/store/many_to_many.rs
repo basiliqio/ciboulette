@@ -16,13 +16,13 @@ struct CibouletteManyToManyEdgeIndexes {
     to_direct: petgraph::graph::EdgeIndex<u16>,
 }
 
-impl<'a> CibouletteStoreBuilder<'a> {
+impl<'request> CibouletteStoreBuilder<'request> {
     /// Add a relationships (one/many-to-one/many) to the graph, with the reverse relationship
     pub fn add_many_to_many_rel(
         &mut self,
         (from, alias_from): (&str, Option<&str>),
         (to, alias_to): (&str, Option<&str>),
-        opt: CibouletteRelationshipManyToManyOptionBuilder<'a>,
+        opt: CibouletteRelationshipManyToManyOptionBuilder<'request>,
     ) -> Result<(), CibouletteError> {
         let node_indexes = self.get_many_to_many_node_indexes(from, to, &opt)?;
         self.check_bucket_exists(node_indexes.bucket(), from, &opt)?;
@@ -53,7 +53,7 @@ impl<'a> CibouletteStoreBuilder<'a> {
         &mut self,
         from: &str,
         (to, alias_to): (&str, Option<&str>),
-        opt: CibouletteRelationshipManyToManyOptionBuilder<'a>,
+        opt: CibouletteRelationshipManyToManyOptionBuilder<'request>,
     ) -> Result<(), CibouletteError> {
         let node_indexes = self.get_many_to_many_node_indexes(from, to, &opt)?;
         self.check_bucket_exists(node_indexes.bucket(), from, &opt)?;
@@ -73,7 +73,7 @@ impl<'a> CibouletteStoreBuilder<'a> {
         &mut self,
         (orig, orig_i): (&str, petgraph::graph::NodeIndex<u16>),
         (dest, alias_dest): (&str, Option<&str>),
-        bucket: &CibouletteResourceType<'a>,
+        bucket: &CibouletteResourceType<'request>,
         rel_to_insert: petgraph::graph::EdgeIndex<u16>,
     ) -> Result<(), CibouletteError> {
         let type_ = self
@@ -112,7 +112,7 @@ impl<'a> CibouletteStoreBuilder<'a> {
     fn get_many_to_many_edge_indexes(
         &mut self,
         indexes: &CibouletteManyToManyNodeIndexes,
-        opt: &CibouletteRelationshipManyToManyOptionBuilder<'a>,
+        opt: &CibouletteRelationshipManyToManyOptionBuilder<'request>,
     ) -> Result<CibouletteManyToManyEdgeIndexes, CibouletteError> {
         let (from_type, bucket_type, to_type) = self.extract_many_to_many_types(indexes)?;
         let (edge_to_direct, edge_to) =
@@ -129,10 +129,10 @@ impl<'a> CibouletteStoreBuilder<'a> {
 
     fn get_many_to_many_edge_indexes_to(
         &mut self,
-        bucket_type: &CibouletteResourceType<'a>,
-        to_type: CibouletteResourceType<'a>,
+        bucket_type: &CibouletteResourceType<'request>,
+        to_type: CibouletteResourceType<'request>,
         indexes: &CibouletteManyToManyNodeIndexes,
-        opt: &CibouletteRelationshipManyToManyOptionBuilder<'a>,
+        opt: &CibouletteRelationshipManyToManyOptionBuilder<'request>,
     ) -> Result<
         (
             petgraph::graph::EdgeIndex<u16>,
@@ -164,10 +164,10 @@ impl<'a> CibouletteStoreBuilder<'a> {
 
     fn get_many_to_many_edge_indexes_from(
         &mut self,
-        bucket_type: &CibouletteResourceType<'a>,
-        from_type: CibouletteResourceType<'a>,
+        bucket_type: &CibouletteResourceType<'request>,
+        from_type: CibouletteResourceType<'request>,
         indexes: &CibouletteManyToManyNodeIndexes,
-        opt: &CibouletteRelationshipManyToManyOptionBuilder<'a>,
+        opt: &CibouletteRelationshipManyToManyOptionBuilder<'request>,
     ) -> Result<
         (
             petgraph::graph::EdgeIndex<u16>,
@@ -202,9 +202,9 @@ impl<'a> CibouletteStoreBuilder<'a> {
         indexes: &CibouletteManyToManyNodeIndexes,
     ) -> Result<
         (
-            CibouletteResourceType<'a>,
-            CibouletteResourceType<'a>,
-            CibouletteResourceType<'a>,
+            CibouletteResourceType<'request>,
+            CibouletteResourceType<'request>,
+            CibouletteResourceType<'request>,
         ),
         CibouletteError,
     > {
@@ -227,7 +227,7 @@ impl<'a> CibouletteStoreBuilder<'a> {
         &mut self,
         bucket_i: petgraph::graph::NodeIndex<u16>,
         from: &str,
-        opt: &CibouletteRelationshipManyToManyOptionBuilder<'a>,
+        opt: &CibouletteRelationshipManyToManyOptionBuilder<'request>,
     ) -> Result<(), CibouletteError> {
         let type_fetched = self.graph.node_weight(bucket_i);
         match type_fetched {

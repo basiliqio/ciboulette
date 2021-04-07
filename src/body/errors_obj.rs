@@ -4,32 +4,32 @@ use super::*;
 #[derive(Debug, Deserialize, Serialize, Getters, MutGetters, Clone)]
 #[serde(rename = "camelCase")]
 #[getset(get = "pub", get_mut = "pub")]
-pub struct CibouletteErrorLink<'a> {
-    pub about: Option<Cow<'a, str>>,
+pub struct CibouletteErrorLink<'request> {
+    pub about: Option<Cow<'request, str>>,
     #[serde(flatten)]
-    pub inner_link: Option<CibouletteLinkObj<'a>>,
+    pub inner_link: Option<CibouletteLinkObj<'request>>,
 }
 
 /// ## Source object of a `json:api` [error](https://jsonapi.org/format/#error-objects)
 #[derive(Debug, Deserialize, Serialize, Getters, MutGetters, Clone)]
 #[serde(rename = "camelCase")]
 #[getset(get = "pub", get_mut = "pub")]
-pub struct CibouletteErrorSource<'a> {
-    pub pointer: Option<Cow<'a, str>>,
-    pub parameter: Option<Cow<'a, str>>,
-    pub header: Option<Cow<'a, str>>,
+pub struct CibouletteErrorSource<'request> {
+    pub pointer: Option<Cow<'request, str>>,
+    pub parameter: Option<Cow<'request, str>>,
+    pub header: Option<Cow<'request, str>>,
 }
 
 /// ## Object of a `json:api` [error](https://jsonapi.org/format/#error-objects)
 #[derive(Debug, Deserialize, Serialize, Getters, MutGetters, Clone)]
 #[serde(rename = "camelCase")]
 #[getset(get = "pub", get_mut = "pub")]
-pub struct CibouletteErrorObj<'a> {
-    pub id: Option<Cow<'a, str>>,
-    pub links: Option<CibouletteErrorLink<'a>>,
+pub struct CibouletteErrorObj<'request> {
+    pub id: Option<Cow<'request, str>>,
+    pub links: Option<CibouletteErrorLink<'request>>,
     pub status: u64,
-    pub code: Option<Cow<'a, str>>,
-    pub title: Option<Cow<'a, str>>,
-    pub detail: Option<Cow<'a, str>>,
-    pub source: Option<CibouletteErrorSource<'a>>,
+    pub code: Option<Cow<'request, str>>,
+    pub title: Option<Cow<'request, str>>,
+    pub detail: Option<Cow<'request, str>>,
+    pub source: Option<CibouletteErrorSource<'request>>,
 }

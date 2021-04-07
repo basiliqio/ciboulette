@@ -4,12 +4,12 @@ use std::fmt::Formatter;
 /// ## Object holder `json:api` version
 #[derive(Debug, Clone, Getters, MutGetters, Deserialize, Serialize)]
 #[getset(get = "pub", get_mut = "pub")]
-pub struct CibouletteJsonApiVersion<'a> {
-    version: Cow<'a, str>,
+pub struct CibouletteJsonApiVersion<'request> {
+    version: Cow<'request, str>,
 }
 
-impl<'a> CibouletteJsonApiVersion<'a> {
-    pub fn new(version: Cow<'a, str>) -> CibouletteJsonApiVersion<'a> {
+impl<'request> CibouletteJsonApiVersion<'request> {
+    pub fn new(version: Cow<'request, str>) -> CibouletteJsonApiVersion<'request> {
         CibouletteJsonApiVersion { version }
     }
 }
@@ -17,34 +17,34 @@ impl<'a> CibouletteJsonApiVersion<'a> {
 /// ## Builder object for [CibouletteBody](CibouletteBody)
 #[derive(Debug, Getters, MutGetters)]
 #[getset(get = "pub", get_mut = "pub")]
-pub struct CibouletteBodyBuilder<'a> {
-    data: CibouletteBodyDataBuilder<'a>,
-    errors: Option<CibouletteErrorObj<'a>>,
+pub struct CibouletteBodyBuilder<'request> {
+    data: CibouletteBodyDataBuilder<'request>,
+    errors: Option<CibouletteErrorObj<'request>>,
     meta: Option<Value>,
-    links: Option<CibouletteBodyLink<'a>>,
-    included: Vec<CibouletteResourceBuilder<'a>>,
-    jsonapi: Option<CibouletteJsonApiVersion<'a>>, // TODO Semver
+    links: Option<CibouletteBodyLink<'request>>,
+    included: Vec<CibouletteResourceBuilder<'request>>,
+    jsonapi: Option<CibouletteJsonApiVersion<'request>>, // TODO Semver
 }
 
 /// ## A `json:api` [document](https://jsonapi.org/format/#document-top-level) object
 #[derive(Debug, Getters, MutGetters, Clone, Serialize)]
 #[getset(get = "pub", get_mut = "pub")]
-pub struct CibouletteBody<'a, I, B> {
+pub struct CibouletteBody<'request, 'store, I, B> {
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub jsonapi: Option<CibouletteJsonApiVersion<'a>>, // TODO Semver
+    pub jsonapi: Option<CibouletteJsonApiVersion<'request>>, // TODO Semver
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub links: Option<CibouletteBodyLink<'a>>,
+    pub links: Option<CibouletteBodyLink<'request>>,
     #[serde(skip_serializing_if = "CibouletteOptionalData::is_absent")]
-    pub data: CibouletteBodyData<'a, I, B>,
+    pub data: CibouletteBodyData<'request, 'store, I, B>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub errors: Option<CibouletteErrorObj<'a>>,
+    pub errors: Option<CibouletteErrorObj<'request>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub meta: Option<Value>,
     #[serde(skip_serializing_if = "Vec::is_empty")]
-    pub included: Vec<CibouletteResource<'a, B, I>>,
+    pub included: Vec<CibouletteResource<'request, 'store, B, I>>,
 }
 
-impl<'a, I, B> Default for CibouletteBody<'a, I, B>
+impl<'request, 'store, I, B> Default for CibouletteBody<'request, 'store, I, B>
 where
     B: Default,
 {
@@ -223,18 +223,19 @@ impl<'de> Deserialize<'de> for CibouletteBodyBuilder<'de> {
     }
 }
 
-impl<'a> CibouletteBodyBuilder<'a> {
+impl<'request> CibouletteBodyBuilder<'request> {
     /// Check that every objects in `data` is unique by `type` and `id`
     ///
     /// Shouldn't be called if creating an
-    fn check_obj_uniqueness(
+    fn check_obj_uniqueness<'store>(
         data: &CibouletteResourceSelector<
-            'a,
-            MessyJsonObjectValue<'a>,
-            CibouletteResourceIdentifierPermissive<'a>,
+            'request,
+            'store,
+            MessyJsonObjectValue<'store>,
+            CibouletteResourceIdentifierPermissive<'request>,
         >,
     ) -> Result<(), CibouletteError> {
-        let mut obj_set: BTreeSet<(&str, &CibouletteId<'a>)> = BTreeSet::new();
+        let mut obj_set: BTreeSet<(&str, &CibouletteId<'request>)> = BTreeSet::new();
 
         match data {
             CibouletteResourceSelector::One(_) => Ok(()),
@@ -258,12 +259,13 @@ impl<'a> CibouletteBodyBuilder<'a> {
     }
 
     /// Check that every relationships in `data` is unique by `type` and `id` for a single object
-    fn check_relationships_uniqueness_single<'b>(
-        linked_set: &mut BTreeSet<(&'b str, &'b CibouletteId<'b>)>,
-        obj: &'b CibouletteResource<
-            'a,
-            MessyJsonObjectValue<'a>,
-            CibouletteResourceIdentifierPermissive<'a>,
+    fn check_relationships_uniqueness_single<'store, 'c>(
+        linked_set: &mut BTreeSet<(&'c str, &'c CibouletteId<'c>)>,
+        obj: &'c CibouletteResource<
+            'request,
+            'store,
+            MessyJsonObjectValue<'store>,
+            CibouletteResourceIdentifierPermissive<'request>,
         >,
     ) -> Result<(), CibouletteError> {
         for (_link_name, rel) in obj.relationships().iter() {
@@ -293,13 +295,14 @@ impl<'a> CibouletteBodyBuilder<'a> {
     }
 
     /// Check that every relationships in `data` is unique by `type` and `id`
-    fn check_relationships_uniqueness<'b>(
-        data: &'b CibouletteResourceSelector<
-            'a,
-            MessyJsonObjectValue<'a>,
-            CibouletteResourceIdentifierPermissive<'a>,
+    fn check_relationships_uniqueness<'store, 'c>(
+        data: &'c CibouletteResourceSelector<
+            'request,
+            'store,
+            MessyJsonObjectValue<'store>,
+            CibouletteResourceIdentifierPermissive<'request>,
         >,
-    ) -> Result<BTreeSet<(&'b str, &'b CibouletteId<'b>)>, CibouletteError> {
+    ) -> Result<BTreeSet<(&'c str, &'c CibouletteId<'c>)>, CibouletteError> {
         let mut linked_set = BTreeSet::new();
 
         match data {
@@ -320,14 +323,15 @@ impl<'a> CibouletteBodyBuilder<'a> {
 
     /// Check that every object in `included` is unique by `type` and `id`.
     /// Also check for linkage error in case of a compound document
-    fn check_included<'b>(
-        included: &'b [CibouletteResource<
-            'a,
-            MessyJsonObjectValue<'a>,
-            CibouletteResourceIdentifierPermissive<'a>,
+    fn check_included<'store, 'c>(
+        included: &'c [CibouletteResource<
+            'request,
+            'store,
+            MessyJsonObjectValue<'store>,
+            CibouletteResourceIdentifierPermissive<'request>,
         >],
         check_full_linkage: bool,
-    ) -> Result<BTreeSet<(&'b str, &'b CibouletteId<'b>)>, CibouletteError> {
+    ) -> Result<BTreeSet<(&'c str, &'c CibouletteId<'c>)>, CibouletteError> {
         let mut linked_set: BTreeSet<(&str, &CibouletteId)> = BTreeSet::new();
 
         for obj in included.iter() {
@@ -354,18 +358,20 @@ impl<'a> CibouletteBodyBuilder<'a> {
 
     /// Checks for key clash like `included` without `data`, or `data` with `errors`
     #[inline]
-    fn check_key_clash<'b>(
-        data: &'b CibouletteBodyData<
-            'a,
-            CibouletteResourceIdentifierPermissive<'a>,
-            MessyJsonObjectValue<'a>,
+    fn check_key_clash<'store, 'c>(
+        data: &'c CibouletteBodyData<
+            'request,
+            'store,
+            CibouletteResourceIdentifierPermissive<'request>,
+            MessyJsonObjectValue<'store>,
         >,
-        included: &'b [CibouletteResource<
-            'a,
-            MessyJsonObjectValue<'a>,
-            CibouletteResourceIdentifierPermissive<'a>,
+        included: &'c [CibouletteResource<
+            'request,
+            'store,
+            MessyJsonObjectValue<'store>,
+            CibouletteResourceIdentifierPermissive<'request>,
         >],
-        errors: &'b Option<CibouletteErrorObj<'a>>,
+        errors: &'c Option<CibouletteErrorObj<'request>>,
     ) -> Result<(), CibouletteError> {
         let is_data_null = matches!(data, CibouletteBodyData::Null(_));
 
@@ -387,20 +393,25 @@ impl<'a> CibouletteBodyBuilder<'a> {
     }
 
     /// Perfom all the document checks
-    pub fn check<'b>(
+    pub fn check<'store, 'c>(
         intention: &CibouletteIntention,
-        data: &'b CibouletteBodyData<
-            'a,
-            CibouletteResourceIdentifierPermissive<'a>,
-            MessyJsonObjectValue<'a>,
+        data: &'c CibouletteBodyData<
+            'request,
+            'store,
+            CibouletteResourceIdentifierPermissive<'request>,
+            MessyJsonObjectValue<'store>,
         >,
-        included: &'b [CibouletteResource<
-            'a,
-            MessyJsonObjectValue<'a>,
-            CibouletteResourceIdentifierPermissive<'a>,
+        included: &'c [CibouletteResource<
+            'request,
+            'store,
+            MessyJsonObjectValue<'store>,
+            CibouletteResourceIdentifierPermissive<'request>,
         >],
-        errors: &'b Option<CibouletteErrorObj<'a>>,
-    ) -> Result<(), CibouletteError> {
+        errors: &'c Option<CibouletteErrorObj<'request>>,
+    ) -> Result<(), CibouletteError>
+    where
+        'request: 'store,
+    {
         Self::check_key_clash(&data, &included, &errors)?;
         match data {
             CibouletteBodyData::Object(data) => {
@@ -436,25 +447,40 @@ impl<'a> CibouletteBodyBuilder<'a> {
     }
 
     /// Build a [CibouletteBody](CibouletteBody) from the builder
-    pub fn build(
+    pub fn build<'store>(
         self,
-        bag: &'a CibouletteStore<'a>,
+        bag: &'store CibouletteStore<'store>,
         intention: &CibouletteIntention,
     ) -> Result<
-        CibouletteBody<'a, CibouletteResourceIdentifierPermissive<'a>, MessyJsonObjectValue<'a>>,
+        CibouletteBody<
+            'request,
+            'store,
+            CibouletteResourceIdentifierPermissive<'request>,
+            MessyJsonObjectValue<'store>,
+        >,
         CibouletteError,
-    > {
+    >
+    where
+        'request: 'store,
+    {
         let res: CibouletteBody<
-            'a,
-            CibouletteResourceIdentifierPermissive<'a>,
-            MessyJsonObjectValue<'a>,
+            'request,
+            'store,
+            CibouletteResourceIdentifierPermissive<'request>,
+            MessyJsonObjectValue<'store>,
         >;
 
-        let data = self.data.build(&bag, &intention)?;
+        let data: CibouletteOptionalData<
+            CibouletteResourceSelector<
+                MessyJsonObjectValue<'store>,
+                CibouletteResourceIdentifierPermissive<'request>,
+            >,
+        > = self.data.build(&bag, &intention)?;
         let mut included: Vec<
             CibouletteResource<
-                'a,
-                MessyJsonObjectValue<'a>,
+                'request,
+                'store,
+                MessyJsonObjectValue<'store>,
                 CibouletteResourceIdentifierPermissive,
             >,
         > = Vec::with_capacity(self.included.len());
@@ -474,7 +500,7 @@ impl<'a> CibouletteBodyBuilder<'a> {
     }
 }
 
-impl<'a, I, B> CibouletteBody<'a, I, B> {
+impl<'request, 'store, I, B> CibouletteBody<'request, 'store, I, B> {
     /// Check if the request is a compound document
     pub fn is_compound(&self) -> bool {
         matches!(
@@ -490,15 +516,17 @@ impl<'a, I, B> CibouletteBody<'a, I, B> {
     }
 }
 
-impl<'a, B> CibouletteBody<'a, CibouletteResourceIdentifierPermissive<'a>, B> {
+impl<'request, 'store, B>
+    CibouletteBody<'request, 'store, CibouletteResourceIdentifierPermissive<'request>, B>
+{
     /// Get the main type of the request
     /// If it's a single document request, the type of the document is used.
     /// If it's a compound document request and all the document are the same type, then this type is used.
     /// Else `None` is returned
     pub fn get_main_type(
         &self,
-        bag: &'a CibouletteStore<'a>,
-    ) -> Option<&Arc<CibouletteResourceType<'a>>> {
+        bag: &'request CibouletteStore<'request>,
+    ) -> Option<&Arc<CibouletteResourceType<'request>>> {
         match self.data() {
             CibouletteBodyData::Object(data) => match data {
                 CibouletteResourceSelector::One(x) => {

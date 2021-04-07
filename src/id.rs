@@ -1,22 +1,24 @@
 use super::*;
 use serde::de::{DeserializeSeed, Deserializer, Visitor};
 #[cfg(feature = "sqlx_postgres")]
+use sqlx::Database;
+#[cfg(feature = "sqlx_postgres")]
 use sqlx::{TypeInfo, ValueRef};
 use std::fmt::Formatter;
 use std::str::FromStr;
 #[derive(Debug, Clone, PartialEq, PartialOrd, Eq, Ord, Hash, Serialize, Deserialize)]
 #[serde(untagged)]
-pub enum CibouletteIdBuilder<'a> {
+pub enum CibouletteIdBuilder<'request> {
     Number(u64),
-    Text(Cow<'a, str>),
+    Text(Cow<'request, str>),
 }
 
 #[derive(Debug, Clone, PartialEq, PartialOrd, Eq, Ord, Hash, Serialize)]
 #[serde(untagged)]
-pub enum CibouletteId<'a> {
+pub enum CibouletteId<'request> {
     Number(u64),
     Uuid(Uuid),
-    Text(Cow<'a, str>),
+    Text(Cow<'request, str>),
 }
 
 #[cfg(feature = "sqlx_postgres")]
@@ -60,8 +62,11 @@ impl<'r> sqlx::Type<sqlx::Postgres> for CibouletteId<'r> {
     }
 }
 
-impl<'a> CibouletteIdBuilder<'a> {
-    pub fn build(self, type_: &CibouletteIdType) -> Result<CibouletteId<'a>, CibouletteError> {
+impl<'request> CibouletteIdBuilder<'request> {
+    pub fn build(
+        self,
+        type_: &CibouletteIdType,
+    ) -> Result<CibouletteId<'request>, CibouletteError> {
         match (self, type_) {
             (CibouletteIdBuilder::Text(x), CibouletteIdType::Text) => {
                 Ok(CibouletteId::Text(x.clone()))
@@ -86,8 +91,11 @@ impl<'a> CibouletteIdBuilder<'a> {
     }
 }
 
-impl<'a> CibouletteId<'a> {
-    pub fn parse(id_type: CibouletteIdType, val: Cow<'a, str>) -> Result<Self, CibouletteError> {
+impl<'request> CibouletteId<'request> {
+    pub fn parse(
+        id_type: CibouletteIdType,
+        val: Cow<'request, str>,
+    ) -> Result<Self, CibouletteError> {
         Ok(match id_type {
             CibouletteIdType::Number => CibouletteId::Number(u64::from_str(val.as_ref())?),
             CibouletteIdType::Text => CibouletteId::Text(val),
@@ -96,7 +104,7 @@ impl<'a> CibouletteId<'a> {
     }
 }
 
-impl<'a> ToString for CibouletteId<'a> {
+impl<'request> ToString for CibouletteId<'request> {
     fn to_string(&self) -> String {
         match self {
             CibouletteId::Number(x) => x.to_string(),
@@ -113,7 +121,7 @@ pub enum CibouletteIdType {
     Uuid,
 }
 
-impl<'a> std::fmt::Display for CibouletteIdType {
+impl<'request> std::fmt::Display for CibouletteIdType {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             CibouletteIdType::Number => write!(f, "number"),

@@ -59,7 +59,7 @@ fn simple_create_no_content() {
     let builder = CibouletteInboundRequestBuilder::new(INTENTION, &parsed_url, &body);
     let request = builder.build(&store).unwrap();
     let res = CibouletteCreateRequest::try_from(request).unwrap();
-    let response = CibouletteOutboundRequestDataBuilder::<'_, String, _>::new(&res, vec![])
+    let response = CibouletteOutboundRequestDataBuilder::<'_, '_, String, _>::new(&res, vec![])
         .build()
         .unwrap();
     assert_eq!(response.status(), CibouletteResponseStatus::OkEmpty);

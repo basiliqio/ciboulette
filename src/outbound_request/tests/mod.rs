@@ -13,12 +13,12 @@ mod insert_success;
 mod select_success;
 mod update_success;
 
-fn gen_data_row<'a>(
-    store: &'a CibouletteStore<'a>,
-    type_: &'a str,
-    id: &'a str,
+fn gen_data_row<'request, 'store>(
+    store: &'store CibouletteStore<'store>,
+    type_: &'request str,
+    id: &'request str,
     join_data: bool,
-) -> CibouletteResponseElement<'a, String> {
+) -> CibouletteResponseElement<'request, 'store, String> {
     CibouletteResponseElement::new(
         &store,
         CibouletteResourceIdentifierBuilder::new(
@@ -36,14 +36,14 @@ fn gen_data_row<'a>(
     .unwrap()
 }
 
-fn gen_data_row_related<'a>(
-    store: &'a CibouletteStore<'a>,
-    type_: &'a str,
-    id: &'a str,
+fn gen_data_row_related<'request, 'store>(
+    store: &'store CibouletteStore<'store>,
+    type_: &'request str,
+    id: &'request str,
     join_data: bool,
-    related_type_: &'a str,
-    related_id: &'a str,
-) -> CibouletteResponseElement<'a, String> {
+    related_type_: &'request str,
+    related_id: &'request str,
+) -> CibouletteResponseElement<'request, 'store, String> {
     CibouletteResponseElement::new(
         &store,
         CibouletteResourceIdentifierBuilder::new(

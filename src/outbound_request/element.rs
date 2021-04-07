@@ -2,27 +2,29 @@ use super::*;
 /// Container for response element. While building a response, every object should be wrapped in this container
 #[derive(Debug, Getters, Clone, Serialize)]
 #[getset(get = "pub")]
-pub struct CibouletteResponseElement<'a, B> {
+pub struct CibouletteResponseElement<'request, 'store, B> {
     #[serde(skip_serializing)]
     /// The type of the contained value
-    pub(crate) type_: &'a CibouletteResourceType<'a>,
+    pub(crate) type_: Arc<CibouletteResourceType<'store>>,
     /// The identifier of the contained value
-    pub(crate) identifier: CibouletteResourceIdentifier<'a>,
+    pub(crate) identifier: CibouletteResourceIdentifier<'request>,
     /// The data of the contained value
     pub(crate) data: Option<B>,
     /// Some other identifier it relates to
-    pub(crate) related: Option<CibouletteResourceIdentifier<'a>>,
+    pub(crate) related: Option<CibouletteResourceIdentifier<'request>>,
 }
 
-impl<'a, B> CibouletteResponseElement<'a, B> {
+impl<'request, 'store, B> CibouletteResponseElement<'request, 'store, B> {
     pub fn new(
-        store: &'a CibouletteStore<'a>,
-        identifier: CibouletteResourceIdentifier<'a>,
+        store: &'store CibouletteStore<'store>,
+        identifier: CibouletteResourceIdentifier<'request>,
         data: Option<B>,
-        related: Option<CibouletteResourceIdentifier<'a>>,
+        related: Option<CibouletteResourceIdentifier<'request>>,
     ) -> Result<Self, CibouletteError> {
+        let type_: Arc<CibouletteResourceType<'store>> =
+            store.get_type(identifier.type_().as_ref())?.clone();
         Ok(CibouletteResponseElement {
-            type_: store.get_type(identifier.type_().as_ref())?,
+            type_,
             identifier,
             data,
             related,
@@ -31,14 +33,14 @@ impl<'a, B> CibouletteResponseElement<'a, B> {
 }
 
 /// Fold elements into an accumulator for easier processing
-pub(super) fn fold_elements<'a, B, I>(
+pub(super) fn fold_elements<'request, 'store, B, I>(
     elements: I,
-    acc: CibouletteOutboundRequestDataAccumulator<'a, B>,
-    inbound_request: &dyn CibouletteInboundRequestCommons<'a>,
-) -> Result<CibouletteOutboundRequestDataAccumulator<'a, B>, CibouletteError>
+    acc: CibouletteOutboundRequestDataAccumulator<'request, 'store, B>,
+    inbound_request: &dyn CibouletteInboundRequestCommons<'request, 'store>,
+) -> Result<CibouletteOutboundRequestDataAccumulator<'request, 'store, B>, CibouletteError>
 where
     B: Serialize,
-    I: IntoIterator<Item = CibouletteResponseElement<'a, B>>,
+    I: IntoIterator<Item = CibouletteResponseElement<'request, 'store, B>>,
 {
     elements.into_iter().try_fold(acc, |mut acc, x| {
         match x.identifier().type_() == inbound_request.path().main_type().name().as_str() {
@@ -59,9 +61,9 @@ where
     })
 }
 
-pub(super) fn fold_elements_id<'a, B>(
-    acc: &mut CibouletteOutboundRequestDataAccumulator<'a, B>,
-    element: CibouletteResponseElement<'a, B>,
+pub(super) fn fold_elements_id<'request, 'store, B>(
+    acc: &mut CibouletteOutboundRequestDataAccumulator<'request, 'store, B>,
+    element: CibouletteResponseElement<'request, 'store, B>,
 ) {
     let resource = CibouletteResource {
         type_: element.type_,
@@ -75,9 +77,9 @@ pub(super) fn fold_elements_id<'a, B>(
         .insert(resource.identifier().clone(), resource);
 }
 
-pub(super) fn fold_elements_obj<'a, B>(
-    acc: &mut CibouletteOutboundRequestDataAccumulator<'a, B>,
-    element: CibouletteResponseElement<'a, B>,
+pub(super) fn fold_elements_obj<'request, 'store, B>(
+    acc: &mut CibouletteOutboundRequestDataAccumulator<'request, 'store, B>,
+    element: CibouletteResponseElement<'request, 'store, B>,
 ) {
     let resource = CibouletteResource {
         type_: element.type_,
@@ -91,9 +93,9 @@ pub(super) fn fold_elements_obj<'a, B>(
         .insert(resource.identifier().clone(), resource);
 }
 
-pub(super) fn fold_elements_obj_other<'a, B>(
-    acc: &mut CibouletteOutboundRequestDataAccumulator<'a, B>,
-    element: CibouletteResponseElement<'a, B>,
+pub(super) fn fold_elements_obj_other<'request, 'store, B>(
+    acc: &mut CibouletteOutboundRequestDataAccumulator<'request, 'store, B>,
+    element: CibouletteResponseElement<'request, 'store, B>,
 ) {
     acc.included_data_mut().push(element);
 }

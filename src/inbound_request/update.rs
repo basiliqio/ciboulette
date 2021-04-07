@@ -1,38 +1,47 @@
 use super::*;
 
 #[derive(Debug, Clone)]
-pub enum CibouletteUpdateRequestType<'a> {
-    MainType(CibouletteResource<'a, MessyJsonObjectValue<'a>, CibouletteResourceIdentifier<'a>>),
-    Relationship(CibouletteUpdateRelationship<'a>),
+pub enum CibouletteUpdateRequestType<'request, 'store> {
+    MainType(
+        CibouletteResource<
+            'request,
+            'store,
+            MessyJsonObjectValue<'store>,
+            CibouletteResourceIdentifier<'request>,
+        >,
+    ),
+    Relationship(CibouletteUpdateRelationship<'request, 'store>),
 }
 
 #[derive(Debug, Getters, Clone)]
 #[getset(get = "pub")]
-pub struct CibouletteUpdateRelationship<'a> {
-    type_: Arc<CibouletteResourceType<'a>>,
-    value: CibouletteOptionalData<CibouletteResourceIdentifierSelector<'a>>,
+pub struct CibouletteUpdateRelationship<'request, 'store> {
+    type_: Arc<CibouletteResourceType<'store>>,
+    value: CibouletteOptionalData<CibouletteResourceIdentifierSelector<'request>>,
 }
 
 #[derive(Debug, Getters, MutGetters, Clone)]
 #[getset(get = "pub")]
-pub struct CibouletteUpdateRequest<'a> {
-    pub resource_type: Arc<CibouletteResourceType<'a>>,
-    pub resource_id: CibouletteId<'a>,
-    pub related_type: Option<Arc<CibouletteResourceType<'a>>>,
-    pub path: CiboulettePath<'a>,
-    pub query: CibouletteQueryParameters<'a>,
-    pub data: CibouletteUpdateRequestType<'a>,
+pub struct CibouletteUpdateRequest<'request, 'store> {
+    pub resource_type: Arc<CibouletteResourceType<'store>>,
+    pub resource_id: CibouletteId<'request>,
+    pub related_type: Option<Arc<CibouletteResourceType<'store>>>,
+    pub path: CiboulettePath<'request, 'store>,
+    pub query: CibouletteQueryParameters<'request, 'store>,
+    pub data: CibouletteUpdateRequestType<'request, 'store>,
     pub meta: Option<Value>,
-    pub links: Option<CibouletteBodyLink<'a>>,
-    pub jsonapi: Option<CibouletteJsonApiVersion<'a>>, // TODO Semver
+    pub links: Option<CibouletteBodyLink<'request>>,
+    pub jsonapi: Option<CibouletteJsonApiVersion<'request>>, // TODO Semver
     pub expected_response_type: CibouletteResponseRequiredType,
 }
 
-impl<'a> CibouletteInboundRequestCommons<'a> for CibouletteUpdateRequest<'a> {
-    fn path(&self) -> &CiboulettePath<'a> {
+impl<'request, 'store> CibouletteInboundRequestCommons<'request, 'store>
+    for CibouletteUpdateRequest<'request, 'store>
+{
+    fn path(&self) -> &CiboulettePath<'request, 'store> {
         &self.path
     }
-    fn query(&self) -> &CibouletteQueryParameters<'a> {
+    fn query(&self) -> &CibouletteQueryParameters<'request, 'store> {
         &self.query
     }
     fn intention(&self) -> CibouletteIntention {
@@ -47,18 +56,31 @@ impl<'a> CibouletteInboundRequestCommons<'a> for CibouletteUpdateRequest<'a> {
     }
 }
 
-impl<'a> TryFrom<CibouletteInboundRequest<'a>> for CibouletteUpdateRequest<'a> {
+impl<'request, 'store> TryFrom<CibouletteInboundRequest<'request, 'store>>
+    for CibouletteUpdateRequest<'request, 'store>
+where
+    'request: 'store,
+{
     type Error = CibouletteError;
 
-    fn try_from(value: CibouletteInboundRequest<'a>) -> Result<Self, Self::Error> {
-        let CibouletteInboundRequest {
-            query,
-            body,
-            intention,
-            path,
-        } = value;
+    fn try_from(value: CibouletteInboundRequest<'request, 'store>) -> Result<Self, Self::Error> {
+        let query: CibouletteQueryParameters<'request, 'store> = value.query;
+        let body: Option<
+            CibouletteBody<
+                'request,
+                'store,
+                CibouletteResourceIdentifierPermissive<'request>,
+                MessyJsonObjectValue<'store>,
+            >,
+        > = value.body;
+        let intention: CibouletteIntention = value.intention;
+        let path: CiboulettePath<'request, 'store> = value.path;
 
-        let (resource_type, resource_id, related_type) = match &path {
+        let (resource_type, resource_id, related_type): (
+            Arc<CibouletteResourceType<'store>>,
+            &CibouletteId,
+            Option<Arc<CibouletteResourceType<'store>>>,
+        ) = match &path {
             CiboulettePath::TypeId(type_, id) => (type_.clone(), id, None),
             CiboulettePath::TypeIdRelationship(type_, id, rel_type) => {
                 (type_.clone(), id, Some(rel_type.clone()))
@@ -96,9 +118,10 @@ impl<'a> TryFrom<CibouletteInboundRequest<'a>> for CibouletteUpdateRequest<'a> {
                 None => match selector {
                     CibouletteResourceSelector::One(value) => {
                         let type_: CibouletteResource<
-                            'a,
-                            MessyJsonObjectValue<'a>,
-                            CibouletteResourceIdentifier<'a>,
+                            'request,
+                            'store,
+                            MessyJsonObjectValue<'store>,
+                            CibouletteResourceIdentifier<'request>,
                         > = value.try_into()?;
                         if type_.identifier().type_() != path.main_type().name() {
                             return Err(CibouletteError::MainTypeClash);

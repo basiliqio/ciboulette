@@ -2,22 +2,28 @@ use super::*;
 
 #[derive(Debug, Clone, Getters, MutGetters)]
 #[getset(get = "pub")]
-pub struct CibouletteReadRequest<'a> {
-    pub path: CiboulettePath<'a>,
-    pub query: CibouletteQueryParameters<'a>,
-    pub data:
-        CibouletteResourceSelector<'a, MessyJsonObjectValue<'a>, CibouletteResourceIdentifier<'a>>,
+pub struct CibouletteReadRequest<'request, 'store> {
+    pub path: CiboulettePath<'request, 'store>,
+    pub query: CibouletteQueryParameters<'request, 'store>,
+    pub data: CibouletteResourceSelector<
+        'request,
+        'store,
+        MessyJsonObjectValue<'store>,
+        CibouletteResourceIdentifier<'request>,
+    >,
     pub meta: Option<Value>,
-    pub links: Option<CibouletteBodyLink<'a>>,
-    pub jsonapi: Option<CibouletteJsonApiVersion<'a>>, // TODO Semver
+    pub links: Option<CibouletteBodyLink<'request>>,
+    pub jsonapi: Option<CibouletteJsonApiVersion<'request>>, // TODO Semver
     pub expected_response_type: CibouletteResponseRequiredType,
 }
 
-impl<'a> CibouletteInboundRequestCommons<'a> for CibouletteReadRequest<'a> {
-    fn path(&self) -> &CiboulettePath<'a> {
+impl<'request, 'store> CibouletteInboundRequestCommons<'request, 'store>
+    for CibouletteReadRequest<'request, 'store>
+{
+    fn path(&self) -> &CiboulettePath<'request, 'store> {
         &self.path
     }
-    fn query(&self) -> &CibouletteQueryParameters<'a> {
+    fn query(&self) -> &CibouletteQueryParameters<'request, 'store> {
         &self.query
     }
     fn intention(&self) -> CibouletteIntention {
@@ -32,10 +38,12 @@ impl<'a> CibouletteInboundRequestCommons<'a> for CibouletteReadRequest<'a> {
     }
 }
 
-impl<'a> TryFrom<CibouletteInboundRequest<'a>> for CibouletteReadRequest<'a> {
+impl<'request, 'store> TryFrom<CibouletteInboundRequest<'request, 'store>>
+    for CibouletteReadRequest<'request, 'store>
+{
     type Error = CibouletteError;
 
-    fn try_from(value: CibouletteInboundRequest<'a>) -> Result<Self, Self::Error> {
+    fn try_from(value: CibouletteInboundRequest<'request, 'store>) -> Result<Self, Self::Error> {
         let CibouletteInboundRequest {
             query,
             body,
@@ -71,7 +79,7 @@ impl<'a> TryFrom<CibouletteInboundRequest<'a>> for CibouletteReadRequest<'a> {
         let data = match data {
             CibouletteBodyData::Object(obj) => obj,
             CibouletteBodyData::Null(_) => CibouletteResourceSelector::<
-                MessyJsonObjectValue<'a>,
+                MessyJsonObjectValue<'store>,
                 CibouletteResourceIdentifierPermissive<'_>,
             >::Many(Vec::new()),
         }

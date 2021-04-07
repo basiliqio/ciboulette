@@ -5,32 +5,32 @@ use std::fmt::Formatter;
 pub struct CibouletteQueryParametersFieldVisitor;
 
 /// Field of `json:api` query parameters object
-pub enum CibouletteQueryParametersField<'a> {
+pub enum CibouletteQueryParametersField<'request> {
     /// `include` parameter
     Include,
     /// `field[*]` parameter, filling the vector with types separated by '.'
-    Sparse(Vec<Cow<'a, str>>),
+    Sparse(Vec<Cow<'request, str>>),
     /// The `sort` parameter
     Sorting,
     /// The page[<type>] parameter, parsing the inner type
-    Page(CiboulettePageType<'a>),
+    Page(CiboulettePageType<'request>),
     /// The simple `filter` parameter
     Filter,
     /// The typed `filter[<type>]` parameter with the type as argument
-    FilterTyped(Cow<'a, str>),
+    FilterTyped(Cow<'request, str>),
     /// Any other parameter
-    Meta(Cow<'a, str>),
+    Meta(Cow<'request, str>),
 }
 
 /// The page type used in the [CibouletteQueryParametersField](CibouletteQueryParametersField)
 #[derive(Clone, Debug, Ord, PartialOrd, Eq, PartialEq, Hash)]
-pub enum CiboulettePageType<'a> {
+pub enum CiboulettePageType<'request> {
     Number,
     Size,
     Offset,
     Limit,
     Cursor,
-    Other(Cow<'a, str>),
+    Other(Cow<'request, str>),
 }
 
 impl CibouletteQueryParametersFieldVisitor {

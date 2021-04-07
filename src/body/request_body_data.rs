@@ -1,36 +1,40 @@
 use super::*;
 
-pub type CibouletteBodyDataBuilder<'a> =
-    CibouletteOptionalData<CibouletteResourceSelectorBuilder<'a>>;
-pub type CibouletteBodyData<'a, I, B> =
-    CibouletteOptionalData<CibouletteResourceSelector<'a, B, I>>;
+pub type CibouletteBodyDataBuilder<'request> =
+    CibouletteOptionalData<CibouletteResourceSelectorBuilder<'request>>;
+pub type CibouletteBodyData<'request, 'store, I, B> =
+    CibouletteOptionalData<CibouletteResourceSelector<'request, 'store, B, I>>;
 
-impl<'a> Default for CibouletteBodyDataBuilder<'a> {
+impl<'request> Default for CibouletteBodyDataBuilder<'request> {
     fn default() -> Self {
         CibouletteBodyDataBuilder::Null(false)
     }
 }
-// CibouletteResourceSelector<'a, CibouletteResourceIdentifierPermissive<'a>>
+// CibouletteResourceSelector<'request, CibouletteResourceIdentifierPermissive<'request>>
 
-impl<'a, I, B> Default for CibouletteBodyData<'a, I, B> {
+impl<'request, 'store, I, B> Default for CibouletteBodyData<'request, 'store, I, B> {
     fn default() -> Self {
         CibouletteBodyData::Null(false)
     }
 }
 
-impl<'a> CibouletteBodyDataBuilder<'a> {
-    pub fn build(
+impl<'request> CibouletteBodyDataBuilder<'request> {
+    pub fn build<'store>(
         self,
-        bag: &'a CibouletteStore<'a>,
+        bag: &'store CibouletteStore<'store>,
         intention: &CibouletteIntention,
     ) -> Result<
         CibouletteBodyData<
-            'a,
-            CibouletteResourceIdentifierPermissive<'a>,
-            MessyJsonObjectValue<'a>,
+            'request,
+            'store,
+            CibouletteResourceIdentifierPermissive<'request>,
+            MessyJsonObjectValue<'store>,
         >,
         CibouletteError,
-    > {
+    >
+    where
+        'request: 'store,
+    {
         match self {
             CibouletteBodyDataBuilder::Object(x) => {
                 Ok(CibouletteBodyData::Object(x.build(bag, intention)?))

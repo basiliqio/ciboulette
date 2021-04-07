@@ -16,11 +16,11 @@ struct CibouletteManyToManyEdgeIndexes {
     to_direct: petgraph::graph::EdgeIndex<u16>,
 }
 
-impl<'a> CibouletteStoreBuilder<'a> {
+impl<'request> CibouletteStoreBuilder<'request> {
     /// Add a relationships (one-to-many) to the graph
     pub fn add_one_to_many_rel(
         &mut self,
-        opt: CibouletteRelationshipOneToManyOptionBuilder<'a>,
+        opt: CibouletteRelationshipOneToManyOptionBuilder<'request>,
         alias_one_table: Option<&str>,
         alias_many_table: Option<&str>,
     ) -> Result<(), CibouletteError> {
@@ -48,7 +48,7 @@ impl<'a> CibouletteStoreBuilder<'a> {
     /// Add a relationships (one-to-many) to the graph, without the reverse relationship
     pub fn add_one_to_many_rel_no_reverse(
         &mut self,
-        opt: CibouletteRelationshipOneToManyOptionBuilder<'a>,
+        opt: CibouletteRelationshipOneToManyOptionBuilder<'request>,
         alias_many_table: Option<&str>,
     ) -> Result<(), CibouletteError> {
         let (from_i, to_i) = self.get_one_to_many_node_indexes(&opt)?;
@@ -67,7 +67,7 @@ impl<'a> CibouletteStoreBuilder<'a> {
     /// Add a relationships (one-to-many) to the graph, without the reverse relationship
     pub fn add_many_to_one_rel_no_reverse(
         &mut self,
-        opt: CibouletteRelationshipOneToManyOptionBuilder<'a>,
+        opt: CibouletteRelationshipOneToManyOptionBuilder<'request>,
         alias_one_table: Option<&str>,
     ) -> Result<(), CibouletteError> {
         let (from_i, to_i) = self.get_one_to_many_node_indexes(&opt)?;
@@ -85,8 +85,8 @@ impl<'a> CibouletteStoreBuilder<'a> {
 
     fn add_one_to_many_rel_routine(
         &mut self,
-        orig: &CibouletteResourceType<'a>,
-        dest: &CibouletteResourceType<'a>,
+        orig: &CibouletteResourceType<'request>,
+        dest: &CibouletteResourceType<'request>,
         orig_i: petgraph::graph::NodeIndex<u16>,
         orig_rel_i: petgraph::graph::EdgeIndex<u16>,
         alias_dest: Option<&str>,
@@ -120,7 +120,7 @@ impl<'a> CibouletteStoreBuilder<'a> {
         &mut self,
         from_i: &petgraph::graph::NodeIndex<u16>,
         to_i: &petgraph::graph::NodeIndex<u16>,
-        opt: &CibouletteRelationshipOneToManyOptionBuilder<'a>,
+        opt: &CibouletteRelationshipOneToManyOptionBuilder<'request>,
     ) -> (
         petgraph::graph::EdgeIndex<u16>,
         petgraph::graph::EdgeIndex<u16>,

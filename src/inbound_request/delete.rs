@@ -2,21 +2,23 @@ use super::*;
 
 #[derive(Debug, Getters, MutGetters, Clone)]
 #[getset(get = "pub")]
-pub struct CibouletteDeleteRequest<'a> {
-    pub resource_type: Arc<CibouletteResourceType<'a>>,
-    pub resource_id: CibouletteId<'a>,
-    pub related_type: Option<Arc<CibouletteResourceType<'a>>>,
-    pub query: CibouletteQueryParameters<'a>,
+pub struct CibouletteDeleteRequest<'request, 'store> {
+    pub resource_type: Arc<CibouletteResourceType<'store>>,
+    pub resource_id: CibouletteId<'request>,
+    pub related_type: Option<Arc<CibouletteResourceType<'store>>>,
+    pub query: CibouletteQueryParameters<'request, 'store>,
     pub meta: Option<Value>,
     pub expected_response_type: CibouletteResponseRequiredType,
-    pub path: CiboulettePath<'a>,
+    pub path: CiboulettePath<'request, 'store>,
 }
 
-impl<'a> CibouletteInboundRequestCommons<'a> for CibouletteDeleteRequest<'a> {
-    fn path(&self) -> &CiboulettePath<'a> {
+impl<'request, 'store> CibouletteInboundRequestCommons<'request, 'store>
+    for CibouletteDeleteRequest<'request, 'store>
+{
+    fn path(&self) -> &CiboulettePath<'request, 'store> {
         &self.path
     }
-    fn query(&self) -> &CibouletteQueryParameters<'a> {
+    fn query(&self) -> &CibouletteQueryParameters<'request, 'store> {
         &self.query
     }
     fn intention(&self) -> CibouletteIntention {
@@ -31,10 +33,12 @@ impl<'a> CibouletteInboundRequestCommons<'a> for CibouletteDeleteRequest<'a> {
     }
 }
 
-impl<'a> TryFrom<CibouletteInboundRequest<'a>> for CibouletteDeleteRequest<'a> {
+impl<'request, 'store> TryFrom<CibouletteInboundRequest<'request, 'store>>
+    for CibouletteDeleteRequest<'request, 'store>
+{
     type Error = CibouletteError;
 
-    fn try_from(value: CibouletteInboundRequest<'a>) -> Result<Self, Self::Error> {
+    fn try_from(value: CibouletteInboundRequest<'request, 'store>) -> Result<Self, Self::Error> {
         let CibouletteInboundRequest {
             query,
             body,

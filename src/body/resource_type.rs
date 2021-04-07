@@ -3,17 +3,17 @@ use super::*;
 /// ## Describe a `json:api` type attribute schema and list its relationships
 #[derive(Clone, Debug, Getters, MutGetters, Hash)]
 #[getset(get = "pub", get_mut = "pub")]
-pub struct CibouletteResourceType<'a> {
+pub struct CibouletteResourceType<'request> {
     relationships: BTreeMap<ArcStr, petgraph::graph::EdgeIndex<u16>>,
     relationships_type_to_alias: BTreeMap<ArcStr, ArcStr>,
-    schema: MessyJsonObject<'a>,
+    schema: MessyJsonObject<'request>,
     id_type: CibouletteIdType,
     name: ArcStr,
 }
 
-impl<'a> CibouletteResourceType<'a> {
+impl<'request> CibouletteResourceType<'request> {
     /// Create a new type from a schema and a list of relationships
-    pub fn new(name: String, id_type: CibouletteIdType, schema: MessyJsonObject<'a>) -> Self {
+    pub fn new(name: String, id_type: CibouletteIdType, schema: MessyJsonObject<'request>) -> Self {
         CibouletteResourceType {
             relationships: BTreeMap::new(),
             relationships_type_to_alias: BTreeMap::new(),
@@ -32,9 +32,9 @@ impl<'a> CibouletteResourceType<'a> {
 
     pub fn get_relationship(
         &self,
-        store: &'a CibouletteStore<'a>,
+        store: &'request CibouletteStore<'request>,
         alias: &str,
-    ) -> Result<&Arc<CibouletteResourceType<'a>>, CibouletteError> {
+    ) -> Result<&Arc<CibouletteResourceType<'request>>, CibouletteError> {
         let edge_index = self.relationships().get(alias).ok_or_else(|| {
             CibouletteError::UnknownRelationship(self.name().to_string(), alias.to_string())
         })?;
@@ -55,9 +55,9 @@ impl<'a> CibouletteResourceType<'a> {
         })
     }
 
-    pub fn has_fields<'b, I>(&self, fields: I) -> Result<Option<String>, CibouletteError>
+    pub fn has_fields<'store, I>(&self, fields: I) -> Result<Option<String>, CibouletteError>
     where
-        I: Iterator<Item = &'b str>,
+        I: Iterator<Item = &'store str>,
     {
         Ok(fields
             .into_iter()
@@ -68,22 +68,22 @@ impl<'a> CibouletteResourceType<'a> {
     }
 }
 
-impl<'a> Ord for CibouletteResourceType<'a> {
+impl<'request> Ord for CibouletteResourceType<'request> {
     fn cmp(&self, other: &Self) -> std::cmp::Ordering {
         self.name.cmp(&other.name)
     }
 }
 
-impl<'a> PartialOrd for CibouletteResourceType<'a> {
+impl<'request> PartialOrd for CibouletteResourceType<'request> {
     fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
         Some(self.name.cmp(&other.name))
     }
 }
 
-impl<'a> PartialEq for CibouletteResourceType<'a> {
+impl<'request> PartialEq for CibouletteResourceType<'request> {
     fn eq(&self, other: &Self) -> bool {
         self.name == other.name
     }
 }
 
-impl<'a> Eq for CibouletteResourceType<'a> {}
+impl<'request> Eq for CibouletteResourceType<'request> {}

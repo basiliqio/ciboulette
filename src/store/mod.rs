@@ -15,10 +15,10 @@ mod tests;
 /// ## Map of accepted resource types
 #[derive(Clone, Debug, Getters, MutGetters)]
 #[getset(get = "pub", get_mut)]
-pub struct CibouletteStore<'a> {
+pub struct CibouletteStore<'request> {
     graph: petgraph::graph::Graph<
-        Arc<CibouletteResourceType<'a>>,
-        CibouletteRelationshipOption<'a>,
+        Arc<CibouletteResourceType<'request>>,
+        CibouletteRelationshipOption<'request>,
         petgraph::Directed,
         u16,
     >,
@@ -26,7 +26,7 @@ pub struct CibouletteStore<'a> {
     config: CibouletteConfig,
 }
 
-impl<'a> CibouletteStore<'a> {
+impl<'request> CibouletteStore<'request> {
     /// Get a type index from the graph
     pub fn get_type_index(&self, name: &str) -> Option<&petgraph::graph::NodeIndex<u16>> {
         self.map.get(name)
@@ -38,7 +38,7 @@ impl<'a> CibouletteStore<'a> {
         name: &str,
     ) -> Option<(
         petgraph::graph::NodeIndex<u16>,
-        &Arc<CibouletteResourceType<'a>>,
+        &Arc<CibouletteResourceType<'request>>,
     )> {
         self.map
             .get(name)
@@ -46,7 +46,7 @@ impl<'a> CibouletteStore<'a> {
     }
 
     /// Get a type from the graph, returning an error if not found
-    pub fn get_type_if_exists(&self, name: &str) -> Option<&Arc<CibouletteResourceType<'a>>> {
+    pub fn get_type_if_exists(&self, name: &str) -> Option<&Arc<CibouletteResourceType<'request>>> {
         self.map.get(name).and_then(|x| self.graph.node_weight(*x))
     }
 
@@ -54,7 +54,7 @@ impl<'a> CibouletteStore<'a> {
     pub fn get_type(
         &self,
         name: &str,
-    ) -> Result<&Arc<CibouletteResourceType<'a>>, CibouletteError> {
+    ) -> Result<&Arc<CibouletteResourceType<'request>>, CibouletteError> {
         self.map
             .get(name)
             .and_then(|x| self.graph.node_weight(*x))
@@ -66,8 +66,13 @@ impl<'a> CibouletteStore<'a> {
         &self,
         from: &str,
         to: &str,
-    ) -> Result<(&'a CibouletteResourceType, &'a CibouletteRelationshipOption), CibouletteError>
-    {
+    ) -> Result<
+        (
+            &'request CibouletteResourceType,
+            &'request CibouletteRelationshipOption,
+        ),
+        CibouletteError,
+    > {
         let from_i = self
             .map
             .get(from)

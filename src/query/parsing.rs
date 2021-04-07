@@ -4,18 +4,18 @@ use serde::de::{DeserializeSeed, Deserializer};
 /// ## Element of a sorting vector.
 #[derive(Debug, Getters, Clone, Hash)]
 #[getset(get = "pub")]
-pub struct CibouletteSortingElement<'a> {
-    pub type_: Arc<CibouletteResourceType<'a>>,
+pub struct CibouletteSortingElement<'request, 'store> {
+    pub type_: Arc<CibouletteResourceType<'store>>,
     pub direction: CibouletteSortingDirection,
-    pub field: Cow<'a, str>,
+    pub field: Cow<'request, str>,
 }
 
-impl<'a> CibouletteSortingElement<'a> {
+impl<'request, 'store> CibouletteSortingElement<'request, 'store> {
     /// Create a new sorting element
     pub fn new(
-        type_: Arc<CibouletteResourceType<'a>>,
+        type_: Arc<CibouletteResourceType<'store>>,
         direction: CibouletteSortingDirection,
-        field: Cow<'a, str>,
+        field: Cow<'request, str>,
     ) -> Self {
         CibouletteSortingElement {
             type_,
@@ -28,28 +28,31 @@ impl<'a> CibouletteSortingElement<'a> {
 /// ## Builder object for [CibouletteQueryParameters](CibouletteQueryParameters)
 #[derive(Debug, Getters)]
 #[getset(get = "pub")]
-pub struct CibouletteQueryParametersBuilder<'a> {
-    pub(super) include: Option<Vec<Vec<Cow<'a, str>>>>,
-    pub(super) sparse: BTreeMap<Vec<Cow<'a, str>>, Vec<Cow<'a, str>>>,
-    pub(super) sorting: Vec<(CibouletteSortingDirection, Cow<'a, str>)>,
-    pub(super) page: BTreeMap<CiboulettePageType<'a>, Cow<'a, str>>,
-    pub(super) filter: Option<Cow<'a, str>>,
-    pub(super) filter_typed: BTreeMap<Cow<'a, str>, Cow<'a, str>>,
-    pub(super) meta: BTreeMap<Cow<'a, str>, Cow<'a, str>>,
+pub struct CibouletteQueryParametersBuilder<'request> {
+    pub(super) include: Option<Vec<Vec<Cow<'request, str>>>>,
+    pub(super) sparse: BTreeMap<Vec<Cow<'request, str>>, Vec<Cow<'request, str>>>,
+    pub(super) sorting: Vec<(CibouletteSortingDirection, Cow<'request, str>)>,
+    pub(super) page: BTreeMap<CiboulettePageType<'request>, Cow<'request, str>>,
+    pub(super) filter: Option<Cow<'request, str>>,
+    pub(super) filter_typed: BTreeMap<Cow<'request, str>, Cow<'request, str>>,
+    pub(super) meta: BTreeMap<Cow<'request, str>, Cow<'request, str>>,
 }
 
 /// ## Query parameters for `json:api`
 #[derive(Debug, Getters, Default, Clone, Hash)]
 #[getset(get = "pub")]
-pub struct CibouletteQueryParameters<'a> {
-    pub include: BTreeSet<&'a CibouletteResourceType<'a>>,
-    pub sparse: BTreeMap<&'a CibouletteResourceType<'a>, Vec<Cow<'a, str>>>,
-    pub sorting: Vec<CibouletteSortingElement<'a>>,
-    pub sorting_map: BTreeMap<Arc<CibouletteResourceType<'a>>, Vec<CibouletteSortingElement<'a>>>,
-    pub page: BTreeMap<CiboulettePageType<'a>, Cow<'a, str>>,
-    pub filter: Option<Cow<'a, str>>,
-    pub filter_typed: BTreeMap<Cow<'a, str>, Cow<'a, str>>,
-    pub meta: BTreeMap<Cow<'a, str>, Cow<'a, str>>,
+pub struct CibouletteQueryParameters<'request, 'store> {
+    pub include: BTreeSet<&'store CibouletteResourceType<'store>>,
+    pub sparse: BTreeMap<&'store CibouletteResourceType<'store>, Vec<Cow<'request, str>>>,
+    pub sorting: Vec<CibouletteSortingElement<'request, 'store>>,
+    pub sorting_map: BTreeMap<
+        Arc<CibouletteResourceType<'store>>,
+        Vec<CibouletteSortingElement<'request, 'store>>,
+    >,
+    pub page: BTreeMap<CiboulettePageType<'request>, Cow<'request, str>>,
+    pub filter: Option<Cow<'request, str>>,
+    pub filter_typed: BTreeMap<Cow<'request, str>, Cow<'request, str>>,
+    pub meta: BTreeMap<Cow<'request, str>, Cow<'request, str>>,
 }
 
 impl<'de> Deserialize<'de> for CibouletteQueryParametersBuilder<'de> {
@@ -64,7 +67,7 @@ impl<'de> Deserialize<'de> for CibouletteQueryParametersBuilder<'de> {
     }
 }
 
-impl<'a> CibouletteQueryParametersBuilder<'a> {
+impl<'request> CibouletteQueryParametersBuilder<'request> {
     // }
     /// Check that a relationship exists between a chain of types.
     ///
@@ -73,10 +76,10 @@ impl<'a> CibouletteQueryParametersBuilder<'a> {
     /// but "comments.email" may not make sense
     /// if there is no relationship between those two resources.
     #[inline]
-    pub(super) fn check_relationship_exists(
-        bag: &'a CibouletteStore<'a>,
-        type_list: &[Cow<'_, str>],
-    ) -> Result<&'a Arc<CibouletteResourceType<'a>>, CibouletteError> {
+    pub(super) fn check_relationship_exists<'store>(
+        bag: &'store CibouletteStore<'store>,
+        type_list: &[Cow<'request, str>],
+    ) -> Result<&'store Arc<CibouletteResourceType<'store>>, CibouletteError> {
         let mut wtype: (
             petgraph::graph::NodeIndex<u16>,
             &Arc<CibouletteResourceType>,
@@ -123,8 +126,8 @@ impl<'a> CibouletteQueryParametersBuilder<'a> {
 
     /// Checks that a field exists in a give resource type
     #[inline]
-    pub(super) fn check_field_exists(
-        type_: &CibouletteResourceType<'a>,
+    pub(super) fn check_field_exists<'store>(
+        type_: &Arc<CibouletteResourceType<'store>>,
         field: &str,
     ) -> Result<(), CibouletteError> {
         match type_.schema().properties().contains_key(field) {
@@ -138,9 +141,9 @@ impl<'a> CibouletteQueryParametersBuilder<'a> {
 
     /// Checks that fields exists in a give resource type
     #[inline]
-    pub(super) fn check_fields_exists(
-        type_: &'a CibouletteResourceType<'a>,
-        field_list: &[Cow<'a, str>],
+    pub(super) fn check_fields_exists<'store>(
+        type_: &'store CibouletteResourceType<'store>,
+        field_list: &[Cow<'request, str>],
     ) -> Result<(), CibouletteError> {
         let curr_obj: &MessyJsonObject = type_.schema();
         let mut iter = field_list.iter().peekable();
@@ -167,15 +170,18 @@ impl<'a> CibouletteQueryParametersBuilder<'a> {
     }
 
     /// Extract a sorting map from a list of sorting elements
-    fn extract_sorting_map(
-        #[allow(clippy::ptr_arg)] sorting: &Vec<CibouletteSortingElement<'a>>,
-    ) -> BTreeMap<Arc<CibouletteResourceType<'a>>, Vec<CibouletteSortingElement<'a>>> {
+    fn extract_sorting_map<'store>(
+        #[allow(clippy::ptr_arg)] sorting: &Vec<CibouletteSortingElement<'request, 'store>>,
+    ) -> BTreeMap<
+        Arc<CibouletteResourceType<'store>>,
+        Vec<CibouletteSortingElement<'request, 'store>>,
+    > {
         match sorting.len() {
             0 => BTreeMap::default(),
             _ => {
                 let mut sorting_map: BTreeMap<
-                    Arc<CibouletteResourceType<'a>>,
-                    Vec<CibouletteSortingElement>,
+                    Arc<CibouletteResourceType<'store>>,
+                    Vec<CibouletteSortingElement<'request, 'store>>,
                 > = BTreeMap::new();
 
                 for (k, v) in sorting
@@ -197,19 +203,21 @@ impl<'a> CibouletteQueryParametersBuilder<'a> {
     }
 
     /// Build a [CibouletteQueryParametersBuilder](CibouletteQueryParametersBuilder) from the builder
-    pub fn build(
+    pub fn build<'store>(
         self,
-        bag: &'a CibouletteStore<'a>,
-        main_type: Option<Arc<CibouletteResourceType<'a>>>,
-    ) -> Result<CibouletteQueryParameters<'a>, CibouletteError> {
-        let mut sparse: BTreeMap<&'a CibouletteResourceType, Vec<Cow<'a, str>>> = BTreeMap::new();
-        let mut sorting: Vec<CibouletteSortingElement> = Vec::with_capacity(self.sorting.len());
+        bag: &'store CibouletteStore<'store>,
+        main_type: Option<Arc<CibouletteResourceType<'store>>>,
+    ) -> Result<CibouletteQueryParameters<'request, 'store>, CibouletteError> {
+        let mut sparse: BTreeMap<&'store CibouletteResourceType<'store>, Vec<Cow<'request, str>>> =
+            BTreeMap::new();
+        let mut sorting: Vec<CibouletteSortingElement<'request, 'store>> =
+            Vec::with_capacity(self.sorting.len());
 
         // Check for include relationships and build the array
-        let include: BTreeSet<&'a CibouletteResourceType> = match self.include {
+        let include: BTreeSet<&'store CibouletteResourceType<'store>> = match self.include {
             None => BTreeSet::default(),
             Some(include) => {
-                let mut res: BTreeSet<&'a CibouletteResourceType> = BTreeSet::new();
+                let mut res: BTreeSet<&'store CibouletteResourceType<'store>> = BTreeSet::new();
                 for types in include.into_iter() {
                     res.insert(Self::check_relationship_exists(bag, types.as_slice())?);
                 }
@@ -221,7 +229,7 @@ impl<'a> CibouletteQueryParametersBuilder<'a> {
         for (types, fields) in self.sparse.into_iter() {
             let rel = Self::check_relationship_exists(bag, types.as_slice())?;
             if !fields.is_empty() {
-                Self::check_fields_exists(rel, fields.as_slice())?;
+                Self::check_fields_exists(&rel, fields.as_slice())?;
             }
             sparse.insert(rel, fields);
         }

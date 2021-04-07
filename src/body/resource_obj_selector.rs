@@ -4,26 +4,38 @@ use std::fmt::Formatter;
 
 /// ## Builder object for [CibouletterResourceSelector](CibouletterResourceSelector)
 #[derive(Debug)]
-pub enum CibouletteResourceSelectorBuilder<'a> {
-    One(CibouletteResourceBuilder<'a>),
-    Many(Vec<CibouletteResourceBuilder<'a>>),
+pub enum CibouletteResourceSelectorBuilder<'request> {
+    One(CibouletteResourceBuilder<'request>),
+    Many(Vec<CibouletteResourceBuilder<'request>>),
 }
 
 /// ## A selector between a single or multiple `json:api` [resource](https://jsonapi.org/format/#document-resource-objects) objects
 #[derive(Debug, Clone, Serialize)]
 #[serde(untagged)]
-pub enum CibouletteResourceSelector<'a, B, T> {
-    One(CibouletteResource<'a, B, T>),
-    Many(Vec<CibouletteResource<'a, B, T>>),
+pub enum CibouletteResourceSelector<'request, 'store, B, T> {
+    One(CibouletteResource<'request, 'store, B, T>),
+    Many(Vec<CibouletteResource<'request, 'store, B, T>>),
 }
 
-impl<'a, B> TryFrom<CibouletteResourceSelector<'a, B, CibouletteResourceIdentifierPermissive<'a>>>
-    for CibouletteResourceSelector<'a, B, CibouletteResourceIdentifier<'a>>
+impl<'request, 'store, B>
+    TryFrom<
+        CibouletteResourceSelector<
+            'request,
+            'store,
+            B,
+            CibouletteResourceIdentifierPermissive<'request>,
+        >,
+    > for CibouletteResourceSelector<'request, 'store, B, CibouletteResourceIdentifier<'request>>
 {
     type Error = CibouletteError;
 
     fn try_from(
-        value: CibouletteResourceSelector<'a, B, CibouletteResourceIdentifierPermissive<'a>>,
+        value: CibouletteResourceSelector<
+            'request,
+            'store,
+            B,
+            CibouletteResourceIdentifierPermissive<'request>,
+        >,
     ) -> Result<Self, Self::Error> {
         match value {
             CibouletteResourceSelector::One(r) => {
@@ -31,7 +43,14 @@ impl<'a, B> TryFrom<CibouletteResourceSelector<'a, B, CibouletteResourceIdentifi
             }
             CibouletteResourceSelector::Many(rs) => Ok(CibouletteResourceSelector::Many(
                 rs.into_iter().map(|x| x.try_into()).collect::<Result<
-                    Vec<CibouletteResource<'a, B, CibouletteResourceIdentifier<'a>>>,
+                    Vec<
+                        CibouletteResource<
+                            'request,
+                            'store,
+                            B,
+                            CibouletteResourceIdentifier<'request>,
+                        >,
+                    >,
                     CibouletteError,
                 >>()?,
             )),
@@ -39,19 +58,37 @@ impl<'a, B> TryFrom<CibouletteResourceSelector<'a, B, CibouletteResourceIdentifi
     }
 }
 
-impl<'a, B> From<CibouletteResourceSelector<'a, B, CibouletteResourceIdentifier<'a>>>
-    for CibouletteResourceSelector<'a, B, CibouletteResourceIdentifierPermissive<'a>>
+impl<'request, 'store, B>
+    From<CibouletteResourceSelector<'request, 'store, B, CibouletteResourceIdentifier<'request>>>
+    for CibouletteResourceSelector<
+        'request,
+        'store,
+        B,
+        CibouletteResourceIdentifierPermissive<'request>,
+    >
 {
-    fn from(value: CibouletteResourceSelector<'a, B, CibouletteResourceIdentifier<'a>>) -> Self {
+    fn from(
+        value: CibouletteResourceSelector<
+            'request,
+            'store,
+            B,
+            CibouletteResourceIdentifier<'request>,
+        >,
+    ) -> Self {
         match value {
-			CibouletteResourceSelector::One(r) => CibouletteResourceSelector::One(r.into()),
-			CibouletteResourceSelector::Many(rs) => CibouletteResourceSelector::Many(
-				rs.into_iter()
-					.map(|x| x.into())
-					.collect::<Vec<CibouletteResource<'a, B, CibouletteResourceIdentifierPermissive<'a>>>>(
-					),
-			),
-		}
+            CibouletteResourceSelector::One(r) => CibouletteResourceSelector::One(r.into()),
+            CibouletteResourceSelector::Many(rs) => {
+                CibouletteResourceSelector::Many(rs.into_iter().map(|x| x.into()).collect::<Vec<
+                    CibouletteResource<
+                        'request,
+                        'store,
+                        B,
+                        CibouletteResourceIdentifierPermissive<'request>,
+                    >,
+                >>(
+                ))
+            }
+        }
     }
 }
 
@@ -102,20 +139,24 @@ impl<'de> Deserialize<'de> for CibouletteResourceSelectorBuilder<'de> {
     }
 }
 
-impl<'a> CibouletteResourceSelectorBuilder<'a> {
+impl<'request> CibouletteResourceSelectorBuilder<'request> {
     /// Build the resource selector from the builder
-    pub fn build(
+    pub fn build<'store>(
         self,
-        bag: &'a CibouletteStore<'a>,
+        bag: &'store CibouletteStore<'store>,
         intention: &CibouletteIntention,
     ) -> Result<
         CibouletteResourceSelector<
-            'a,
-            MessyJsonObjectValue<'a>,
-            CibouletteResourceIdentifierPermissive<'a>,
+            'request,
+            'store,
+            MessyJsonObjectValue<'store>,
+            CibouletteResourceIdentifierPermissive<'request>,
         >,
         CibouletteError,
-    > {
+    >
+    where
+        'request: 'store,
+    {
         match self {
             CibouletteResourceSelectorBuilder::One(element) => Ok(CibouletteResourceSelector::One(
                 element.build(bag, &intention)?,
@@ -123,7 +164,7 @@ impl<'a> CibouletteResourceSelectorBuilder<'a> {
             CibouletteResourceSelectorBuilder::Many(elements) => {
                 let mut res: Vec<
                     CibouletteResource<
-                        MessyJsonObjectValue,
+                        MessyJsonObjectValue<'store>,
                         CibouletteResourceIdentifierPermissive,
                     >,
                 > = Vec::with_capacity(elements.len());
@@ -137,7 +178,9 @@ impl<'a> CibouletteResourceSelectorBuilder<'a> {
     }
 }
 
-impl<'a, T> CibouletteResourceSelector<'a, MessyJsonObjectValue<'a>, T> {
+impl<'request, 'store, T>
+    CibouletteResourceSelector<'request, 'store, MessyJsonObjectValue<'store>, T>
+{
     pub fn check_member_name(&self) -> Result<(), CibouletteError> {
         match self {
             CibouletteResourceSelector::One(element) => element.check_member_name(),

@@ -2,25 +2,28 @@ use super::*;
 
 #[derive(Debug, Getters, MutGetters, Clone)]
 #[getset(get = "pub")]
-pub struct CibouletteCreateRequest<'a> {
-    pub path: CiboulettePath<'a>,
-    pub query: CibouletteQueryParameters<'a>,
+pub struct CibouletteCreateRequest<'request, 'store> {
+    pub path: CiboulettePath<'request, 'store>,
+    pub query: CibouletteQueryParameters<'request, 'store>,
     pub data: CibouletteResource<
-        'a,
-        MessyJsonObjectValue<'a>,
-        CibouletteResourceIdentifierPermissive<'a>,
+        'request,
+        'store,
+        MessyJsonObjectValue<'store>,
+        CibouletteResourceIdentifierPermissive<'request>,
     >,
     pub meta: Option<Value>,
-    pub links: Option<CibouletteBodyLink<'a>>,
-    pub jsonapi: Option<CibouletteJsonApiVersion<'a>>,
+    pub links: Option<CibouletteBodyLink<'request>>,
+    pub jsonapi: Option<CibouletteJsonApiVersion<'request>>,
     pub expected_response_type: CibouletteResponseRequiredType,
 }
 
-impl<'a> CibouletteInboundRequestCommons<'a> for CibouletteCreateRequest<'a> {
-    fn path(&self) -> &CiboulettePath<'a> {
+impl<'request, 'store> CibouletteInboundRequestCommons<'request, 'store>
+    for CibouletteCreateRequest<'request, 'store>
+{
+    fn path(&self) -> &CiboulettePath<'request, 'store> {
         &self.path
     }
-    fn query(&self) -> &CibouletteQueryParameters<'a> {
+    fn query(&self) -> &CibouletteQueryParameters<'request, 'store> {
         &self.query
     }
     fn intention(&self) -> CibouletteIntention {
@@ -35,10 +38,12 @@ impl<'a> CibouletteInboundRequestCommons<'a> for CibouletteCreateRequest<'a> {
     }
 }
 
-impl<'a> TryFrom<CibouletteInboundRequest<'a>> for CibouletteCreateRequest<'a> {
+impl<'request, 'store> TryFrom<CibouletteInboundRequest<'request, 'store>>
+    for CibouletteCreateRequest<'request, 'store>
+{
     type Error = CibouletteError;
 
-    fn try_from(value: CibouletteInboundRequest<'a>) -> Result<Self, Self::Error> {
+    fn try_from(value: CibouletteInboundRequest<'request, 'store>) -> Result<Self, Self::Error> {
         let CibouletteInboundRequest {
             query,
             body,

@@ -3,22 +3,22 @@ use std::cmp::{Ord, Ordering};
 
 #[derive(Deserialize, Serialize, Debug, Getters, MutGetters, Clone)]
 #[getset(get = "pub", get_mut = "pub")]
-pub struct CibouletteResourceIdentifierBuilder<'a> {
+pub struct CibouletteResourceIdentifierBuilder<'request> {
     #[serde(rename = "type")]
-    pub type_: Cow<'a, str>,
-    pub id: Option<CibouletteIdBuilder<'a>>,
+    pub type_: Cow<'request, str>,
+    pub id: Option<CibouletteIdBuilder<'request>>,
 }
 
 /// ## A `json:api` [resource identifier](https://jsonapi.org/format/#document-resource-identifier-objects) object
 #[derive(Serialize, Debug, Getters, MutGetters, Clone)]
 #[getset(get = "pub", get_mut = "pub")]
-pub struct CibouletteResourceIdentifier<'a> {
+pub struct CibouletteResourceIdentifier<'request> {
     #[serde(rename = "type")]
-    pub type_: Cow<'a, str>,
-    pub id: CibouletteId<'a>,
+    pub type_: Cow<'request, str>,
+    pub id: CibouletteId<'request>,
 }
 
-impl<'a> Ord for CibouletteResourceIdentifier<'a> {
+impl<'request> Ord for CibouletteResourceIdentifier<'request> {
     fn cmp(&self, other: &Self) -> Ordering {
         let type_cmp = self.type_.cmp(other.type_());
         match type_cmp {
@@ -28,7 +28,7 @@ impl<'a> Ord for CibouletteResourceIdentifier<'a> {
     }
 }
 
-impl<'a> PartialOrd for CibouletteResourceIdentifier<'a> {
+impl<'request> PartialOrd for CibouletteResourceIdentifier<'request> {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         let type_cmp = self.type_.cmp(other.type_());
         match type_cmp {
@@ -38,28 +38,28 @@ impl<'a> PartialOrd for CibouletteResourceIdentifier<'a> {
     }
 }
 
-impl<'a> PartialEq for CibouletteResourceIdentifier<'a> {
+impl<'request> PartialEq for CibouletteResourceIdentifier<'request> {
     fn eq(&self, other: &Self) -> bool {
         self.type_ == other.type_ && self.id == other.id
     }
 }
 
-impl<'a> Eq for CibouletteResourceIdentifier<'a> {}
+impl<'request> Eq for CibouletteResourceIdentifier<'request> {}
 
 /// ## A `json:api` [resource identifier](https://jsonapi.org/format/#document-resource-identifier-objects) object
 #[derive(Serialize, Debug, Getters, MutGetters, Clone)]
 #[getset(get = "pub", get_mut = "pub")]
-pub struct CibouletteResourceIdentifierPermissive<'a> {
+pub struct CibouletteResourceIdentifierPermissive<'request> {
     #[serde(rename = "type")]
-    pub type_: Cow<'a, str>,
-    pub id: Option<CibouletteId<'a>>,
+    pub type_: Cow<'request, str>,
+    pub id: Option<CibouletteId<'request>>,
 }
 
-impl<'a> CibouletteResourceIdentifierBuilder<'a> {
-    pub fn build_from_store(
+impl<'request> CibouletteResourceIdentifierBuilder<'request> {
+    pub fn build_from_store<'store>(
         self,
-        store: &'a CibouletteStore<'a>,
-    ) -> Result<CibouletteResourceIdentifier<'a>, CibouletteError> {
+        store: &'store CibouletteStore<'store>,
+    ) -> Result<CibouletteResourceIdentifier<'request>, CibouletteError> {
         Ok(CibouletteResourceIdentifier {
             id: match self.id {
                 Some(id) => id.build(&store.get_type(&self.type_)?.id_type())?,
@@ -68,10 +68,10 @@ impl<'a> CibouletteResourceIdentifierBuilder<'a> {
             type_: self.type_,
         })
     }
-    pub fn build(
+    pub fn build<'store>(
         self,
-        type_: &CibouletteResourceType<'a>,
-    ) -> Result<CibouletteResourceIdentifier<'a>, CibouletteError> {
+        type_: &CibouletteResourceType<'store>,
+    ) -> Result<CibouletteResourceIdentifier<'request>, CibouletteError> {
         Ok(CibouletteResourceIdentifier {
             type_: self.type_,
             id: match self.id {
@@ -81,10 +81,10 @@ impl<'a> CibouletteResourceIdentifierBuilder<'a> {
         })
     }
 
-    pub fn build_permissive(
+    pub fn build_permissive<'store>(
         self,
-        type_: &CibouletteResourceType<'a>,
-    ) -> Result<CibouletteResourceIdentifierPermissive<'a>, CibouletteError> {
+        type_: &CibouletteResourceType<'store>,
+    ) -> Result<CibouletteResourceIdentifierPermissive<'request>, CibouletteError> {
         Ok(CibouletteResourceIdentifierPermissive {
             type_: self.type_,
             id: match self.id {
@@ -95,10 +95,14 @@ impl<'a> CibouletteResourceIdentifierBuilder<'a> {
     }
 }
 
-impl<'a> TryFrom<CibouletteResourceIdentifierPermissive<'a>> for CibouletteResourceIdentifier<'a> {
+impl<'request> TryFrom<CibouletteResourceIdentifierPermissive<'request>>
+    for CibouletteResourceIdentifier<'request>
+{
     type Error = CibouletteError;
 
-    fn try_from(value: CibouletteResourceIdentifierPermissive<'a>) -> Result<Self, Self::Error> {
+    fn try_from(
+        value: CibouletteResourceIdentifierPermissive<'request>,
+    ) -> Result<Self, Self::Error> {
         let CibouletteResourceIdentifierPermissive { type_, id } = value;
 
         Ok(CibouletteResourceIdentifier {
@@ -108,8 +112,10 @@ impl<'a> TryFrom<CibouletteResourceIdentifierPermissive<'a>> for CibouletteResou
     }
 }
 
-impl<'a> From<CibouletteResourceIdentifier<'a>> for CibouletteResourceIdentifierPermissive<'a> {
-    fn from(value: CibouletteResourceIdentifier<'a>) -> Self {
+impl<'request> From<CibouletteResourceIdentifier<'request>>
+    for CibouletteResourceIdentifierPermissive<'request>
+{
+    fn from(value: CibouletteResourceIdentifier<'request>) -> Self {
         let CibouletteResourceIdentifier { type_, id } = value;
 
         CibouletteResourceIdentifierPermissive {
@@ -119,45 +125,46 @@ impl<'a> From<CibouletteResourceIdentifier<'a>> for CibouletteResourceIdentifier
     }
 }
 
-impl<'a> CibouletteResourceIdentifier<'a> {
+impl<'request> CibouletteResourceIdentifier<'request> {
     /// Create a new resource identifier from an id, a type an potentially a meta argument
-    pub fn new(id: CibouletteId<'a>, type_: Cow<'a, str>) -> Self {
+    pub fn new(id: CibouletteId<'request>, type_: Cow<'request, str>) -> Self {
         CibouletteResourceIdentifier { id, type_ }
     }
 }
 
-impl<'a> CibouletteResourceIdentifierPermissive<'a> {
+impl<'request> CibouletteResourceIdentifierPermissive<'request> {
     /// Create a new resource identifier from an id, a type an potentially a meta argument
-    pub fn new(id: Option<CibouletteId<'a>>, type_: Cow<'a, str>) -> Self {
+    pub fn new(id: Option<CibouletteId<'request>>, type_: Cow<'request, str>) -> Self {
         CibouletteResourceIdentifierPermissive { id, type_ }
     }
 }
 
-impl<'a> CibouletteResourceIdentifierBuilder<'a> {
+impl<'request> CibouletteResourceIdentifierBuilder<'request> {
     /// Create a new resource identifier from an id, a type an potentially a meta argument
-    pub fn new(id: Option<CibouletteIdBuilder<'a>>, type_: Cow<'a, str>) -> Self {
+    pub fn new(id: Option<CibouletteIdBuilder<'request>>, type_: Cow<'request, str>) -> Self {
         CibouletteResourceIdentifierBuilder { id, type_ }
     }
 }
 
 #[derive(Deserialize, Debug, Serialize, Clone)]
 #[serde(untagged)]
-pub enum CibouletteResourceIdentifierSelectorBuilder<'a> {
-    One(CibouletteResourceIdentifierBuilder<'a>),
-    Many(Vec<CibouletteResourceIdentifierBuilder<'a>>),
+pub enum CibouletteResourceIdentifierSelectorBuilder<'request> {
+    One(CibouletteResourceIdentifierBuilder<'request>),
+    Many(Vec<CibouletteResourceIdentifierBuilder<'request>>),
 }
 
-impl<'a> CibouletteResourceIdentifierSelectorBuilder<'a> {
-    pub fn build(
+impl<'request> CibouletteResourceIdentifierSelectorBuilder<'request> {
+    pub fn build<'store>(
         self,
-        type_: &CibouletteResourceType<'a>,
-    ) -> Result<CibouletteResourceIdentifierSelector<'a>, CibouletteError> {
+        type_: &CibouletteResourceType<'store>,
+    ) -> Result<CibouletteResourceIdentifierSelector<'request>, CibouletteError> {
         match self {
             CibouletteResourceIdentifierSelectorBuilder::One(x) => {
                 Ok(CibouletteResourceIdentifierSelector::One(x.build(type_)?))
             }
             CibouletteResourceIdentifierSelectorBuilder::Many(ids) => {
-                let mut res: Vec<CibouletteResourceIdentifier<'a>> = Vec::with_capacity(ids.len());
+                let mut res: Vec<CibouletteResourceIdentifier<'request>> =
+                    Vec::with_capacity(ids.len());
 
                 for id in ids.into_iter() {
                     res.push(id.build(&type_)?);
@@ -171,26 +178,36 @@ impl<'a> CibouletteResourceIdentifierSelectorBuilder<'a> {
 /// ## A selector between a single or multiple `json:api` [resource identifier](https://jsonapi.org/format/#document-resource-identifier-objects) objects
 #[derive(Debug, Serialize, Clone)]
 #[serde(untagged)]
-pub enum CibouletteResourceIdentifierSelector<'a> {
-    One(CibouletteResourceIdentifier<'a>),
-    Many(Vec<CibouletteResourceIdentifier<'a>>),
+pub enum CibouletteResourceIdentifierSelector<'request> {
+    One(CibouletteResourceIdentifier<'request>),
+    Many(Vec<CibouletteResourceIdentifier<'request>>),
 }
 
-impl<'a, B> From<CibouletteResource<'a, B, CibouletteResourceIdentifier<'a>>>
-    for CibouletteResourceIdentifierSelector<'a>
+impl<'request, 'store, B>
+    From<CibouletteResource<'request, 'store, B, CibouletteResourceIdentifier<'request>>>
+    for CibouletteResourceIdentifierSelector<'request>
 {
-    fn from(obj: CibouletteResource<'a, B, CibouletteResourceIdentifier<'a>>) -> Self {
+    fn from(
+        obj: CibouletteResource<'request, 'store, B, CibouletteResourceIdentifier<'request>>,
+    ) -> Self {
         CibouletteResourceIdentifierSelector::One(obj.identifier)
     }
 }
 
-impl<'a, B> TryFrom<CibouletteResource<'a, B, CibouletteResourceIdentifierPermissive<'a>>>
-    for CibouletteResourceIdentifierSelector<'a>
+impl<'request, 'store, B>
+    TryFrom<
+        CibouletteResource<'request, 'store, B, CibouletteResourceIdentifierPermissive<'request>>,
+    > for CibouletteResourceIdentifierSelector<'request>
 {
     type Error = CibouletteError;
 
     fn try_from(
-        obj: CibouletteResource<'a, B, CibouletteResourceIdentifierPermissive<'a>>,
+        obj: CibouletteResource<
+            'request,
+            'store,
+            B,
+            CibouletteResourceIdentifierPermissive<'request>,
+        >,
     ) -> Result<Self, Self::Error> {
         Ok(CibouletteResourceIdentifierSelector::One(
             obj.identifier.try_into()?,
@@ -198,10 +215,18 @@ impl<'a, B> TryFrom<CibouletteResource<'a, B, CibouletteResourceIdentifierPermis
     }
 }
 
-impl<'a, B> From<CibouletteResourceSelector<'a, B, CibouletteResourceIdentifier<'a>>>
-    for CibouletteResourceIdentifierSelector<'a>
+impl<'request, 'store, B>
+    From<CibouletteResourceSelector<'request, 'store, B, CibouletteResourceIdentifier<'request>>>
+    for CibouletteResourceIdentifierSelector<'request>
 {
-    fn from(obj: CibouletteResourceSelector<'a, B, CibouletteResourceIdentifier<'a>>) -> Self {
+    fn from(
+        obj: CibouletteResourceSelector<
+            'request,
+            'store,
+            B,
+            CibouletteResourceIdentifier<'request>,
+        >,
+    ) -> Self {
         match obj {
             CibouletteResourceSelector::One(x) => {
                 CibouletteResourceIdentifierSelector::One(x.identifier)
@@ -213,20 +238,33 @@ impl<'a, B> From<CibouletteResourceSelector<'a, B, CibouletteResourceIdentifier<
     }
 }
 
-impl<'a, B> TryFrom<CibouletteResourceSelector<'a, B, CibouletteResourceIdentifierPermissive<'a>>>
-    for CibouletteResourceIdentifierSelector<'a>
+impl<'request, 'store, B>
+    TryFrom<
+        CibouletteResourceSelector<
+            'request,
+            'store,
+            B,
+            CibouletteResourceIdentifierPermissive<'request>,
+        >,
+    > for CibouletteResourceIdentifierSelector<'request>
 {
     type Error = CibouletteError;
 
     fn try_from(
-        obj: CibouletteResourceSelector<'a, B, CibouletteResourceIdentifierPermissive<'a>>,
+        obj: CibouletteResourceSelector<
+            'request,
+            'store,
+            B,
+            CibouletteResourceIdentifierPermissive<'request>,
+        >,
     ) -> Result<Self, Self::Error> {
         match obj {
             CibouletteResourceSelector::One(x) => Ok(CibouletteResourceIdentifierSelector::One(
                 x.identifier.try_into()?,
             )),
             CibouletteResourceSelector::Many(x) => {
-                let mut res: Vec<CibouletteResourceIdentifier<'a>> = Vec::with_capacity(x.len());
+                let mut res: Vec<CibouletteResourceIdentifier<'request>> =
+                    Vec::with_capacity(x.len());
 
                 for x in x.into_iter() {
                     res.push(x.identifier.try_into()?);

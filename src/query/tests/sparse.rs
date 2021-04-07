@@ -8,7 +8,7 @@ fn simple_type() {
     let sparse = res.sparse();
     assert_eq!(sparse.len(), 1);
     let sparse = sparse
-        .get(&bag.get_type("peoples").unwrap().as_ref())
+        .get(bag.get_type("peoples").unwrap().as_ref())
         .unwrap();
     assert_eq!(sparse.len(), 1);
     assert_eq!(sparse[0], "first-name");

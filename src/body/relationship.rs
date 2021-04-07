@@ -3,9 +3,9 @@ use super::*;
 #[derive(Debug, Deserialize, Serialize, Getters, MutGetters, Default, Clone)]
 #[getset(get = "pub", get_mut = "pub")]
 #[serde(default)]
-pub struct CibouletteRelationshipObjectBuilder<'a> {
-    pub links: Option<CibouletteLink<'a>>,
-    pub data: CibouletteOptionalData<CibouletteResourceIdentifierSelectorBuilder<'a>>,
+pub struct CibouletteRelationshipObjectBuilder<'request> {
+    pub links: Option<CibouletteLink<'request>>,
+    pub data: CibouletteOptionalData<CibouletteResourceIdentifierSelectorBuilder<'request>>,
     pub meta: Option<Value>,
 }
 
@@ -13,11 +13,11 @@ pub struct CibouletteRelationshipObjectBuilder<'a> {
 #[derive(Debug, Serialize, Getters, MutGetters, Default, Clone)]
 #[getset(get = "pub", get_mut = "pub")]
 #[serde(default)]
-pub struct CibouletteRelationshipObject<'a> {
+pub struct CibouletteRelationshipObject<'request> {
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub links: Option<CibouletteLink<'a>>,
+    pub links: Option<CibouletteLink<'request>>,
     #[serde(skip_serializing_if = "CibouletteOptionalData::is_absent")]
-    pub data: CibouletteOptionalData<CibouletteResourceIdentifierSelector<'a>>,
+    pub data: CibouletteOptionalData<CibouletteResourceIdentifierSelector<'request>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub meta: Option<Value>,
 }
