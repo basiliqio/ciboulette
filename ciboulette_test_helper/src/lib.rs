@@ -36,7 +36,7 @@ use std::borrow::Cow;
 pub fn gen_messy_json_schema_favorite_color<'request>() -> MessyJsonObject<'request> {
     MessyJsonObject::new(
         vec![(
-            "color".to_string(),
+            gen_key("color"),
             MessyJson::String(Cow::Owned(MessyJsonScalar::new(false))),
         )]
         .into_iter()
@@ -49,11 +49,11 @@ pub fn gen_messy_json_schema_articles<'request>() -> MessyJsonObject<'request> {
     MessyJsonObject::new(
         vec![
             (
-                "title".to_string(),
+                gen_key("title"),
                 MessyJson::String(Cow::Owned(MessyJsonScalar::new(false))),
             ),
             (
-                "body".to_string(),
+                gen_key("body"),
                 MessyJson::String(Cow::Owned(MessyJsonScalar::new(true))),
             ),
         ]
@@ -66,7 +66,7 @@ pub fn gen_messy_json_schema_articles<'request>() -> MessyJsonObject<'request> {
 pub fn gen_messy_json_schema_comments<'request>() -> MessyJsonObject<'request> {
     MessyJsonObject::new(
         vec![(
-            "body".to_string(),
+            gen_key("body"),
             MessyJson::String(Cow::Owned(MessyJsonScalar::new(false))),
         )]
         .into_iter()
@@ -79,11 +79,11 @@ pub fn gen_messy_json_schema_people_article<'request>() -> MessyJsonObject<'requ
     MessyJsonObject::new(
         vec![
             (
-                "people_id".to_string(),
+                gen_key("people_id"),
                 MessyJson::String(Cow::Owned(MessyJsonScalar::new(false))),
             ),
             (
-                "article_id".to_string(),
+                gen_key("article_id"),
                 MessyJson::String(Cow::Owned(MessyJsonScalar::new(false))),
             ),
         ]
@@ -97,26 +97,26 @@ pub fn gen_messy_json_schema_peoples<'request>() -> MessyJsonObject<'request> {
     MessyJsonObject::new(
         vec![
             (
-                "first-name".to_string(),
+                gen_key("first-name"),
                 MessyJson::String(Cow::Owned(MessyJsonScalar::new(false))),
             ),
             (
-                "last-name".to_string(),
+                gen_key("last-name"),
                 MessyJson::String(Cow::Owned(MessyJsonScalar::new(false))),
             ),
             (
-                "age".to_string(),
+                gen_key("age"),
                 MessyJson::Number(Cow::Owned(MessyJsonNumeric::new(
                     MessyJsonNumberType::U64,
                     true,
                 ))),
             ),
             (
-                "gender".to_string(),
+                gen_key("gender"),
                 MessyJson::String(Cow::Owned(MessyJsonScalar::new(true))),
             ),
             (
-                "twitter".to_string(),
+                gen_key("twitter"),
                 MessyJson::String(Cow::Owned(MessyJsonScalar::new(true))),
             ),
         ]
