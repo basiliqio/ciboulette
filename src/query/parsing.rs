@@ -4,18 +4,18 @@ use serde::de::{DeserializeSeed, Deserializer};
 /// ## Element of a sorting vector.
 #[derive(Debug, Getters, Clone, Hash)]
 #[getset(get = "pub")]
-pub struct CibouletteSortingElement<'request, 'store> {
+pub struct CibouletteSortingElement<'store> {
     pub type_: Arc<CibouletteResourceType<'store>>,
     pub direction: CibouletteSortingDirection,
-    pub field: Cow<'request, str>,
+    pub field: ArcStr,
 }
 
-impl<'request, 'store> CibouletteSortingElement<'request, 'store> {
+impl<'store> CibouletteSortingElement<'store> {
     /// Create a new sorting element
     pub fn new(
         type_: Arc<CibouletteResourceType<'store>>,
         direction: CibouletteSortingDirection,
-        field: Cow<'request, str>,
+        field: ArcStr,
     ) -> Self {
         CibouletteSortingElement {
             type_,
@@ -43,12 +43,10 @@ pub struct CibouletteQueryParametersBuilder<'request> {
 #[getset(get = "pub")]
 pub struct CibouletteQueryParameters<'request, 'store> {
     pub include: BTreeSet<&'store CibouletteResourceType<'store>>,
-    pub sparse: BTreeMap<&'store CibouletteResourceType<'store>, Vec<Cow<'request, str>>>,
-    pub sorting: Vec<CibouletteSortingElement<'request, 'store>>,
-    pub sorting_map: BTreeMap<
-        Arc<CibouletteResourceType<'store>>,
-        Vec<CibouletteSortingElement<'request, 'store>>,
-    >,
+    pub sparse: BTreeMap<&'store CibouletteResourceType<'store>, Vec<ArcStr>>,
+    pub sorting: Vec<CibouletteSortingElement<'store>>,
+    pub sorting_map:
+        BTreeMap<Arc<CibouletteResourceType<'store>>, Vec<CibouletteSortingElement<'store>>>,
     pub page: BTreeMap<CiboulettePageType<'request>, Cow<'request, str>>,
     pub filter: Option<Cow<'request, str>>,
     pub filter_typed: BTreeMap<Cow<'request, str>, Cow<'request, str>>,
@@ -129,10 +127,10 @@ impl<'request> CibouletteQueryParametersBuilder<'request> {
     pub(super) fn check_field_exists<'store>(
         type_: &Arc<CibouletteResourceType<'store>>,
         field: &str,
-    ) -> Result<(), CibouletteError> {
-        match type_.schema().properties().contains_key(field) {
-            true => Ok(()),
-            false => Err(CibouletteError::UnknownField(
+    ) -> Result<ArcStr, CibouletteError> {
+        match type_.schema().properties().get_key_value(field) {
+            Some((k, _)) => Ok(k.clone()),
+            None => Err(CibouletteError::UnknownField(
                 type_.name().to_string(),
                 field.to_string(),
             )),
@@ -143,18 +141,23 @@ impl<'request> CibouletteQueryParametersBuilder<'request> {
     #[inline]
     pub(super) fn check_fields_exists<'store>(
         type_: &'store CibouletteResourceType<'store>,
-        field_list: &[Cow<'request, str>],
-    ) -> Result<(), CibouletteError> {
+        field_list: Vec<Cow<'request, str>>,
+    ) -> Result<Vec<ArcStr>, CibouletteError> {
         let curr_obj: &MessyJsonObject = type_.schema();
+        let mut res: Vec<ArcStr> = Vec::with_capacity(field_list.len());
         let mut iter = field_list.iter().peekable();
 
         while let Some(field) = iter.next() {
-            curr_obj.properties().get(field.as_ref()).ok_or_else(|| {
-                CibouletteError::UnknownField(type_.name().to_string(), field.to_string())
-            })?;
+            let (k, _) = curr_obj
+                .properties()
+                .get_key_value(field.as_ref())
+                .ok_or_else(|| {
+                    CibouletteError::UnknownField(type_.name().to_string(), field.to_string())
+                })?;
+            res.push(k.clone());
             match iter.peek().is_some() {
                 true => continue,
-                false => return Ok(()),
+                false => return Ok(res),
             }
         }
         match field_list.len() {
@@ -171,17 +174,14 @@ impl<'request> CibouletteQueryParametersBuilder<'request> {
 
     /// Extract a sorting map from a list of sorting elements
     fn extract_sorting_map<'store>(
-        #[allow(clippy::ptr_arg)] sorting: &Vec<CibouletteSortingElement<'request, 'store>>,
-    ) -> BTreeMap<
-        Arc<CibouletteResourceType<'store>>,
-        Vec<CibouletteSortingElement<'request, 'store>>,
-    > {
+        #[allow(clippy::ptr_arg)] sorting: &Vec<CibouletteSortingElement<'store>>,
+    ) -> BTreeMap<Arc<CibouletteResourceType<'store>>, Vec<CibouletteSortingElement<'store>>> {
         match sorting.len() {
             0 => BTreeMap::default(),
             _ => {
                 let mut sorting_map: BTreeMap<
                     Arc<CibouletteResourceType<'store>>,
-                    Vec<CibouletteSortingElement<'request, 'store>>,
+                    Vec<CibouletteSortingElement<'store>>,
                 > = BTreeMap::new();
 
                 for (k, v) in sorting
@@ -208,9 +208,9 @@ impl<'request> CibouletteQueryParametersBuilder<'request> {
         bag: &'store CibouletteStore<'store>,
         main_type: Option<Arc<CibouletteResourceType<'store>>>,
     ) -> Result<CibouletteQueryParameters<'request, 'store>, CibouletteError> {
-        let mut sparse: BTreeMap<&'store CibouletteResourceType<'store>, Vec<Cow<'request, str>>> =
+        let mut sparse: BTreeMap<&'store CibouletteResourceType<'store>, Vec<ArcStr>> =
             BTreeMap::new();
-        let mut sorting: Vec<CibouletteSortingElement<'request, 'store>> =
+        let mut sorting: Vec<CibouletteSortingElement<'store>> =
             Vec::with_capacity(self.sorting.len());
 
         // Check for include relationships and build the array
@@ -228,9 +228,10 @@ impl<'request> CibouletteQueryParametersBuilder<'request> {
         // Check for sparse fields, checking that fields exists
         for (types, fields) in self.sparse.into_iter() {
             let rel = Self::check_relationship_exists(bag, types.as_slice())?;
-            if !fields.is_empty() {
-                Self::check_fields_exists(&rel, fields.as_slice())?;
-            }
+            let fields = match fields.is_empty() {
+                true => vec![],
+                false => Self::check_fields_exists(&rel, fields)?,
+            };
             sparse.insert(rel, fields);
         }
 
