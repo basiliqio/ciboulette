@@ -33,15 +33,16 @@ impl<'request, 'store, B> CibouletteResponseElement<'request, 'store, B> {
 }
 
 /// Fold elements into an accumulator for easier processing
-pub(super) fn fold_elements<'request, 'store, B, I>(
+pub(super) fn fold_elements<'request, 'response, 'store, B, I>(
     elements: I,
-    acc: CibouletteOutboundRequestDataAccumulator<'request, 'store, B>,
+    acc_settings: CibouletteOutboundRequestDataAccumulatorSettings,
     inbound_request: &dyn CibouletteInboundRequestCommons<'request, 'store>,
-) -> Result<CibouletteOutboundRequestDataAccumulator<'request, 'store, B>, CibouletteError>
+) -> Result<CibouletteOutboundRequestDataAccumulator<'response, 'store, B>, CibouletteError>
 where
     B: Serialize,
-    I: IntoIterator<Item = CibouletteResponseElement<'request, 'store, B>>,
+    I: IntoIterator<Item = CibouletteResponseElement<'response, 'store, B>>,
 {
+    let acc = CibouletteOutboundRequestDataAccumulator::from(acc_settings);
     elements.into_iter().try_fold(acc, |mut acc, x| {
         match x.identifier().type_() == inbound_request.path().main_type().name().as_str() {
             true => match acc.only_ids() {

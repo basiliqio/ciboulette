@@ -1,20 +1,23 @@
 use super::*;
 
 /// A builder structure for [CibouletteOutboundRequest](CibouletteOutboundRequest)
-pub struct CibouletteOutboundRequestDataBuilder<'request, 'store, B, I>
+pub struct CibouletteOutboundRequestDataBuilder<'request, 'response, 'store, B, I>
 where
-    I: IntoIterator<Item = CibouletteResponseElement<'request, 'store, B>>,
+    I: IntoIterator<Item = CibouletteResponseElement<'response, 'store, B>>,
 {
     /// The inbound request is made from
     inbound_request: &'request dyn CibouletteInboundRequestCommons<'request, 'store>,
     /// An iterator over its elements
     elements: I,
+
+    marker: std::marker::PhantomData<&'response str>,
 }
 
-impl<'request, 'store, B, I> CibouletteOutboundRequestDataBuilder<'request, 'store, B, I>
+impl<'request, 'response, 'store, B, I>
+    CibouletteOutboundRequestDataBuilder<'request, 'response, 'store, B, I>
 where
     B: Serialize,
-    I: IntoIterator<Item = CibouletteResponseElement<'request, 'store, B>>,
+    I: IntoIterator<Item = CibouletteResponseElement<'response, 'store, B>>,
 {
     /// Create a new builder from its parts
     pub fn new(
@@ -24,6 +27,7 @@ where
         CibouletteOutboundRequestDataBuilder {
             inbound_request,
             elements,
+            marker: std::marker::PhantomData::default(),
         }
     }
 
@@ -31,11 +35,11 @@ where
         inbound_request: &'request dyn CibouletteInboundRequestCommons<'request, 'store>,
         elements: I,
     ) -> Result<
-        CibouletteBody<'request, 'store, CibouletteResourceIdentifier<'request>, B>,
+        CibouletteBody<'response, 'store, CibouletteResourceIdentifier<'response>, B>,
         CibouletteError,
     > {
-        let acc = CibouletteOutboundRequestDataAccumulator::init_from_request(inbound_request);
-        let acc = element::fold_elements(elements, acc, inbound_request)?;
+        let acc_settings = CibouletteOutboundRequestDataAccumulatorSettings::from(inbound_request);
+        let acc = element::fold_elements(elements, acc_settings, inbound_request)?;
         let extracted_data = acc.extract(inbound_request)?;
         Ok(CibouletteBody {
             data: extracted_data.main_data,
@@ -48,7 +52,7 @@ where
     }
 
     /// Build the outbound request
-    pub fn build(self) -> Result<CibouletteOutboundRequest<'request, 'store, B>, CibouletteError> {
+    pub fn build(self) -> Result<CibouletteOutboundRequest<'response, 'store, B>, CibouletteError> {
         let body = Self::build_body(self.inbound_request, self.elements)?;
         Ok(CibouletteOutboundRequest {
             status: CibouletteResponseStatus::get_status_for_ok_response(

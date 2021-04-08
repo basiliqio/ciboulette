@@ -25,7 +25,7 @@ pub struct CibouletteInboundRequest<'request, 'store> {
     pub intention: CibouletteIntention,
 }
 
-pub trait CibouletteInboundRequestCommons<'request, 'store> {
+pub trait CibouletteInboundRequestCommons<'request, 'store>: Send + Sync {
     fn path(&self) -> &CiboulettePath<'request, 'store>;
     fn query(&self) -> &CibouletteQueryParameters<'request, 'store>;
     fn intention(&self) -> CibouletteIntention;

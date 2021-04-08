@@ -1,16 +1,70 @@
 use super::*;
 
 /// Hold data while building the outbound response
-#[derive(Debug, Getters, MutGetters)]
+#[derive(Debug, Getters, MutGetters, Default)]
 #[getset(get = "pub", get_mut = "pub")]
-pub(super) struct CibouletteOutboundRequestDataAccumulator<'request, 'store, B> {
+pub(super) struct CibouletteOutboundRequestDataAccumulator<'response, 'store, B> {
     pub(super) main_data: BTreeMap<
-        CibouletteResourceIdentifier<'request>,
-        CibouletteResource<'request, 'store, B, CibouletteResourceIdentifier<'request>>,
+        CibouletteResourceIdentifier<'response>,
+        CibouletteResource<'response, 'store, B, CibouletteResourceIdentifier<'response>>,
     >,
-    pub(super) included_data: Vec<CibouletteResponseElement<'request, 'store, B>>,
+    pub(super) included_data: Vec<CibouletteResponseElement<'response, 'store, B>>,
     max_elements: Option<usize>,
     only_ids: bool,
+}
+
+/// Hold data while building the outbound response
+#[derive(Debug, Getters, MutGetters)]
+#[getset(get = "pub", get_mut = "pub")]
+pub(super) struct CibouletteOutboundRequestDataAccumulatorSettings {
+    max_elements: Option<usize>,
+    only_ids: bool,
+}
+
+impl CibouletteOutboundRequestDataAccumulatorSettings {
+    pub fn new(max_elements: Option<usize>, only_ids: bool) -> Self {
+        CibouletteOutboundRequestDataAccumulatorSettings {
+            only_ids,
+            max_elements,
+        }
+    }
+}
+
+impl<'request, 'store> From<&dyn CibouletteInboundRequestCommons<'request, 'store>>
+    for CibouletteOutboundRequestDataAccumulatorSettings
+{
+    fn from(inbound_request: &dyn CibouletteInboundRequestCommons<'request, 'store>) -> Self {
+        match inbound_request.expected_response_type() {
+            CibouletteResponseRequiredType::Object(CibouletteResponseQuantity::Single) => {
+                CibouletteOutboundRequestDataAccumulatorSettings::new(Some(1), false)
+            }
+            CibouletteResponseRequiredType::Object(CibouletteResponseQuantity::Multiple) => {
+                CibouletteOutboundRequestDataAccumulatorSettings::new(None, false)
+            }
+            CibouletteResponseRequiredType::Id(CibouletteResponseQuantity::Single) => {
+                CibouletteOutboundRequestDataAccumulatorSettings::new(Some(1), true)
+            }
+            CibouletteResponseRequiredType::Id(CibouletteResponseQuantity::Multiple) => {
+                CibouletteOutboundRequestDataAccumulatorSettings::new(None, true)
+            }
+            CibouletteResponseRequiredType::None => {
+                CibouletteOutboundRequestDataAccumulatorSettings::new(Some(0), false)
+            }
+        }
+    }
+}
+
+impl<'response, 'store, B> From<CibouletteOutboundRequestDataAccumulatorSettings>
+    for CibouletteOutboundRequestDataAccumulator<'response, 'store, B>
+{
+    fn from(settings: CibouletteOutboundRequestDataAccumulatorSettings) -> Self {
+        CibouletteOutboundRequestDataAccumulator {
+            max_elements: settings.max_elements,
+            only_ids: settings.only_ids,
+            main_data: BTreeMap::new(),
+            included_data: Vec::new(),
+        }
+    }
 }
 
 pub(super) struct CibouletteOutboundRequestExtractedData<'request, 'store, B> {
@@ -21,7 +75,7 @@ pub(super) struct CibouletteOutboundRequestExtractedData<'request, 'store, B> {
         Vec<CibouletteResource<'request, 'store, B, CibouletteResourceIdentifier<'request>>>,
 }
 
-impl<'request, 'store, B> CibouletteOutboundRequestDataAccumulator<'request, 'store, B> {
+impl<'response, 'store, B> CibouletteOutboundRequestDataAccumulator<'response, 'store, B> {
     pub fn new(max_elements: Option<usize>, only_ids: bool) -> Self {
         CibouletteOutboundRequestDataAccumulator {
             main_data: BTreeMap::default(),
@@ -31,36 +85,11 @@ impl<'request, 'store, B> CibouletteOutboundRequestDataAccumulator<'request, 'st
         }
     }
 
-    /// Init an accumulator from an existing request
-    pub fn init_from_request(
-        inbound_request: &dyn CibouletteInboundRequestCommons<'request, 'store>,
-    ) -> CibouletteOutboundRequestDataAccumulator<'request, 'store, B> {
-        let acc: CibouletteOutboundRequestDataAccumulator<'request, 'store, B> =
-            match inbound_request.expected_response_type() {
-                CibouletteResponseRequiredType::Object(CibouletteResponseQuantity::Single) => {
-                    CibouletteOutboundRequestDataAccumulator::new(Some(1), false)
-                }
-                CibouletteResponseRequiredType::Object(CibouletteResponseQuantity::Multiple) => {
-                    CibouletteOutboundRequestDataAccumulator::new(None, false)
-                }
-                CibouletteResponseRequiredType::Id(CibouletteResponseQuantity::Single) => {
-                    CibouletteOutboundRequestDataAccumulator::new(Some(1), true)
-                }
-                CibouletteResponseRequiredType::Id(CibouletteResponseQuantity::Multiple) => {
-                    CibouletteOutboundRequestDataAccumulator::new(None, true)
-                }
-                CibouletteResponseRequiredType::None => {
-                    CibouletteOutboundRequestDataAccumulator::new(Some(0), false)
-                }
-            };
-        acc
-    }
-
     /// Extract the accumulated data
-    pub fn extract(
+    pub fn extract<'request>(
         self,
         inbound_request: &dyn CibouletteInboundRequestCommons<'request, 'store>,
-    ) -> Result<CibouletteOutboundRequestExtractedData<'request, 'store, B>, CibouletteError> {
+    ) -> Result<CibouletteOutboundRequestExtractedData<'response, 'store, B>, CibouletteError> {
         let mut main_data = self.main_data;
         let included_data = Self::extract_included_data(&mut main_data, self.included_data)?;
         let body_data = Self::extract_main_data(main_data, inbound_request);
@@ -72,12 +101,12 @@ impl<'request, 'store, B> CibouletteOutboundRequestDataAccumulator<'request, 'st
 
     fn extract_included_data(
         main_data: &mut BTreeMap<
-            CibouletteResourceIdentifier<'request>,
-            CibouletteResource<'request, 'store, B, CibouletteResourceIdentifier<'request>>,
+            CibouletteResourceIdentifier<'response>,
+            CibouletteResource<'response, 'store, B, CibouletteResourceIdentifier<'response>>,
         >,
-        included_data: Vec<CibouletteResponseElement<'request, 'store, B>>,
+        included_data: Vec<CibouletteResponseElement<'response, 'store, B>>,
     ) -> Result<
-        Vec<CibouletteResource<'request, 'store, B, CibouletteResourceIdentifier<'request>>>,
+        Vec<CibouletteResource<'response, 'store, B, CibouletteResourceIdentifier<'response>>>,
         CibouletteError,
     > {
         match included_data.len() {
@@ -89,7 +118,12 @@ impl<'request, 'store, B> CibouletteOutboundRequestDataAccumulator<'request, 'st
             }
             _ => {
                 let mut res: Vec<
-                    CibouletteResource<'request, 'store, B, CibouletteResourceIdentifier<'request>>,
+                    CibouletteResource<
+                        'response,
+                        'store,
+                        B,
+                        CibouletteResourceIdentifier<'response>,
+                    >,
                 > = Vec::with_capacity(included_data.len());
                 for el in included_data.into_iter() {
                     let resource = Self::insert_included_data_as_relationships(el, main_data)?;
@@ -102,17 +136,17 @@ impl<'request, 'store, B> CibouletteOutboundRequestDataAccumulator<'request, 'st
 
     fn extract_main_data(
         main_data: BTreeMap<
-            CibouletteResourceIdentifier<'request>,
-            CibouletteResource<'request, 'store, B, CibouletteResourceIdentifier<'request>>,
+            CibouletteResourceIdentifier<'response>,
+            CibouletteResource<'response, 'store, B, CibouletteResourceIdentifier<'response>>,
         >,
         inbound_request: &dyn CibouletteInboundRequestCommons,
     ) -> CibouletteOptionalData<
-        CibouletteResourceSelector<'request, 'store, B, CibouletteResourceIdentifier<'request>>,
+        CibouletteResourceSelector<'response, 'store, B, CibouletteResourceIdentifier<'response>>,
     > {
         let body_data: CibouletteBodyData<
-            'request,
+            'response,
             'store,
-            CibouletteResourceIdentifier<'request>,
+            CibouletteResourceIdentifier<'response>,
             B,
         > = match inbound_request.expected_response_type() {
             CibouletteResponseRequiredType::Object(CibouletteResponseQuantity::Single)
@@ -137,13 +171,13 @@ impl<'request, 'store, B> CibouletteOutboundRequestDataAccumulator<'request, 'st
         body_data
     }
     fn insert_included_data_as_relationships(
-        el: CibouletteResponseElement<'request, 'store, B>,
+        el: CibouletteResponseElement<'response, 'store, B>,
         main_data: &mut BTreeMap<
-            CibouletteResourceIdentifier<'request>,
-            CibouletteResource<'request, 'store, B, CibouletteResourceIdentifier<'request>>,
+            CibouletteResourceIdentifier<'response>,
+            CibouletteResource<'response, 'store, B, CibouletteResourceIdentifier<'response>>,
         >,
     ) -> Result<
-        CibouletteResource<'request, 'store, B, CibouletteResourceIdentifier<'request>>,
+        CibouletteResource<'response, 'store, B, CibouletteResourceIdentifier<'response>>,
         CibouletteError,
     > {
         let related = match el.related() {
@@ -153,7 +187,7 @@ impl<'request, 'store, B> CibouletteOutboundRequestDataAccumulator<'request, 'st
         if let Some(main_el) = main_data.get_mut(&related) {
             insert_relationships_into_existing(main_el, el.identifier().clone())?;
         }
-        let resource = CibouletteResource::<B, CibouletteResourceIdentifier<'request>> {
+        let resource = CibouletteResource::<B, CibouletteResourceIdentifier<'response>> {
             type_: el.type_,
             identifier: el.identifier,
             attributes: el.data,
@@ -166,9 +200,9 @@ impl<'request, 'store, B> CibouletteOutboundRequestDataAccumulator<'request, 'st
 }
 
 /// Inserts into an existing relationships a new entry, updating its format if necessary
-fn insert_relationships_into_existing<'request, 'store, B>(
-    obj: &mut CibouletteResource<'request, 'store, B, CibouletteResourceIdentifier>,
-    identifier: CibouletteResourceIdentifier<'request>,
+fn insert_relationships_into_existing<'response, 'store, B>(
+    obj: &mut CibouletteResource<'response, 'store, B, CibouletteResourceIdentifier>,
+    identifier: CibouletteResourceIdentifier<'response>,
 ) -> Result<(), CibouletteError> {
     let alias = obj.type_().get_alias(identifier.type_())?.clone();
     if let Some(rel) = obj.relationships_mut().get_mut(alias.as_str()) {
