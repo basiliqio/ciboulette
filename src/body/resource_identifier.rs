@@ -56,9 +56,9 @@ pub struct CibouletteResourceIdentifierPermissive<'request> {
 }
 
 impl<'request> CibouletteResourceIdentifierBuilder<'request> {
-    pub fn build_from_store<'store>(
+    pub fn build_from_store(
         self,
-        store: &'store CibouletteStore<'store>,
+        store: &CibouletteStore,
     ) -> Result<CibouletteResourceIdentifier<'request>, CibouletteError> {
         Ok(CibouletteResourceIdentifier {
             id: match self.id {
@@ -68,9 +68,9 @@ impl<'request> CibouletteResourceIdentifierBuilder<'request> {
             type_: self.type_,
         })
     }
-    pub fn build<'store>(
+    pub fn build(
         self,
-        type_: &CibouletteResourceType<'store>,
+        type_: &CibouletteResourceType,
     ) -> Result<CibouletteResourceIdentifier<'request>, CibouletteError> {
         Ok(CibouletteResourceIdentifier {
             type_: self.type_,
@@ -81,9 +81,9 @@ impl<'request> CibouletteResourceIdentifierBuilder<'request> {
         })
     }
 
-    pub fn build_permissive<'store>(
+    pub fn build_permissive(
         self,
-        type_: &CibouletteResourceType<'store>,
+        type_: &CibouletteResourceType,
     ) -> Result<CibouletteResourceIdentifierPermissive<'request>, CibouletteError> {
         Ok(CibouletteResourceIdentifierPermissive {
             type_: self.type_,
@@ -154,9 +154,9 @@ pub enum CibouletteResourceIdentifierSelectorBuilder<'request> {
 }
 
 impl<'request> CibouletteResourceIdentifierSelectorBuilder<'request> {
-    pub fn build<'store>(
+    pub fn build(
         self,
-        type_: &CibouletteResourceType<'store>,
+        type_: &CibouletteResourceType,
     ) -> Result<CibouletteResourceIdentifierSelector<'request>, CibouletteError> {
         match self {
             CibouletteResourceIdentifierSelectorBuilder::One(x) => {
@@ -183,31 +183,22 @@ pub enum CibouletteResourceIdentifierSelector<'request> {
     Many(Vec<CibouletteResourceIdentifier<'request>>),
 }
 
-impl<'request, 'store, B>
-    From<CibouletteResource<'request, 'store, B, CibouletteResourceIdentifier<'request>>>
+impl<'request, B> From<CibouletteResource<'request, B, CibouletteResourceIdentifier<'request>>>
     for CibouletteResourceIdentifierSelector<'request>
 {
-    fn from(
-        obj: CibouletteResource<'request, 'store, B, CibouletteResourceIdentifier<'request>>,
-    ) -> Self {
+    fn from(obj: CibouletteResource<'request, B, CibouletteResourceIdentifier<'request>>) -> Self {
         CibouletteResourceIdentifierSelector::One(obj.identifier)
     }
 }
 
-impl<'request, 'store, B>
-    TryFrom<
-        CibouletteResource<'request, 'store, B, CibouletteResourceIdentifierPermissive<'request>>,
-    > for CibouletteResourceIdentifierSelector<'request>
+impl<'request, B>
+    TryFrom<CibouletteResource<'request, B, CibouletteResourceIdentifierPermissive<'request>>>
+    for CibouletteResourceIdentifierSelector<'request>
 {
     type Error = CibouletteError;
 
     fn try_from(
-        obj: CibouletteResource<
-            'request,
-            'store,
-            B,
-            CibouletteResourceIdentifierPermissive<'request>,
-        >,
+        obj: CibouletteResource<'request, B, CibouletteResourceIdentifierPermissive<'request>>,
     ) -> Result<Self, Self::Error> {
         Ok(CibouletteResourceIdentifierSelector::One(
             obj.identifier.try_into()?,
@@ -215,17 +206,12 @@ impl<'request, 'store, B>
     }
 }
 
-impl<'request, 'store, B>
-    From<CibouletteResourceSelector<'request, 'store, B, CibouletteResourceIdentifier<'request>>>
+impl<'request, B>
+    From<CibouletteResourceSelector<'request, B, CibouletteResourceIdentifier<'request>>>
     for CibouletteResourceIdentifierSelector<'request>
 {
     fn from(
-        obj: CibouletteResourceSelector<
-            'request,
-            'store,
-            B,
-            CibouletteResourceIdentifier<'request>,
-        >,
+        obj: CibouletteResourceSelector<'request, B, CibouletteResourceIdentifier<'request>>,
     ) -> Self {
         match obj {
             CibouletteResourceSelector::One(x) => {
@@ -238,14 +224,9 @@ impl<'request, 'store, B>
     }
 }
 
-impl<'request, 'store, B>
+impl<'request, B>
     TryFrom<
-        CibouletteResourceSelector<
-            'request,
-            'store,
-            B,
-            CibouletteResourceIdentifierPermissive<'request>,
-        >,
+        CibouletteResourceSelector<'request, B, CibouletteResourceIdentifierPermissive<'request>>,
     > for CibouletteResourceIdentifierSelector<'request>
 {
     type Error = CibouletteError;
@@ -253,7 +234,6 @@ impl<'request, 'store, B>
     fn try_from(
         obj: CibouletteResourceSelector<
             'request,
-            'store,
             B,
             CibouletteResourceIdentifierPermissive<'request>,
         >,

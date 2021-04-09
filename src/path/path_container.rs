@@ -8,8 +8,8 @@ pub enum CiboulettePathBuilder<'request> {
     TypeIdRelationship(Cow<'request, str>, Cow<'request, str>, Cow<'request, str>),
 }
 
-impl<'request, 'store> CiboulettePath<'request, 'store> {
-    pub fn main_type(&self) -> &Arc<CibouletteResourceType<'store>> {
+impl<'request> CiboulettePath<'request> {
+    pub fn main_type(&self) -> &Arc<CibouletteResourceType> {
         match self {
             CiboulettePath::Type(x) => x,
             CiboulettePath::TypeId(x, _) => x,
@@ -20,18 +20,18 @@ impl<'request, 'store> CiboulettePath<'request, 'store> {
 }
 
 #[derive(Debug, Clone)]
-pub enum CiboulettePath<'request, 'store> {
-    Type(Arc<CibouletteResourceType<'store>>),
-    TypeId(Arc<CibouletteResourceType<'store>>, CibouletteId<'request>),
+pub enum CiboulettePath<'request> {
+    Type(Arc<CibouletteResourceType>),
+    TypeId(Arc<CibouletteResourceType>, CibouletteId<'request>),
     TypeIdRelated(
-        Arc<CibouletteResourceType<'store>>,
+        Arc<CibouletteResourceType>,
         CibouletteId<'request>,
-        Arc<CibouletteResourceType<'store>>,
+        Arc<CibouletteResourceType>,
     ),
     TypeIdRelationship(
-        Arc<CibouletteResourceType<'store>>,
+        Arc<CibouletteResourceType>,
         CibouletteId<'request>,
-        Arc<CibouletteResourceType<'store>>,
+        Arc<CibouletteResourceType>,
     ),
 }
 
@@ -81,17 +81,11 @@ impl<'request> CiboulettePathBuilder<'request> {
         }
     }
 
-    fn build_double_typed<'store>(
-        store: &'store CibouletteStore<'store>,
+    fn build_double_typed(
+        store: &CibouletteStore,
         ftype: Cow<'request, str>,
         stype: Cow<'request, str>,
-    ) -> Result<
-        (
-            Arc<CibouletteResourceType<'store>>,
-            Arc<CibouletteResourceType<'store>>,
-        ),
-        CibouletteError,
-    > {
+    ) -> Result<(Arc<CibouletteResourceType>, Arc<CibouletteResourceType>), CibouletteError> {
         let (nftype_i, nftype) = store
             .get_type_with_index(ftype.as_ref())
             .ok_or_else(|| CibouletteError::UnknownType(ftype.to_string()))?;
@@ -115,10 +109,10 @@ impl<'request> CiboulettePathBuilder<'request> {
         Ok((nftype.clone(), nstype.clone()))
     }
 
-    pub fn build<'store>(
+    pub fn build(
         self,
-        store: &'store CibouletteStore<'store>,
-    ) -> Result<CiboulettePath<'request, 'store>, CibouletteError> {
+        store: &CibouletteStore,
+    ) -> Result<CiboulettePath<'request>, CibouletteError> {
         match self {
             CiboulettePathBuilder::Type(type_) => {
                 let ftype = store.get_type(type_.as_ref())?;

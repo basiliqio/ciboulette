@@ -11,23 +11,22 @@ pub struct CibouletteInboundRequestBuilder<'request> {
 
 #[derive(Debug, Getters, Clone)]
 #[getset(get = "pub")]
-pub struct CibouletteInboundRequest<'request, 'store> {
-    pub path: CiboulettePath<'request, 'store>,
-    pub query: CibouletteQueryParameters<'request, 'store>,
+pub struct CibouletteInboundRequest<'request> {
+    pub path: CiboulettePath<'request>,
+    pub query: CibouletteQueryParameters<'request>,
     pub body: Option<
         CibouletteBody<
             'request,
-            'store,
             CibouletteResourceIdentifierPermissive<'request>,
-            MessyJsonObjectValue<'store>,
+            MessyJsonObjectValue<'request>,
         >,
     >,
     pub intention: CibouletteIntention,
 }
 
-pub trait CibouletteInboundRequestCommons<'request, 'store>: Send + Sync {
-    fn path(&self) -> &CiboulettePath<'request, 'store>;
-    fn query(&self) -> &CibouletteQueryParameters<'request, 'store>;
+pub trait CibouletteInboundRequestCommons<'request>: Send + Sync {
+    fn path(&self) -> &CiboulettePath<'request>;
+    fn query(&self) -> &CibouletteQueryParameters<'request>;
     fn intention(&self) -> CibouletteIntention;
     fn expected_response_type(&self) -> &CibouletteResponseRequiredType;
 
@@ -47,21 +46,17 @@ impl<'request> CibouletteInboundRequestBuilder<'request> {
         }
     }
 
-    pub fn build<'store>(
+    pub fn build(
         self,
-        bag: &'store CibouletteStore<'store>,
-    ) -> Result<CibouletteInboundRequest<'request, 'store>, CibouletteError>
-    where
-        'request: 'store,
-    {
-        let path: CiboulettePath<'request, 'store> =
+        bag: &CibouletteStore,
+    ) -> Result<CibouletteInboundRequest<'request>, CibouletteError> {
+        let path: CiboulettePath<'request> =
             CiboulettePathBuilder::parse(self.req_url)?.build(&bag)?;
         let body: Option<
             CibouletteBody<
                 'request,
-                'store,
                 CibouletteResourceIdentifierPermissive<'request>,
-                MessyJsonObjectValue<'store>,
+                MessyJsonObjectValue<'request>,
             >,
         > = match self.body {
             // Build body
@@ -72,8 +67,7 @@ impl<'request> CibouletteInboundRequestBuilder<'request> {
             None => None,
         };
 
-        let query: Option<CibouletteQueryParameters<'request, 'store>> = match self.req_url.query()
-        {
+        let query: Option<CibouletteQueryParameters<'request>> = match self.req_url.query() {
             // Build query parameters
             Some(query) => {
                 let builder: CibouletteQueryParametersBuilder<'request> =

@@ -2,15 +2,15 @@ use super::*;
 
 /// ## Builder object for [CibouletterResourceSelector](CibouletterResourceSelector)
 #[derive(Debug, Clone)]
-pub enum CibouletteRequestSelector<'request, 'store> {
-    Create(CibouletteCreateRequest<'request, 'store>),
-    Read(CibouletteReadRequest<'request, 'store>),
-    Update(CibouletteUpdateRequest<'request, 'store>),
-    Delete(CibouletteDeleteRequest<'request, 'store>),
+pub enum CibouletteRequestSelector<'request> {
+    Create(CibouletteCreateRequest<'request>),
+    Read(CibouletteReadRequest<'request>),
+    Update(CibouletteUpdateRequest<'request>),
+    Delete(CibouletteDeleteRequest<'request>),
 }
 
-impl<'request, 'store> CibouletteRequestSelector<'request, 'store> {
-    pub fn main_type(&'store self) -> &'store CibouletteResourceType<'store> {
+impl<'request> CibouletteRequestSelector<'request> {
+    pub fn main_type(&self) -> &CibouletteResourceType {
         match self {
             CibouletteRequestSelector::Create(x) => x.path().main_type(),
             CibouletteRequestSelector::Read(x) => x.path().main_type(),

@@ -37,12 +37,12 @@ pub fn parse_sorting<'request>(s: &str) -> Vec<(CibouletteSortingDirection, Cow<
 }
 
 /// Parse the sorting argument, extracting the potential initial `-`/`+` operator
-pub fn extract_type<'request, 'store>(
-    bag: &'store CibouletteStore<'store>,
-    main_type: Arc<CibouletteResourceType<'store>>,
+pub fn extract_type<'request>(
+    bag: &CibouletteStore,
+    main_type: Arc<CibouletteResourceType>,
     direction: CibouletteSortingDirection,
     s: Cow<'request, str>,
-) -> Result<CibouletteSortingElement<'store>, CibouletteError> {
+) -> Result<CibouletteSortingElement, CibouletteError> {
     if s.is_empty() {
         return Err(CibouletteError::UnknownField(
             main_type.name().to_string(),

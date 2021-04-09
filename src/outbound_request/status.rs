@@ -16,8 +16,8 @@ impl CibouletteResponseStatus {
     /// Get a response status for a given request type and data.
     ///
     /// Applicable only if the request was a success
-    pub fn get_status_for_ok_response<'request, 'store, B>(
-        request: &dyn CibouletteInboundRequestCommons<'request, 'store>,
+    pub fn get_status_for_ok_response<'request, B>(
+        request: &dyn CibouletteInboundRequestCommons<'request>,
         response_body: &CibouletteBody<CibouletteResourceIdentifier, B>,
     ) -> Self {
         match (request.intention(), response_body.data()) {

@@ -3,17 +3,17 @@ use super::*;
 /// ## Describe a `json:api` type attribute schema and list its relationships
 #[derive(Clone, Debug, Getters, MutGetters, Hash)]
 #[getset(get = "pub", get_mut = "pub")]
-pub struct CibouletteResourceType<'request> {
+pub struct CibouletteResourceType {
     relationships: BTreeMap<ArcStr, petgraph::graph::EdgeIndex<u16>>,
     relationships_type_to_alias: BTreeMap<ArcStr, ArcStr>,
-    schema: MessyJsonObject<'request>,
+    schema: MessyJsonObject,
     id_type: CibouletteIdType,
     name: ArcStr,
 }
 
-impl<'request> CibouletteResourceType<'request> {
+impl CibouletteResourceType {
     /// Create a new type from a schema and a list of relationships
-    pub fn new(name: String, id_type: CibouletteIdType, schema: MessyJsonObject<'request>) -> Self {
+    pub fn new(name: String, id_type: CibouletteIdType, schema: MessyJsonObject) -> Self {
         CibouletteResourceType {
             relationships: BTreeMap::new(),
             relationships_type_to_alias: BTreeMap::new(),
@@ -32,9 +32,9 @@ impl<'request> CibouletteResourceType<'request> {
 
     pub fn get_relationship(
         &self,
-        store: &'request CibouletteStore<'request>,
+        store: &CibouletteStore,
         alias: &str,
-    ) -> Result<&Arc<CibouletteResourceType<'request>>, CibouletteError> {
+    ) -> Result<Arc<CibouletteResourceType>, CibouletteError> {
         let edge_index = self.relationships().get(alias).ok_or_else(|| {
             CibouletteError::UnknownRelationship(self.name().to_string(), alias.to_string())
         })?;
@@ -46,10 +46,10 @@ impl<'request> CibouletteResourceType<'request> {
             CibouletteError::RelNotInGraph(self.name().to_string(), alias.to_string())
         })?;
         Ok(match t1 == self_index {
-            true => store.graph().node_weight(t2).ok_or_else(|| {
+            true => store.graph().node_weight(t2).cloned().ok_or_else(|| {
                 CibouletteError::RelNotInGraph(self.name().to_string(), alias.to_string())
             })?,
-            false => store.graph().node_weight(t1).ok_or_else(|| {
+            false => store.graph().node_weight(t1).cloned().ok_or_else(|| {
                 CibouletteError::RelNotInGraph(self.name().to_string(), alias.to_string())
             })?,
         })
@@ -68,22 +68,22 @@ impl<'request> CibouletteResourceType<'request> {
     }
 }
 
-impl<'request> Ord for CibouletteResourceType<'request> {
+impl Ord for CibouletteResourceType {
     fn cmp(&self, other: &Self) -> std::cmp::Ordering {
         self.name.cmp(&other.name)
     }
 }
 
-impl<'request> PartialOrd for CibouletteResourceType<'request> {
+impl PartialOrd for CibouletteResourceType {
     fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
         Some(self.name.cmp(&other.name))
     }
 }
 
-impl<'request> PartialEq for CibouletteResourceType<'request> {
+impl PartialEq for CibouletteResourceType {
     fn eq(&self, other: &Self) -> bool {
         self.name == other.name
     }
 }
 
-impl<'request> Eq for CibouletteResourceType<'request> {}
+impl Eq for CibouletteResourceType {}

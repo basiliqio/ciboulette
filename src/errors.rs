@@ -41,8 +41,8 @@ impl std::fmt::Display for CiboulettePathType {
     }
 }
 
-impl From<&CiboulettePath<'_, '_>> for CiboulettePathType {
-    fn from(t: &CiboulettePath<'_, '_>) -> Self {
+impl From<&CiboulettePath<'_>> for CiboulettePathType {
+    fn from(t: &CiboulettePath<'_>) -> Self {
         match t {
             CiboulettePath::Type(_) => CiboulettePathType::Type,
             CiboulettePath::TypeId(_, _) => CiboulettePathType::TypeId,

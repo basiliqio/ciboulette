@@ -2,25 +2,25 @@ use super::*;
 
 #[derive(Debug, Clone, Getters, PartialEq)]
 #[getset(get = "pub")]
-pub struct CibouletteRelationshipManyToManyOptionBuilder<'request> {
-    bucket_resource: CibouletteResourceType<'request>,
-    keys: [(CibouletteResourceType<'request>, String); 2],
+pub struct CibouletteRelationshipManyToManyOptionBuilder {
+    bucket_resource: CibouletteResourceType,
+    keys: [(CibouletteResourceType, String); 2],
 }
 
 #[derive(Debug, Clone, Getters, PartialEq)]
 #[getset(get = "pub")]
-pub struct CibouletteRelationshipOneToManyOptionBuilder<'request> {
-    one_table: CibouletteResourceType<'request>,
-    many_table: CibouletteResourceType<'request>,
+pub struct CibouletteRelationshipOneToManyOptionBuilder {
+    one_table: CibouletteResourceType,
+    many_table: CibouletteResourceType,
     many_table_key: String,
     optional: bool,
     part_of_many_to_many: Option<petgraph::graph::EdgeIndex<u16>>,
 }
 
-impl<'request> CibouletteRelationshipManyToManyOptionBuilder<'request> {
+impl CibouletteRelationshipManyToManyOptionBuilder {
     pub fn new(
-        bucket_resource: CibouletteResourceType<'request>,
-        keys: [(CibouletteResourceType<'request>, String); 2],
+        bucket_resource: CibouletteResourceType,
+        keys: [(CibouletteResourceType, String); 2],
     ) -> Self {
         CibouletteRelationshipManyToManyOptionBuilder {
             bucket_resource,
@@ -28,10 +28,7 @@ impl<'request> CibouletteRelationshipManyToManyOptionBuilder<'request> {
         }
     }
 
-    pub fn keys_for_type(
-        &self,
-        type_: &CibouletteResourceType<'request>,
-    ) -> Result<&str, CibouletteError> {
+    pub fn keys_for_type(&self, type_: &CibouletteResourceType) -> Result<&str, CibouletteError> {
         self.keys
             .iter()
             .find(|(k, _)| k == type_)
@@ -45,14 +42,14 @@ impl<'request> CibouletteRelationshipManyToManyOptionBuilder<'request> {
     }
     pub(crate) fn build(
         &self,
-        store_builder: &CibouletteStoreBuilder<'request>,
+        store_builder: &CibouletteStoreBuilder,
         graph: &petgraph::graph::Graph<
-            Arc<CibouletteResourceType<'request>>,
-            CibouletteRelationshipOption<'request>,
+            Arc<CibouletteResourceType>,
+            CibouletteRelationshipOption,
             petgraph::Directed,
             u16,
         >,
-    ) -> Result<CibouletteRelationshipManyToManyOption<'request>, CibouletteError> {
+    ) -> Result<CibouletteRelationshipManyToManyOption, CibouletteError> {
         let bucket_table = store_builder
             .get_type_index(self.bucket_resource().name())
             .ok_or_else(|| {
@@ -96,10 +93,10 @@ impl<'request> CibouletteRelationshipManyToManyOptionBuilder<'request> {
     }
 }
 
-impl<'request> CibouletteRelationshipOneToManyOptionBuilder<'request> {
+impl CibouletteRelationshipOneToManyOptionBuilder {
     pub fn new(
-        one_table: CibouletteResourceType<'request>,
-        many_table: CibouletteResourceType<'request>,
+        one_table: CibouletteResourceType,
+        many_table: CibouletteResourceType,
         many_table_key: String,
         optional: bool,
     ) -> Self {
@@ -113,8 +110,8 @@ impl<'request> CibouletteRelationshipOneToManyOptionBuilder<'request> {
     }
 
     pub(crate) fn new_from_many_to_many(
-        one_table: CibouletteResourceType<'request>,
-        many_table: CibouletteResourceType<'request>,
+        one_table: CibouletteResourceType,
+        many_table: CibouletteResourceType,
         many_table_key: String,
         optional: bool,
         part_of_many_to_many: petgraph::graph::EdgeIndex<u16>,
@@ -130,14 +127,14 @@ impl<'request> CibouletteRelationshipOneToManyOptionBuilder<'request> {
 
     pub(crate) fn build(
         &self,
-        store_builder: &CibouletteStoreBuilder<'request>,
+        store_builder: &CibouletteStoreBuilder,
         graph: &petgraph::graph::Graph<
-            Arc<CibouletteResourceType<'request>>,
-            CibouletteRelationshipOption<'request>,
+            Arc<CibouletteResourceType>,
+            CibouletteRelationshipOption,
             petgraph::Directed,
             u16,
         >,
-    ) -> Result<CibouletteRelationshipOneToManyOption<'request>, CibouletteError> {
+    ) -> Result<CibouletteRelationshipOneToManyOption, CibouletteError> {
         let one_table = store_builder
             .get_type_index(self.one_table().name())
             .ok_or_else(|| CibouletteError::TypeNotInGraph(self.one_table().name().to_string()))?;
@@ -166,26 +163,26 @@ impl<'request> CibouletteRelationshipOneToManyOptionBuilder<'request> {
 }
 
 #[derive(Debug, Clone)]
-pub enum CibouletteRelationshipOptionBuilder<'request> {
+pub enum CibouletteRelationshipOptionBuilder {
     /// One to many relationship, without the intermediate node
-    OneToMany(CibouletteRelationshipOneToManyOptionBuilder<'request>),
+    OneToMany(CibouletteRelationshipOneToManyOptionBuilder),
     /// One to many relationship, without the intermediate node
-    ManyToOne(CibouletteRelationshipOneToManyOptionBuilder<'request>),
+    ManyToOne(CibouletteRelationshipOneToManyOptionBuilder),
     /// One to many relationship
-    ManyToMany(CibouletteRelationshipManyToManyOptionBuilder<'request>),
+    ManyToMany(CibouletteRelationshipManyToManyOptionBuilder),
 }
 
-impl<'request> CibouletteRelationshipOptionBuilder<'request> {
+impl CibouletteRelationshipOptionBuilder {
     pub(crate) fn build(
         &self,
-        store_builder: &CibouletteStoreBuilder<'request>,
+        store_builder: &CibouletteStoreBuilder,
         graph: &petgraph::graph::Graph<
-            Arc<CibouletteResourceType<'request>>,
-            CibouletteRelationshipOption<'request>,
+            Arc<CibouletteResourceType>,
+            CibouletteRelationshipOption,
             petgraph::Directed,
             u16,
         >,
-    ) -> Result<CibouletteRelationshipOption<'request>, CibouletteError> {
+    ) -> Result<CibouletteRelationshipOption, CibouletteError> {
         match self {
             CibouletteRelationshipOptionBuilder::OneToMany(x) => Ok(
                 CibouletteRelationshipOption::OneToMany(x.build(store_builder, graph)?),

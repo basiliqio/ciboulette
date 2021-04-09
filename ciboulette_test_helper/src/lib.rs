@@ -33,7 +33,7 @@ use std::borrow::Cow;
 // - attributes:
 //   - color
 
-pub fn gen_messy_json_schema_favorite_color<'request>() -> MessyJsonObject<'request> {
+pub fn gen_messy_json_schema_favorite_color() -> MessyJsonObject {
     MessyJsonObject::new(
         vec![(
             gen_key("color"),
@@ -45,7 +45,7 @@ pub fn gen_messy_json_schema_favorite_color<'request>() -> MessyJsonObject<'requ
     )
 }
 
-pub fn gen_messy_json_schema_articles<'request>() -> MessyJsonObject<'request> {
+pub fn gen_messy_json_schema_articles() -> MessyJsonObject {
     MessyJsonObject::new(
         vec![
             (
@@ -63,7 +63,7 @@ pub fn gen_messy_json_schema_articles<'request>() -> MessyJsonObject<'request> {
     )
 }
 
-pub fn gen_messy_json_schema_comments<'request>() -> MessyJsonObject<'request> {
+pub fn gen_messy_json_schema_comments() -> MessyJsonObject {
     MessyJsonObject::new(
         vec![(
             gen_key("body"),
@@ -75,7 +75,7 @@ pub fn gen_messy_json_schema_comments<'request>() -> MessyJsonObject<'request> {
     )
 }
 
-pub fn gen_messy_json_schema_people_article<'request>() -> MessyJsonObject<'request> {
+pub fn gen_messy_json_schema_people_article() -> MessyJsonObject {
     MessyJsonObject::new(
         vec![
             (
@@ -93,7 +93,7 @@ pub fn gen_messy_json_schema_people_article<'request>() -> MessyJsonObject<'requ
     )
 }
 
-pub fn gen_messy_json_schema_peoples<'request>() -> MessyJsonObject<'request> {
+pub fn gen_messy_json_schema_peoples() -> MessyJsonObject {
     MessyJsonObject::new(
         vec![
             (
@@ -126,7 +126,7 @@ pub fn gen_messy_json_schema_peoples<'request>() -> MessyJsonObject<'request> {
     )
 }
 
-pub fn gen_bag<'request>() -> CibouletteStore<'request> {
+pub fn gen_bag() -> CibouletteStore {
     let mut res = CibouletteStoreBuilder::default();
 
     res.add_type(
@@ -229,18 +229,18 @@ pub fn check_ident_permissive<'request>(
     assert_eq!(ident.type_(), type_, "`type`s mismatch");
 }
 
-pub fn check_single<'request, 'store, MessyJsonObjectValue, T>(
-    selector: &'request CibouletteResourceSelector<'request, 'store, MessyJsonObjectValue, T>,
-) -> &'request CibouletteResource<'request, 'store, MessyJsonObjectValue, T> {
+pub fn check_single<'request,MessyJsonObjectValue, T>(
+    selector: &'request CibouletteResourceSelector<'request,MessyJsonObjectValue, T>,
+) -> &'request CibouletteResource<'request,MessyJsonObjectValue, T> {
     match selector {
         CibouletteResourceSelector::One(x) => x,
         _ => panic!("Expected a single resource"),
     }
 }
 
-pub fn check_multi<'request, 'store, T>(
-    selector: &'request CibouletteResourceSelector<'request, 'store, MessyJsonObjectValue<'store>, T>,
-) -> &'request Vec<CibouletteResource<'request, 'store, MessyJsonObjectValue<'store>, T>> {
+pub fn check_multi<'request, T>(
+    selector: &'request CibouletteResourceSelector<'request, MessyJsonObjectValue<'request>, T>,
+) -> &'request Vec<CibouletteResource<'request, MessyJsonObjectValue<'request>, T>> {
     match selector {
         CibouletteResourceSelector::Many(x) => x,
         _ => panic!("Expected a multiple resources"),

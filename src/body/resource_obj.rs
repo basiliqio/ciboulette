@@ -19,7 +19,7 @@ pub struct CibouletteResourceBuilder<'request> {
 /// ## A `json:api` [resource](https://jsonapi.org/format/#document-resource-objects) object
 #[derive(Debug, Getters, MutGetters, Clone, Serialize)]
 #[getset(get = "pub", get_mut = "pub")]
-pub struct CibouletteResource<'request, 'store, B, T> {
+pub struct CibouletteResource<'request, B, T> {
     #[serde(flatten)]
     pub identifier: T,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -29,32 +29,21 @@ pub struct CibouletteResource<'request, 'store, B, T> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub links: Option<CibouletteLink<'request>>,
     #[serde(skip_serializing)]
-    pub type_: Arc<CibouletteResourceType<'store>>,
+    pub type_: Arc<CibouletteResourceType>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub meta: Option<Value>,
 }
 
 impl<'request, 'store, B>
-    TryFrom<
-        CibouletteResource<'request, 'store, B, CibouletteResourceIdentifierPermissive<'request>>,
-    > for CibouletteResource<'request, 'store, B, CibouletteResourceIdentifier<'request>>
+    TryFrom<CibouletteResource<'request, B, CibouletteResourceIdentifierPermissive<'request>>>
+    for CibouletteResource<'request, B, CibouletteResourceIdentifier<'request>>
 {
     type Error = CibouletteError;
 
     fn try_from(
-        value: CibouletteResource<
-            'request,
-            'store,
-            B,
-            CibouletteResourceIdentifierPermissive<'request>,
-        >,
+        value: CibouletteResource<'request, B, CibouletteResourceIdentifierPermissive<'request>>,
     ) -> Result<Self, Self::Error> {
-        let CibouletteResource::<
-            'request,
-            'store,
-            B,
-            CibouletteResourceIdentifierPermissive<'request>,
-        > {
+        let CibouletteResource::<'request, B, CibouletteResourceIdentifierPermissive<'request>> {
             identifier,
             attributes,
             relationships,
@@ -64,7 +53,7 @@ impl<'request, 'store, B>
         } = value;
 
         Ok(
-            CibouletteResource::<'request, 'store, B, CibouletteResourceIdentifier<'request>> {
+            CibouletteResource::<'request, B, CibouletteResourceIdentifier<'request>> {
                 identifier: identifier.try_into()?,
                 attributes,
                 relationships,
@@ -77,13 +66,13 @@ impl<'request, 'store, B>
 }
 
 impl<'request, 'store, B>
-    From<CibouletteResource<'request, 'store, B, CibouletteResourceIdentifier<'request>>>
-    for CibouletteResource<'request, 'store, B, CibouletteResourceIdentifierPermissive<'request>>
+    From<CibouletteResource<'request, B, CibouletteResourceIdentifier<'request>>>
+    for CibouletteResource<'request, B, CibouletteResourceIdentifierPermissive<'request>>
 {
     fn from(
-        value: CibouletteResource<'request, 'store, B, CibouletteResourceIdentifier<'request>>,
+        value: CibouletteResource<'request, B, CibouletteResourceIdentifier<'request>>,
     ) -> Self {
-        let CibouletteResource::<'request, 'store, B, CibouletteResourceIdentifier<'request>> {
+        let CibouletteResource::<'request, B, CibouletteResourceIdentifier<'request>> {
             identifier,
             attributes,
             relationships,
@@ -92,7 +81,7 @@ impl<'request, 'store, B>
             meta,
         } = value;
 
-        CibouletteResource::<'request, 'store, B, CibouletteResourceIdentifierPermissive<'request>> {
+        CibouletteResource::<'request, B, CibouletteResourceIdentifierPermissive<'request>> {
             identifier: identifier.into(),
             attributes,
             relationships,
@@ -272,31 +261,26 @@ impl<'de> DeserializeSeed<'de> for CibouletteResourceBuilderVisitor {
 
 impl<'request> CibouletteResourceBuilder<'request> {
     /// ## build the [CibouletteResource](CibouletteResource) from the builder
-    pub fn build<'store>(
+    pub fn build(
         self,
-        bag: &'store CibouletteStore<'store>,
+        bag: &CibouletteStore,
         intention: &CibouletteIntention,
     ) -> Result<
         CibouletteResource<
             'request,
-            'store,
-            MessyJsonObjectValue<'store>,
+            MessyJsonObjectValue<'request>,
             CibouletteResourceIdentifierPermissive<'request>,
         >,
         CibouletteError,
-    >
-    where
-        'request: 'store,
-    {
-        let current_type: &'store Arc<CibouletteResourceType<'store>> =
+    > {
+        let current_type: &Arc<CibouletteResourceType> =
             bag.get_type(self.identifier().type_().as_ref())?;
-        let attributes: Option<MessyJsonObjectValue<'store>> = match self.attributes {
+        let attributes: Option<MessyJsonObjectValue<'request>> = match self.attributes {
             Some(attributes) => {
                 let type_ident = self.identifier().type_().as_ref();
-                let resource_type: &'store Arc<CibouletteResourceType<'store>> =
-                    bag.get_type(type_ident)?;
+                let resource_type: &Arc<CibouletteResourceType> = bag.get_type(type_ident)?;
                 let mut deserializer = serde_json::Deserializer::from_str(attributes.get());
-                let container: MessyJsonValueContainer<'store> = resource_type
+                let container: MessyJsonValueContainer<'request> = resource_type
                     .schema()
                     .builder(matches!(intention, CibouletteIntention::Update))
                     .deserialize(&mut deserializer)?;
@@ -333,12 +317,9 @@ impl<'request> CibouletteResourceBuilder<'request> {
     }
 }
 
-impl<'request, 'store, T> CibouletteResource<'request, 'store, MessyJsonObjectValue<'store>, T>
-where
-    'store: 'request,
-{
+impl<'request, T> CibouletteResource<'request, MessyJsonObjectValue<'request>, T> {
     #[inline]
-    fn check_member_name_inner(val: &MessyJsonValue<'store>) -> Option<String> {
+    fn check_member_name_inner(val: &MessyJsonValue<'request>) -> Option<String> {
         match val {
             MessyJsonValue::Obj(map) => {
                 for (k, v) in map.iter() {
@@ -363,9 +344,7 @@ where
         }
     }
     #[inline]
-    fn check_member_name_top(
-        val: &BTreeMap<Cow<'request, str>, MessyJsonValue<'store>>,
-    ) -> Option<String> {
+    fn check_member_name_top(val: &BTreeMap<ArcStr, MessyJsonValue<'request>>) -> Option<String> {
         for (k, v) in val.iter() {
             if !crate::member_name::check_member_name(&*k) {
                 return Some(k.to_string());
@@ -380,7 +359,7 @@ where
     pub fn check_member_name(&self) -> Result<(), CibouletteError> {
         match self.attributes() {
             Some(attributes) => {
-                if let Some(x) = Self::check_member_name_top(attributes) {
+                if let Some(x) = Self::check_member_name_top(&**attributes) {
                     return Err(CibouletteError::InvalidMemberName(x));
                 }
                 Ok(())

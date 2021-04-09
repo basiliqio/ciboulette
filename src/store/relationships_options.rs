@@ -2,16 +2,16 @@ use super::*;
 
 #[derive(Debug, Clone, Getters, PartialEq)]
 #[getset(get = "pub")]
-pub struct CibouletteRelationshipManyToManyOption<'request> {
-    pub(crate) bucket_resource: Arc<CibouletteResourceType<'request>>,
-    pub(crate) keys: [(Arc<CibouletteResourceType<'request>>, String); 2],
+pub struct CibouletteRelationshipManyToManyOption {
+    pub(crate) bucket_resource: Arc<CibouletteResourceType>,
+    pub(crate) keys: [(Arc<CibouletteResourceType>, String); 2],
 }
 
 #[derive(Debug, Clone, Getters, PartialEq)]
 #[getset(get = "pub")]
-pub struct CibouletteRelationshipOneToManyOption<'request> {
-    pub(crate) one_table: Arc<CibouletteResourceType<'request>>,
-    pub(crate) many_table: Arc<CibouletteResourceType<'request>>,
+pub struct CibouletteRelationshipOneToManyOption {
+    pub(crate) one_table: Arc<CibouletteResourceType>,
+    pub(crate) many_table: Arc<CibouletteResourceType>,
     pub(crate) many_table_key: ArcStr,
     pub(crate) optional: bool,
     pub(crate) part_of_many_to_many: Option<petgraph::graph::EdgeIndex<u16>>,
@@ -35,11 +35,8 @@ impl CibouletteRelationshipOneToOneOption {
     }
 }
 
-impl<'request> CibouletteRelationshipManyToManyOption<'request> {
-    pub fn keys_for_type(
-        &self,
-        type_: &CibouletteResourceType<'request>,
-    ) -> Result<&str, CibouletteError> {
+impl CibouletteRelationshipManyToManyOption {
+    pub fn keys_for_type(&self, type_: &CibouletteResourceType) -> Result<&str, CibouletteError> {
         self.keys
             .iter()
             .find(|(k, _)| k.as_ref() == type_)
@@ -53,7 +50,7 @@ impl<'request> CibouletteRelationshipManyToManyOption<'request> {
     }
 }
 
-impl<'request> CibouletteRelationshipOneToManyOption<'request> {}
+impl CibouletteRelationshipOneToManyOption {}
 
 impl<'request> Default for CibouletteOptionalData<CibouletteResourceIdentifierSelector<'request>> {
     fn default() -> Self {
@@ -62,9 +59,9 @@ impl<'request> Default for CibouletteOptionalData<CibouletteResourceIdentifierSe
 }
 
 impl<'request> CibouletteRelationshipObjectBuilder<'request> {
-    pub fn build<'store>(
+    pub fn build(
         self,
-        type_: &Arc<CibouletteResourceType<'store>>,
+        type_: &Arc<CibouletteResourceType>,
     ) -> Result<CibouletteRelationshipObject<'request>, CibouletteError> {
         Ok(CibouletteRelationshipObject {
             links: self.links,
@@ -88,11 +85,11 @@ impl<'request> Default
 }
 
 #[derive(Debug, Clone)]
-pub enum CibouletteRelationshipOption<'request> {
+pub enum CibouletteRelationshipOption {
     /// One to many relationship, without the intermediate node
-    OneToMany(CibouletteRelationshipOneToManyOption<'request>),
+    OneToMany(CibouletteRelationshipOneToManyOption),
     /// One to many relationship, without the intermediate node
-    ManyToOne(CibouletteRelationshipOneToManyOption<'request>),
+    ManyToOne(CibouletteRelationshipOneToManyOption),
     /// One to many relationship
-    ManyToMany(CibouletteRelationshipManyToManyOption<'request>),
+    ManyToMany(CibouletteRelationshipManyToManyOption),
 }

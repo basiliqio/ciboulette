@@ -2,10 +2,10 @@ use super::*;
 /// Container for response element. While building a response, every object should be wrapped in this container
 #[derive(Debug, Getters, Clone, Serialize)]
 #[getset(get = "pub")]
-pub struct CibouletteResponseElement<'request, 'store, B> {
+pub struct CibouletteResponseElement<'request, B> {
     #[serde(skip_serializing)]
     /// The type of the contained value
-    pub(crate) type_: Arc<CibouletteResourceType<'store>>,
+    pub(crate) type_: Arc<CibouletteResourceType>,
     /// The identifier of the contained value
     pub(crate) identifier: CibouletteResourceIdentifier<'request>,
     /// The data of the contained value
@@ -14,14 +14,14 @@ pub struct CibouletteResponseElement<'request, 'store, B> {
     pub(crate) related: Option<CibouletteResourceIdentifier<'request>>,
 }
 
-impl<'request, 'store, B> CibouletteResponseElement<'request, 'store, B> {
-    pub fn new(
-        store: &'store CibouletteStore<'store>,
+impl<'request, B> CibouletteResponseElement<'request, B> {
+    pub fn new<'store>(
+        store: &CibouletteStore,
         identifier: CibouletteResourceIdentifier<'request>,
         data: Option<B>,
         related: Option<CibouletteResourceIdentifier<'request>>,
     ) -> Result<Self, CibouletteError> {
-        let type_: Arc<CibouletteResourceType<'store>> =
+        let type_: Arc<CibouletteResourceType> =
             store.get_type(identifier.type_().as_ref())?.clone();
         Ok(CibouletteResponseElement {
             type_,
@@ -33,14 +33,14 @@ impl<'request, 'store, B> CibouletteResponseElement<'request, 'store, B> {
 }
 
 /// Fold elements into an accumulator for easier processing
-pub(super) fn fold_elements<'request, 'response, 'store, B, I>(
+pub(super) fn fold_elements<'request, 'response, B, I>(
     elements: I,
     acc_settings: CibouletteOutboundRequestDataAccumulatorSettings,
-    inbound_request: &dyn CibouletteInboundRequestCommons<'request, 'store>,
-) -> Result<CibouletteOutboundRequestDataAccumulator<'response, 'store, B>, CibouletteError>
+    inbound_request: &dyn CibouletteInboundRequestCommons<'request>,
+) -> Result<CibouletteOutboundRequestDataAccumulator<'response, B>, CibouletteError>
 where
     B: Serialize,
-    I: IntoIterator<Item = CibouletteResponseElement<'response, 'store, B>>,
+    I: IntoIterator<Item = CibouletteResponseElement<'response, B>>,
 {
     let acc = CibouletteOutboundRequestDataAccumulator::from(acc_settings);
     elements.into_iter().try_fold(acc, |mut acc, x| {
@@ -62,9 +62,9 @@ where
     })
 }
 
-pub(super) fn fold_elements_id<'request, 'store, B>(
-    acc: &mut CibouletteOutboundRequestDataAccumulator<'request, 'store, B>,
-    element: CibouletteResponseElement<'request, 'store, B>,
+pub(super) fn fold_elements_id<'request, B>(
+    acc: &mut CibouletteOutboundRequestDataAccumulator<'request, B>,
+    element: CibouletteResponseElement<'request, B>,
 ) {
     let resource = CibouletteResource {
         type_: element.type_,
@@ -78,9 +78,9 @@ pub(super) fn fold_elements_id<'request, 'store, B>(
         .insert(resource.identifier().clone(), resource);
 }
 
-pub(super) fn fold_elements_obj<'request, 'store, B>(
-    acc: &mut CibouletteOutboundRequestDataAccumulator<'request, 'store, B>,
-    element: CibouletteResponseElement<'request, 'store, B>,
+pub(super) fn fold_elements_obj<'request, B>(
+    acc: &mut CibouletteOutboundRequestDataAccumulator<'request, B>,
+    element: CibouletteResponseElement<'request, B>,
 ) {
     let resource = CibouletteResource {
         type_: element.type_,
@@ -94,9 +94,9 @@ pub(super) fn fold_elements_obj<'request, 'store, B>(
         .insert(resource.identifier().clone(), resource);
 }
 
-pub(super) fn fold_elements_obj_other<'request, 'store, B>(
-    acc: &mut CibouletteOutboundRequestDataAccumulator<'request, 'store, B>,
-    element: CibouletteResponseElement<'request, 'store, B>,
+pub(super) fn fold_elements_obj_other<'request, B>(
+    acc: &mut CibouletteOutboundRequestDataAccumulator<'request, B>,
+    element: CibouletteResponseElement<'request, B>,
 ) {
     acc.included_data_mut().push(element);
 }

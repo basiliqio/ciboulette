@@ -14,7 +14,7 @@ mod select_success;
 mod update_success;
 
 fn gen_data_row<'request, 'store>(
-    store: &'store CibouletteStore<'store>,
+    store: &CibouletteStore<'store>,
     type_: &'request str,
     id: &'request str,
     join_data: bool,
@@ -37,7 +37,7 @@ fn gen_data_row<'request, 'store>(
 }
 
 fn gen_data_row_related<'request, 'store>(
-    store: &'store CibouletteStore<'store>,
+    store: &CibouletteStore<'store>,
     type_: &'request str,
     id: &'request str,
     join_data: bool,
