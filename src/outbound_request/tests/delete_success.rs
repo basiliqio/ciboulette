@@ -12,7 +12,7 @@ fn simple_update() {
     let builder = CibouletteInboundRequestBuilder::new(INTENTION, &parsed_url, &None);
     let request = builder.build(&store).unwrap();
     let res = CibouletteDeleteRequest::try_from(request).unwrap();
-    let response = CibouletteOutboundRequestDataBuilder::<'_, '_, '_, String, _>::new(&res, vec![])
+    let response = CibouletteOutboundRequestDataBuilder::<'_, '_, String, _>::new(&res, vec![])
         .build()
         .unwrap();
     assert_eq!(response.status(), CibouletteResponseStatus::OkEmpty);

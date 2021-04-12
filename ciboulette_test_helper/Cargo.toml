@@ -9,3 +9,4 @@ edition = "2018"
 [dependencies]
 messy_json = { git = "https://gitlab.com/basiliq/messy_json.git"}
 ciboulette = { path = ".." }
+arcstr = { version = "1.0.0", features = [ "std", "serde" ] }

@@ -4,7 +4,7 @@ use super::*;
 #[getset(get = "pub")]
 pub struct CibouletteRelationshipManyToManyOption {
     pub(crate) bucket_resource: Arc<CibouletteResourceType>,
-    pub(crate) keys: [(Arc<CibouletteResourceType>, String); 2],
+    pub(crate) keys: [(Arc<CibouletteResourceType>, ArcStr); 2],
 }
 
 #[derive(Debug, Clone, Getters, PartialEq)]

@@ -145,7 +145,7 @@ impl CibouletteStoreBuilder {
             indexes.from(),
             CibouletteRelationshipOptionBuilder::ManyToMany(opt.clone()),
         );
-        let to_key = opt.keys_for_type(&to_type)?.to_string();
+        let to_key = opt.keys_for_type(&to_type)?;
         let edge_to_i = self.graph_mut().add_edge(
             indexes.bucket(),
             indexes.to(),
@@ -180,7 +180,7 @@ impl CibouletteStoreBuilder {
             indexes.to(),
             CibouletteRelationshipOptionBuilder::ManyToMany(opt.clone()),
         );
-        let from_key = opt.keys_for_type(&from_type)?.to_string();
+        let from_key = opt.keys_for_type(&from_type)?;
         let edge_from_i = self.graph_mut().add_edge(
             indexes.bucket(),
             indexes.from(),

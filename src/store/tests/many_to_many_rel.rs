@@ -30,11 +30,11 @@ fn ok() {
         [
             (
                 store.get_type("peoples").unwrap().clone(),
-                "people_id".to_string(),
+                arcstr::literal!("people_id"),
             ),
             (
                 store.get_type("articles").unwrap().clone(),
-                "article_id".to_string(),
+                arcstr::literal!("article_id"),
             ),
         ],
     );
@@ -78,11 +78,11 @@ fn ok_reverse() {
         [
             (
                 store.get_type("peoples").unwrap().clone(),
-                "people_id".to_string(),
+                arcstr::literal!("people_id"),
             ),
             (
                 store.get_type("articles").unwrap().clone(),
-                "article_id".to_string(),
+                arcstr::literal!("article_id"),
             ),
         ],
     );
@@ -126,11 +126,11 @@ fn no_reverse() {
         [
             (
                 store.get_type("peoples").unwrap().clone(),
-                "people_id".to_string(),
+                arcstr::literal!("people_id"),
             ),
             (
                 store.get_type("articles").unwrap().clone(),
-                "article_id".to_string(),
+                arcstr::literal!("article_id"),
             ),
         ],
     );
@@ -175,11 +175,11 @@ fn duplicate() {
         [
             (
                 store.get_type("peoples").unwrap().clone(),
-                "people_id".to_string(),
+                arcstr::literal!("people_id"),
             ),
             (
                 store.get_type("articles").unwrap().clone(),
-                "article_id".to_string(),
+                arcstr::literal!("article_id"),
             ),
         ],
     );
@@ -225,11 +225,11 @@ fn alias() {
         [
             (
                 store.get_type("peoples").unwrap().clone(),
-                "people_id".to_string(),
+                arcstr::literal!("people_id"),
             ),
             (
                 store.get_type("articles").unwrap().clone(),
-                "article_id".to_string(),
+                arcstr::literal!("article_id"),
             ),
         ],
     );

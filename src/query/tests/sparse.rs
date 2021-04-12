@@ -22,7 +22,7 @@ fn simple_nested_type() {
     let sparse = res.sparse();
     assert_eq!(sparse.len(), 1);
     let sparse = sparse
-        .get(&bag.get_type("peoples").unwrap().as_ref())
+        .get(bag.get_type("peoples").unwrap().as_ref())
         .unwrap();
     assert_eq!(sparse.len(), 1);
     assert_eq!(sparse[0], "first-name");
@@ -36,7 +36,7 @@ fn multiple_fields() {
     let sparse = res.sparse();
     assert_eq!(sparse.len(), 1);
     let sparse = sparse
-        .get(&bag.get_type("peoples").unwrap().as_ref())
+        .get(bag.get_type("peoples").unwrap().as_ref())
         .unwrap();
     assert_eq!(sparse.len(), 2);
     assert_eq!(sparse[0], "first-name");
@@ -51,12 +51,12 @@ fn multiple_types() {
     let sparse = res.sparse();
     assert_eq!(sparse.len(), 2);
     let peoples = sparse
-        .get(&bag.get_type("peoples").unwrap().as_ref())
+        .get(bag.get_type("peoples").unwrap().as_ref())
         .unwrap();
     assert_eq!(peoples.len(), 1);
     assert_eq!(peoples[0], "first-name");
     let articles = sparse
-        .get(&bag.get_type("articles").unwrap().as_ref())
+        .get(bag.get_type("articles").unwrap().as_ref())
         .unwrap();
     assert_eq!(articles.len(), 1);
     assert_eq!(articles[0], "title");
@@ -70,12 +70,12 @@ fn multiple_types_with_nesting() {
     let sparse = res.sparse();
     assert_eq!(sparse.len(), 2);
     let peoples = sparse
-        .get(&bag.get_type("peoples").unwrap().as_ref())
+        .get(bag.get_type("peoples").unwrap().as_ref())
         .unwrap();
     assert_eq!(peoples.len(), 1);
     assert_eq!(peoples[0], "first-name");
     let articles = sparse
-        .get(&bag.get_type("articles").unwrap().as_ref())
+        .get(bag.get_type("articles").unwrap().as_ref())
         .unwrap();
     assert_eq!(articles.len(), 1);
     assert_eq!(articles[0], "title");
@@ -89,7 +89,7 @@ fn deep_nesting() {
     let sparse = res.sparse();
     assert_eq!(sparse.len(), 1);
     let comments = sparse
-        .get(&bag.get_type("comments").unwrap().as_ref())
+        .get(bag.get_type("comments").unwrap().as_ref())
         .unwrap();
     assert_eq!(comments.len(), 1);
     assert_eq!(comments[0], "body");
@@ -154,7 +154,7 @@ fn empty_field() {
     let query: CibouletteQueryParameters = builder.build(&bag, None).expect("to_build correctly");
     let peoples_sparse = query
         .sparse()
-        .get(&bag.get_type("peoples").unwrap().as_ref())
+        .get(bag.get_type("peoples").unwrap().as_ref())
         .unwrap();
     assert_eq!(peoples_sparse.len(), 0);
 }
@@ -167,7 +167,7 @@ fn url_encoded_type() {
     let sparse = res.sparse();
     assert_eq!(sparse.len(), 1);
     let sparse = sparse
-        .get(&bag.get_type("peoples").unwrap().as_ref())
+        .get(bag.get_type("peoples").unwrap().as_ref())
         .unwrap();
     assert_eq!(sparse.len(), 1);
     assert_eq!(sparse[0], "first-name");

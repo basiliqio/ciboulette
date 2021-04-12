@@ -34,96 +34,96 @@ use std::borrow::Cow;
 //   - color
 
 pub fn gen_messy_json_schema_favorite_color() -> MessyJsonObject {
-    MessyJsonObject::new(
+    MessyJsonObject::from(MessyJsonObjectInner::new(
         vec![(
             gen_key("color"),
-            MessyJson::String(Cow::Owned(MessyJsonScalar::new(false))),
+            MessyJson::from(MessyJsonInner::String(MessyJsonScalar::new(false))),
         )]
         .into_iter()
         .collect(),
         false,
-    )
+    ))
 }
 
 pub fn gen_messy_json_schema_articles() -> MessyJsonObject {
-    MessyJsonObject::new(
+    MessyJsonObject::from(MessyJsonObjectInner::new(
         vec![
             (
                 gen_key("title"),
-                MessyJson::String(Cow::Owned(MessyJsonScalar::new(false))),
+                MessyJson::from(MessyJsonInner::String(MessyJsonScalar::new(false))),
             ),
             (
                 gen_key("body"),
-                MessyJson::String(Cow::Owned(MessyJsonScalar::new(true))),
+                MessyJson::from(MessyJsonInner::String(MessyJsonScalar::new(true))),
             ),
         ]
         .into_iter()
         .collect(),
         false,
-    )
+    ))
 }
 
 pub fn gen_messy_json_schema_comments() -> MessyJsonObject {
-    MessyJsonObject::new(
+    MessyJsonObject::from(MessyJsonObjectInner::new(
         vec![(
             gen_key("body"),
-            MessyJson::String(Cow::Owned(MessyJsonScalar::new(false))),
+            MessyJson::from(MessyJsonInner::String(MessyJsonScalar::new(false))),
         )]
         .into_iter()
         .collect(),
         false,
-    )
+    ))
 }
 
 pub fn gen_messy_json_schema_people_article() -> MessyJsonObject {
-    MessyJsonObject::new(
+    MessyJsonObject::from(MessyJsonObjectInner::new(
         vec![
             (
                 gen_key("people_id"),
-                MessyJson::String(Cow::Owned(MessyJsonScalar::new(false))),
+                MessyJson::from(MessyJsonInner::String(MessyJsonScalar::new(false))),
             ),
             (
                 gen_key("article_id"),
-                MessyJson::String(Cow::Owned(MessyJsonScalar::new(false))),
+                MessyJson::from(MessyJsonInner::String(MessyJsonScalar::new(false))),
             ),
         ]
         .into_iter()
         .collect(),
         false,
-    )
+    ))
 }
 
 pub fn gen_messy_json_schema_peoples() -> MessyJsonObject {
-    MessyJsonObject::new(
+    MessyJsonObject::from(MessyJsonObjectInner::new(
         vec![
             (
                 gen_key("first-name"),
-                MessyJson::String(Cow::Owned(MessyJsonScalar::new(false))),
+                MessyJson::from(MessyJsonInner::String(MessyJsonScalar::new(false))),
             ),
             (
                 gen_key("last-name"),
-                MessyJson::String(Cow::Owned(MessyJsonScalar::new(false))),
+                MessyJson::from(MessyJsonInner::String(MessyJsonScalar::new(false))),
             ),
             (
                 gen_key("age"),
-                MessyJson::Number(Cow::Owned(MessyJsonNumeric::new(
+                MessyJson::from(MessyJsonInner::Number(MessyJsonNumeric::new(
                     MessyJsonNumberType::U64,
                     true,
                 ))),
             ),
             (
                 gen_key("gender"),
-                MessyJson::String(Cow::Owned(MessyJsonScalar::new(true))),
+                MessyJson::from(MessyJsonInner::String(MessyJsonScalar::new(true))),
             ),
             (
                 gen_key("twitter"),
-                MessyJson::String(Cow::Owned(MessyJsonScalar::new(true))),
+                MessyJson::from(MessyJsonInner::String(MessyJsonScalar::new(true))),
             ),
         ]
         .into_iter()
         .collect(),
         false,
-    )
+    ))
 }
 
 pub fn gen_bag() -> CibouletteStore {
@@ -165,7 +165,7 @@ pub fn gen_bag() -> CibouletteStore {
         CibouletteRelationshipOneToManyOptionBuilder::new(
             res.get_type("favorite_color").unwrap().clone(),
             res.get_type("peoples").unwrap().clone(),
-            "favorite_color".to_string(),
+            arcstr::literal!("favorite_color"),
 			true,
         ),
         None,
@@ -176,7 +176,7 @@ pub fn gen_bag() -> CibouletteStore {
         CibouletteRelationshipOneToManyOptionBuilder::new(
             res.get_type("articles").unwrap().clone(),
             res.get_type("comments").unwrap().clone(),
-            "article".to_string(),
+            arcstr::literal!("article"),
 			false,
         ),
         None,
@@ -187,7 +187,7 @@ pub fn gen_bag() -> CibouletteStore {
         CibouletteRelationshipOneToManyOptionBuilder::new(
             res.get_type("peoples").unwrap().clone(),
             res.get_type("comments").unwrap().clone(),
-            "author".to_string(),
+            arcstr::literal!("author"),
 			false
         ),
         Some("author"),
@@ -202,11 +202,11 @@ pub fn gen_bag() -> CibouletteStore {
             [
                 (
                     res.get_type("articles").unwrap().clone(),
-                    "article_id".to_string(),
+                    arcstr::literal!("article_id"),
                 ),
                 (
                     res.get_type("peoples").unwrap().clone(),
-                    "people_id".to_string(),
+                    arcstr::literal!("people_id"),
                 ),
             ],
         ),

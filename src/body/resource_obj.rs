@@ -261,9 +261,9 @@ impl<'de> DeserializeSeed<'de> for CibouletteResourceBuilderVisitor {
 
 impl<'request> CibouletteResourceBuilder<'request> {
     /// ## build the [CibouletteResource](CibouletteResource) from the builder
-    pub fn build(
+    pub fn build<'store>(
         self,
-        bag: &CibouletteStore,
+        bag: &'store CibouletteStore,
         intention: &CibouletteIntention,
     ) -> Result<
         CibouletteResource<
@@ -278,7 +278,7 @@ impl<'request> CibouletteResourceBuilder<'request> {
         let attributes: Option<MessyJsonObjectValue<'request>> = match self.attributes {
             Some(attributes) => {
                 let type_ident = self.identifier().type_().as_ref();
-                let resource_type: &Arc<CibouletteResourceType> = bag.get_type(type_ident)?;
+                let resource_type: Arc<CibouletteResourceType> = bag.get_type(type_ident)?.clone();
                 let mut deserializer = serde_json::Deserializer::from_str(attributes.get());
                 let container: MessyJsonValueContainer<'request> = resource_type
                     .schema()
@@ -359,7 +359,7 @@ impl<'request, T> CibouletteResource<'request, MessyJsonObjectValue<'request>, T
     pub fn check_member_name(&self) -> Result<(), CibouletteError> {
         match self.attributes() {
             Some(attributes) => {
-                if let Some(x) = Self::check_member_name_top(&**attributes) {
+                if let Some(x) = Self::check_member_name_top(&attributes) {
                     return Err(CibouletteError::InvalidMemberName(x));
                 }
                 Ok(())

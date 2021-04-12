@@ -4,7 +4,7 @@ use super::*;
 #[getset(get = "pub")]
 pub struct CibouletteRelationshipManyToManyOptionBuilder {
     bucket_resource: CibouletteResourceType,
-    keys: [(CibouletteResourceType, String); 2],
+    keys: [(CibouletteResourceType, ArcStr); 2],
 }
 
 #[derive(Debug, Clone, Getters, PartialEq)]
@@ -12,7 +12,7 @@ pub struct CibouletteRelationshipManyToManyOptionBuilder {
 pub struct CibouletteRelationshipOneToManyOptionBuilder {
     one_table: CibouletteResourceType,
     many_table: CibouletteResourceType,
-    many_table_key: String,
+    many_table_key: ArcStr,
     optional: bool,
     part_of_many_to_many: Option<petgraph::graph::EdgeIndex<u16>>,
 }
@@ -20,7 +20,7 @@ pub struct CibouletteRelationshipOneToManyOptionBuilder {
 impl CibouletteRelationshipManyToManyOptionBuilder {
     pub fn new(
         bucket_resource: CibouletteResourceType,
-        keys: [(CibouletteResourceType, String); 2],
+        keys: [(CibouletteResourceType, ArcStr); 2],
     ) -> Self {
         CibouletteRelationshipManyToManyOptionBuilder {
             bucket_resource,
@@ -28,11 +28,11 @@ impl CibouletteRelationshipManyToManyOptionBuilder {
         }
     }
 
-    pub fn keys_for_type(&self, type_: &CibouletteResourceType) -> Result<&str, CibouletteError> {
+    pub fn keys_for_type(&self, type_: &CibouletteResourceType) -> Result<ArcStr, CibouletteError> {
         self.keys
             .iter()
             .find(|(k, _)| k == type_)
-            .map(|x| x.1.as_str())
+            .map(|x| x.1.clone())
             .ok_or_else(|| {
                 CibouletteError::UnknownRelationship(
                     self.bucket_resource().name().to_string(),
@@ -97,7 +97,7 @@ impl CibouletteRelationshipOneToManyOptionBuilder {
     pub fn new(
         one_table: CibouletteResourceType,
         many_table: CibouletteResourceType,
-        many_table_key: String,
+        many_table_key: ArcStr,
         optional: bool,
     ) -> Self {
         CibouletteRelationshipOneToManyOptionBuilder {
@@ -112,7 +112,7 @@ impl CibouletteRelationshipOneToManyOptionBuilder {
     pub(crate) fn new_from_many_to_many(
         one_table: CibouletteResourceType,
         many_table: CibouletteResourceType,
-        many_table_key: String,
+        many_table_key: ArcStr,
         optional: bool,
         part_of_many_to_many: petgraph::graph::EdgeIndex<u16>,
     ) -> Self {
