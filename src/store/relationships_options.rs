@@ -36,11 +36,11 @@ impl CibouletteRelationshipOneToOneOption {
 }
 
 impl CibouletteRelationshipManyToManyOption {
-    pub fn keys_for_type(&self, type_: &CibouletteResourceType) -> Result<&str, CibouletteError> {
+    pub fn keys_for_type(&self, type_: &CibouletteResourceType) -> Result<ArcStr, CibouletteError> {
         self.keys
             .iter()
             .find(|(k, _)| k.as_ref() == type_)
-            .map(|x| x.1.as_str())
+            .map(|x| x.1.clone())
             .ok_or_else(|| {
                 CibouletteError::UnknownRelationship(
                     self.bucket_resource().name().to_string(),
