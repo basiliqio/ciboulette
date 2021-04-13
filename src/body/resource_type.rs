@@ -1,7 +1,7 @@
 use super::*;
 
 /// ## Describe a `json:api` type attribute schema and list its relationships
-#[derive(Clone, Debug, Getters, MutGetters, Hash)]
+#[derive(Clone, Debug, Getters, MutGetters)]
 #[getset(get = "pub", get_mut = "pub")]
 pub struct CibouletteResourceType {
     relationships: BTreeMap<ArcStr, petgraph::graph::EdgeIndex<u16>>,

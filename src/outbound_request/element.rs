@@ -15,7 +15,7 @@ pub struct CibouletteResponseElement<'request, B> {
 }
 
 impl<'request, B> CibouletteResponseElement<'request, B> {
-    pub fn new<'store>(
+    pub fn new(
         store: &CibouletteStore,
         identifier: CibouletteResourceIdentifier<'request>,
         data: Option<B>,

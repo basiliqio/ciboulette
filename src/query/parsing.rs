@@ -2,7 +2,7 @@ use super::*;
 use itertools::Itertools;
 use serde::de::{DeserializeSeed, Deserializer};
 /// ## Element of a sorting vector.
-#[derive(Debug, Getters, Clone, Hash)]
+#[derive(Debug, Getters, Clone)]
 #[getset(get = "pub")]
 pub struct CibouletteSortingElement {
     pub type_: Arc<CibouletteResourceType>,
@@ -39,7 +39,7 @@ pub struct CibouletteQueryParametersBuilder<'request> {
 }
 
 /// ## Query parameters for `json:api`
-#[derive(Debug, Getters, Default, Clone, Hash)]
+#[derive(Debug, Getters, Default, Clone)]
 #[getset(get = "pub")]
 pub struct CibouletteQueryParameters<'request> {
     pub include: BTreeSet<Arc<CibouletteResourceType>>,

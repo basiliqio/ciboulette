@@ -58,7 +58,7 @@ pub fn extract_type<'request>(
                 field_name.as_ref(),
             )?;
             Ok(CibouletteSortingElement {
-                type_: main_type.clone(),
+                type_: main_type,
                 direction,
                 field,
             })
@@ -71,7 +71,7 @@ pub fn extract_type<'request>(
             let field =
                 CibouletteQueryParametersBuilder::check_field_exists(&type_, field_name.as_ref())?;
             Ok(CibouletteSortingElement {
-                type_: type_.clone(),
+                type_,
                 direction,
                 field,
             })

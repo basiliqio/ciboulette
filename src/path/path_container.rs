@@ -130,7 +130,7 @@ impl<'request> CiboulettePathBuilder<'request> {
                 Ok(CiboulettePath::TypeIdRelated(
                     nftype.clone(),
                     CibouletteId::parse(*nftype.id_type(), id)?,
-                    nstype.clone(),
+                    nstype,
                 ))
             }
             CiboulettePathBuilder::TypeIdRelationship(ftype, id, stype) => {
@@ -138,7 +138,7 @@ impl<'request> CiboulettePathBuilder<'request> {
                 Ok(CiboulettePath::TypeIdRelationship(
                     nftype.clone(),
                     CibouletteId::parse(*nftype.id_type(), id)?,
-                    nstype.clone(),
+                    nstype,
                 ))
             }
         }

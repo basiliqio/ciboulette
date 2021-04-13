@@ -103,7 +103,7 @@ impl<'request> TryFrom<CibouletteInboundRequest<'request>> for CibouletteUpdateR
             CibouletteBodyData::Object(selector) => match related_type.clone() {
                 Some(related_type) => {
                     CibouletteUpdateRequestType::Relationship(CibouletteUpdateRelationship {
-                        type_: related_type.clone(),
+                        type_: related_type,
                         value: CibouletteOptionalData::Object(selector.try_into()?),
                     })
                 }

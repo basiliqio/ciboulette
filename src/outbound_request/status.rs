@@ -1,3 +1,5 @@
+use std::u16;
+
 use super::*;
 
 /// The status a response should send
@@ -10,6 +12,20 @@ pub enum CibouletteResponseStatus {
     Unsupported,
     NotFound,
     Conflict,
+}
+
+impl Into<u16> for CibouletteResponseStatus {
+    fn into(self) -> u16 {
+        match self {
+            CibouletteResponseStatus::Ok => 200,
+            CibouletteResponseStatus::OkEmpty => 204,
+            CibouletteResponseStatus::OkAsync => 202,
+            CibouletteResponseStatus::Created => 201,
+            CibouletteResponseStatus::Unsupported => 400,
+            CibouletteResponseStatus::NotFound => 404,
+            CibouletteResponseStatus::Conflict => 409,
+        }
+    }
 }
 
 impl CibouletteResponseStatus {

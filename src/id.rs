@@ -1,8 +1,6 @@
 use super::*;
 use serde::de::{DeserializeSeed, Deserializer, Visitor};
 #[cfg(feature = "sqlx_postgres")]
-use sqlx::Database;
-#[cfg(feature = "sqlx_postgres")]
 use sqlx::{TypeInfo, ValueRef};
 use std::fmt::Formatter;
 use std::str::FromStr;
