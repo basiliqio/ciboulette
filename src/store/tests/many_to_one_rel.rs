@@ -88,9 +88,7 @@ fn no_reverse() {
         arcstr::literal!("favorite_color"),
         true,
     );
-    store
-        .add_many_to_one_rel_no_reverse(opt.clone(), None)
-        .unwrap();
+    store.add_many_to_one_rel_no_reverse(opt, None).unwrap();
     let err = store.get_rel("favorite_color", "peoples").unwrap_err();
     assert_eq!(
         matches!(err, CibouletteError::UnknownRelationship(x, y) if x == "favorite_color" && y == "peoples"),
@@ -124,9 +122,7 @@ fn duplicate() {
         true,
     );
     store.add_one_to_many_rel(opt.clone(), None, None).unwrap();
-    let err = store
-        .add_one_to_many_rel(opt.clone(), None, None)
-        .unwrap_err();
+    let err = store.add_one_to_many_rel(opt, None, None).unwrap_err();
     assert_eq!(
         matches!(err, CibouletteError::UniqRelationship(x, y) if x == "favorite_color" && y == "peoples"),
         true

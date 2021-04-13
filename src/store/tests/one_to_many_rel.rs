@@ -113,9 +113,7 @@ fn no_reverse() {
         arcstr::literal!("author"),
         false,
     );
-    store
-        .add_one_to_many_rel_no_reverse(opt.clone(), None)
-        .unwrap();
+    store.add_one_to_many_rel_no_reverse(opt, None).unwrap();
     let err = store.get_rel("comments", "author").unwrap_err();
     assert_eq!(
         matches!(err, CibouletteError::UnknownRelationship(x, y) if x == "comments" && y == "author"),
@@ -159,7 +157,7 @@ fn duplicate() {
         .add_one_to_many_rel(opt.clone(), Some("author"), None)
         .unwrap();
     let err = store
-        .add_one_to_many_rel(opt.clone(), Some("author"), None)
+        .add_one_to_many_rel(opt, Some("author"), None)
         .unwrap_err();
     assert_eq!(
         matches!(err, CibouletteError::UniqRelationship(x, y) if x == "peoples" && y == "comments"),

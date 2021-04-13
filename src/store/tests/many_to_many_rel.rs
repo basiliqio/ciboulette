@@ -135,7 +135,7 @@ fn no_reverse() {
         ],
     );
     store
-        .add_many_to_many_rel_no_reverse("peoples", ("articles", None), opt.clone())
+        .add_many_to_many_rel_no_reverse("peoples", ("articles", None), opt)
         .unwrap();
     let err = store.get_rel("articles", "author").unwrap_err();
     assert_eq!(
@@ -187,7 +187,7 @@ fn duplicate() {
         .add_many_to_many_rel(("peoples", Some("author")), ("articles", None), opt.clone())
         .unwrap();
     let err = store
-        .add_many_to_many_rel(("peoples", Some("author")), ("articles", None), opt.clone())
+        .add_many_to_many_rel(("peoples", Some("author")), ("articles", None), opt)
         .unwrap_err();
     assert_eq!(
         matches!(err, CibouletteError::UniqRelationship(x, y) if x == "peoples" && y == "articles"),
@@ -234,7 +234,7 @@ fn alias() {
         ],
     );
     store
-        .add_many_to_many_rel(("peoples", Some("author")), ("articles", None), opt.clone())
+        .add_many_to_many_rel(("peoples", Some("author")), ("articles", None), opt)
         .unwrap();
     assert_eq!(
         store

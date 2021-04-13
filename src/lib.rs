@@ -1,6 +1,7 @@
 #![warn(clippy::all)]
 mod body;
 mod config;
+mod error_request;
 mod errors;
 mod id;
 mod inbound_request;
@@ -69,6 +70,7 @@ pub use query::{
 pub use request_selector::CibouletteRequestSelector;
 
 pub use config::CibouletteConfig;
+pub use error_request::CibouletteErrorRequest;
 pub use errors::{CibouletteClashDirection, CibouletteError, CiboulettePathType};
 pub use inbound_request::request::{
     CibouletteInboundRequest, CibouletteInboundRequestBuilder, CibouletteInboundRequestCommons,
