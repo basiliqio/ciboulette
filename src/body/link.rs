@@ -1,7 +1,7 @@
 use super::*;
 
 /// ## A `json:api` inner [link](https://jsonapi.org/format/#document-links) object
-#[derive(Debug, Deserialize, Serialize, Getters, Clone)]
+#[derive(Debug, Deserialize, Serialize, Getters, Clone, Default)]
 #[getset(get = "pub")]
 pub struct CibouletteLinkObj<'request> {
     pub href: Cow<'request, str>,
