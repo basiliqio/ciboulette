@@ -4,7 +4,6 @@ use super::*;
 #[getset(get = "pub")]
 pub struct CibouletteErrorRequest<'response> {
     /// The body of the response.
-    #[serde(flatten)]
     pub errors: CibouletteErrorObj<'response>,
     /// The status of the response
     #[serde(skip_serializing_if = "Option::is_none")]

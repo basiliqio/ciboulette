@@ -5,6 +5,7 @@ use super::*;
 #[getset(get = "pub")]
 pub struct CibouletteLinkObj<'request> {
     pub href: Cow<'request, str>,
+    #[serde(skip_serializing_if = "HashMap::is_empty")]
     pub meta: HashMap<Cow<'request, str>, Value>,
 }
 
@@ -22,7 +23,9 @@ pub enum CibouletteLinkSelector<'request> {
 #[serde(default)]
 pub struct CibouletteLink<'request> {
     #[serde(rename = "self")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub self_: Option<CibouletteLinkSelector<'request>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub related: Option<CibouletteLinkSelector<'request>>,
 }
 
@@ -31,9 +34,13 @@ pub struct CibouletteLink<'request> {
 #[getset(get = "pub")]
 #[serde(default)]
 pub struct CibouletteBodyPagination<'request> {
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub first: Option<Cow<'request, str>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub last: Option<Cow<'request, str>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub prev: Option<Cow<'request, str>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub next: Option<Cow<'request, str>>,
 }
 

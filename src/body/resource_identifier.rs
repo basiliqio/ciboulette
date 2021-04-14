@@ -6,6 +6,7 @@ use std::cmp::{Ord, Ordering};
 pub struct CibouletteResourceIdentifierBuilder<'request> {
     #[serde(rename = "type")]
     pub type_: Cow<'request, str>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<CibouletteIdBuilder<'request>>,
 }
 

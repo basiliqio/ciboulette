@@ -4,8 +4,10 @@ use super::*;
 #[getset(get = "pub", get_mut = "pub")]
 #[serde(default)]
 pub struct CibouletteRelationshipObjectBuilder<'request> {
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub links: Option<CibouletteLink<'request>>,
     pub data: CibouletteOptionalData<CibouletteResourceIdentifierSelectorBuilder<'request>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub meta: Option<Value>,
 }
 
