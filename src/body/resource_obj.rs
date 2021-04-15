@@ -6,13 +6,17 @@ const CIBOULETTE_RESOURCE_FIELDS: &[&str] =
     &["id", "type", "meta", "attributes", "relationships", "links"];
 
 /// ## Builder object for [CibouletterResource](CibouletterResource)
-#[derive(Debug, Getters)]
+#[derive(Debug, Getters, Serialize)]
 #[getset(get = "pub")]
 pub struct CibouletteResourceBuilder<'request> {
     identifier: CibouletteResourceIdentifierBuilder<'request>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     attributes: Option<&'request RawValue>,
+    #[serde(skip_serializing_if = "BTreeMap::is_empty")]
     relationships: BTreeMap<Cow<'request, str>, CibouletteRelationshipObjectBuilder<'request>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     links: Option<CibouletteLink<'request>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     meta: Option<Value>,
 }
 

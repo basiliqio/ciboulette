@@ -1,6 +1,6 @@
 use super::*;
 /// An outbound response, built from an inbound request.
-#[derive(Debug, Getters, Serialize)]
+#[derive(Debug, Getters, Serialize, Deserialize)]
 #[getset(get = "pub")]
 pub struct CibouletteErrorRequest<'response> {
     /// The body of the response.

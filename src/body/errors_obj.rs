@@ -32,6 +32,7 @@ pub struct CibouletteErrorSource<'request> {
 pub struct CibouletteErrorObj<'request> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<Cow<'request, str>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub links: Option<CibouletteErrorLink<'request>>,
     pub status: u64,
     #[serde(skip_serializing_if = "Option::is_none")]
