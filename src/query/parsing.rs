@@ -75,13 +75,14 @@ impl<'request> CibouletteQueryParametersBuilder<'request> {
     #[inline]
     pub(super) fn check_relationship_exists(
         bag: &CibouletteStore,
+        main_type: &Option<Arc<CibouletteResourceType>>,
         type_list: &[Cow<'request, str>],
     ) -> Result<Arc<CibouletteResourceType>, CibouletteError> {
         let mut wtype: (
             petgraph::graph::NodeIndex<u16>,
             &Arc<CibouletteResourceType>,
         );
-        let mut types_iter = type_list.iter();
+        let mut types_iter = type_list.iter().peekable();
 
         let type_ = types_iter
             .next()
@@ -89,6 +90,20 @@ impl<'request> CibouletteQueryParametersBuilder<'request> {
         wtype = bag
             .get_type_with_index(type_.as_ref())
             .ok_or_else(|| CibouletteError::UnknownType(type_.to_string()))?;
+        if let (Some(main_type), has_next) = (main_type, types_iter.peek().is_some()) {
+            if !has_next
+                && main_type
+                    .relationships_type_to_alias()
+                    .get(wtype.1.name())
+                    .and_then(|x| main_type.relationships().get(x))
+                    .is_none()
+            {
+                return Err(CibouletteError::UnknownRelationship(
+                    main_type.name().to_string(),
+                    wtype.1.name().to_string(),
+                ));
+            }
+        };
         for type_ in types_iter {
             let rel_edge = match wtype.1.relationships().get(type_.as_ref()) {
                 Some(i) => i,
@@ -216,7 +231,11 @@ impl<'request> CibouletteQueryParametersBuilder<'request> {
             Some(include) => {
                 let mut res: BTreeSet<Arc<CibouletteResourceType>> = BTreeSet::new();
                 for types in include.into_iter() {
-                    res.insert(Self::check_relationship_exists(bag, types.as_slice())?);
+                    res.insert(Self::check_relationship_exists(
+                        bag,
+                        &main_type,
+                        types.as_slice(),
+                    )?);
                 }
                 res
             }
@@ -224,7 +243,7 @@ impl<'request> CibouletteQueryParametersBuilder<'request> {
 
         // Check for sparse fields, checking that fields exists
         for (types, fields) in self.sparse.into_iter() {
-            let rel = Self::check_relationship_exists(bag, types.as_slice())?;
+            let rel = Self::check_relationship_exists(bag, &main_type, types.as_slice())?;
             let fields = match fields.is_empty() {
                 true => vec![],
                 false => Self::check_fields_exists(&rel, fields)?,

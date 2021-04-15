@@ -67,7 +67,8 @@ pub fn extract_type<'request>(
             if list[0].as_ref() != main_type.name().as_str() {
                 list.insert(0, Cow::Borrowed(&*main_type.name().as_str()));
             }
-            let type_ = CibouletteQueryParametersBuilder::check_relationship_exists(&bag, &list)?;
+            let type_ =
+                CibouletteQueryParametersBuilder::check_relationship_exists(&bag, &None, &list)?;
             let field =
                 CibouletteQueryParametersBuilder::check_field_exists(&type_, field_name.as_ref())?;
             Ok(CibouletteSortingElement {

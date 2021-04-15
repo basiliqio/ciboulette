@@ -158,7 +158,7 @@ fn non_uniq_rel() {
 					"id": "b922a277-aadb-4c4e-b13d-9c4c98b3ad80"
 				  }
 				},
-				"articles":
+				"article":
 				{
 				  "links":
 				  {
