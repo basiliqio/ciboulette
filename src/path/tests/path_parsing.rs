@@ -29,6 +29,20 @@ fn no_type() {
 }
 
 #[test]
+fn empty_segments() {
+    const VAL: &str = "http://localhost///////peoples";
+    let url = Url::parse("http://localhost/").unwrap();
+    let opt = url::Url::options().base_url(Some(&url));
+    let curr_url = opt.parse(VAL).unwrap();
+    let res = CiboulettePathBuilder::parse(&curr_url);
+
+    assert_eq!(
+        matches!(res.unwrap(), CiboulettePathBuilder::Type(x) if x == "peoples"),
+        true
+    );
+}
+
+#[test]
 fn too_much_type() {
     const VAL: &str =
         "/articles/6720877a-e27e-4e9e-9ac0-3fff4deb55f2/relationships/author/hello/world";

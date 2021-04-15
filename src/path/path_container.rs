@@ -38,20 +38,21 @@ pub enum CiboulettePath<'request> {
 impl<'request> CiboulettePathBuilder<'request> {
     pub fn parse(url: &'request Url) -> Result<Self, CibouletteError> {
         let mut segs: [Option<&str>; 4] = [None; 4];
+        let mut ii = 0;
         let segs_iter = url
             .path_segments()
             .unwrap_or_else(|| "".split('/'))
-            .into_iter()
-            .enumerate();
+            .into_iter();
 
-        for (i, seg) in segs_iter {
-            if i >= 4 {
+        for seg in segs_iter {
+            if ii >= 4 {
                 return Err(CibouletteError::BadPath);
             }
             if seg.is_empty() {
                 continue;
             }
-            segs[i] = Some(seg);
+            segs[ii] = Some(seg);
+            ii += 1;
         }
         match segs {
             [None, None, None, None] => Err(CibouletteError::MissingTypeInPath),
