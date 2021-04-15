@@ -39,7 +39,7 @@ impl CibouletteStoreBuilder {
             opt.one_table(),
             to_i,
             to_rel_i,
-            alias_one_table,
+            alias_one_table.or_else(|| Some(opt.many_table_key().clone())),
             from_rel_i,
         )?;
         Ok(())
@@ -77,7 +77,7 @@ impl CibouletteStoreBuilder {
             opt.one_table(),
             to_i,
             to_rel_i,
-            alias_one_table,
+            alias_one_table.or_else(|| Some(opt.many_table_key().clone())),
             from_rel_i,
         )?;
         Ok(())
@@ -106,13 +106,10 @@ impl CibouletteStoreBuilder {
                 alias.to_string(),
             ));
         }
-        let alias_arc = ArcStr::from(alias);
-        type_
-            .relationships_mut()
-            .insert(alias_arc.clone(), orig_rel_i);
+        type_.relationships_mut().insert(alias.clone(), orig_rel_i);
         type_
             .relationships_type_to_alias_mut()
-            .insert(ArcStr::from(dest.name()), alias_arc);
+            .insert(ArcStr::from(dest.name()), alias);
         Ok(())
     }
 
