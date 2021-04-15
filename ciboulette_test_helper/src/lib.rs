@@ -189,7 +189,7 @@ pub fn gen_bag() -> CibouletteStore {
             arcstr::literal!("author"),
 			false
         ),
-        Some("author"),
+        Some(arcstr::ArcStr::from("author")),
         None,
     )
     .unwrap(); // Peoples -> Comments

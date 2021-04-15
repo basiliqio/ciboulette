@@ -39,10 +39,7 @@ impl<'request> CiboulettePathBuilder<'request> {
     pub fn parse(url: &'request Url) -> Result<Self, CibouletteError> {
         let mut segs: [Option<&str>; 4] = [None; 4];
         let mut ii = 0;
-        let segs_iter = url
-            .path_segments()
-            .unwrap_or_else(|| "".split('/'))
-            .into_iter();
+        let segs_iter = url.path_segments().unwrap_or_else(|| "".split('/'));
 
         for seg in segs_iter {
             if ii >= 4 {

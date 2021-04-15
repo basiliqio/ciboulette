@@ -32,7 +32,7 @@ fn ok() {
         false,
     );
     store
-        .add_one_to_many_rel(opt.clone(), Some("author"), None)
+        .add_one_to_many_rel(opt.clone(), Some(ArcStr::from("author")), None)
         .unwrap();
     let rel = store.get_rel("peoples", "comments").unwrap();
     assert_eq!(
@@ -73,7 +73,7 @@ fn ok_reverse() {
         false,
     );
     store
-        .add_one_to_many_rel(opt.clone(), Some("author"), None)
+        .add_one_to_many_rel(opt.clone(), Some(ArcStr::from("author")), None)
         .unwrap();
     let rel = store.get_rel("comments", "author").unwrap();
     assert_eq!(
@@ -154,10 +154,10 @@ fn duplicate() {
         false,
     );
     store
-        .add_one_to_many_rel(opt.clone(), Some("author"), None)
+        .add_one_to_many_rel(opt.clone(), Some(ArcStr::from("author")), None)
         .unwrap();
     let err = store
-        .add_one_to_many_rel(opt, Some("author"), None)
+        .add_one_to_many_rel(opt, Some(ArcStr::from("author")), None)
         .unwrap_err();
     assert_eq!(
         matches!(err, CibouletteError::UniqRelationship(x, y) if x == "peoples" && y == "comments"),

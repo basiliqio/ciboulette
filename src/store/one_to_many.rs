@@ -21,8 +21,8 @@ impl CibouletteStoreBuilder {
     pub fn add_one_to_many_rel(
         &mut self,
         opt: CibouletteRelationshipOneToManyOptionBuilder,
-        alias_one_table: Option<&str>,
-        alias_many_table: Option<&str>,
+        alias_one_table: Option<ArcStr>,
+        alias_many_table: Option<ArcStr>,
     ) -> Result<(), CibouletteError> {
         let (from_i, to_i) = self.get_one_to_many_node_indexes(&opt)?;
         let (from_rel_i, to_rel_i) = self.get_one_to_many_edge_indexes(&from_i, &to_i, &opt);
@@ -49,7 +49,7 @@ impl CibouletteStoreBuilder {
     pub fn add_one_to_many_rel_no_reverse(
         &mut self,
         opt: CibouletteRelationshipOneToManyOptionBuilder,
-        alias_many_table: Option<&str>,
+        alias_many_table: Option<ArcStr>,
     ) -> Result<(), CibouletteError> {
         let (from_i, to_i) = self.get_one_to_many_node_indexes(&opt)?;
         let (from_rel_i, to_rel_i) = self.get_one_to_many_edge_indexes(&from_i, &to_i, &opt);
@@ -68,7 +68,7 @@ impl CibouletteStoreBuilder {
     pub fn add_many_to_one_rel_no_reverse(
         &mut self,
         opt: CibouletteRelationshipOneToManyOptionBuilder,
-        alias_one_table: Option<&str>,
+        alias_one_table: Option<ArcStr>,
     ) -> Result<(), CibouletteError> {
         let (from_i, to_i) = self.get_one_to_many_node_indexes(&opt)?;
         let (from_rel_i, to_rel_i) = self.get_one_to_many_edge_indexes(&from_i, &to_i, &opt);
@@ -89,15 +89,15 @@ impl CibouletteStoreBuilder {
         dest: &CibouletteResourceType,
         orig_i: petgraph::graph::NodeIndex<u16>,
         orig_rel_i: petgraph::graph::EdgeIndex<u16>,
-        alias_dest: Option<&str>,
+        alias_dest: Option<ArcStr>,
         dest_rel_i: petgraph::graph::EdgeIndex<u16>,
     ) -> Result<(), CibouletteError> {
         let type_ = self
             .graph
             .node_weight_mut(orig_i)
             .ok_or_else(|| CibouletteError::TypeNotInGraph(orig.name().to_string()))?;
-        let alias = alias_dest.unwrap_or_else(|| dest.name().as_str());
-        if type_.relationships().contains_key(alias) {
+        let alias = alias_dest.unwrap_or_else(|| dest.name().clone());
+        if type_.relationships().contains_key(&alias) {
             // Check if relationship exists
             self.graph.remove_edge(orig_rel_i); // Cancel the created edge
             self.graph.remove_edge(dest_rel_i);
