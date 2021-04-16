@@ -57,15 +57,20 @@ impl CibouletteStoreBuilder {
             )
         );
         for i in 0..=1 {
+            let edge_index = match opt.keys()[i].0.name() == from {
+                true => edge_indexes.to(),
+                false => edge_indexes.from(),
+            };
             cancel_rel_edge_on_failure!(
                 self,
                 edge_indexes,
                 self.add_one_to_many_rel_no_reverse(
-                    CibouletteRelationshipOneToManyOptionBuilder::new(
+                    CibouletteRelationshipOneToManyOptionBuilder::new_from_many_to_many(
                         opt.keys()[i].0.clone(),
                         opt.bucket_resource().clone(),
                         opt.keys()[i].1.clone(),
                         false,
+                        edge_index
                     ),
                     None,
                 )
@@ -84,15 +89,16 @@ impl CibouletteStoreBuilder {
         let node_indexes = self.get_many_to_many_node_indexes(from, to, &opt)?;
         self.check_bucket_exists(node_indexes.bucket(), from, &opt)?;
         let (from_type, bucket_type, to_type) = self.extract_many_to_many_types(&node_indexes)?;
-        let (edge_to_direct, _edge_to) =
+        let (edge_to_direct, edge_to) =
             self.get_many_to_many_edge_indexes_to(&bucket_type, to_type, &node_indexes, &opt)?;
         let rel_type = opt.keys_for_type(&from_type)?;
         self.add_one_to_many_rel_no_reverse(
-            CibouletteRelationshipOneToManyOptionBuilder::new(
+            CibouletteRelationshipOneToManyOptionBuilder::new_from_many_to_many(
                 from_type,
                 opt.bucket_resource().clone(),
                 rel_type,
                 false,
+                edge_to,
             ),
             None,
         )?;
