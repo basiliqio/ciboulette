@@ -49,6 +49,7 @@ pub use body::resource_obj_selector::{
     CibouletteResourceSelector, CibouletteResourceSelectorBuilder,
 };
 pub use body::resource_type::CibouletteResourceType;
+pub use body::resource_type_builder::CibouletteResourceTypeBuilder;
 pub use id::{CibouletteId, CibouletteIdBuilder, CibouletteIdType};
 pub use intention::CibouletteIntention;
 pub use outbound_request::request::CibouletteOutboundRequest;

@@ -5,7 +5,7 @@ fn single_asc() {
     let (bag, builder) = setup(r#"sort=first-name"#);
 
     let res: CibouletteQueryParameters = builder
-        .build(&bag, Some(bag.get_type("peoples").unwrap().clone()))
+        .build(&bag, bag.get_type("peoples").unwrap().clone())
         .expect("to build correctly");
     let sorting = res.sorting();
     assert_eq!(sorting.len(), 1);
@@ -25,7 +25,7 @@ fn single_asc_with_positive() {
     let (bag, builder) = setup(r#"sort=%2Bfirst-name"#);
 
     let res: CibouletteQueryParameters = builder
-        .build(&bag, Some(bag.get_type("peoples").unwrap().clone()))
+        .build(&bag, bag.get_type("peoples").unwrap().clone())
         .expect("to build correctly");
     let sorting = res.sorting();
     assert_eq!(sorting.len(), 1);
@@ -45,7 +45,7 @@ fn single_desc() {
     let (bag, builder) = setup(r#"sort=-first-name"#);
 
     let res: CibouletteQueryParameters = builder
-        .build(&bag, Some(bag.get_type("peoples").unwrap().clone()))
+        .build(&bag, bag.get_type("peoples").unwrap().clone())
         .expect("to build correctly");
     let sorting = res.sorting();
     assert_eq!(sorting.len(), 1);
@@ -65,7 +65,7 @@ fn multiple_mixed() {
     let (bag, builder) = setup(r#"sort=last-name,-first-name"#);
 
     let res: CibouletteQueryParameters = builder
-        .build(&bag, Some(bag.get_type("peoples").unwrap().clone()))
+        .build(&bag, bag.get_type("peoples").unwrap().clone())
         .expect("to build correctly");
     let sorting = res.sorting();
     assert_eq!(sorting.len(), 2);
@@ -94,7 +94,7 @@ fn unknown_field() {
     let (bag, builder) = setup(r#"sort=unknown_field"#);
 
     let err: CibouletteError = builder
-        .build(&bag, Some(bag.get_type("peoples").unwrap().clone()))
+        .build(&bag, bag.get_type("peoples").unwrap().clone())
         .expect_err("not to build correctly");
     assert_eq!(
         matches!(err, CibouletteError::UnknownField(type_, field) if type_.as_str() == "peoples" && field.as_str() == "unknown_field"),
@@ -107,7 +107,7 @@ fn empty() {
     let (bag, builder) = setup(r#"sort="#);
 
     let err: CibouletteError = builder
-        .build(&bag, Some(bag.get_type("peoples").unwrap().clone()))
+        .build(&bag, bag.get_type("peoples").unwrap().clone())
         .expect_err("not to build correctly");
     assert_eq!(
         matches!(err, CibouletteError::UnknownField(type_, field) if type_.as_str() == "peoples" && field.as_str() == "<empty>"),
@@ -120,7 +120,7 @@ fn relationship_field() {
     let (bag, builder) = setup(r#"sort=articles.title"#);
 
     let res: CibouletteQueryParameters = builder
-        .build(&bag, Some(bag.get_type("peoples").unwrap().clone()))
+        .build(&bag, bag.get_type("peoples").unwrap().clone())
         .expect("to build correctly");
     let sorting = res.sorting();
     assert_eq!(sorting.len(), 1);
@@ -140,7 +140,7 @@ fn mixed_relationship_and_self() {
     let (bag, builder) = setup(r#"sort=articles.title,-favorite_color.color,first-name"#);
 
     let res: CibouletteQueryParameters = builder
-        .build(&bag, Some(bag.get_type("peoples").unwrap().clone()))
+        .build(&bag, bag.get_type("peoples").unwrap().clone())
         .expect("to build correctly");
     let sorting = res.sorting();
     assert_eq!(sorting.len(), 3);
@@ -180,7 +180,7 @@ fn unknown_type() {
     let (bag, builder) = setup(r#"sort=hahahah.title"#);
 
     let err: CibouletteError = builder
-        .build(&bag, Some(bag.get_type("peoples").unwrap().clone()))
+        .build(&bag, bag.get_type("peoples").unwrap().clone())
         .expect_err("not to build correctly");
     assert_eq!(
         matches!(err, CibouletteError::UnknownRelationship(type_, rel) if type_.as_str() == "peoples" && rel.as_str() == "hahahah"),
@@ -193,7 +193,7 @@ fn unknown_relationship_field() {
     let (bag, builder) = setup(r#"sort=articles.hahah"#);
 
     let err: CibouletteError = builder
-        .build(&bag, Some(bag.get_type("peoples").unwrap().clone()))
+        .build(&bag, bag.get_type("peoples").unwrap().clone())
         .expect_err("not to build correctly");
     assert_eq!(
         matches!(err, CibouletteError::UnknownField(type_, field) if type_.as_str() == "articles" && field.as_str() == "hahah"),
@@ -206,7 +206,7 @@ fn unknown_relationships() {
     let (bag, builder) = setup(r#"sort=favorite_color.color"#);
 
     let err: CibouletteError = builder
-        .build(&bag, Some(bag.get_type("comments").unwrap().clone()))
+        .build(&bag, bag.get_type("comments").unwrap().clone())
         .expect_err("not to build correctly");
     assert_eq!(
         matches!(err, CibouletteError::UnknownRelationship(type_, rel) if type_.as_str() == "comments" && rel.as_str() == "favorite_color"),
@@ -219,7 +219,7 @@ fn nested_sorting() {
     let (bag, builder) = setup(r#"sort=articles.comments.body"#);
 
     let err: CibouletteError = builder
-        .build(&bag, Some(bag.get_type("peoples").unwrap().clone()))
+        .build(&bag, bag.get_type("peoples").unwrap().clone())
         .expect_err("not to build correctly");
     assert_eq!(matches!(err, CibouletteError::NestedSorting), true);
 }
@@ -229,7 +229,7 @@ fn sorting_self_full_path() {
     let (bag, builder) = setup(r#"sort=peoples.first-name"#);
 
     let res: CibouletteQueryParameters = builder
-        .build(&bag, Some(bag.get_type("peoples").unwrap().clone()))
+        .build(&bag, bag.get_type("peoples").unwrap().clone())
         .expect("to build correctly");
     let sorting = res.sorting();
     assert_eq!(sorting.len(), 1);

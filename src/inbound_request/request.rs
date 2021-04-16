@@ -72,7 +72,7 @@ impl<'request> CibouletteInboundRequestBuilder<'request> {
             Some(query) => {
                 let builder: CibouletteQueryParametersBuilder<'request> =
                     serde_urlencoded::from_str(query)?;
-                Some(builder.build(bag, Some(path.main_type().clone()))?)
+                Some(builder.build(bag, path.main_type().clone())?)
             }
             None => None,
         };

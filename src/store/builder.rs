@@ -116,7 +116,7 @@ impl CibouletteStoreBuilder {
         {
             return Err(CibouletteError::UniqType(name));
         }
-        let t = CibouletteResourceType::new(name.clone(), id_type, schema);
+        let t = CibouletteResourceTypeBuilder::new(name.clone(), id_type, schema).build()?;
         let index = self.graph.add_node(t); // Add the node
         self.map.insert(name, index); // Save the index to the map
         Ok(())

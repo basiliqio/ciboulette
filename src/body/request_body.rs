@@ -413,9 +413,8 @@ impl<'request> CibouletteBodyBuilder<'request> {
                         let included_set = Self::check_included(&included, true)?;
                         (true, included_set)
                     }
-                    CibouletteResourceSelector::One(inner_data) => {
+                    CibouletteResourceSelector::One(_) => {
                         let included_set = Self::check_included(&included, false)?;
-                        inner_data.check_member_name()?;
                         (true, included_set)
                     }
                 };

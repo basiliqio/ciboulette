@@ -220,7 +220,7 @@ impl<'request> CibouletteQueryParametersBuilder<'request> {
     pub fn build(
         self,
         bag: &CibouletteStore,
-        main_type: Option<Arc<CibouletteResourceType>>,
+        main_type: Arc<CibouletteResourceType>,
     ) -> Result<CibouletteQueryParameters<'request>, CibouletteError> {
         let mut sparse: BTreeMap<Arc<CibouletteResourceType>, Vec<ArcStr>> = BTreeMap::new();
         let mut sorting: Vec<CibouletteSortingElement> = Vec::with_capacity(self.sorting.len());
@@ -233,7 +233,7 @@ impl<'request> CibouletteQueryParametersBuilder<'request> {
                 for types in include.into_iter() {
                     res.insert(Self::check_relationship_exists(
                         bag,
-                        &main_type,
+                        &Some(main_type.clone()),
                         types.as_slice(),
                     )?);
                 }
@@ -242,8 +242,26 @@ impl<'request> CibouletteQueryParametersBuilder<'request> {
         };
 
         // Check for sparse fields, checking that fields exists
-        for (types, fields) in self.sparse.into_iter() {
-            let rel = Self::check_relationship_exists(bag, &main_type, types.as_slice())?;
+        for (mut types, fields) in self.sparse.into_iter() {
+            let rel = match types.first().map(|x| x.as_ref() == main_type.name()) {
+                Some(true) => {
+                    types.remove(0);
+                    if types.is_empty() {
+                        main_type.clone()
+                    } else {
+                        Self::check_relationship_exists(
+                            bag,
+                            &Some(main_type.clone()),
+                            types.as_slice(),
+                        )?
+                    }
+                }
+                _ => Self::check_relationship_exists(
+                    bag,
+                    &Some(main_type.clone()),
+                    types.as_slice(),
+                )?,
+            };
             let fields = match fields.is_empty() {
                 true => vec![],
                 false => Self::check_fields_exists(&rel, fields)?,
@@ -252,21 +270,16 @@ impl<'request> CibouletteQueryParametersBuilder<'request> {
         }
 
         // Check for the sort fields, checking fields exists
-        match (main_type, self.sorting.len()) {
-            (_, 0) => (),
-            (Some(main_type), _) => {
-                for (direction, field) in self.sorting.into_iter() {
-                    sorting.push(sorting::extract_type(
-                        &bag,
-                        main_type.clone(),
-                        direction,
-                        field,
-                    )?)
-                }
+        if !self.sorting.is_empty() {
+            for (direction, field) in self.sorting.into_iter() {
+                sorting.push(sorting::extract_type(
+                    &bag,
+                    main_type.clone(),
+                    direction,
+                    field,
+                )?)
             }
-            (None, _) => return Err(CibouletteError::IncompatibleSorting),
-        };
-
+        }
         let sorting_map = Self::extract_sorting_map(&sorting);
         let res = CibouletteQueryParameters {
             include,

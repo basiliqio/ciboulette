@@ -5,7 +5,9 @@ use std::borrow::Cow;
 fn simple_number() {
     let (bag, builder) = setup(r#"page[number]=1"#);
 
-    let res: CibouletteQueryParameters = builder.build(&bag, None).expect("to build correctly");
+    let res: CibouletteQueryParameters = builder
+        .build(&bag, bag.get_type("peoples").unwrap().clone())
+        .expect("to build correctly");
     let page = res.page();
     assert_eq!(page.len(), 1);
     println!("{:#?}", page);
@@ -17,7 +19,9 @@ fn simple_number() {
 fn simple_size() {
     let (bag, builder) = setup(r#"page[size]=1"#);
 
-    let res: CibouletteQueryParameters = builder.build(&bag, None).expect("to build correctly");
+    let res: CibouletteQueryParameters = builder
+        .build(&bag, bag.get_type("peoples").unwrap().clone())
+        .expect("to build correctly");
     let page = res.page();
     assert_eq!(page.len(), 1);
     let page = page.get(&CiboulettePageType::Size).unwrap();
@@ -28,7 +32,9 @@ fn simple_size() {
 fn simple_offset() {
     let (bag, builder) = setup(r#"page[offset]=1"#);
 
-    let res: CibouletteQueryParameters = builder.build(&bag, None).expect("to build correctly");
+    let res: CibouletteQueryParameters = builder
+        .build(&bag, bag.get_type("peoples").unwrap().clone())
+        .expect("to build correctly");
     let page = res.page();
     assert_eq!(page.len(), 1);
     let page = page.get(&CiboulettePageType::Offset).unwrap();
@@ -39,7 +45,9 @@ fn simple_offset() {
 fn simple_limit() {
     let (bag, builder) = setup(r#"page[limit]=1"#);
 
-    let res: CibouletteQueryParameters = builder.build(&bag, None).expect("to build correctly");
+    let res: CibouletteQueryParameters = builder
+        .build(&bag, bag.get_type("peoples").unwrap().clone())
+        .expect("to build correctly");
     let page = res.page();
     assert_eq!(page.len(), 1);
     let page = page.get(&CiboulettePageType::Limit).unwrap();
@@ -50,7 +58,9 @@ fn simple_limit() {
 fn simple_cursor() {
     let (bag, builder) = setup(r#"page[cursor]=1"#);
 
-    let res: CibouletteQueryParameters = builder.build(&bag, None).expect("to build correctly");
+    let res: CibouletteQueryParameters = builder
+        .build(&bag, bag.get_type("peoples").unwrap().clone())
+        .expect("to build correctly");
     let page = res.page();
     assert_eq!(page.len(), 1);
     let page = page.get(&CiboulettePageType::Cursor).unwrap();
@@ -61,7 +71,9 @@ fn simple_cursor() {
 fn simple_other() {
     let (bag, builder) = setup(r#"page[lolilol]=1"#);
 
-    let res: CibouletteQueryParameters = builder.build(&bag, None).expect("to build correctly");
+    let res: CibouletteQueryParameters = builder
+        .build(&bag, bag.get_type("peoples").unwrap().clone())
+        .expect("to build correctly");
     let page = res.page();
     assert_eq!(page.len(), 1);
     let page = page
@@ -74,7 +86,9 @@ fn simple_other() {
 fn empty_value() {
     let (bag, builder) = setup(r#"page[cursor]="#);
 
-    let res: CibouletteQueryParameters = builder.build(&bag, None).expect("to build correctly");
+    let res: CibouletteQueryParameters = builder
+        .build(&bag, bag.get_type("peoples").unwrap().clone())
+        .expect("to build correctly");
     let page = res.page();
     assert_eq!(page.len(), 1);
     let page = page.get(&CiboulettePageType::Cursor).unwrap();

@@ -149,17 +149,3 @@ impl<'request> CibouletteResourceSelectorBuilder<'request> {
         }
     }
 }
-
-impl<'request, T> CibouletteResourceSelector<'request, MessyJsonObjectValue<'request>, T> {
-    pub fn check_member_name(&self) -> Result<(), CibouletteError> {
-        match self {
-            CibouletteResourceSelector::One(element) => element.check_member_name(),
-            CibouletteResourceSelector::Many(elements) => {
-                for element in elements.iter() {
-                    element.check_member_name()?;
-                }
-                Ok(())
-            }
-        }
-    }
-}

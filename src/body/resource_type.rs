@@ -13,13 +13,13 @@ pub struct CibouletteResourceType {
 
 impl CibouletteResourceType {
     /// Create a new type from a schema and a list of relationships
-    pub fn new(name: String, id_type: CibouletteIdType, schema: MessyJsonObject) -> Self {
+    pub(crate) fn new(name: ArcStr, id_type: CibouletteIdType, schema: MessyJsonObject) -> Self {
         CibouletteResourceType {
             relationships: BTreeMap::new(),
             relationships_type_to_alias: BTreeMap::new(),
             schema,
             id_type,
-            name: ArcStr::from(name),
+            name,
         }
     }
 
