@@ -42,8 +42,34 @@ fn ok() {
         .add_many_to_many_rel(("peoples", Some("author")), ("articles", None), opt.clone())
         .unwrap();
     let rel = store.get_rel("peoples", "articles").unwrap();
+    let rel_bucket = store.get_rel("peoples", "people-article").unwrap();
+    let rel_bucket_reverse = store.get_rel("articles", "people-article").unwrap();
     assert_eq!(
         matches!(rel.1, CibouletteRelationshipOptionBuilder::ManyToMany(x) if x == &opt),
+        true
+    );
+    assert_eq!(
+        matches!(rel_bucket.1, CibouletteRelationshipOptionBuilder::OneToMany(x) if x.many_table_key() == "people_id"),
+        true
+    );
+    assert_eq!(
+        matches!(rel_bucket.1, CibouletteRelationshipOptionBuilder::OneToMany(x) if x.many_table().name() == "people-article"),
+        true
+    );
+    assert_eq!(
+        matches!(rel_bucket.1, CibouletteRelationshipOptionBuilder::OneToMany(x) if x.one_table().name() == "peoples"),
+        true
+    );
+    assert_eq!(
+        matches!(rel_bucket_reverse.1, CibouletteRelationshipOptionBuilder::OneToMany(x) if x.many_table_key() == "article_id"),
+        true
+    );
+    assert_eq!(
+        matches!(rel_bucket_reverse.1, CibouletteRelationshipOptionBuilder::OneToMany(x) if x.many_table().name() == "people-article"),
+        true
+    );
+    assert_eq!(
+        matches!(rel_bucket_reverse.1, CibouletteRelationshipOptionBuilder::OneToMany(x) if x.one_table().name() == "articles"),
         true
     );
 }

@@ -231,11 +231,13 @@ impl<'request> CibouletteQueryParametersBuilder<'request> {
             Some(include) => {
                 let mut res: BTreeSet<Arc<CibouletteResourceType>> = BTreeSet::new();
                 for types in include.into_iter() {
+                    println!("Included {:#?}", types);
                     res.insert(Self::check_relationship_exists(
                         bag,
                         &Some(main_type.clone()),
                         types.as_slice(),
                     )?);
+                    println!("Went out");
                 }
                 res
             }

@@ -16,6 +16,15 @@ struct CibouletteManyToManyEdgeIndexes {
     to_direct: petgraph::graph::EdgeIndex<u16>,
 }
 
+macro_rules! cancel_rel_edge_on_failure {
+    ($self:ident, $edge_indexes:ident, $fnc:expr) => {
+        if let Err(x) = $fnc {
+            $self.cancel_rel_edges(&$edge_indexes);
+            return Err(x);
+        }
+    };
+}
+
 impl CibouletteStoreBuilder {
     /// Add a relationships (one/many-to-one/many) to the graph, with the reverse relationship
     pub fn add_many_to_many_rel(
@@ -27,23 +36,40 @@ impl CibouletteStoreBuilder {
         let node_indexes = self.get_many_to_many_node_indexes(from, to, &opt)?;
         self.check_bucket_exists(node_indexes.bucket(), from, &opt)?;
         let edge_indexes = self.get_many_to_many_edge_indexes(&node_indexes, &opt)?;
-        if let Err(x) = self.add_many_to_many_rel_routine(
-            (from, node_indexes.from()),
-            (to, alias_to),
-            &opt.bucket_resource(),
-            edge_indexes.to_direct(),
-        ) {
-            self.cancel_rel_edges(&edge_indexes);
-            return Err(x);
-        }
-        if let Err(x) = self.add_many_to_many_rel_routine(
-            (to, node_indexes.to()),
-            (from, alias_from),
-            &opt.bucket_resource(),
-            edge_indexes.from_direct(),
-        ) {
-            self.cancel_rel_edges(&edge_indexes);
-            return Err(x);
+        cancel_rel_edge_on_failure!(
+            self,
+            edge_indexes,
+            self.add_many_to_many_rel_routine(
+                (from, node_indexes.from()),
+                (to, alias_to),
+                &opt.bucket_resource(),
+                edge_indexes.to_direct(),
+            )
+        );
+        cancel_rel_edge_on_failure!(
+            self,
+            edge_indexes,
+            self.add_many_to_many_rel_routine(
+                (to, node_indexes.to()),
+                (from, alias_from),
+                &opt.bucket_resource(),
+                edge_indexes.from_direct(),
+            )
+        );
+        for i in 0..=1 {
+            cancel_rel_edge_on_failure!(
+                self,
+                edge_indexes,
+                self.add_one_to_many_rel_no_reverse(
+                    CibouletteRelationshipOneToManyOptionBuilder::new(
+                        opt.keys()[i].0.clone(),
+                        opt.bucket_resource().clone(),
+                        opt.keys()[i].1.clone(),
+                        false,
+                    ),
+                    None,
+                )
+            );
         }
         Ok(())
     }
@@ -57,9 +83,19 @@ impl CibouletteStoreBuilder {
     ) -> Result<(), CibouletteError> {
         let node_indexes = self.get_many_to_many_node_indexes(from, to, &opt)?;
         self.check_bucket_exists(node_indexes.bucket(), from, &opt)?;
-        let (_from_type, bucket_type, to_type) = self.extract_many_to_many_types(&node_indexes)?;
+        let (from_type, bucket_type, to_type) = self.extract_many_to_many_types(&node_indexes)?;
         let (edge_to_direct, _edge_to) =
             self.get_many_to_many_edge_indexes_to(&bucket_type, to_type, &node_indexes, &opt)?;
+        let rel_type = opt.keys_for_type(&from_type)?;
+        self.add_one_to_many_rel_no_reverse(
+            CibouletteRelationshipOneToManyOptionBuilder::new(
+                from_type,
+                opt.bucket_resource().clone(),
+                rel_type,
+                false,
+            ),
+            None,
+        )?;
         self.add_many_to_many_rel_routine(
             (from, node_indexes.from()),
             (to, alias_to),

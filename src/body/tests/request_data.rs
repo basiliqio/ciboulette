@@ -117,10 +117,10 @@ fn unknown_relationships() {
     const VAL: &str = r#"
 	{
 		"data": {
-			"type": "peoples",
+			"type": "favorite_color",
 			"id": "6720877a-e27e-4e9e-9ac0-3fff4deb55f2",		
 			"relationships": {
-				"people-article":
+				"comments":
 				{
 					"data": null
 				}
@@ -139,7 +139,7 @@ fn unknown_relationships() {
         .build(&bag, &CibouletteIntention::Read)
         .expect_err("to build the document");
     assert_eq!(
-        matches!(err, CibouletteError::UnknownRelationship(x, y) if x == "peoples" && y == "people-article"),
+        matches!(err, CibouletteError::UnknownRelationship(x, y) if x == "favorite_color" && y == "comments"),
         true
     );
 }
