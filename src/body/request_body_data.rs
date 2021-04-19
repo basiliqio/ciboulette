@@ -5,18 +5,7 @@ pub type CibouletteBodyDataBuilder<'request> =
 pub type CibouletteBodyData<'request, I, B> =
     CibouletteOptionalData<CibouletteResourceSelector<'request, B, I>>;
 
-impl<'request> Default for CibouletteBodyDataBuilder<'request> {
-    fn default() -> Self {
-        CibouletteBodyDataBuilder::Null(false)
-    }
-}
 // CibouletteResourceSelector<'request, CibouletteResourceIdentifierPermissive<'request>>
-
-impl<'request, I, B> Default for CibouletteBodyData<'request, I, B> {
-    fn default() -> Self {
-        CibouletteBodyData::Null(false)
-    }
-}
 
 impl<'request> CibouletteBodyDataBuilder<'request> {
     pub fn build(

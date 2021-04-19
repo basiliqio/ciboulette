@@ -1,5 +1,4 @@
 use super::*;
-use std::borrow::Borrow;
 use std::cmp::{Ord, Ordering};
 
 #[derive(Deserialize, Serialize, Debug, Getters, MutGetters, Clone)]
@@ -17,8 +16,6 @@ pub struct CibouletteResourceResponseIdentifier<'request> {
     #[serde(rename = "type")]
     pub type_: ArcStr,
     pub id: CibouletteId<'request>,
-    #[serde(skip_serializing)]
-    pub rel: Option<ArcStr>,
 }
 
 impl<'request> Ord for CibouletteResourceResponseIdentifier<'request> {
@@ -68,7 +65,6 @@ impl<'request> CibouletteResourceResponseIdentifierBuilder<'request> {
                 None => return Err(CibouletteError::MissingId),
             },
             type_: type_.name().clone(),
-            rel: None,
         })
     }
 
@@ -76,17 +72,19 @@ impl<'request> CibouletteResourceResponseIdentifierBuilder<'request> {
         self,
         store: &CibouletteStore,
         main_type: &CibouletteResourceType,
-    ) -> Result<CibouletteResourceResponseIdentifier<'request>, CibouletteError> {
+    ) -> Result<(ArcStr, CibouletteResourceResponseIdentifier<'request>), CibouletteError> {
         let (rel_alias, rel) = main_type.get_relationship_with_alias(store, &self.type_)?;
         let id_type = rel.id_type();
-        Ok(CibouletteResourceResponseIdentifier {
-            id: match self.id {
-                Some(id) => id.build(id_type)?,
-                None => return Err(CibouletteError::MissingId),
+        Ok((
+            rel_alias,
+            CibouletteResourceResponseIdentifier {
+                id: match self.id {
+                    Some(id) => id.build(id_type)?,
+                    None => return Err(CibouletteError::MissingId),
+                },
+                type_: rel.name().clone(),
             },
-            type_: rel.name().clone(),
-            rel: Some(rel_alias),
-        })
+        ))
     }
 }
 

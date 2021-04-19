@@ -1,6 +1,7 @@
 use super::*;
 
 mod accumulator;
+pub mod body;
 pub mod element;
 pub mod element_identifier;
 pub mod request;

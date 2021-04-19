@@ -31,7 +31,7 @@ fn simple_create() {
             true,
         )],
     )
-    .build()
+    .build(&store)
     .unwrap();
     assert_eq!(response.status(), CibouletteResponseStatus::Created);
     assert_json_snapshot!(response);
@@ -60,7 +60,7 @@ fn simple_create_no_content() {
     let request = builder.build(&store).unwrap();
     let res = CibouletteCreateRequest::try_from(request).unwrap();
     let response = CibouletteOutboundRequestDataBuilder::<'_, '_, String, _>::new(&res, vec![])
-        .build()
+        .build(&store)
         .unwrap();
     assert_eq!(response.status(), CibouletteResponseStatus::OkEmpty);
     assert_json_snapshot!(response);

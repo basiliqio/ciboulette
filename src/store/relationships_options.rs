@@ -52,12 +52,6 @@ impl CibouletteRelationshipManyToManyOption {
 
 impl CibouletteRelationshipOneToManyOption {}
 
-impl<'request> Default for CibouletteOptionalData<CibouletteResourceIdentifierSelector<'request>> {
-    fn default() -> Self {
-        CibouletteOptionalData::Null(false)
-    }
-}
-
 impl<'request> CibouletteRelationshipObjectBuilder<'request> {
     pub fn build(
         self,
@@ -75,15 +69,6 @@ impl<'request> CibouletteRelationshipObjectBuilder<'request> {
         })
     }
 }
-
-impl<'request> Default
-    for CibouletteOptionalData<CibouletteResourceIdentifierSelectorBuilder<'request>>
-{
-    fn default() -> Self {
-        CibouletteOptionalData::Null(false)
-    }
-}
-
 #[derive(Debug, Clone)]
 pub enum CibouletteRelationshipOption {
     /// One to many relationship, without the intermediate node

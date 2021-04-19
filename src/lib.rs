@@ -61,6 +61,10 @@ pub use inbound_request::read::CibouletteReadRequest;
 pub use inbound_request::update::{
     CibouletteUpdateRelationship, CibouletteUpdateRequest, CibouletteUpdateRequestType,
 };
+pub use outbound_request::body::{
+    CibouletteResponseBody, CibouletteResponseBodyData, CibouletteResponseRelationshipObject,
+    CibouletteResponseResource, CibouletteResponseResourceSelector,
+};
 pub use outbound_request::element::CibouletteResponseElement;
 pub use outbound_request::element_identifier::{
     CibouletteResourceResponseIdentifier, CibouletteResourceResponseIdentifierBuilder,
@@ -68,7 +72,6 @@ pub use outbound_request::element_identifier::{
     CibouletteResourceResponseIdentifierSelectorBuilder,
 };
 pub use outbound_request::request_data_builder::CibouletteOutboundRequestDataBuilder;
-
 pub use query::{
     CiboulettePageType, CibouletteQueryParameters, CibouletteQueryParametersBuilder,
     CibouletteSortingDirection, CibouletteSortingElement,

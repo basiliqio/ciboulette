@@ -10,6 +10,12 @@ pub enum CibouletteOptionalData<T> {
     Null(bool),
 }
 
+impl<T> Default for CibouletteOptionalData<T> {
+    fn default() -> Self {
+        CibouletteOptionalData::Null(false)
+    }
+}
+
 fn serialize_null_for_optional_data<S>(_val: &bool, serializer: S) -> Result<S::Ok, S::Error>
 where
     S: serde::Serializer,

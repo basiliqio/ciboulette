@@ -24,9 +24,7 @@ fn gen_data_row<'request>(
         CibouletteResourceIdentifierBuilder::new(
             Some(CibouletteIdBuilder::Text(Cow::Borrowed(id))),
             Cow::Borrowed(type_),
-        )
-        .build_from_store(&store)
-        .unwrap(),
+        ),
         match join_data {
             true => Some(String::from("<some data>")),
             false => None,
@@ -49,21 +47,15 @@ fn gen_data_row_related<'request>(
         CibouletteResourceIdentifierBuilder::new(
             Some(CibouletteIdBuilder::Text(Cow::Borrowed(id))),
             Cow::Borrowed(type_),
-        )
-        .build_relationships(&store, store.get_type(related_type_).unwrap())
-        .unwrap(),
+        ),
         match join_data {
             true => Some(String::from("<some data>")),
             false => None,
         },
-        Some(
-            CibouletteResourceIdentifierBuilder::new(
-                Some(CibouletteIdBuilder::Text(Cow::Borrowed(related_id))),
-                Cow::Borrowed(related_type_),
-            )
-            .build_from_store(&store)
-            .unwrap(),
-        ),
+        Some(CibouletteResourceIdentifierBuilder::new(
+            Some(CibouletteIdBuilder::Text(Cow::Borrowed(related_id))),
+            Cow::Borrowed(related_type_),
+        )),
     )
     .unwrap()
 }

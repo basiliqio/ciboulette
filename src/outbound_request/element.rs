@@ -11,7 +11,20 @@ pub struct CibouletteResponseElement<'request, B> {
     /// The data of the contained value
     pub(crate) data: Option<B>,
     /// Some other identifier it relates to
-    pub(crate) related: Option<CibouletteResourceResponseIdentifier<'request>>,
+    pub(crate) related: Option<CibouletteResponseElementAlias<'request>>,
+}
+
+#[derive(Debug, Getters, Clone, Serialize)]
+#[getset(get = "pub")]
+pub struct CibouletteResponseElementAlias<'request> {
+    #[serde(skip_serializing)]
+    pub(crate) alias: ArcStr,
+    pub(crate) element: CibouletteResourceResponseIdentifier<'request>,
+}
+impl<'request> CibouletteResponseElementAlias<'request> {
+    pub fn new(alias: ArcStr, element: CibouletteResourceResponseIdentifier<'request>) -> Self {
+        CibouletteResponseElementAlias { alias, element }
+    }
 }
 
 impl<'request, B> CibouletteResponseElement<'request, B> {
@@ -26,9 +39,13 @@ impl<'request, B> CibouletteResponseElement<'request, B> {
                 let related =
                     CibouletteResourceResponseIdentifierBuilder::from(related).build(store)?;
                 let main_type = store.get_type(related.type_())?;
-                let identifier = CibouletteResourceResponseIdentifierBuilder::from(identifier)
-                    .build_relationships(store, main_type)?;
-                (identifier, Some(related))
+                let (rel_alias, identifier) =
+                    CibouletteResourceResponseIdentifierBuilder::from(identifier)
+                        .build_relationships(store, main_type)?;
+                (
+                    identifier,
+                    Some(CibouletteResponseElementAlias::new(rel_alias, related)),
+                )
             }
             None => {
                 let identifier =
@@ -37,12 +54,10 @@ impl<'request, B> CibouletteResponseElement<'request, B> {
             }
         };
         let type_ = match &related {
-            Some(related) => {
-                let related = store.get_type(related.type_().as_ref())?.clone();
-                related.get_relationship(store, identifier.type_().as_ref())?
-            }
-            None => store.get_type(identifier.type_().as_ref())?.clone(),
-        };
+            Some(related) => store.get_type(related.element().type_())?,
+            None => store.get_type(identifier.type_())?,
+        }
+        .clone();
         Ok(CibouletteResponseElement {
             type_,
             identifier,
@@ -86,13 +101,12 @@ pub(super) fn fold_elements_id<'request, B>(
     acc: &mut CibouletteOutboundRequestDataAccumulator<'request, B>,
     element: CibouletteResponseElement<'request, B>,
 ) {
-    let resource = CibouletteResource {
+    let resource = CibouletteResponseResource {
         type_: element.type_,
         identifier: element.identifier,
         attributes: None,
         relationships: BTreeMap::default(),
         links: Option::default(),
-        meta: None, //FIXME
     };
     acc.main_data_mut()
         .insert(resource.identifier().clone(), resource);
@@ -102,13 +116,12 @@ pub(super) fn fold_elements_obj<'request, B>(
     acc: &mut CibouletteOutboundRequestDataAccumulator<'request, B>,
     element: CibouletteResponseElement<'request, B>,
 ) {
-    let resource = CibouletteResource {
+    let resource = CibouletteResponseResource {
         type_: element.type_,
         identifier: element.identifier,
         attributes: element.data,
         relationships: BTreeMap::default(),
         links: Option::default(),
-        meta: None, //FIXME
     };
     acc.main_data_mut()
         .insert(resource.identifier().clone(), resource);

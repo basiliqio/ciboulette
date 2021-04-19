@@ -9,8 +9,6 @@ where
     inbound_request: &'request dyn CibouletteInboundRequestCommons<'request>,
     /// An iterator over its elements
     elements: I,
-
-    marker: std::marker::PhantomData<&'response str>,
 }
 
 impl<'request, 'response, B, I> CibouletteOutboundRequestDataBuilder<'request, 'response, B, I>
@@ -26,7 +24,6 @@ where
         CibouletteOutboundRequestDataBuilder {
             inbound_request,
             elements,
-            marker: std::marker::PhantomData::default(),
         }
     }
 
@@ -34,18 +31,14 @@ where
         store: &CibouletteStore,
         inbound_request: &'request dyn CibouletteInboundRequestCommons<'request>,
         elements: I,
-    ) -> Result<
-        CibouletteBody<'response, CibouletteResourceResponseIdentifier<'response>, B>,
-        CibouletteError,
-    > {
+    ) -> Result<CibouletteResponseBody<'response, B>, CibouletteError> {
         let acc_settings = CibouletteOutboundRequestDataAccumulatorSettings::from(inbound_request);
         let acc = element::fold_elements(elements, acc_settings, inbound_request)?;
         let extracted_data = acc.extract(store, inbound_request)?;
-        Ok(CibouletteBody {
+        Ok(CibouletteResponseBody {
             data: extracted_data.main_data,
             errors: None,
-            meta: inbound_request.meta().clone(), //FIXME,
-            links: None,                          //TODO,
+            links: None, //TODO,
             jsonapi: Some(CibouletteJsonApiVersion::new(Cow::Borrowed("1.0"))),
             included: extracted_data.included_data,
         })
@@ -56,7 +49,8 @@ where
         self,
         store: &CibouletteStore,
     ) -> Result<CibouletteOutboundRequest<'response, B>, CibouletteError> {
-        let body = Self::build_body(store, self.inbound_request, self.elements)?;
+        let body: CibouletteResponseBody<'response, B> =
+            Self::build_body(store, self.inbound_request, self.elements)?;
         Ok(CibouletteOutboundRequest {
             status: CibouletteResponseStatus::get_status_for_ok_response(
                 self.inbound_request,
