@@ -31,15 +31,16 @@ where
     }
 
     fn build_body(
+        store: &CibouletteStore,
         inbound_request: &'request dyn CibouletteInboundRequestCommons<'request>,
         elements: I,
     ) -> Result<
-        CibouletteBody<'response, CibouletteResourceIdentifier<'response>, B>,
+        CibouletteBody<'response, CibouletteResourceResponseIdentifier<'response>, B>,
         CibouletteError,
     > {
         let acc_settings = CibouletteOutboundRequestDataAccumulatorSettings::from(inbound_request);
         let acc = element::fold_elements(elements, acc_settings, inbound_request)?;
-        let extracted_data = acc.extract(inbound_request)?;
+        let extracted_data = acc.extract(store, inbound_request)?;
         Ok(CibouletteBody {
             data: extracted_data.main_data,
             errors: None,
@@ -51,8 +52,11 @@ where
     }
 
     /// Build the outbound request
-    pub fn build(self) -> Result<CibouletteOutboundRequest<'response, B>, CibouletteError> {
-        let body = Self::build_body(self.inbound_request, self.elements)?;
+    pub fn build(
+        self,
+        store: &CibouletteStore,
+    ) -> Result<CibouletteOutboundRequest<'response, B>, CibouletteError> {
+        let body = Self::build_body(store, self.inbound_request, self.elements)?;
         Ok(CibouletteOutboundRequest {
             status: CibouletteResponseStatus::get_status_for_ok_response(
                 self.inbound_request,

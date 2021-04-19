@@ -30,6 +30,34 @@ impl CibouletteResourceType {
         })
     }
 
+    pub fn get_relationship_with_alias(
+        &self,
+        store: &CibouletteStore,
+        alias: &str,
+    ) -> Result<(ArcStr, Arc<CibouletteResourceType>), CibouletteError> {
+        let (alias, edge_index) = self.relationships().get_key_value(alias).ok_or_else(|| {
+            CibouletteError::UnknownRelationship(self.name().to_string(), alias.to_string())
+        })?;
+        let self_index = *store
+            .map()
+            .get(self.name().as_str())
+            .ok_or_else(|| CibouletteError::UnknownType(self.name().to_string()))?;
+        let (t1, t2) = store.graph().edge_endpoints(*edge_index).ok_or_else(|| {
+            CibouletteError::RelNotInGraph(self.name().to_string(), alias.to_string())
+        })?;
+        Ok((
+            alias.clone(),
+            match t1 == self_index {
+                true => store.graph().node_weight(t2).cloned().ok_or_else(|| {
+                    CibouletteError::RelNotInGraph(self.name().to_string(), alias.to_string())
+                })?,
+                false => store.graph().node_weight(t1).cloned().ok_or_else(|| {
+                    CibouletteError::RelNotInGraph(self.name().to_string(), alias.to_string())
+                })?,
+            },
+        ))
+    }
+
     pub fn get_relationship(
         &self,
         store: &CibouletteStore,

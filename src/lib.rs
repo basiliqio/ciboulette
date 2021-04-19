@@ -62,6 +62,11 @@ pub use inbound_request::update::{
     CibouletteUpdateRelationship, CibouletteUpdateRequest, CibouletteUpdateRequestType,
 };
 pub use outbound_request::element::CibouletteResponseElement;
+pub use outbound_request::element_identifier::{
+    CibouletteResourceResponseIdentifier, CibouletteResourceResponseIdentifierBuilder,
+    CibouletteResourceResponseIdentifierSelector,
+    CibouletteResourceResponseIdentifierSelectorBuilder,
+};
 pub use outbound_request::request_data_builder::CibouletteOutboundRequestDataBuilder;
 
 pub use query::{

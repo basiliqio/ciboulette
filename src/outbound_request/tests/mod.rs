@@ -50,7 +50,7 @@ fn gen_data_row_related<'request>(
             Some(CibouletteIdBuilder::Text(Cow::Borrowed(id))),
             Cow::Borrowed(type_),
         )
-        .build_from_store(&store)
+        .build_relationships(&store, store.get_type(related_type_).unwrap())
         .unwrap(),
         match join_data {
             true => Some(String::from("<some data>")),

@@ -7,22 +7,42 @@ pub struct CibouletteResponseElement<'request, B> {
     /// The type of the contained value
     pub(crate) type_: Arc<CibouletteResourceType>,
     /// The identifier of the contained value
-    pub(crate) identifier: CibouletteResourceIdentifier<'request>,
+    pub(crate) identifier: CibouletteResourceResponseIdentifier<'request>,
     /// The data of the contained value
     pub(crate) data: Option<B>,
     /// Some other identifier it relates to
-    pub(crate) related: Option<CibouletteResourceIdentifier<'request>>,
+    pub(crate) related: Option<CibouletteResourceResponseIdentifier<'request>>,
 }
 
 impl<'request, B> CibouletteResponseElement<'request, B> {
     pub fn new(
         store: &CibouletteStore,
-        identifier: CibouletteResourceIdentifier<'request>,
+        identifier: CibouletteResourceIdentifierBuilder<'request>,
         data: Option<B>,
-        related: Option<CibouletteResourceIdentifier<'request>>,
+        related: Option<CibouletteResourceIdentifierBuilder<'request>>,
     ) -> Result<Self, CibouletteError> {
-        let type_: Arc<CibouletteResourceType> =
-            store.get_type(identifier.type_().as_ref())?.clone();
+        let (identifier, related) = match related {
+            Some(related) => {
+                let related =
+                    CibouletteResourceResponseIdentifierBuilder::from(related).build(store)?;
+                let main_type = store.get_type(related.type_())?;
+                let identifier = CibouletteResourceResponseIdentifierBuilder::from(identifier)
+                    .build_relationships(store, main_type)?;
+                (identifier, Some(related))
+            }
+            None => {
+                let identifier =
+                    CibouletteResourceResponseIdentifierBuilder::from(identifier).build(store)?;
+                (identifier, None)
+            }
+        };
+        let type_ = match &related {
+            Some(related) => {
+                let related = store.get_type(related.type_().as_ref())?.clone();
+                related.get_relationship(store, identifier.type_().as_ref())?
+            }
+            None => store.get_type(identifier.type_().as_ref())?.clone(),
+        };
         Ok(CibouletteResponseElement {
             type_,
             identifier,

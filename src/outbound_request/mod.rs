@@ -2,6 +2,7 @@ use super::*;
 
 mod accumulator;
 pub mod element;
+pub mod element_identifier;
 pub mod request;
 pub mod request_data_builder;
 pub mod status;

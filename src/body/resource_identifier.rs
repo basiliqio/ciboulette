@@ -69,6 +69,22 @@ impl<'request> CibouletteResourceIdentifierBuilder<'request> {
             type_: self.type_,
         })
     }
+
+    pub fn build_relationships(
+        self,
+        store: &CibouletteStore,
+        main_type: &CibouletteResourceType,
+    ) -> Result<CibouletteResourceIdentifier<'request>, CibouletteError> {
+        let rel = main_type.get_relationship(store, &self.type_)?;
+        let id_type = rel.id_type();
+        Ok(CibouletteResourceIdentifier {
+            id: match self.id {
+                Some(id) => id.build(id_type)?,
+                None => return Err(CibouletteError::MissingId),
+            },
+            type_: self.type_,
+        })
+    }
     pub fn build(
         self,
         type_: &CibouletteResourceType,

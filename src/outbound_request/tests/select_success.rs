@@ -354,7 +354,7 @@ fn with_include_related() {
             ),
             gen_data_row_related(
                 &store,
-                "peoples",
+                "author",
                 "c49094ce-71ab-40d4-a642-ea200f72eac6",
                 true,
                 "articles",
