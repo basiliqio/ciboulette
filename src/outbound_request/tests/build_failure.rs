@@ -29,7 +29,7 @@ fn too_many_main_data() {
             ),
         ],
     )
-    .build(&store)
+    .build()
     .unwrap_err();
     assert_eq!(
         matches!(err, CibouletteError::OutboundTooManyMainData(x) if x == "comments"),

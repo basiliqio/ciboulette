@@ -76,12 +76,11 @@ impl<'response, B> CibouletteOutboundRequestDataAccumulator<'response, B> {
     /// Extract the accumulated data
     pub fn extract<'request>(
         self,
-        store: &CibouletteStore,
         inbound_request: &dyn CibouletteInboundRequestCommons<'request>,
     ) -> Result<CibouletteOutboundRequestExtractedData<'response, B>, CibouletteError> {
         let mut main_data = self.main_data;
-        let included_data = Self::extract_included_data(store, &mut main_data, self.included_data)?;
-        let body_data = Self::extract_main_data(store, main_data, inbound_request);
+        let included_data = Self::extract_included_data(&mut main_data, self.included_data)?;
+        let body_data = Self::extract_main_data(main_data, inbound_request);
         Ok(CibouletteOutboundRequestExtractedData {
             main_data: body_data,
             included_data,
@@ -89,7 +88,6 @@ impl<'response, B> CibouletteOutboundRequestDataAccumulator<'response, B> {
     }
 
     fn extract_included_data(
-        store: &CibouletteStore,
         main_data: &mut BTreeMap<
             CibouletteResourceResponseIdentifier<'response>,
             CibouletteResponseResource<'response, B>,
@@ -100,15 +98,14 @@ impl<'response, B> CibouletteOutboundRequestDataAccumulator<'response, B> {
             0 => Ok(vec![]),
             1 => {
                 let el = included_data.into_iter().next().unwrap();
-                let resource = Self::insert_included_data_as_relationships(store, el, main_data)?;
+                let resource = Self::insert_included_data_as_relationships(el, main_data)?;
                 Ok(vec![resource])
             }
             _ => {
                 let mut res: Vec<CibouletteResponseResource<'response, B>> =
                     Vec::with_capacity(included_data.len());
                 for el in included_data.into_iter() {
-                    let resource =
-                        Self::insert_included_data_as_relationships(store, el, main_data)?;
+                    let resource = Self::insert_included_data_as_relationships(el, main_data)?;
                     res.push(resource)
                 }
                 Ok(res)
@@ -117,7 +114,6 @@ impl<'response, B> CibouletteOutboundRequestDataAccumulator<'response, B> {
     }
 
     fn extract_main_data(
-        store: &CibouletteStore,
         main_data: BTreeMap<
             CibouletteResourceResponseIdentifier<'response>,
             CibouletteResponseResource<'response, B>,
@@ -148,7 +144,6 @@ impl<'response, B> CibouletteOutboundRequestDataAccumulator<'response, B> {
         body_data
     }
     fn insert_included_data_as_relationships(
-        store: &CibouletteStore,
         el: CibouletteResponseElement<'response, B>,
         main_data: &mut BTreeMap<
             CibouletteResourceResponseIdentifier<'response>,

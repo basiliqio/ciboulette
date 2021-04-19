@@ -32,7 +32,7 @@ fn simple_update() {
             true,
         )],
     )
-    .build(&store)
+    .build()
     .unwrap();
     assert_eq!(response.status(), CibouletteResponseStatus::Ok);
     assert_json_snapshot!(response);
