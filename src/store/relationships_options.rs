@@ -72,9 +72,9 @@ impl<'request> CibouletteRelationshipObjectBuilder<'request> {
 #[derive(Debug, Clone)]
 pub enum CibouletteRelationshipOption {
     /// One to many relationship, without the intermediate node
-    OneToMany(CibouletteRelationshipOneToManyOption),
+    OneToMany(Arc<CibouletteRelationshipOneToManyOption>),
     /// One to many relationship, without the intermediate node
-    ManyToOne(CibouletteRelationshipOneToManyOption),
+    ManyToOne(Arc<CibouletteRelationshipOneToManyOption>),
     /// One to many relationship
-    ManyToMany(CibouletteRelationshipManyToManyOption),
+    ManyToMany(Arc<CibouletteRelationshipManyToManyOption>),
 }

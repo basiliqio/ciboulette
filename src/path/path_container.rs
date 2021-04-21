@@ -13,8 +13,17 @@ impl<'request> CiboulettePath<'request> {
         match self {
             CiboulettePath::Type(x) => x,
             CiboulettePath::TypeId(x, _) => x,
-            CiboulettePath::TypeIdRelated(_, _, y) => y,
-            CiboulettePath::TypeIdRelationship(_, _, y) => y,
+            CiboulettePath::TypeIdRelated(_, _, y) => y.related_type(),
+            CiboulettePath::TypeIdRelationship(_, _, y) => y.related_type(),
+        }
+    }
+
+    pub fn base_type(&self) -> &Arc<CibouletteResourceType> {
+        match self {
+            CiboulettePath::Type(x) => x,
+            CiboulettePath::TypeId(x, _) => x,
+            CiboulettePath::TypeIdRelated(x, _, _) => x,
+            CiboulettePath::TypeIdRelationship(x, _, _) => x,
         }
     }
 }
@@ -26,12 +35,12 @@ pub enum CiboulettePath<'request> {
     TypeIdRelated(
         Arc<CibouletteResourceType>,
         CibouletteId<'request>,
-        Arc<CibouletteResourceType>,
+        CibouletteResourceRelationshipDetails,
     ),
     TypeIdRelationship(
         Arc<CibouletteResourceType>,
         CibouletteId<'request>,
-        Arc<CibouletteResourceType>,
+        CibouletteResourceRelationshipDetails,
     ),
 }
 
@@ -83,28 +92,16 @@ impl<'request> CiboulettePathBuilder<'request> {
         store: &CibouletteStore,
         ftype: Cow<'request, str>,
         stype: Cow<'request, str>,
-    ) -> Result<(Arc<CibouletteResourceType>, Arc<CibouletteResourceType>), CibouletteError> {
-        let (nftype_i, nftype) = store
-            .get_type_with_index(ftype.as_ref())
-            .ok_or_else(|| CibouletteError::UnknownType(ftype.to_string()))?;
-        let nstype_edge = nftype.relationships().get(stype.as_ref()).ok_or_else(|| {
-            CibouletteError::UnknownRelationship(ftype.to_string(), stype.to_string())
-        })?;
-        let (nstype_1, nstype_2) = store
-            .graph()
-            .edge_endpoints(*nstype_edge)
-            .ok_or_else(|| CibouletteError::RelNotInGraph(ftype.to_string(), stype.to_string()))?;
-        let nstype = match nftype_i == nstype_1 {
-            true => store
-                .graph()
-                .node_weight(nstype_2)
-                .ok_or_else(|| CibouletteError::TypeNotInGraph(stype.to_string()))?,
-            false => store
-                .graph()
-                .node_weight(nstype_1)
-                .ok_or_else(|| CibouletteError::TypeNotInGraph(stype.to_string()))?,
-        };
-        Ok((nftype.clone(), nstype.clone()))
+    ) -> Result<
+        (
+            Arc<CibouletteResourceType>,
+            CibouletteResourceRelationshipDetails,
+        ),
+        CibouletteError,
+    > {
+        let nftype = store.get_type(ftype.as_ref())?;
+        let nstype_rel = nftype.get_relationship_details(store, stype.as_ref())?;
+        Ok((nftype.clone(), nstype_rel))
     }
 
     pub fn build(

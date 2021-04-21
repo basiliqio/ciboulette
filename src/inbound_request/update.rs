@@ -71,11 +71,11 @@ impl<'request> TryFrom<CibouletteInboundRequest<'request>> for CibouletteUpdateR
         let (resource_type, resource_id, related_type): (
             Arc<CibouletteResourceType>,
             &CibouletteId,
-            Option<Arc<CibouletteResourceType>>,
+            Option<&CibouletteResourceRelationshipDetails>,
         ) = match &path {
             CiboulettePath::TypeId(type_, id) => (type_.clone(), id, None),
             CiboulettePath::TypeIdRelationship(type_, id, rel_type) => {
-                (type_.clone(), id, Some(rel_type.clone()))
+                (type_.clone(), id, Some(rel_type))
             }
             _ => {
                 return Err(CibouletteError::WrongPathType(
@@ -100,10 +100,10 @@ impl<'request> TryFrom<CibouletteInboundRequest<'request>> for CibouletteUpdateR
             ..
         } = body.unwrap_or_default();
         let data = match data {
-            CibouletteBodyData::Object(selector) => match related_type.clone() {
-                Some(related_type) => {
+            CibouletteBodyData::Object(selector) => match related_type {
+                Some(related_details) => {
                     CibouletteUpdateRequestType::Relationship(CibouletteUpdateRelationship {
-                        type_: related_type,
+                        type_: related_details.related_type().clone(),
                         value: CibouletteOptionalData::Object(selector.try_into()?),
                     })
                 }
@@ -122,10 +122,10 @@ impl<'request> TryFrom<CibouletteInboundRequest<'request>> for CibouletteUpdateR
                     CibouletteResourceSelector::Many(_) => return Err(CibouletteError::NoCompound),
                 },
             },
-            CibouletteBodyData::Null(present) => match related_type.clone() {
-                Some(related_type) => {
+            CibouletteBodyData::Null(present) => match related_type {
+                Some(related_details) => {
                     CibouletteUpdateRequestType::Relationship(CibouletteUpdateRelationship {
-                        type_: related_type,
+                        type_: related_details.related_type().clone(),
                         value: CibouletteOptionalData::Null(present),
                     })
                 }
@@ -135,7 +135,7 @@ impl<'request> TryFrom<CibouletteInboundRequest<'request>> for CibouletteUpdateR
         Ok(CibouletteUpdateRequest {
             resource_type,
             resource_id: resource_id.clone(),
-            related_type,
+            related_type: related_type.map(|x| x.related_type()).cloned(),
             query,
             data,
             meta,

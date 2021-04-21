@@ -19,6 +19,7 @@ pub struct CibouletteResponseElement<'request, B> {
 pub struct CibouletteResponseElementAlias<'request> {
     #[serde(skip_serializing)]
     pub(crate) alias: ArcStr,
+    #[serde(flatten)]
     pub(crate) element: CibouletteResourceResponseIdentifier<'request>,
 }
 impl<'request> CibouletteResponseElementAlias<'request> {

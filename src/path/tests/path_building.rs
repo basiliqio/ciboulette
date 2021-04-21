@@ -59,7 +59,7 @@ fn type_id_related() {
     let res = builder.build(&store);
 
     assert_eq!(
-        matches!(res.unwrap(), CiboulettePath::TypeIdRelated(x, CibouletteId::Uuid(y), z) if x.as_ref() == store.get_type("articles").unwrap().as_ref() && y == Uuid::parse_str("6720877a-e27e-4e9e-9ac0-3fff4deb55f2").unwrap() && z.as_ref() == store.get_type("peoples").unwrap().as_ref()),
+        matches!(res.unwrap(), CiboulettePath::TypeIdRelated(x, CibouletteId::Uuid(y), z) if x.as_ref() == store.get_type("articles").unwrap().as_ref() && y == Uuid::parse_str("6720877a-e27e-4e9e-9ac0-3fff4deb55f2").unwrap() && z.related_type().as_ref() == store.get_type("peoples").unwrap().as_ref()),
         true
     );
 }
@@ -75,7 +75,7 @@ fn type_id_relationship() {
     let res = builder.build(&store);
 
     assert_eq!(
-        matches!(res.unwrap(), CiboulettePath::TypeIdRelationship(x, CibouletteId::Uuid(y), z) if x.as_ref() == store.get_type("articles").unwrap().as_ref() && y == Uuid::parse_str("6720877a-e27e-4e9e-9ac0-3fff4deb55f2").unwrap() && z.as_ref() == store.get_type("peoples").unwrap().as_ref()),
+        matches!(res.unwrap(), CiboulettePath::TypeIdRelationship(x, CibouletteId::Uuid(y), z) if x.as_ref() == store.get_type("articles").unwrap().as_ref() && y == Uuid::parse_str("6720877a-e27e-4e9e-9ac0-3fff4deb55f2").unwrap() && z.related_type().as_ref() == store.get_type("peoples").unwrap().as_ref()),
         true
     );
 }

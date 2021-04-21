@@ -49,7 +49,7 @@ impl CibouletteRelationshipManyToManyOptionBuilder {
             petgraph::Directed,
             u16,
         >,
-    ) -> Result<CibouletteRelationshipManyToManyOption, CibouletteError> {
+    ) -> Result<Arc<CibouletteRelationshipManyToManyOption>, CibouletteError> {
         let bucket_table = store_builder
             .get_type_index(self.bucket_resource().name())
             .ok_or_else(|| {
@@ -62,7 +62,7 @@ impl CibouletteRelationshipManyToManyOptionBuilder {
             .get_type_index(self.keys()[1].0.name())
             .ok_or_else(|| CibouletteError::TypeNotInGraph(self.keys()[1].0.name().to_string()))?;
 
-        Ok(CibouletteRelationshipManyToManyOption {
+        Ok(Arc::from(CibouletteRelationshipManyToManyOption {
             bucket_resource: graph
                 .node_weight(*bucket_table)
                 .ok_or_else(|| {
@@ -89,7 +89,7 @@ impl CibouletteRelationshipManyToManyOptionBuilder {
                     self.keys[1].1.clone(),
                 ),
             ],
-        })
+        }))
     }
 }
 
@@ -134,7 +134,7 @@ impl CibouletteRelationshipOneToManyOptionBuilder {
             petgraph::Directed,
             u16,
         >,
-    ) -> Result<CibouletteRelationshipOneToManyOption, CibouletteError> {
+    ) -> Result<Arc<CibouletteRelationshipOneToManyOption>, CibouletteError> {
         let one_table = store_builder
             .get_type_index(self.one_table().name())
             .ok_or_else(|| CibouletteError::TypeNotInGraph(self.one_table().name().to_string()))?;
@@ -142,7 +142,7 @@ impl CibouletteRelationshipOneToManyOptionBuilder {
             .get_type_index(self.many_table().name())
             .ok_or_else(|| CibouletteError::TypeNotInGraph(self.many_table().name().to_string()))?;
 
-        Ok(CibouletteRelationshipOneToManyOption {
+        Ok(Arc::from(CibouletteRelationshipOneToManyOption {
             one_table: graph
                 .node_weight(*one_table)
                 .ok_or_else(|| {
@@ -158,7 +158,7 @@ impl CibouletteRelationshipOneToManyOptionBuilder {
             many_table_key: ArcStr::from(self.many_table_key()),
             optional: self.optional,
             part_of_many_to_many: self.part_of_many_to_many,
-        })
+        }))
     }
 }
 

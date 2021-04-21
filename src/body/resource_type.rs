@@ -10,6 +10,13 @@ pub struct CibouletteResourceType {
     id_type: CibouletteIdType,
     name: ArcStr,
 }
+#[derive(Clone, Debug, Getters, MutGetters)]
+#[getset(get = "pub", get_mut = "pub")]
+pub struct CibouletteResourceRelationshipDetails {
+    relation_alias: ArcStr,
+    related_type: Arc<CibouletteResourceType>,
+    relation_option: CibouletteRelationshipOption,
+}
 
 impl CibouletteResourceType {
     /// Create a new type from a schema and a list of relationships
@@ -80,6 +87,44 @@ impl CibouletteResourceType {
             false => store.graph().node_weight(t1).cloned().ok_or_else(|| {
                 CibouletteError::RelNotInGraph(self.name().to_string(), alias.to_string())
             })?,
+        })
+    }
+
+    pub fn get_relationship_details(
+        &self,
+        store: &CibouletteStore,
+        alias: &str,
+    ) -> Result<CibouletteResourceRelationshipDetails, CibouletteError> {
+        let (edge_alias, edge_index) =
+            self.relationships().get_key_value(alias).ok_or_else(|| {
+                CibouletteError::UnknownRelationship(self.name().to_string(), alias.to_string())
+            })?;
+        let self_index = *store
+            .map()
+            .get(self.name().as_str())
+            .ok_or_else(|| CibouletteError::UnknownType(self.name().to_string()))?;
+        let rel_weight = store
+            .graph()
+            .edge_weight(*edge_index)
+            .ok_or_else(|| {
+                CibouletteError::RelNotInGraph(self.name().to_string(), alias.to_string())
+            })?
+            .clone();
+        let (t1, t2) = store.graph().edge_endpoints(*edge_index).ok_or_else(|| {
+            CibouletteError::RelNotInGraph(self.name().to_string(), alias.to_string())
+        })?;
+        let related_type = match t1 == self_index {
+            true => store.graph().node_weight(t2).cloned().ok_or_else(|| {
+                CibouletteError::RelNotInGraph(self.name().to_string(), alias.to_string())
+            })?,
+            false => store.graph().node_weight(t1).cloned().ok_or_else(|| {
+                CibouletteError::RelNotInGraph(self.name().to_string(), alias.to_string())
+            })?,
+        };
+        Ok(CibouletteResourceRelationshipDetails {
+            relation_alias: edge_alias.clone(),
+            related_type,
+            relation_option: rel_weight,
         })
     }
 

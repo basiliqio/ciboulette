@@ -66,7 +66,7 @@ impl<'request> TryFrom<CibouletteInboundRequest<'request>> for CibouletteDeleteR
         Ok(CibouletteDeleteRequest {
             resource_type,
             resource_id: resource_id.clone(),
-            related_type,
+            related_type: related_type.map(|x| x.related_type().clone()),
             path,
             query,
             meta,
