@@ -336,7 +336,7 @@ fn with_include_related() {
     let store = gen_bag();
     let url = Url::parse("http://localhost/").unwrap();
     let opt = url::Url::options().base_url(Some(&url));
-    const URL: &str = "/peoples/c49094ce-71ab-40d4-a642-ea200f72eac6/articles?include=peoples";
+    const URL: &str = "/peoples/c49094ce-71ab-40d4-a642-ea200f72eac6/articles?include=author";
     const INTENTION: CibouletteIntention = CibouletteIntention::Read;
 
     let parsed_url = opt.parse(URL).unwrap();

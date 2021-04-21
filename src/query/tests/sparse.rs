@@ -17,22 +17,6 @@ fn simple_type() {
 }
 
 #[test]
-fn simple_nested_type() {
-    let (bag, builder) = setup(r#"fields[articles.author]=first-name"#);
-
-    let res: CibouletteQueryParameters = builder
-        .build(&bag, bag.get_type("peoples").unwrap().clone())
-        .expect("to build correctly");
-    let sparse = res.sparse();
-    assert_eq!(sparse.len(), 1);
-    let sparse = sparse
-        .get(bag.get_type("peoples").unwrap().as_ref())
-        .unwrap();
-    assert_eq!(sparse.len(), 1);
-    assert_eq!(sparse[0], "first-name");
-}
-
-#[test]
 fn multiple_fields() {
     let (bag, builder) = setup(r#"fields[peoples]=first-name,last-name"#);
 
@@ -71,63 +55,12 @@ fn multiple_types() {
 }
 
 #[test]
-fn multiple_types_with_nesting() {
-    let (bag, builder) = setup(r#"fields[peoples]=first-name&fields[peoples.articles]=title"#);
-
-    let res: CibouletteQueryParameters = builder
-        .build(&bag, bag.get_type("peoples").unwrap().clone())
-        .expect("to build correctly");
-    let sparse = res.sparse();
-    assert_eq!(sparse.len(), 2);
-    let peoples = sparse
-        .get(bag.get_type("peoples").unwrap().as_ref())
-        .unwrap();
-    assert_eq!(peoples.len(), 1);
-    assert_eq!(peoples[0], "first-name");
-    let articles = sparse
-        .get(bag.get_type("articles").unwrap().as_ref())
-        .unwrap();
-    assert_eq!(articles.len(), 1);
-    assert_eq!(articles[0], "title");
-}
-
-#[test]
-fn deep_nesting() {
-    let (bag, builder) = setup(r#"fields[peoples.articles.author.comments]=body"#);
-
-    let res: CibouletteQueryParameters = builder
-        .build(&bag, bag.get_type("peoples").unwrap().clone())
-        .expect("to build correctly");
-    let sparse = res.sparse();
-    assert_eq!(sparse.len(), 1);
-    let comments = sparse
-        .get(bag.get_type("comments").unwrap().as_ref())
-        .unwrap();
-    assert_eq!(comments.len(), 1);
-    assert_eq!(comments[0], "body");
-}
-
-#[test]
 fn unknown_type() {
     let (bag, builder) = setup(r#"fields[AAAA]=first-name"#);
 
     let err: CibouletteError = builder
         .build(&bag, bag.get_type("peoples").unwrap().clone())
         .expect_err("not to build correctly");
-    assert_eq!(
-        matches!(err, CibouletteError::UnknownType(type_) if type_.as_str() == "AAAA"),
-        true
-    );
-}
-
-#[test]
-fn unknown_nested_type() {
-    let (bag, builder) = setup(r#"fields[peoples.AAAA]=first-name"#);
-
-    let err: CibouletteError = builder
-        .build(&bag, bag.get_type("peoples").unwrap().clone())
-        .expect_err("not to build correctly");
-    println!("{:#?}", err);
     assert_eq!(
         matches!(err, CibouletteError::UnknownType(type_) if type_.as_str() == "AAAA"),
         true
@@ -155,7 +88,7 @@ fn empty_type() {
         .build(&bag, bag.get_type("peoples").unwrap().clone())
         .expect_err("not to build correctly");
     assert_eq!(
-        matches!(err, CibouletteError::UnknownType(type_) if type_.as_str() == "<empty>"),
+        matches!(err, CibouletteError::UnknownType(type_) if type_.is_empty()),
         true
     );
 }

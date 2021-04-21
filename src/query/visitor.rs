@@ -44,8 +44,8 @@ impl CibouletteQueryParametersBuilderVisitor {
     #[inline]
     fn build_sparse<'de, A>(
         mut map: &mut A,
-        type_: Vec<Cow<'de, str>>,
-        res: &mut BTreeMap<Vec<Cow<'de, str>>, Vec<Cow<'de, str>>>,
+        type_: Cow<'de, str>,
+        res: &mut BTreeMap<Cow<'de, str>, Vec<Cow<'de, str>>>,
     ) -> Result<(), A::Error>
     where
         A: serde::de::MapAccess<'de>,
@@ -154,7 +154,7 @@ impl<'de> serde::de::Visitor<'de> for CibouletteQueryParametersBuilderVisitor {
     where
         A: serde::de::MapAccess<'de>,
     {
-        let mut sparse: BTreeMap<Vec<Cow<'de, str>>, Vec<Cow<'de, str>>> = BTreeMap::new();
+        let mut sparse: BTreeMap<Cow<'de, str>, Vec<Cow<'de, str>>> = BTreeMap::new();
         let mut sorting: Vec<(CibouletteSortingDirection, Cow<'de, str>)> = Vec::new();
         let mut page: BTreeMap<CiboulettePageType<'de>, Cow<'de, str>> = BTreeMap::new();
         let mut filter_typed: BTreeMap<Cow<'de, str>, Cow<'de, str>> = BTreeMap::new();

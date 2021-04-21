@@ -10,12 +10,7 @@ fn single() {
     assert_eq!(!res.include().is_empty(), true);
     let include = res.include();
     assert_eq!(include.len(), 1);
-    assert_eq!(
-        include
-            .get(bag.get_type("comments").unwrap().as_ref())
-            .is_some(),
-        true
-    );
+    assert_eq!(include[0][0].related_type().name(), "comments");
 }
 
 #[test]
@@ -28,18 +23,8 @@ fn multiple() {
     assert_eq!(!res.include().is_empty(), true);
     let include = res.include();
     assert_eq!(include.len(), 2);
-    assert_eq!(
-        include
-            .get(bag.get_type("comments").unwrap().as_ref())
-            .is_some(),
-        true
-    );
-    assert_eq!(
-        include
-            .get(bag.get_type("articles").unwrap().as_ref())
-            .is_some(),
-        true
-    );
+    assert_eq!(include[0][0].related_type().name(), "comments");
+    assert_eq!(include[1][0].related_type().name(), "articles");
 }
 
 #[test]
@@ -52,12 +37,7 @@ fn single_with_nesting() {
     assert_eq!(!res.include().is_empty(), true);
     let include = res.include();
     assert_eq!(include.len(), 1);
-    assert_eq!(
-        include
-            .get(bag.get_type("comments").unwrap().as_ref())
-            .is_some(),
-        true
-    );
+    assert_eq!(include[0][0].related_type().name(), "comments");
 }
 
 #[test]
@@ -70,18 +50,8 @@ fn multiple_with_nesting() {
     assert_eq!(!res.include().is_empty(), true);
     let include = res.include();
     assert_eq!(include.len(), 2);
-    assert_eq!(
-        include
-            .get(bag.get_type("comments").unwrap().as_ref())
-            .is_some(),
-        true
-    );
-    assert_eq!(
-        include
-            .get(bag.get_type("articles").unwrap().as_ref())
-            .is_some(),
-        true
-    );
+    assert_eq!(include[0][0].related_type().name(), "comments");
+    assert_eq!(include[1][0].related_type().name(), "articles");
 }
 
 #[test]
@@ -92,7 +62,7 @@ fn unknown_type() {
         .build(&bag, bag.get_type("peoples").unwrap().clone())
         .expect_err("not to build correctly");
     assert_eq!(
-        matches!(err, CibouletteError::UnknownType(type_) if type_ == "aaaaa"),
+        matches!(err, CibouletteError::UnknownRelationship(type_, rel_name) if type_ == "peoples" && rel_name == "aaaaa"),
         true,
         "wrong error type"
     );
@@ -106,7 +76,7 @@ fn empty() {
         .build(&bag, bag.get_type("peoples").unwrap().clone())
         .expect_err("not to build correctly");
     assert_eq!(
-        matches!(err, CibouletteError::UnknownType(type_) if type_.is_empty()),
+        matches!(err, CibouletteError::UnknownRelationship(type_, rel_name) if type_ == "peoples" && rel_name.is_empty()),
         true,
         "wrong error type"
     );
@@ -120,7 +90,7 @@ fn unknown_second_relationships() {
         .build(&bag, bag.get_type("peoples").unwrap().clone())
         .expect_err("not to build correctly");
     assert_eq!(
-        matches!(err, CibouletteError::UnknownRelationship(type_, type2) if type_ == "peoples" && type2 == "aaaa"),
+        matches!(err, CibouletteError::UnknownRelationship(type_, rel_name) if type_ == "peoples" && rel_name == "aaaa"),
         true,
         "wrong error type"
     );
@@ -134,7 +104,7 @@ fn unknown_first_relationships() {
         .build(&bag, bag.get_type("peoples").unwrap().clone())
         .expect_err("not to build correctly");
     assert_eq!(
-        matches!(err, CibouletteError::UnknownType(type_) if type_ == "aaaa"),
+        matches!(err, CibouletteError::UnknownRelationship(type_, rel_name) if type_ == "peoples" && rel_name == "aaaa"),
         true,
         "wrong error type"
     );
@@ -150,10 +120,6 @@ fn alias_type_with_nested_type() {
 
     let include = res.include();
     assert_eq!(include.len(), 1);
-    assert_eq!(
-        include
-            .get(bag.get_type("peoples").unwrap().as_ref())
-            .is_some(),
-        true
-    );
+    assert_eq!(include[0][0].related_type().name(), "comments");
+    assert_eq!(include[0][1].related_type().name(), "peoples");
 }

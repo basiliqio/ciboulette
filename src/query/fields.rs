@@ -9,7 +9,7 @@ pub enum CibouletteQueryParametersField<'request> {
     /// `include` parameter
     Include,
     /// `field[*]` parameter, filling the vector with types separated by '.'
-    Sparse(Vec<Cow<'request, str>>),
+    Sparse(Cow<'request, str>),
     /// The `sort` parameter
     Sorting,
     /// The page[<type>] parameter, parsing the inner type
@@ -78,14 +78,17 @@ impl CibouletteQueryParametersFieldVisitor {
                             )),
                         }
                     }
-                    "fields" => CibouletteQueryParametersField::Sparse(
-                        typed_param::parse_typed_query_params(&value[type_end_index..]) // Extract parameters
-                            .unwrap_or_default(),
-                    ),
+                    "fields" => {
+                        let type_ = typed_param::parse_typed_query_param(&value[type_end_index..])
+                            .unwrap_or_default();
+                        CibouletteQueryParametersField::Sparse(Cow::Owned(type_.into_owned()))
+                        // FIXME
+                    }
                     "filter" => {
                         let type_ = typed_param::parse_typed_query_param(&value[type_end_index..])
                             .unwrap_or_default();
                         CibouletteQueryParametersField::FilterTyped(Cow::Owned(type_.into_owned()))
+                        // FIXME
                     }
                     _ => CibouletteQueryParametersField::Meta(value),
                 }
