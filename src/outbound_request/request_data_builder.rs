@@ -39,7 +39,11 @@ where
             errors: None,
             links: None, //TODO,
             jsonapi: Some(CibouletteJsonApiVersion::new(Cow::Borrowed("1.0"))),
-            included: extracted_data.included_data,
+            included: extracted_data
+                .included_data
+                .into_iter()
+                .map(|(_, v)| v)
+                .collect(),
         })
     }
 

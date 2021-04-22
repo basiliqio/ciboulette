@@ -23,6 +23,11 @@ impl<'request> CibouletteInboundRequestCommons<'request> for CibouletteReadReque
     fn query(&self) -> &CibouletteQueryParameters<'request> {
         &self.query
     }
+
+    fn expected_type(&self) -> &Arc<CibouletteResourceType> {
+        self.path().main_type()
+    }
+
     fn intention(&self) -> CibouletteIntention {
         CibouletteIntention::Read
     }

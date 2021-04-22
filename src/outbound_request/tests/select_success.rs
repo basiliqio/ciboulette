@@ -12,10 +12,12 @@ fn simple_read_multi() {
     let builder = CibouletteInboundRequestBuilder::new(INTENTION, &parsed_url, &None);
     let request = builder.build(&store).unwrap();
     let res = CibouletteReadRequest::try_from(request).unwrap();
+    let base_type = store.get_type("comments").unwrap();
     let response = CibouletteOutboundRequestDataBuilder::new(
         &res,
         vec![gen_data_row(
             &store,
+            &base_type,
             "comments",
             "073b5936-0acb-4601-b4b7-9de607dfc2ef",
             true,
@@ -39,10 +41,12 @@ fn simple_read_single() {
     let builder = CibouletteInboundRequestBuilder::new(INTENTION, &parsed_url, &None);
     let request = builder.build(&store).unwrap();
     let res = CibouletteReadRequest::try_from(request).unwrap();
+    let base_type = store.get_type("comments").unwrap();
     let response = CibouletteOutboundRequestDataBuilder::new(
         &res,
         vec![gen_data_row(
             &store,
+            &base_type,
             "comments",
             "073b5936-0acb-4601-b4b7-9de607dfc2ef",
             true,
@@ -66,23 +70,27 @@ fn simple_read_related() {
     let builder = CibouletteInboundRequestBuilder::new(INTENTION, &parsed_url, &None);
     let request = builder.build(&store).unwrap();
     let res = CibouletteReadRequest::try_from(request).unwrap();
+    let base_type = store.get_type("peoples").unwrap();
     let response = CibouletteOutboundRequestDataBuilder::new(
         &res,
         vec![
             gen_data_row(
                 &store,
+                &base_type,
                 "articles",
                 "073b5936-0acb-4601-b4b7-9de607dfc2ef",
                 true,
             ),
             gen_data_row(
                 &store,
+                &base_type,
                 "articles",
                 "c49094ce-71ab-40d4-a642-ea200f72eac6",
                 true,
             ),
             gen_data_row(
                 &store,
+                &base_type,
                 "articles",
                 "90e676f5-9598-44e7-9e5b-f0c7b1a188d1",
                 true,
@@ -107,23 +115,27 @@ fn simple_read_relationships() {
     let builder = CibouletteInboundRequestBuilder::new(INTENTION, &parsed_url, &None);
     let request = builder.build(&store).unwrap();
     let res = CibouletteReadRequest::try_from(request).unwrap();
+    let base_type = store.get_type("peoples").unwrap();
     let response = CibouletteOutboundRequestDataBuilder::new(
         &res,
         vec![
             gen_data_row(
                 &store,
+                &base_type,
                 "articles",
                 "073b5936-0acb-4601-b4b7-9de607dfc2ef",
                 false,
             ),
             gen_data_row(
                 &store,
+                &base_type,
                 "articles",
                 "c49094ce-71ab-40d4-a642-ea200f72eac6",
                 false,
             ),
             gen_data_row(
                 &store,
+                &base_type,
                 "articles",
                 "90e676f5-9598-44e7-9e5b-f0c7b1a188d1",
                 false,
@@ -148,17 +160,20 @@ fn with_included() {
     let builder = CibouletteInboundRequestBuilder::new(INTENTION, &parsed_url, &None);
     let request = builder.build(&store).unwrap();
     let res = CibouletteReadRequest::try_from(request).unwrap();
+    let base_type = store.get_type("peoples").unwrap();
     let response = CibouletteOutboundRequestDataBuilder::new(
         &res,
         vec![
             gen_data_row(
                 &store,
+                &base_type,
                 "peoples",
                 "073b5936-0acb-4601-b4b7-9de607dfc2ef",
                 true,
             ),
             gen_data_row_related(
                 &store,
+                &base_type,
                 "articles",
                 "c49094ce-71ab-40d4-a642-ea200f72eac6",
                 true,
@@ -167,6 +182,7 @@ fn with_included() {
             ),
             gen_data_row_related(
                 &store,
+                &base_type,
                 "articles",
                 "90e676f5-9598-44e7-9e5b-f0c7b1a188d1",
                 true,
@@ -193,23 +209,27 @@ fn with_multi_included() {
     let builder = CibouletteInboundRequestBuilder::new(INTENTION, &parsed_url, &None);
     let request = builder.build(&store).unwrap();
     let res = CibouletteReadRequest::try_from(request).unwrap();
+    let base_type = store.get_type("peoples").unwrap();
     let response = CibouletteOutboundRequestDataBuilder::new(
         &res,
         vec![
             gen_data_row(
                 &store,
+                &base_type,
                 "peoples",
                 "073b5936-0acb-4601-b4b7-9de607dfc2ef",
                 true,
             ),
             gen_data_row(
                 &store,
+                &base_type,
                 "peoples",
                 "01b8fb1f-989b-4ec0-86a0-72786017682b",
                 true,
             ),
             gen_data_row_related(
                 &store,
+                &base_type,
                 "articles",
                 "c49094ce-71ab-40d4-a642-ea200f72eac6",
                 true,
@@ -218,6 +238,7 @@ fn with_multi_included() {
             ),
             gen_data_row_related(
                 &store,
+                &base_type,
                 "articles",
                 "90e676f5-9598-44e7-9e5b-f0c7b1a188d1",
                 true,
@@ -244,17 +265,20 @@ fn with_multi_included_empty() {
     let builder = CibouletteInboundRequestBuilder::new(INTENTION, &parsed_url, &None);
     let request = builder.build(&store).unwrap();
     let res = CibouletteReadRequest::try_from(request).unwrap();
+    let base_type = store.get_type("peoples").unwrap();
     let response = CibouletteOutboundRequestDataBuilder::new(
         &res,
         vec![
             gen_data_row(
                 &store,
+                &base_type,
                 "peoples",
                 "073b5936-0acb-4601-b4b7-9de607dfc2ef",
                 true,
             ),
             gen_data_row(
                 &store,
+                &base_type,
                 "peoples",
                 "01b8fb1f-989b-4ec0-86a0-72786017682b",
                 true,
@@ -279,17 +303,20 @@ fn with_include_single() {
     let builder = CibouletteInboundRequestBuilder::new(INTENTION, &parsed_url, &None);
     let request = builder.build(&store).unwrap();
     let res = CibouletteReadRequest::try_from(request).unwrap();
+    let base_type = store.get_type("peoples").unwrap();
     let response = CibouletteOutboundRequestDataBuilder::new(
         &res,
         vec![
             gen_data_row(
                 &store,
+                &base_type,
                 "peoples",
                 "073b5936-0acb-4601-b4b7-9de607dfc2ef",
                 true,
             ),
             gen_data_row_related(
                 &store,
+                &base_type,
                 "articles",
                 "c49094ce-71ab-40d4-a642-ea200f72eac6",
                 true,
@@ -316,10 +343,12 @@ fn with_include_single_empty() {
     let builder = CibouletteInboundRequestBuilder::new(INTENTION, &parsed_url, &None);
     let request = builder.build(&store).unwrap();
     let res = CibouletteReadRequest::try_from(request).unwrap();
+    let base_type = store.get_type("peoples").unwrap();
     let response = CibouletteOutboundRequestDataBuilder::new(
         &res,
         vec![gen_data_row(
             &store,
+            &base_type,
             "peoples",
             "073b5936-0acb-4601-b4b7-9de607dfc2ef",
             true,
@@ -343,22 +372,133 @@ fn with_include_related() {
     let builder = CibouletteInboundRequestBuilder::new(INTENTION, &parsed_url, &None);
     let request = builder.build(&store).unwrap();
     let res = CibouletteReadRequest::try_from(request).unwrap();
+    let base_type = store.get_type("articles").unwrap();
     let response = CibouletteOutboundRequestDataBuilder::new(
         &res,
         vec![
             gen_data_row(
                 &store,
+                &base_type,
                 "articles",
                 "073b5936-0acb-4601-b4b7-9de607dfc2ef",
                 true,
             ),
             gen_data_row_related(
                 &store,
+                &base_type,
                 "author",
                 "c49094ce-71ab-40d4-a642-ea200f72eac6",
                 true,
                 "articles",
                 "073b5936-0acb-4601-b4b7-9de607dfc2ef",
+            ),
+        ],
+    )
+    .build()
+    .unwrap();
+    assert_json_snapshot!(response);
+    assert_eq!(response.status(), CibouletteResponseStatus::Ok);
+}
+
+#[test]
+fn with_include_nested() {
+    let store = gen_bag();
+    let url = Url::parse("http://localhost/").unwrap();
+    let opt = url::Url::options().base_url(Some(&url));
+    const URL: &str = "/peoples/c49094ce-71ab-40d4-a642-ea200f72eac6?include=articles.comments";
+    const INTENTION: CibouletteIntention = CibouletteIntention::Read;
+
+    let parsed_url = opt.parse(URL).unwrap();
+    let builder = CibouletteInboundRequestBuilder::new(INTENTION, &parsed_url, &None);
+    let request = builder.build(&store).unwrap();
+    let res = CibouletteReadRequest::try_from(request).unwrap();
+    let base_type = store.get_type("peoples").unwrap();
+    let response = CibouletteOutboundRequestDataBuilder::new(
+        &res,
+        vec![
+            gen_data_row(
+                &store,
+                &base_type,
+                "peoples",
+                "073b5936-0acb-4601-b4b7-9de607dfc2ef",
+                true,
+            ),
+            gen_data_row_related(
+                &store,
+                &base_type,
+                "articles",
+                "c49094ce-71ab-40d4-a642-ea200f72eac6",
+                true,
+                "peoples",
+                "073b5936-0acb-4601-b4b7-9de607dfc2ef",
+            ),
+            gen_data_row_related(
+                &store,
+                &base_type,
+                "articles.comments",
+                "f2dde16b-d26d-4b34-944f-7430c81e2d8e",
+                true,
+                "articles",
+                "c49094ce-71ab-40d4-a642-ea200f72eac6",
+            ),
+        ],
+    )
+    .build()
+    .unwrap();
+    assert_json_snapshot!(response);
+    assert_eq!(response.status(), CibouletteResponseStatus::Ok);
+}
+
+#[test]
+fn with_include_nested_self() {
+    let store = gen_bag();
+    let url = Url::parse("http://localhost/").unwrap();
+    let opt = url::Url::options().base_url(Some(&url));
+    const URL: &str =
+        "/peoples/c49094ce-71ab-40d4-a642-ea200f72eac6?include=articles.comments.author";
+    const INTENTION: CibouletteIntention = CibouletteIntention::Read;
+
+    let parsed_url = opt.parse(URL).unwrap();
+    let builder = CibouletteInboundRequestBuilder::new(INTENTION, &parsed_url, &None);
+    let request = builder.build(&store).unwrap();
+    let res = CibouletteReadRequest::try_from(request).unwrap();
+    let base_type = store.get_type("peoples").unwrap();
+    let response = CibouletteOutboundRequestDataBuilder::new(
+        &res,
+        vec![
+            gen_data_row(
+                &store,
+                &base_type,
+                "peoples",
+                "073b5936-0acb-4601-b4b7-9de607dfc2ef",
+                true,
+            ),
+            gen_data_row_related(
+                &store,
+                &base_type,
+                "articles",
+                "c49094ce-71ab-40d4-a642-ea200f72eac6",
+                true,
+                "peoples",
+                "073b5936-0acb-4601-b4b7-9de607dfc2ef",
+            ),
+            gen_data_row_related(
+                &store,
+                &base_type,
+                "articles.comments",
+                "f2dde16b-d26d-4b34-944f-7430c81e2d8e",
+                true,
+                "articles",
+                "c49094ce-71ab-40d4-a642-ea200f72eac6",
+            ),
+            gen_data_row_related(
+                &store,
+                &base_type,
+                "articles.comments.author",
+                "073b5936-0acb-4601-b4b7-9de607dfc2ef",
+                true,
+                "comments",
+                "f2dde16b-d26d-4b34-944f-7430c81e2d8e",
             ),
         ],
     )

@@ -18,34 +18,34 @@ pub struct CibouletteResponseElement<'request, B> {
 #[getset(get = "pub")]
 pub struct CibouletteResponseElementAlias<'request> {
     #[serde(skip_serializing)]
-    pub(crate) alias: ArcStr,
+    pub(crate) rel_chain: Vec<CibouletteResourceRelationshipDetails>,
     #[serde(flatten)]
     pub(crate) element: CibouletteResourceResponseIdentifier<'request>,
 }
 impl<'request> CibouletteResponseElementAlias<'request> {
-    pub fn new(alias: ArcStr, element: CibouletteResourceResponseIdentifier<'request>) -> Self {
-        CibouletteResponseElementAlias { alias, element }
+    pub fn new(
+        rel_chain: Vec<CibouletteResourceRelationshipDetails>,
+        element: CibouletteResourceResponseIdentifier<'request>,
+    ) -> Self {
+        CibouletteResponseElementAlias { rel_chain, element }
     }
 }
 
 impl<'request, B> CibouletteResponseElement<'request, B> {
     pub fn new(
         store: &CibouletteStore,
+        main_type: &Arc<CibouletteResourceType>,
         identifier: CibouletteResourceIdentifierBuilder<'request>,
         data: Option<B>,
         related: Option<CibouletteResourceIdentifierBuilder<'request>>,
     ) -> Result<Self, CibouletteError> {
         let (identifier, related) = match related {
             Some(related) => {
-                let related =
-                    CibouletteResourceResponseIdentifierBuilder::from(related).build(store)?;
-                let main_type = store.get_type(related.type_())?;
-                let (rel_alias, identifier) =
-                    CibouletteResourceResponseIdentifierBuilder::from(identifier)
-                        .build_relationships(store, main_type)?;
+                let related_chain = CibouletteResourceResponseIdentifierBuilder::from(identifier)
+                    .build_relationships(store, main_type.clone())?;
                 (
-                    identifier,
-                    Some(CibouletteResponseElementAlias::new(rel_alias, related)),
+                    CibouletteResourceResponseIdentifierBuilder::from(related).build(store)?,
+                    Some(related_chain),
                 )
             }
             None => {
@@ -80,7 +80,10 @@ where
 {
     let acc = CibouletteOutboundRequestDataAccumulator::from(acc_settings);
     elements.into_iter().try_fold(acc, |mut acc, x| {
-        match x.identifier().type_() == inbound_request.path().main_type().name().as_str() {
+        println!("AAAA {}", x.identifier().type_());
+        match x.related().is_none()
+            && x.identifier().type_() == inbound_request.path().main_type().name().as_str()
+        {
             true => match acc.only_ids() {
                 true => fold_elements_id(&mut acc, x),
                 false => fold_elements_obj(&mut acc, x),

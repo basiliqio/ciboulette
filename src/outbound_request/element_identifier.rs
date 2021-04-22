@@ -1,4 +1,5 @@
 use super::*;
+use element::CibouletteResponseElementAlias;
 use std::cmp::{Ord, Ordering};
 
 #[derive(Deserialize, Serialize, Debug, Getters, MutGetters, Clone)]
@@ -68,21 +69,40 @@ impl<'request> CibouletteResourceResponseIdentifierBuilder<'request> {
         })
     }
 
+    fn build_rel_chain(
+        store: &CibouletteStore,
+        base_type: Arc<CibouletteResourceType>,
+        rel_chain: Cow<'request, str>,
+    ) -> Result<(Vec<CibouletteResourceRelationshipDetails>, CibouletteIdType), CibouletteError>
+    {
+        let mut wtype: Arc<CibouletteResourceType> = base_type.clone();
+        let mut res: Vec<CibouletteResourceRelationshipDetails> = Vec::new();
+        let mut last_id_type = *base_type.id_type();
+        for rel_name in rel_chain.split('.') {
+            let rel_details = wtype.get_relationship_details(store, rel_name)?;
+
+            wtype = rel_details.related_type().clone();
+            last_id_type = *wtype.id_type();
+            res.push(rel_details);
+        }
+        Ok((res, last_id_type))
+    }
+
     pub fn build_relationships(
         self,
         store: &CibouletteStore,
-        main_type: &CibouletteResourceType,
-    ) -> Result<(ArcStr, CibouletteResourceResponseIdentifier<'request>), CibouletteError> {
-        let (rel_alias, rel) = main_type.get_relationship_with_alias(store, &self.type_)?;
-        let id_type = rel.id_type();
-        Ok((
-            rel_alias,
+        base_type: Arc<CibouletteResourceType>,
+    ) -> Result<CibouletteResponseElementAlias<'request>, CibouletteError> {
+        let (rel_chain, id_type) = Self::build_rel_chain(store, base_type.clone(), self.type_)?;
+        let last_type = rel_chain
+            .last()
+            .map(|x| x.related_type().clone())
+            .unwrap_or_else(|| base_type.clone());
+        Ok(CibouletteResponseElementAlias::new(
+            rel_chain,
             CibouletteResourceResponseIdentifier {
-                id: match self.id {
-                    Some(id) => id.build(id_type)?,
-                    None => return Err(CibouletteError::MissingId),
-                },
-                type_: rel.name().clone(),
+                type_: last_type.name().clone(),
+                id: self.id.ok_or(CibouletteError::MissingId)?.build(&id_type)?,
             },
         ))
     }

@@ -22,6 +22,11 @@ impl<'request> CibouletteInboundRequestCommons<'request> for CibouletteDeleteReq
     fn intention(&self) -> CibouletteIntention {
         CibouletteIntention::Delete
     }
+
+    fn expected_type(&self) -> &Arc<CibouletteResourceType> {
+        self.path().main_type()
+    }
+
     fn expected_response_type(&self) -> &CibouletteResponseRequiredType {
         &self.expected_response_type
     }

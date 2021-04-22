@@ -29,6 +29,7 @@ pub trait CibouletteInboundRequestCommons<'request>: Send + Sync {
     fn query(&self) -> &CibouletteQueryParameters<'request>;
     fn intention(&self) -> CibouletteIntention;
     fn expected_response_type(&self) -> &CibouletteResponseRequiredType;
+    fn expected_type(&self) -> &Arc<CibouletteResourceType>;
 
     fn meta(&self) -> &Option<serde_json::Value>;
 }

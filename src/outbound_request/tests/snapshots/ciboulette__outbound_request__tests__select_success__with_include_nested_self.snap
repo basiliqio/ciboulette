@@ -1,0 +1,51 @@
+---
+source: src/outbound_request/tests/select_success.rs
+expression: response
+
+---
+{
+  "jsonapi": {
+    "version": "1.0"
+  },
+  "data": {
+    "type": "peoples",
+    "id": "073b5936-0acb-4601-b4b7-9de607dfc2ef",
+    "attributes": "<some data>",
+    "relationships": {
+      "articles": {
+        "data": {
+          "type": "articles",
+          "id": "c49094ce-71ab-40d4-a642-ea200f72eac6"
+        }
+      }
+    }
+  },
+  "included": [
+    {
+      "type": "articles",
+      "id": "c49094ce-71ab-40d4-a642-ea200f72eac6",
+      "attributes": "<some data>",
+      "relationships": {
+        "comments": {
+          "data": {
+            "type": "comments",
+            "id": "f2dde16b-d26d-4b34-944f-7430c81e2d8e"
+          }
+        }
+      }
+    },
+    {
+      "type": "comments",
+      "id": "f2dde16b-d26d-4b34-944f-7430c81e2d8e",
+      "attributes": "<some data>",
+      "relationships": {
+        "author": {
+          "data": {
+            "type": "peoples",
+            "id": "073b5936-0acb-4601-b4b7-9de607dfc2ef"
+          }
+        }
+      }
+    }
+  ]
+}

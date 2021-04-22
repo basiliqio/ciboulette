@@ -44,6 +44,11 @@ impl<'request> CibouletteInboundRequestCommons<'request> for CibouletteUpdateReq
     fn intention(&self) -> CibouletteIntention {
         CibouletteIntention::Update
     }
+
+    fn expected_type(&self) -> &Arc<CibouletteResourceType> {
+        self.path().main_type()
+    }
+
     fn expected_response_type(&self) -> &CibouletteResponseRequiredType {
         &self.expected_response_type
     }

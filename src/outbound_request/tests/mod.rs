@@ -1,6 +1,7 @@
 use serde_json::json;
 use std::borrow::Cow;
 use std::convert::TryFrom;
+use std::sync::Arc;
 use url::Url;
 
 use ciboulette_test_helper::ciboulette::*;
@@ -15,12 +16,14 @@ mod update_success;
 
 fn gen_data_row<'request>(
     store: &CibouletteStore,
+    base_type: &Arc<CibouletteResourceType>,
     type_: &'request str,
     id: &'request str,
     join_data: bool,
 ) -> CibouletteResponseElement<'request, String> {
     CibouletteResponseElement::new(
         &store,
+        &base_type,
         CibouletteResourceIdentifierBuilder::new(
             Some(CibouletteIdBuilder::Text(Cow::Borrowed(id))),
             Cow::Borrowed(type_),
@@ -36,6 +39,7 @@ fn gen_data_row<'request>(
 
 fn gen_data_row_related<'request>(
     store: &CibouletteStore,
+    base_type: &Arc<CibouletteResourceType>,
     type_: &'request str,
     id: &'request str,
     join_data: bool,
@@ -44,6 +48,7 @@ fn gen_data_row_related<'request>(
 ) -> CibouletteResponseElement<'request, String> {
     CibouletteResponseElement::new(
         &store,
+        &base_type,
         CibouletteResourceIdentifierBuilder::new(
             Some(CibouletteIdBuilder::Text(Cow::Borrowed(id))),
             Cow::Borrowed(type_),
