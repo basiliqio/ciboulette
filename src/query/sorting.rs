@@ -38,6 +38,7 @@ pub fn parse_sorting<'request>(s: &str) -> Vec<(CibouletteSortingDirection, Cow<
 
 /// Parse the sorting argument, extracting the potential initial `-`/`+` operator
 pub fn extract_type(
+    store: &CibouletteStore,
     main_type: Arc<CibouletteResourceType>,
     direction: CibouletteSortingDirection,
     s: Cow<'_, str>,
@@ -48,6 +49,28 @@ pub fn extract_type(
             "<empty>".to_string(),
         ));
     }
-    let field = CibouletteQueryParametersBuilder::check_field_exists(&main_type, s.as_ref())?;
-    Ok(CibouletteSortingElement { direction, field })
+    let mut el_list: Vec<Cow<'_, str>> = s.split('.').map(Cow::Borrowed).collect();
+    let field_raw = el_list.pop().unwrap_or_default();
+
+    let rel_chain: Vec<CibouletteResourceRelationshipDetails> = match el_list.is_empty() {
+        true => Vec::new(),
+        false => CibouletteQueryParametersBuilder::check_relationship_exists(
+            store,
+            &main_type,
+            el_list.as_slice(),
+        )?,
+    };
+    let field = CibouletteQueryParametersBuilder::check_field_exists(
+        &rel_chain
+            .last()
+            .map(|x| x.related_type())
+            .unwrap_or(&main_type),
+        field_raw.as_ref(),
+    )?;
+
+    Ok(CibouletteSortingElement {
+        rel_chain,
+        direction,
+        field,
+    })
 }

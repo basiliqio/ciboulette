@@ -4,14 +4,23 @@ use serde::de::{DeserializeSeed, Deserializer};
 #[derive(Debug, Getters, Clone)]
 #[getset(get = "pub")]
 pub struct CibouletteSortingElement {
+    pub rel_chain: Vec<CibouletteResourceRelationshipDetails>,
     pub direction: CibouletteSortingDirection,
     pub field: ArcStr,
 }
 
 impl CibouletteSortingElement {
     /// Create a new sorting element
-    pub fn new(direction: CibouletteSortingDirection, field: ArcStr) -> Self {
-        CibouletteSortingElement { direction, field }
+    pub fn new(
+        rel_chain: Vec<CibouletteResourceRelationshipDetails>,
+        direction: CibouletteSortingDirection,
+        field: ArcStr,
+    ) -> Self {
+        CibouletteSortingElement {
+            rel_chain,
+            direction,
+            field,
+        }
     }
 }
 
@@ -179,7 +188,12 @@ impl<'request> CibouletteQueryParametersBuilder<'request> {
         // Check for the sort fields, checking fields exists
         if !self.sorting.is_empty() {
             for (direction, field) in self.sorting.into_iter() {
-                sorting.push(sorting::extract_type(main_type.clone(), direction, field)?)
+                sorting.push(sorting::extract_type(
+                    &bag,
+                    main_type.clone(),
+                    direction,
+                    field,
+                )?)
             }
         }
         let res = CibouletteQueryParameters {
