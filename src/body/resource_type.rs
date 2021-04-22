@@ -10,7 +10,7 @@ pub struct CibouletteResourceType {
     id_type: CibouletteIdType,
     name: ArcStr,
 }
-#[derive(Clone, Debug, Getters, MutGetters)]
+#[derive(Clone, Debug, Getters, MutGetters, Ord, PartialEq, PartialOrd, Eq)]
 #[getset(get = "pub", get_mut = "pub")]
 pub struct CibouletteResourceRelationshipDetails {
     relation_alias: ArcStr,

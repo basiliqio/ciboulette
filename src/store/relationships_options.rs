@@ -1,13 +1,13 @@
 use super::*;
 
-#[derive(Debug, Clone, Getters, PartialEq)]
+#[derive(Debug, Clone, Getters, Ord, PartialEq, PartialOrd, Eq)]
 #[getset(get = "pub")]
 pub struct CibouletteRelationshipManyToManyOption {
     pub(crate) bucket_resource: Arc<CibouletteResourceType>,
     pub(crate) keys: [(Arc<CibouletteResourceType>, ArcStr); 2],
 }
 
-#[derive(Debug, Clone, Getters, PartialEq)]
+#[derive(Debug, Clone, Getters, Ord, PartialEq, PartialOrd, Eq)]
 #[getset(get = "pub")]
 pub struct CibouletteRelationshipOneToManyOption {
     pub(crate) one_table: Arc<CibouletteResourceType>,
@@ -69,7 +69,7 @@ impl<'request> CibouletteRelationshipObjectBuilder<'request> {
         })
     }
 }
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Ord, PartialEq, PartialOrd, Eq)]
 pub enum CibouletteRelationshipOption {
     /// One to many relationship, without the intermediate node
     OneToMany(Arc<CibouletteRelationshipOneToManyOption>),
