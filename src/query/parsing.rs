@@ -1,7 +1,7 @@
 use super::*;
 use serde::de::{DeserializeSeed, Deserializer};
 /// ## Element of a sorting vector.
-#[derive(Debug, Getters, Clone)]
+#[derive(Debug, Getters, Clone, Ord, PartialEq, Eq, PartialOrd)]
 #[getset(get = "pub")]
 pub struct CibouletteSortingElement {
     pub rel_chain: Vec<CibouletteResourceRelationshipDetails>,
