@@ -2,7 +2,7 @@ use super::*;
 use element::CibouletteResponseElementAlias;
 
 /// Hold data while building the outbound response
-#[derive(Debug, Getters, MutGetters, Default)]
+#[derive(Debug, Getters, MutGetters)]
 #[getset(get = "pub", get_mut = "pub")]
 pub(super) struct CibouletteOutboundRequestDataAccumulator<'response, B> {
     pub(super) main_data: BTreeMap<
@@ -10,23 +10,31 @@ pub(super) struct CibouletteOutboundRequestDataAccumulator<'response, B> {
         CibouletteResponseResource<'response, B>,
     >,
     pub(super) included_data: Vec<CibouletteResponseElement<'response, B>>,
-    max_elements: Option<usize>,
-    only_ids: bool,
+    settings: CibouletteOutboundRequestDataAccumulatorSettings,
 }
 
 /// Hold data while building the outbound response
-#[derive(Debug, Getters, MutGetters)]
+#[derive(Debug, Getters, MutGetters, Clone)]
 #[getset(get = "pub", get_mut = "pub")]
 pub(super) struct CibouletteOutboundRequestDataAccumulatorSettings {
     max_elements: Option<usize>,
     only_ids: bool,
+    main_type: Arc<CibouletteResourceType>,
+    include_rels: Option<CibouletteResourceRelationshipDetails>,
 }
 
 impl CibouletteOutboundRequestDataAccumulatorSettings {
-    pub fn new(max_elements: Option<usize>, only_ids: bool) -> Self {
+    pub fn new(
+        main_type: Arc<CibouletteResourceType>,
+        max_elements: Option<usize>,
+        only_ids: bool,
+        include_rels: Option<CibouletteResourceRelationshipDetails>,
+    ) -> Self {
         CibouletteOutboundRequestDataAccumulatorSettings {
             only_ids,
             max_elements,
+            main_type,
+            include_rels,
         }
     }
 }
@@ -35,23 +43,31 @@ impl<'request> From<&dyn CibouletteInboundRequestCommons<'request>>
     for CibouletteOutboundRequestDataAccumulatorSettings
 {
     fn from(inbound_request: &dyn CibouletteInboundRequestCommons<'request>) -> Self {
-        match inbound_request.expected_response_type() {
+        let (max_element, only_ids) = match inbound_request.expected_response_type() {
             CibouletteResponseRequiredType::Object(CibouletteResponseQuantity::Single) => {
-                CibouletteOutboundRequestDataAccumulatorSettings::new(Some(1), false)
+                (Some(1), false)
             }
             CibouletteResponseRequiredType::Object(CibouletteResponseQuantity::Multiple) => {
-                CibouletteOutboundRequestDataAccumulatorSettings::new(None, false)
+                (None, false)
             }
             CibouletteResponseRequiredType::Id(CibouletteResponseQuantity::Single) => {
-                CibouletteOutboundRequestDataAccumulatorSettings::new(Some(1), true)
+                (Some(1), true)
             }
             CibouletteResponseRequiredType::Id(CibouletteResponseQuantity::Multiple) => {
-                CibouletteOutboundRequestDataAccumulatorSettings::new(None, true)
+                (None, true)
             }
-            CibouletteResponseRequiredType::None => {
-                CibouletteOutboundRequestDataAccumulatorSettings::new(Some(0), false)
-            }
-        }
+            CibouletteResponseRequiredType::None => (Some(0), false),
+        };
+        let include_rels = match inbound_request.path() {
+            CiboulettePath::TypeIdRelationship(_, _, y) => Some(y.clone()),
+            _ => None,
+        };
+        CibouletteOutboundRequestDataAccumulatorSettings::new(
+            inbound_request.path().main_type().clone(),
+            max_element,
+            only_ids,
+            include_rels,
+        )
     }
 }
 
@@ -60,8 +76,7 @@ impl<'response, B> From<CibouletteOutboundRequestDataAccumulatorSettings>
 {
     fn from(settings: CibouletteOutboundRequestDataAccumulatorSettings) -> Self {
         CibouletteOutboundRequestDataAccumulator {
-            max_elements: settings.max_elements,
-            only_ids: settings.only_ids,
+            settings,
             main_data: BTreeMap::new(),
             included_data: Vec::new(),
         }
@@ -82,17 +97,49 @@ impl<'response, B> CibouletteOutboundRequestDataAccumulator<'response, B> {
         self,
         inbound_request: &dyn CibouletteInboundRequestCommons<'request>,
     ) -> Result<CibouletteOutboundRequestExtractedData<'response, B>, CibouletteError> {
+        let settings = self.settings;
         let mut main_data = self.main_data;
-        let included_data = Self::extract_included_data(
-            inbound_request.expected_type(),
-            &mut main_data,
-            self.included_data,
-        )?;
-        let body_data = Self::extract_main_data(main_data, inbound_request);
-        Ok(CibouletteOutboundRequestExtractedData {
-            main_data: body_data,
-            included_data,
-        })
+        match settings.include_rels() {
+            None => {
+                let included_data = Self::extract_included_data(
+                    inbound_request.expected_type(),
+                    &mut main_data,
+                    self.included_data,
+                )?;
+                let body_data = Self::extract_main_data(main_data, inbound_request);
+                Ok(CibouletteOutboundRequestExtractedData {
+                    main_data: body_data,
+                    included_data,
+                })
+            }
+            Some(rel) => {
+                let main_data = self
+                    .included_data
+                    .into_iter()
+                    .filter_map(|x| {
+                        x.related
+                            .and_then(|x| match *x.rel_chain().as_slice() == [rel.clone()] {
+                                true => {
+                                    let res = CibouletteResponseResource {
+                                        type_: rel.related_type().clone(),
+                                        identifier: x.element,
+                                        attributes: None,
+                                        relationships: BTreeMap::default(),
+                                        links: None,
+                                    };
+                                    Some((res.identifier().clone(), res))
+                                }
+                                false => None,
+                            })
+                    })
+                    .collect();
+                let body_data = Self::extract_main_data(main_data, inbound_request);
+                Ok(CibouletteOutboundRequestExtractedData {
+                    main_data: body_data,
+                    included_data: BTreeMap::default(),
+                })
+            }
+        }
     }
 
     fn extract_included_data(

@@ -72,27 +72,26 @@ impl<'request, B> CibouletteResponseElement<'request, B> {
 pub(super) fn fold_elements<'request, 'response, B, I>(
     elements: I,
     acc_settings: CibouletteOutboundRequestDataAccumulatorSettings,
-    inbound_request: &dyn CibouletteInboundRequestCommons<'request>,
 ) -> Result<CibouletteOutboundRequestDataAccumulator<'response, B>, CibouletteError>
 where
     B: Serialize,
     I: IntoIterator<Item = CibouletteResponseElement<'response, B>>,
 {
-    let acc = CibouletteOutboundRequestDataAccumulator::from(acc_settings);
+    let acc = CibouletteOutboundRequestDataAccumulator::from(acc_settings.clone());
     elements.into_iter().try_fold(acc, |mut acc, x| {
         match x.related().is_none()
-            && x.identifier().type_() == inbound_request.path().main_type().name().as_str()
+            && x.identifier().type_() == acc_settings.main_type().name().as_str()
         {
-            true => match acc.only_ids() {
+            true => match acc.settings().only_ids() {
                 true => fold_elements_id(&mut acc, x),
                 false => fold_elements_obj(&mut acc, x),
             },
             false => fold_elements_obj_other(&mut acc, x),
         }
-        if let Some(max) = acc.max_elements() {
+        if let Some(max) = acc.settings().max_elements() {
             if acc.main_data().len() > *max {
                 return Err(CibouletteError::OutboundTooManyMainData(
-                    inbound_request.path().main_type().name().to_string(),
+                    acc_settings.main_type().name().to_string(),
                 ));
             }
         }

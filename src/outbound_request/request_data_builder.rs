@@ -32,7 +32,7 @@ where
         elements: I,
     ) -> Result<CibouletteResponseBody<'response, B>, CibouletteError> {
         let acc_settings = CibouletteOutboundRequestDataAccumulatorSettings::from(inbound_request);
-        let acc = element::fold_elements(elements, acc_settings, inbound_request)?;
+        let acc = element::fold_elements(elements, acc_settings)?;
         let extracted_data = acc.extract(inbound_request)?;
         Ok(CibouletteResponseBody {
             data: extracted_data.main_data,

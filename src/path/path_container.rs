@@ -14,7 +14,7 @@ impl<'request> CiboulettePath<'request> {
             CiboulettePath::Type(x) => x,
             CiboulettePath::TypeId(x, _) => x,
             CiboulettePath::TypeIdRelated(_, _, y) => y.related_type(),
-            CiboulettePath::TypeIdRelationship(_, _, y) => y.related_type(),
+            CiboulettePath::TypeIdRelationship(x, _, _) => x,
         }
     }
 

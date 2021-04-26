@@ -122,23 +122,36 @@ fn simple_read_relationships() {
             gen_data_row(
                 &store,
                 &base_type,
+                "peoples",
+                "ea2c0ae1-e3b0-41b2-82c2-2f000d4dc367",
+                false,
+            ),
+            gen_data_row_related(
+                &store,
+                &base_type,
                 "articles",
                 "073b5936-0acb-4601-b4b7-9de607dfc2ef",
                 false,
+                "peoples",
+                "ea2c0ae1-e3b0-41b2-82c2-2f000d4dc367",
             ),
-            gen_data_row(
+            gen_data_row_related(
                 &store,
                 &base_type,
                 "articles",
                 "c49094ce-71ab-40d4-a642-ea200f72eac6",
                 false,
+                "peoples",
+                "ea2c0ae1-e3b0-41b2-82c2-2f000d4dc367",
             ),
-            gen_data_row(
+            gen_data_row_related(
                 &store,
                 &base_type,
                 "articles",
                 "90e676f5-9598-44e7-9e5b-f0c7b1a188d1",
                 false,
+                "peoples",
+                "ea2c0ae1-e3b0-41b2-82c2-2f000d4dc367",
             ),
         ],
     )
