@@ -25,7 +25,8 @@ impl CibouletteResponseStatus {
                 CibouletteResponseStatus::Created
             }
             (CibouletteIntention::Create, CibouletteOptionalData::Null(_)) => {
-                CibouletteResponseStatus::OkEmpty
+                CibouletteResponseStatus::Ok
+                // TODO : In the future, CibouletteResponseStatus::OkEmpty should be used
             }
             (CibouletteIntention::Delete, _) => CibouletteResponseStatus::OkEmpty,
             (CibouletteIntention::Read, CibouletteOptionalData::Object(_)) => {
@@ -38,7 +39,8 @@ impl CibouletteResponseStatus {
                 CibouletteResponseStatus::Ok
             }
             (CibouletteIntention::Update, CibouletteOptionalData::Null(_)) => {
-                CibouletteResponseStatus::OkEmpty
+                CibouletteResponseStatus::Ok
+                // TODO : In the future, CibouletteResponseStatus::OkEmpty should be used
             }
         }
     }

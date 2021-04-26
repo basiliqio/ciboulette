@@ -102,5 +102,5 @@ fn force_mandatory_to_null() {
 
     let parsed_url = opt.parse(URL).unwrap();
     let builder = CibouletteInboundRequestBuilder::new(INTENTION, &parsed_url, &BODY);
-    let res = builder.build(&store).unwrap_err();
+    builder.build(&store).unwrap_err();
 }
