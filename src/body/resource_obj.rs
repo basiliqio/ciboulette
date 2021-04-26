@@ -284,9 +284,14 @@ impl<'request> CibouletteResourceBuilder<'request> {
                 let type_ident = self.identifier().type_().as_ref();
                 let resource_type: Arc<CibouletteResourceType> = bag.get_type(type_ident)?.clone();
                 let mut deserializer = serde_json::Deserializer::from_str(attributes.get());
+                let deserializer_settings = matches!(intention, CibouletteIntention::Update);
+
                 let container: MessyJsonValueContainer<'request> = resource_type
                     .schema()
-                    .builder(matches!(intention, CibouletteIntention::Update))
+                    .builder(MessyJsonSettings {
+                        all_optional: deserializer_settings,
+                        preserve_mandatory: deserializer_settings,
+                    })
                     .deserialize(&mut deserializer)?;
                 match container.take() {
                     MessyJsonValue::Obj(obj) => Some(obj),

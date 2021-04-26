@@ -80,7 +80,6 @@ where
 {
     let acc = CibouletteOutboundRequestDataAccumulator::from(acc_settings);
     elements.into_iter().try_fold(acc, |mut acc, x| {
-        println!("AAAA {}", x.identifier().type_());
         match x.related().is_none()
             && x.identifier().type_() == inbound_request.path().main_type().name().as_str()
         {

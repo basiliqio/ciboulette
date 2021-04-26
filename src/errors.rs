@@ -63,8 +63,6 @@ pub enum CibouletteError {
     UnknownRelationship(String, String),
     #[error("No field {1} for type {0}.")]
     UnknownField(String, String),
-    #[error("Nested sorting is forbidden")]
-    NestedSorting,
     #[error("The resource object ({0}, {1}) should be unique by `type` and `id`")]
     UniqObj(String, String),
     #[error("The type `{0}` is already defined")]

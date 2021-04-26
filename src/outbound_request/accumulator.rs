@@ -187,7 +187,6 @@ impl<'response, B> CibouletteOutboundRequestDataAccumulator<'response, B> {
             CibouletteResponseElementAlias<'response>,
         )>,
     ) -> Result<Option<CibouletteResponseResource<'response, B>>, CibouletteError> {
-        println!("YEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEES");
         let main_id = el.identifier().clone();
         let main_type = el.type_().clone();
 
@@ -218,12 +217,9 @@ impl<'response, B> CibouletteOutboundRequestDataAccumulator<'response, B> {
             }
             _ => late_linking_list.push((main_id, related.clone())),
         }
-        println!("Ok i'm here");
         if &main_type == base_type && main_data.contains_key(related.element()) {
-            println!("YEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEES");
             Ok(None)
         } else {
-            println!("And now here");
             let resource = CibouletteResponseResource::<B> {
                 type_: main_type,
                 identifier: related.element,

@@ -76,3 +76,31 @@ fn query() {
         true
     );
 }
+
+#[test]
+fn force_mandatory_to_null() {
+    let store = gen_bag();
+    let url = Url::parse("http://localhost/").unwrap();
+    let opt = url::Url::options().base_url(Some(&url));
+    const URL: &str = "/comments/6720877a-e27e-4e9e-9ac0-3fff4deb55f2";
+    const INTENTION: CibouletteIntention = CibouletteIntention::Update;
+    const BODY: Option<&str> = Some(
+        r#"
+	{
+		"data":
+		{
+			"id": "6720877a-e27e-4e9e-9ac0-3fff4deb55f2",
+			"type": "comments",
+			"attributes":
+			{
+				"body": null
+			}
+		}
+	}
+	"#,
+    );
+
+    let parsed_url = opt.parse(URL).unwrap();
+    let builder = CibouletteInboundRequestBuilder::new(INTENTION, &parsed_url, &BODY);
+    let res = builder.build(&store).unwrap_err();
+}
