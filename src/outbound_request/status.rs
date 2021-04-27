@@ -28,7 +28,8 @@ impl CibouletteResponseStatus {
                 CibouletteResponseStatus::Ok
                 // TODO : In the future, CibouletteResponseStatus::OkEmpty should be used
             }
-            (CibouletteIntention::Delete, _) => CibouletteResponseStatus::OkEmpty,
+            // TODO :   In the future, (CibouletteIntention::Delete, _) => CibouletteResponseStatus::OkEmpty should be used,
+            (CibouletteIntention::Delete, _) => CibouletteResponseStatus::Ok,
             (CibouletteIntention::Read, CibouletteOptionalData::Object(_)) => {
                 CibouletteResponseStatus::Ok
             }

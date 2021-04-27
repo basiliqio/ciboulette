@@ -80,6 +80,27 @@ impl CibouletteStoreBuilder {
         Ok(())
     }
 
+    /// Add a relationships (one/many-to-one/many) to the graph, without insert OneToMany/ManyToOne
+    pub fn add_many_to_many_rel_no_reverse_direct_only(
+        &mut self,
+        from: &str,
+        (to, alias_to): (&str, Option<&str>),
+        opt: CibouletteRelationshipManyToManyOptionBuilder,
+    ) -> Result<(), CibouletteError> {
+        let node_indexes = self.get_many_to_many_node_indexes(from, to, &opt)?;
+        self.check_bucket_exists(node_indexes.bucket(), from, &opt)?;
+        let (_, bucket_type, to_type) = self.extract_many_to_many_types(&node_indexes)?;
+        let (edge_to_direct, _) =
+            self.get_many_to_many_edge_indexes_to(&bucket_type, to_type, &node_indexes, &opt)?;
+        self.add_many_to_many_rel_routine(
+            (from, node_indexes.from()),
+            (to, alias_to),
+            &opt.bucket_resource(),
+            edge_to_direct,
+        )?;
+        Ok(())
+    }
+
     /// Add a relationships (one/many-to-one/many) to the graph
     pub fn add_many_to_many_rel_no_reverse(
         &mut self,

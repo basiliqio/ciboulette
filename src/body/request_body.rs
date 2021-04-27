@@ -346,7 +346,7 @@ impl<'request> CibouletteBodyBuilder<'request> {
                         ));
                     }
                 }
-                None => continue, //FIXME
+                None => return Err(CibouletteError::MissingId),
             }
         }
         Ok(linked_set)

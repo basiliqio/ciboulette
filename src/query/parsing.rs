@@ -79,7 +79,6 @@ impl<'request> CibouletteQueryParametersBuilder<'request> {
         let mut current_type = main_type.clone();
         let mut res: Vec<CibouletteResourceRelationshipDetails> = Vec::new();
         let mut first = true;
-
         for rel in rel_list {
             if first {
                 first = false;

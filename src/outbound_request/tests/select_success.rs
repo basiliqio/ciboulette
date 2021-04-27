@@ -479,22 +479,6 @@ fn with_include_nested_self() {
     let response = CibouletteOutboundRequestDataBuilder::new(
         &res,
         vec![
-            gen_data_row(
-                &store,
-                &base_type,
-                "peoples",
-                "073b5936-0acb-4601-b4b7-9de607dfc2ef",
-                true,
-            ),
-            gen_data_row_related(
-                &store,
-                &base_type,
-                "articles",
-                "c49094ce-71ab-40d4-a642-ea200f72eac6",
-                true,
-                "peoples",
-                "073b5936-0acb-4601-b4b7-9de607dfc2ef",
-            ),
             gen_data_row_related(
                 &store,
                 &base_type,
@@ -512,6 +496,22 @@ fn with_include_nested_self() {
                 true,
                 "comments",
                 "f2dde16b-d26d-4b34-944f-7430c81e2d8e",
+            ),
+            gen_data_row_related(
+                &store,
+                &base_type,
+                "articles",
+                "c49094ce-71ab-40d4-a642-ea200f72eac6",
+                true,
+                "peoples",
+                "073b5936-0acb-4601-b4b7-9de607dfc2ef",
+            ),
+            gen_data_row(
+                &store,
+                &base_type,
+                "peoples",
+                "073b5936-0acb-4601-b4b7-9de607dfc2ef",
+                true,
             ),
         ],
     )

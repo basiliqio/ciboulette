@@ -15,6 +15,6 @@ fn simple_update() {
     let response = CibouletteOutboundRequestDataBuilder::<'_, '_, String, _>::new(&res, vec![])
         .build()
         .unwrap();
-    assert_eq!(response.status(), CibouletteResponseStatus::OkEmpty);
+    assert_eq!(response.status(), CibouletteResponseStatus::Ok);
     assert_json_snapshot!(response);
 }
