@@ -14,7 +14,7 @@ pub struct CibouletteResponseElement<'request, B> {
     pub(crate) related: Option<CibouletteResponseElementAlias<'request>>,
 }
 
-#[derive(Debug, Getters, Clone, Serialize)]
+#[derive(Debug, Getters, Clone, Serialize, Hash)]
 #[getset(get = "pub")]
 pub struct CibouletteResponseElementAlias<'request> {
     #[serde(skip_serializing)]

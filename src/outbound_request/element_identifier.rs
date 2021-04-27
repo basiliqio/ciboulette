@@ -11,7 +11,7 @@ pub struct CibouletteResourceResponseIdentifierBuilder<'request> {
 }
 
 /// ## A `json:api` [resource identifier](https://jsonapi.org/format/#document-resource-identifier-objects) object
-#[derive(Serialize, Debug, Getters, MutGetters, Clone)]
+#[derive(Serialize, Debug, Getters, MutGetters, Clone, Hash)]
 #[getset(get = "pub", get_mut = "pub")]
 pub struct CibouletteResourceResponseIdentifier<'request> {
     #[serde(rename = "type")]

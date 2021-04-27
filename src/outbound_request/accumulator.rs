@@ -5,7 +5,7 @@ use element::CibouletteResponseElementAlias;
 #[derive(Debug, Getters, MutGetters)]
 #[getset(get = "pub", get_mut = "pub")]
 pub(super) struct CibouletteOutboundRequestDataAccumulator<'response, B> {
-    pub(super) main_data: BTreeMap<
+    pub(super) main_data: indexmap::IndexMap<
         CibouletteResourceResponseIdentifier<'response>,
         CibouletteResponseResource<'response, B>,
     >,
@@ -77,7 +77,7 @@ impl<'response, B> From<CibouletteOutboundRequestDataAccumulatorSettings>
     fn from(settings: CibouletteOutboundRequestDataAccumulatorSettings) -> Self {
         CibouletteOutboundRequestDataAccumulator {
             settings,
-            main_data: BTreeMap::new(),
+            main_data: IndexMap::new(),
             included_data: Vec::new(),
         }
     }
@@ -144,7 +144,7 @@ impl<'response, B> CibouletteOutboundRequestDataAccumulator<'response, B> {
 
     fn extract_included_data(
         base_type: &Arc<CibouletteResourceType>,
-        main_data: &mut BTreeMap<
+        main_data: &mut IndexMap<
             CibouletteResourceResponseIdentifier<'response>,
             CibouletteResponseResource<'response, B>,
         >,
@@ -192,7 +192,7 @@ impl<'response, B> CibouletteOutboundRequestDataAccumulator<'response, B> {
     }
 
     fn extract_main_data(
-        main_data: BTreeMap<
+        main_data: IndexMap<
             CibouletteResourceResponseIdentifier<'response>,
             CibouletteResponseResource<'response, B>,
         >,
@@ -225,7 +225,7 @@ impl<'response, B> CibouletteOutboundRequestDataAccumulator<'response, B> {
     fn insert_included_data_as_relationships(
         base_type: &Arc<CibouletteResourceType>,
         el: CibouletteResponseElement<'response, B>,
-        main_data: &mut BTreeMap<
+        main_data: &mut IndexMap<
             CibouletteResourceResponseIdentifier<'response>,
             CibouletteResponseResource<'response, B>,
         >,

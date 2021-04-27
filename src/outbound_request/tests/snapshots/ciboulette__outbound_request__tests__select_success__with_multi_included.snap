@@ -10,19 +10,6 @@ expression: response
   "data": [
     {
       "type": "peoples",
-      "id": "01b8fb1f-989b-4ec0-86a0-72786017682b",
-      "attributes": "<some data>",
-      "relationships": {
-        "articles": {
-          "data": {
-            "type": "articles",
-            "id": "90e676f5-9598-44e7-9e5b-f0c7b1a188d1"
-          }
-        }
-      }
-    },
-    {
-      "type": "peoples",
       "id": "073b5936-0acb-4601-b4b7-9de607dfc2ef",
       "attributes": "<some data>",
       "relationships": {
@@ -30,6 +17,19 @@ expression: response
           "data": {
             "type": "articles",
             "id": "c49094ce-71ab-40d4-a642-ea200f72eac6"
+          }
+        }
+      }
+    },
+    {
+      "type": "peoples",
+      "id": "01b8fb1f-989b-4ec0-86a0-72786017682b",
+      "attributes": "<some data>",
+      "relationships": {
+        "articles": {
+          "data": {
+            "type": "articles",
+            "id": "90e676f5-9598-44e7-9e5b-f0c7b1a188d1"
           }
         }
       }

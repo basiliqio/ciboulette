@@ -34,6 +34,10 @@ impl<'request> CibouletteInboundRequestCommons<'request> for CibouletteCreateReq
         self.path().main_type()
     }
 
+    fn anchor_type(&self) -> &Arc<CibouletteResourceType> {
+        self.path().main_type()
+    }
+
     fn meta(&self) -> &Option<serde_json::Value> {
         &self.meta
     }

@@ -23,6 +23,7 @@ itertools = "0.10.0"
 uuid = { version = "0.8", features = [ "v4", "serde" ] }
 sqlx = { optional = true, version = "0.5", default-features = false, features = [ "postgres", "uuid", "runtime-tokio-rustls"] }
 arcstr = { version = "1.0.0", features = [ "std", "serde" ] }
+indexmap = { version = "1.6", features = [ "serde" ] }
 
 [dev-dependencies.cargo-husky]
 version = "1"

@@ -31,6 +31,10 @@ impl<'request> CibouletteInboundRequestCommons<'request> for CibouletteDeleteReq
         &self.expected_response_type
     }
 
+    fn anchor_type(&self) -> &Arc<CibouletteResourceType> {
+        self.path().main_type()
+    }
+
     fn meta(&self) -> &Option<serde_json::Value> {
         &self.meta
     }
