@@ -18,7 +18,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
             b.iter(|| {
                 let doc: ciboulette::CibouletteQueryParametersBuilder =
                     serde_urlencoded::from_str(i).expect("no error");
-                doc.build(&bag, Some(rt.clone())).expect("no error");
+                doc.build(&bag, rt.clone()).expect("no error");
             })
         },
     );
