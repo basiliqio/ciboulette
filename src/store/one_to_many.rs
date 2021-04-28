@@ -5,27 +5,27 @@ impl CibouletteStoreBuilder {
     pub fn add_one_to_many_rel(
         &mut self,
         opt: CibouletteRelationshipOneToManyOptionBuilder,
-        alias_one_table: Option<ArcStr>,
-        alias_many_table: Option<ArcStr>,
+        alias_one_resource: Option<ArcStr>,
+        alias_many_resource: Option<ArcStr>,
     ) -> Result<(), CibouletteError> {
         let (from_i, to_i) = self.get_one_to_many_node_indexes(&opt)?;
         let (from_rel_i, to_rel_i) = self.get_one_to_many_edge_indexes(&from_i, &to_i, &opt);
         // From source to dest
         self.add_one_to_many_rel_routine(
-            opt.one_table(),
-            opt.many_table(),
+            opt.one_resource(),
+            opt.many_resource(),
             from_i,
             from_rel_i,
-            alias_many_table,
+            alias_many_resource,
             to_rel_i,
         )?;
         // From dest to source
         self.add_one_to_many_rel_routine(
-            opt.many_table(),
-            opt.one_table(),
+            opt.many_resource(),
+            opt.one_resource(),
             to_i,
             to_rel_i,
-            alias_one_table.or_else(|| Some(opt.many_table_key().clone())),
+            alias_one_resource.or_else(|| Some(opt.many_resource_key().clone())),
             from_rel_i,
         )?;
         Ok(())
@@ -35,17 +35,17 @@ impl CibouletteStoreBuilder {
     pub fn add_one_to_many_rel_no_reverse(
         &mut self,
         opt: CibouletteRelationshipOneToManyOptionBuilder,
-        alias_many_table: Option<ArcStr>,
+        alias_many_resource: Option<ArcStr>,
     ) -> Result<(), CibouletteError> {
         let (from_i, to_i) = self.get_one_to_many_node_indexes(&opt)?;
         let (from_rel_i, to_rel_i) = self.get_one_to_many_edge_indexes(&from_i, &to_i, &opt);
         // From source to dest
         self.add_one_to_many_rel_routine(
-            opt.one_table(),
-            opt.many_table(),
+            opt.one_resource(),
+            opt.many_resource(),
             from_i,
             from_rel_i,
-            alias_many_table,
+            alias_many_resource,
             to_rel_i,
         )?;
         Ok(())
@@ -55,17 +55,17 @@ impl CibouletteStoreBuilder {
     pub fn add_many_to_one_rel_no_reverse(
         &mut self,
         opt: CibouletteRelationshipOneToManyOptionBuilder,
-        alias_one_table: Option<ArcStr>,
+        alias_one_resource: Option<ArcStr>,
     ) -> Result<(), CibouletteError> {
         let (from_i, to_i) = self.get_one_to_many_node_indexes(&opt)?;
         let (from_rel_i, to_rel_i) = self.get_one_to_many_edge_indexes(&from_i, &to_i, &opt);
         // From source to dest
         self.add_one_to_many_rel_routine(
-            opt.many_table(),
-            opt.one_table(),
+            opt.many_resource(),
+            opt.one_resource(),
             to_i,
             to_rel_i,
-            alias_one_table.or_else(|| Some(opt.many_table_key().clone())),
+            alias_one_resource.or_else(|| Some(opt.many_resource_key().clone())),
             from_rel_i,
         )?;
         Ok(())
@@ -137,12 +137,12 @@ impl CibouletteStoreBuilder {
     > {
         let from_i = self
             .map
-            .get(opt.one_table().name().as_str())
-            .ok_or_else(|| CibouletteError::UnknownType(opt.one_table().name().to_string()))?;
+            .get(opt.one_resource().name().as_str())
+            .ok_or_else(|| CibouletteError::UnknownType(opt.one_resource().name().to_string()))?;
         let to_i = self
             .map
-            .get(opt.many_table().name().as_str())
-            .ok_or_else(|| CibouletteError::UnknownType(opt.many_table().name().to_string()))?;
+            .get(opt.many_resource().name().as_str())
+            .ok_or_else(|| CibouletteError::UnknownType(opt.many_resource().name().to_string()))?;
         Ok((*from_i, *to_i))
     }
 }

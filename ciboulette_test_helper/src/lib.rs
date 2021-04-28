@@ -35,7 +35,7 @@ use messy_json::*;
 pub fn gen_messy_json_schema_favorite_color() -> MessyJsonObject {
     MessyJsonObject::from(MessyJsonObjectInner::new(
         vec![(
-            gen_key("color"),
+            arcstr::literal!("color"),
             MessyJson::from(MessyJsonInner::String(MessyJsonScalar::new(false))),
         )]
         .into_iter()
@@ -48,11 +48,11 @@ pub fn gen_messy_json_schema_articles() -> MessyJsonObject {
     MessyJsonObject::from(MessyJsonObjectInner::new(
         vec![
             (
-                gen_key("title"),
+                arcstr::literal!("title"),
                 MessyJson::from(MessyJsonInner::String(MessyJsonScalar::new(false))),
             ),
             (
-                gen_key("body"),
+                arcstr::literal!("body"),
                 MessyJson::from(MessyJsonInner::String(MessyJsonScalar::new(true))),
             ),
         ]
@@ -65,7 +65,7 @@ pub fn gen_messy_json_schema_articles() -> MessyJsonObject {
 pub fn gen_messy_json_schema_comments() -> MessyJsonObject {
     MessyJsonObject::from(MessyJsonObjectInner::new(
         vec![(
-            gen_key("body"),
+            arcstr::literal!("body"),
             MessyJson::from(MessyJsonInner::String(MessyJsonScalar::new(false))),
         )]
         .into_iter()
@@ -78,11 +78,11 @@ pub fn gen_messy_json_schema_people_article() -> MessyJsonObject {
     MessyJsonObject::from(MessyJsonObjectInner::new(
         vec![
             (
-                gen_key("people_id"),
+                arcstr::literal!("people_id"),
                 MessyJson::from(MessyJsonInner::String(MessyJsonScalar::new(false))),
             ),
             (
-                gen_key("article_id"),
+                arcstr::literal!("article_id"),
                 MessyJson::from(MessyJsonInner::String(MessyJsonScalar::new(false))),
             ),
         ]
@@ -96,26 +96,26 @@ pub fn gen_messy_json_schema_peoples() -> MessyJsonObject {
     MessyJsonObject::from(MessyJsonObjectInner::new(
         vec![
             (
-                gen_key("first-name"),
+                arcstr::literal!("first-name"),
                 MessyJson::from(MessyJsonInner::String(MessyJsonScalar::new(false))),
             ),
             (
-                gen_key("last-name"),
+                arcstr::literal!("last-name"),
                 MessyJson::from(MessyJsonInner::String(MessyJsonScalar::new(false))),
             ),
             (
-                gen_key("age"),
+                arcstr::literal!("age"),
                 MessyJson::from(MessyJsonInner::Number(MessyJsonNumeric::new(
                     MessyJsonNumberType::U64,
                     true,
                 ))),
             ),
             (
-                gen_key("gender"),
+                arcstr::literal!("gender"),
                 MessyJson::from(MessyJsonInner::String(MessyJsonScalar::new(true))),
             ),
             (
-                gen_key("twitter"),
+                arcstr::literal!("twitter"),
                 MessyJson::from(MessyJsonInner::String(MessyJsonScalar::new(true))),
             ),
         ]

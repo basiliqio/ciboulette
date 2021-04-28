@@ -15,11 +15,11 @@ pub struct CibouletteRelationshipManyToManyOptionBuilder {
 #[getset(get = "pub")]
 pub struct CibouletteRelationshipOneToManyOptionBuilder {
     /// The "one" resource
-    one_table: CibouletteResourceType,
+    one_resource: CibouletteResourceType,
     /// The "many" resource
-    many_table: CibouletteResourceType,
+    many_resource: CibouletteResourceType,
     /// The field in the "many" resource that points to the "one" resource
-    many_table_key: ArcStr,
+    many_resource_key: ArcStr,
     /// True if that relationships is optional
     optional: bool,
     /// True if this relationships is part of Many-to-Many relationships
@@ -107,15 +107,15 @@ impl CibouletteRelationshipManyToManyOptionBuilder {
 
 impl CibouletteRelationshipOneToManyOptionBuilder {
     pub fn new(
-        one_table: CibouletteResourceType,
-        many_table: CibouletteResourceType,
-        many_table_key: ArcStr,
+        one_resource: CibouletteResourceType,
+        many_resource: CibouletteResourceType,
+        many_resource_key: ArcStr,
         optional: bool,
     ) -> Self {
         CibouletteRelationshipOneToManyOptionBuilder {
-            one_table,
-            many_table,
-            many_table_key,
+            one_resource,
+            many_resource,
+            many_resource_key,
             part_of_many_to_many: None,
             optional,
         }
@@ -123,16 +123,16 @@ impl CibouletteRelationshipOneToManyOptionBuilder {
 
     /// Build a new O2M/M2O relationships in the process of creating a new M2M relationships
     pub(crate) fn new_from_many_to_many(
-        one_table: CibouletteResourceType,
-        many_table: CibouletteResourceType,
-        many_table_key: ArcStr,
+        one_resource: CibouletteResourceType,
+        many_resource: CibouletteResourceType,
+        many_resource_key: ArcStr,
         optional: bool,
         part_of_many_to_many: petgraph::graph::EdgeIndex<u16>,
     ) -> Self {
         CibouletteRelationshipOneToManyOptionBuilder {
-            one_table,
-            many_table,
-            many_table_key,
+            one_resource,
+            many_resource,
+            many_resource_key,
             part_of_many_to_many: Some(part_of_many_to_many),
             optional,
         }
@@ -149,27 +149,31 @@ impl CibouletteRelationshipOneToManyOptionBuilder {
             u16,
         >,
     ) -> Result<Arc<CibouletteRelationshipOneToManyOption>, CibouletteError> {
-        let one_table = store_builder
-            .get_type_index(self.one_table().name())
-            .ok_or_else(|| CibouletteError::TypeNotInGraph(self.one_table().name().to_string()))?;
-        let many_table = store_builder
-            .get_type_index(self.many_table().name())
-            .ok_or_else(|| CibouletteError::TypeNotInGraph(self.many_table().name().to_string()))?;
+        let one_resource = store_builder
+            .get_type_index(self.one_resource().name())
+            .ok_or_else(|| {
+                CibouletteError::TypeNotInGraph(self.one_resource().name().to_string())
+            })?;
+        let many_resource = store_builder
+            .get_type_index(self.many_resource().name())
+            .ok_or_else(|| {
+                CibouletteError::TypeNotInGraph(self.many_resource().name().to_string())
+            })?;
 
         Ok(Arc::from(CibouletteRelationshipOneToManyOption {
-            one_table: graph
-                .node_weight(*one_table)
+            one_resource: graph
+                .node_weight(*one_resource)
                 .ok_or_else(|| {
-                    CibouletteError::TypeNotInGraph(self.one_table().name().to_string())
+                    CibouletteError::TypeNotInGraph(self.one_resource().name().to_string())
                 })?
                 .clone(),
-            many_table: graph
-                .node_weight(*many_table)
+            many_resource: graph
+                .node_weight(*many_resource)
                 .ok_or_else(|| {
-                    CibouletteError::TypeNotInGraph(self.many_table().name().to_string())
+                    CibouletteError::TypeNotInGraph(self.many_resource().name().to_string())
                 })?
                 .clone(),
-            many_table_key: ArcStr::from(self.many_table_key()),
+            many_resource_key: ArcStr::from(self.many_resource_key()),
             optional: self.optional,
             part_of_many_to_many: self.part_of_many_to_many,
         }))

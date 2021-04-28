@@ -1,6 +1,7 @@
 use super::*;
 
 /// ## Describe a `json:api` type attribute schema and list its relationships
+#[allow(clippy::derive_hash_xor_eq)]
 #[derive(Clone, Debug, Getters, MutGetters, Hash)]
 #[getset(get = "pub", get_mut = "pub")]
 pub struct CibouletteResourceType {

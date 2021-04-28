@@ -1,5 +1,7 @@
 use super::*;
-/// ## Container for response element. While building a response, every object should be wrapped in this container
+/// ## Container for response element.
+///
+/// While building a response, every object should be wrapped in this container
 #[derive(Debug, Getters, Clone, Serialize)]
 #[getset(get = "pub")]
 pub struct CibouletteResponseElement<'request, B> {

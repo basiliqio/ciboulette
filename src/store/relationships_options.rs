@@ -15,11 +15,11 @@ pub struct CibouletteRelationshipManyToManyOption {
 #[getset(get = "pub")]
 pub struct CibouletteRelationshipOneToManyOption {
     /// The "one" resource
-    pub(crate) one_table: Arc<CibouletteResourceType>,
+    pub(crate) one_resource: Arc<CibouletteResourceType>,
     /// The "many" resource
-    pub(crate) many_table: Arc<CibouletteResourceType>,
+    pub(crate) many_resource: Arc<CibouletteResourceType>,
     /// The "many" field relating to the "one" resource
-    pub(crate) many_table_key: ArcStr,
+    pub(crate) many_resource_key: ArcStr,
     /// True if the relationships is optional
     pub(crate) optional: bool,
     /// Contains the relationship edge is part of many-to-many relationships

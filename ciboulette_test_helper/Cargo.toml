@@ -7,6 +7,6 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-messy_json = { git = "https://gitlab.com/basiliq/messy_json.git"}
+messy_json = { version = "0.2", features = [ "uuid" ]}
 ciboulette = { path = ".." }
 arcstr = { version = "1.0.0", features = [ "std", "serde" ] }

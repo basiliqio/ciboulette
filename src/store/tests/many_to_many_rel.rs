@@ -49,27 +49,27 @@ fn ok() {
         true
     );
     assert_eq!(
-        matches!(rel_bucket.1, CibouletteRelationshipOptionBuilder::OneToMany(x) if x.many_table_key() == "people_id"),
+        matches!(rel_bucket.1, CibouletteRelationshipOptionBuilder::OneToMany(x) if x.many_resource_key() == "people_id"),
         true
     );
     assert_eq!(
-        matches!(rel_bucket.1, CibouletteRelationshipOptionBuilder::OneToMany(x) if x.many_table().name() == "people-article"),
+        matches!(rel_bucket.1, CibouletteRelationshipOptionBuilder::OneToMany(x) if x.many_resource().name() == "people-article"),
         true
     );
     assert_eq!(
-        matches!(rel_bucket.1, CibouletteRelationshipOptionBuilder::OneToMany(x) if x.one_table().name() == "peoples"),
+        matches!(rel_bucket.1, CibouletteRelationshipOptionBuilder::OneToMany(x) if x.one_resource().name() == "peoples"),
         true
     );
     assert_eq!(
-        matches!(rel_bucket_reverse.1, CibouletteRelationshipOptionBuilder::OneToMany(x) if x.many_table_key() == "article_id"),
+        matches!(rel_bucket_reverse.1, CibouletteRelationshipOptionBuilder::OneToMany(x) if x.many_resource_key() == "article_id"),
         true
     );
     assert_eq!(
-        matches!(rel_bucket_reverse.1, CibouletteRelationshipOptionBuilder::OneToMany(x) if x.many_table().name() == "people-article"),
+        matches!(rel_bucket_reverse.1, CibouletteRelationshipOptionBuilder::OneToMany(x) if x.many_resource().name() == "people-article"),
         true
     );
     assert_eq!(
-        matches!(rel_bucket_reverse.1, CibouletteRelationshipOptionBuilder::OneToMany(x) if x.one_table().name() == "articles"),
+        matches!(rel_bucket_reverse.1, CibouletteRelationshipOptionBuilder::OneToMany(x) if x.one_resource().name() == "articles"),
         true
     );
 }
