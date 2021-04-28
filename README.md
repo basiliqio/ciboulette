@@ -1,6 +1,6 @@
 <center><h1> Ciboulette </h1>
 
-<h4><b>A `JSON:API` library.</b></h4>
+<h4><b>A <em>JSON:API</em> library.</b></h4>
 
 </center>
 <a href="https://gitlab.com/basiliq/ciboulette/-/pipelines" alt="Gitlab pipeline status">
