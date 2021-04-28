@@ -9,11 +9,11 @@ fn simple_read_multi() {
     const INTENTION: CibouletteIntention = CibouletteIntention::Read;
 
     let parsed_url = opt.parse(URL).unwrap();
-    let builder = CibouletteInboundRequestBuilder::new(INTENTION, &parsed_url, &None);
+    let builder = CibouletteRequestBuilder::new(INTENTION, &parsed_url, &None);
     let request = builder.build(&store).unwrap();
     let res = CibouletteReadRequest::try_from(request).unwrap();
     let base_type = store.get_type("comments").unwrap();
-    let response = CibouletteOutboundRequestDataBuilder::new(
+    let response = CibouletteResponseDataBuilder::new(
         &res,
         vec![gen_data_row(
             &store,
@@ -38,11 +38,11 @@ fn simple_read_single() {
     const INTENTION: CibouletteIntention = CibouletteIntention::Read;
 
     let parsed_url = opt.parse(URL).unwrap();
-    let builder = CibouletteInboundRequestBuilder::new(INTENTION, &parsed_url, &None);
+    let builder = CibouletteRequestBuilder::new(INTENTION, &parsed_url, &None);
     let request = builder.build(&store).unwrap();
     let res = CibouletteReadRequest::try_from(request).unwrap();
     let base_type = store.get_type("comments").unwrap();
-    let response = CibouletteOutboundRequestDataBuilder::new(
+    let response = CibouletteResponseDataBuilder::new(
         &res,
         vec![gen_data_row(
             &store,
@@ -67,11 +67,11 @@ fn simple_read_related() {
     const INTENTION: CibouletteIntention = CibouletteIntention::Read;
 
     let parsed_url = opt.parse(URL).unwrap();
-    let builder = CibouletteInboundRequestBuilder::new(INTENTION, &parsed_url, &None);
+    let builder = CibouletteRequestBuilder::new(INTENTION, &parsed_url, &None);
     let request = builder.build(&store).unwrap();
     let res = CibouletteReadRequest::try_from(request).unwrap();
     let base_type = store.get_type("peoples").unwrap();
-    let response = CibouletteOutboundRequestDataBuilder::new(
+    let response = CibouletteResponseDataBuilder::new(
         &res,
         vec![
             gen_data_row(
@@ -112,11 +112,11 @@ fn simple_read_relationships() {
     const INTENTION: CibouletteIntention = CibouletteIntention::Read;
 
     let parsed_url = opt.parse(URL).unwrap();
-    let builder = CibouletteInboundRequestBuilder::new(INTENTION, &parsed_url, &None);
+    let builder = CibouletteRequestBuilder::new(INTENTION, &parsed_url, &None);
     let request = builder.build(&store).unwrap();
     let res = CibouletteReadRequest::try_from(request).unwrap();
     let base_type = store.get_type("peoples").unwrap();
-    let response = CibouletteOutboundRequestDataBuilder::new(
+    let response = CibouletteResponseDataBuilder::new(
         &res,
         vec![
             gen_data_row(
@@ -170,11 +170,11 @@ fn with_included() {
     const INTENTION: CibouletteIntention = CibouletteIntention::Read;
 
     let parsed_url = opt.parse(URL).unwrap();
-    let builder = CibouletteInboundRequestBuilder::new(INTENTION, &parsed_url, &None);
+    let builder = CibouletteRequestBuilder::new(INTENTION, &parsed_url, &None);
     let request = builder.build(&store).unwrap();
     let res = CibouletteReadRequest::try_from(request).unwrap();
     let base_type = store.get_type("peoples").unwrap();
-    let response = CibouletteOutboundRequestDataBuilder::new(
+    let response = CibouletteResponseDataBuilder::new(
         &res,
         vec![
             gen_data_row(
@@ -219,11 +219,11 @@ fn with_multi_included() {
     const INTENTION: CibouletteIntention = CibouletteIntention::Read;
 
     let parsed_url = opt.parse(URL).unwrap();
-    let builder = CibouletteInboundRequestBuilder::new(INTENTION, &parsed_url, &None);
+    let builder = CibouletteRequestBuilder::new(INTENTION, &parsed_url, &None);
     let request = builder.build(&store).unwrap();
     let res = CibouletteReadRequest::try_from(request).unwrap();
     let base_type = store.get_type("peoples").unwrap();
-    let response = CibouletteOutboundRequestDataBuilder::new(
+    let response = CibouletteResponseDataBuilder::new(
         &res,
         vec![
             gen_data_row(
@@ -275,11 +275,11 @@ fn with_multi_included_empty() {
     const INTENTION: CibouletteIntention = CibouletteIntention::Read;
 
     let parsed_url = opt.parse(URL).unwrap();
-    let builder = CibouletteInboundRequestBuilder::new(INTENTION, &parsed_url, &None);
+    let builder = CibouletteRequestBuilder::new(INTENTION, &parsed_url, &None);
     let request = builder.build(&store).unwrap();
     let res = CibouletteReadRequest::try_from(request).unwrap();
     let base_type = store.get_type("peoples").unwrap();
-    let response = CibouletteOutboundRequestDataBuilder::new(
+    let response = CibouletteResponseDataBuilder::new(
         &res,
         vec![
             gen_data_row(
@@ -313,11 +313,11 @@ fn with_include_single() {
     const INTENTION: CibouletteIntention = CibouletteIntention::Read;
 
     let parsed_url = opt.parse(URL).unwrap();
-    let builder = CibouletteInboundRequestBuilder::new(INTENTION, &parsed_url, &None);
+    let builder = CibouletteRequestBuilder::new(INTENTION, &parsed_url, &None);
     let request = builder.build(&store).unwrap();
     let res = CibouletteReadRequest::try_from(request).unwrap();
     let base_type = store.get_type("peoples").unwrap();
-    let response = CibouletteOutboundRequestDataBuilder::new(
+    let response = CibouletteResponseDataBuilder::new(
         &res,
         vec![
             gen_data_row(
@@ -353,11 +353,11 @@ fn with_include_single_empty() {
     const INTENTION: CibouletteIntention = CibouletteIntention::Read;
 
     let parsed_url = opt.parse(URL).unwrap();
-    let builder = CibouletteInboundRequestBuilder::new(INTENTION, &parsed_url, &None);
+    let builder = CibouletteRequestBuilder::new(INTENTION, &parsed_url, &None);
     let request = builder.build(&store).unwrap();
     let res = CibouletteReadRequest::try_from(request).unwrap();
     let base_type = store.get_type("peoples").unwrap();
-    let response = CibouletteOutboundRequestDataBuilder::new(
+    let response = CibouletteResponseDataBuilder::new(
         &res,
         vec![gen_data_row(
             &store,
@@ -382,11 +382,11 @@ fn with_include_related() {
     const INTENTION: CibouletteIntention = CibouletteIntention::Read;
 
     let parsed_url = opt.parse(URL).unwrap();
-    let builder = CibouletteInboundRequestBuilder::new(INTENTION, &parsed_url, &None);
+    let builder = CibouletteRequestBuilder::new(INTENTION, &parsed_url, &None);
     let request = builder.build(&store).unwrap();
     let res = CibouletteReadRequest::try_from(request).unwrap();
     let base_type = store.get_type("articles").unwrap();
-    let response = CibouletteOutboundRequestDataBuilder::new(
+    let response = CibouletteResponseDataBuilder::new(
         &res,
         vec![
             gen_data_row(
@@ -422,11 +422,11 @@ fn with_include_nested() {
     const INTENTION: CibouletteIntention = CibouletteIntention::Read;
 
     let parsed_url = opt.parse(URL).unwrap();
-    let builder = CibouletteInboundRequestBuilder::new(INTENTION, &parsed_url, &None);
+    let builder = CibouletteRequestBuilder::new(INTENTION, &parsed_url, &None);
     let request = builder.build(&store).unwrap();
     let res = CibouletteReadRequest::try_from(request).unwrap();
     let base_type = store.get_type("peoples").unwrap();
-    let response = CibouletteOutboundRequestDataBuilder::new(
+    let response = CibouletteResponseDataBuilder::new(
         &res,
         vec![
             gen_data_row(
@@ -472,11 +472,11 @@ fn with_include_nested_self() {
     const INTENTION: CibouletteIntention = CibouletteIntention::Read;
 
     let parsed_url = opt.parse(URL).unwrap();
-    let builder = CibouletteInboundRequestBuilder::new(INTENTION, &parsed_url, &None);
+    let builder = CibouletteRequestBuilder::new(INTENTION, &parsed_url, &None);
     let request = builder.build(&store).unwrap();
     let res = CibouletteReadRequest::try_from(request).unwrap();
     let base_type = store.get_type("peoples").unwrap();
-    let response = CibouletteOutboundRequestDataBuilder::new(
+    let response = CibouletteResponseDataBuilder::new(
         &res,
         vec![
             gen_data_row_related(

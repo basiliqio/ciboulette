@@ -20,11 +20,11 @@ fn simple_update() {
     let body: Option<&str> = Some(body_str.as_str());
 
     let parsed_url = opt.parse(URL).unwrap();
-    let builder = CibouletteInboundRequestBuilder::new(INTENTION, &parsed_url, &body);
+    let builder = CibouletteRequestBuilder::new(INTENTION, &parsed_url, &body);
     let request = builder.build(&store).unwrap();
     let res = CibouletteUpdateRequest::try_from(request).unwrap();
     let base_type = store.get_type("comments").unwrap();
-    let response = CibouletteOutboundRequestDataBuilder::new(
+    let response = CibouletteResponseDataBuilder::new(
         &res,
         vec![gen_data_row(
             &store,

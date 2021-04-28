@@ -74,13 +74,13 @@ impl<'request, B> CibouletteResponseElement<'request, B> {
 /// Fold elements into an accumulator for easier processing
 pub(super) fn fold_elements<'request, 'response, B, I>(
     elements: I,
-    acc_settings: CibouletteOutboundRequestDataAccumulatorSettings,
-) -> Result<CibouletteOutboundRequestDataAccumulator<'response, B>, CibouletteError>
+    acc_settings: CibouletteResponseDataAccumulatorSettings,
+) -> Result<CibouletteResponseDataAccumulator<'response, B>, CibouletteError>
 where
     B: Serialize,
     I: IntoIterator<Item = CibouletteResponseElement<'response, B>>,
 {
-    let acc = CibouletteOutboundRequestDataAccumulator::from(acc_settings.clone());
+    let acc = CibouletteResponseDataAccumulator::from(acc_settings.clone());
     elements.into_iter().try_fold(acc, |mut acc, x| {
         match x.related().is_none()
             && x.identifier().type_() == acc_settings.main_type().name().as_str()
@@ -93,7 +93,7 @@ where
         }
         if let Some(max) = acc.settings().max_elements() {
             if acc.main_data().len() > *max {
-                return Err(CibouletteError::OutboundTooManyMainData(
+                return Err(CibouletteError::ResponseTooManyMainData(
                     acc_settings.main_type().name().to_string(),
                 ));
             }
@@ -103,7 +103,7 @@ where
 }
 
 pub(super) fn fold_elements_id<'request, B>(
-    acc: &mut CibouletteOutboundRequestDataAccumulator<'request, B>,
+    acc: &mut CibouletteResponseDataAccumulator<'request, B>,
     element: CibouletteResponseElement<'request, B>,
 ) {
     let resource = CibouletteResponseResource {
@@ -118,7 +118,7 @@ pub(super) fn fold_elements_id<'request, B>(
 }
 
 pub(super) fn fold_elements_obj<'request, B>(
-    acc: &mut CibouletteOutboundRequestDataAccumulator<'request, B>,
+    acc: &mut CibouletteResponseDataAccumulator<'request, B>,
     element: CibouletteResponseElement<'request, B>,
 ) {
     let resource = CibouletteResponseResource {
@@ -133,7 +133,7 @@ pub(super) fn fold_elements_obj<'request, B>(
 }
 
 pub(super) fn fold_elements_obj_other<'request, B>(
-    acc: &mut CibouletteOutboundRequestDataAccumulator<'request, B>,
+    acc: &mut CibouletteResponseDataAccumulator<'request, B>,
     element: CibouletteResponseElement<'request, B>,
 ) {
     acc.included_data_mut().push(element);

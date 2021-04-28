@@ -10,7 +10,7 @@ fn ok_path_only() {
     const BODY: Option<&str> = None;
 
     let parsed_url = opt.parse(URL).unwrap();
-    let builder = CibouletteInboundRequestBuilder::new(INTENTION, &parsed_url, &BODY);
+    let builder = CibouletteRequestBuilder::new(INTENTION, &parsed_url, &BODY);
     let res = builder.build(&store).unwrap();
 
     assert_eq!(res.intention(), &INTENTION);
@@ -45,7 +45,7 @@ fn body() {
     );
 
     let parsed_url = opt.parse(URL).unwrap();
-    let builder = CibouletteInboundRequestBuilder::new(INTENTION, &parsed_url, &BODY);
+    let builder = CibouletteRequestBuilder::new(INTENTION, &parsed_url, &BODY);
     let res = builder.build(&store).unwrap();
 
     assert_eq!(res.intention(), &INTENTION);
@@ -66,7 +66,7 @@ fn query() {
     const BODY: Option<&str> = None;
 
     let parsed_url = opt.parse(URL).unwrap();
-    let builder = CibouletteInboundRequestBuilder::new(INTENTION, &parsed_url, &BODY);
+    let builder = CibouletteRequestBuilder::new(INTENTION, &parsed_url, &BODY);
     let res = builder.build(&store).unwrap();
 
     assert_eq!(res.intention(), &INTENTION);
@@ -101,6 +101,6 @@ fn force_mandatory_to_null() {
     );
 
     let parsed_url = opt.parse(URL).unwrap();
-    let builder = CibouletteInboundRequestBuilder::new(INTENTION, &parsed_url, &BODY);
+    let builder = CibouletteRequestBuilder::new(INTENTION, &parsed_url, &BODY);
     builder.build(&store).unwrap_err();
 }

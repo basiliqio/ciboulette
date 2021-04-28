@@ -4,33 +4,33 @@ use element::CibouletteResponseElementAlias;
 /// Hold data while building the outbound response
 #[derive(Debug, Getters, MutGetters)]
 #[getset(get = "pub", get_mut = "pub")]
-pub(super) struct CibouletteOutboundRequestDataAccumulator<'response, B> {
+pub(super) struct CibouletteResponseDataAccumulator<'response, B> {
     pub(super) main_data: indexmap::IndexMap<
         CibouletteResourceResponseIdentifier<'response>,
         CibouletteResponseResource<'response, B>,
     >,
     pub(super) included_data: Vec<CibouletteResponseElement<'response, B>>,
-    settings: CibouletteOutboundRequestDataAccumulatorSettings,
+    settings: CibouletteResponseDataAccumulatorSettings,
 }
 
 /// Hold data while building the outbound response
 #[derive(Debug, Getters, MutGetters, Clone)]
 #[getset(get = "pub", get_mut = "pub")]
-pub(super) struct CibouletteOutboundRequestDataAccumulatorSettings {
+pub(super) struct CibouletteResponseDataAccumulatorSettings {
     max_elements: Option<usize>,
     only_ids: bool,
     main_type: Arc<CibouletteResourceType>,
     include_rels: Option<CibouletteResourceRelationshipDetails>,
 }
 
-impl CibouletteOutboundRequestDataAccumulatorSettings {
+impl CibouletteResponseDataAccumulatorSettings {
     pub fn new(
         main_type: Arc<CibouletteResourceType>,
         max_elements: Option<usize>,
         only_ids: bool,
         include_rels: Option<CibouletteResourceRelationshipDetails>,
     ) -> Self {
-        CibouletteOutboundRequestDataAccumulatorSettings {
+        CibouletteResponseDataAccumulatorSettings {
             only_ids,
             max_elements,
             main_type,
@@ -39,10 +39,10 @@ impl CibouletteOutboundRequestDataAccumulatorSettings {
     }
 }
 
-impl<'request> From<&dyn CibouletteInboundRequestCommons<'request>>
-    for CibouletteOutboundRequestDataAccumulatorSettings
+impl<'request> From<&dyn CibouletteRequestCommons<'request>>
+    for CibouletteResponseDataAccumulatorSettings
 {
-    fn from(inbound_request: &dyn CibouletteInboundRequestCommons<'request>) -> Self {
+    fn from(inbound_request: &dyn CibouletteRequestCommons<'request>) -> Self {
         let (max_element, only_ids) = match inbound_request.expected_response_type() {
             CibouletteResponseRequiredType::Object(CibouletteResponseQuantity::Single) => {
                 (Some(1), false)
@@ -62,7 +62,7 @@ impl<'request> From<&dyn CibouletteInboundRequestCommons<'request>>
             CiboulettePath::TypeIdRelationship(_, _, y) => Some(y.clone()),
             _ => None,
         };
-        CibouletteOutboundRequestDataAccumulatorSettings::new(
+        CibouletteResponseDataAccumulatorSettings::new(
             inbound_request.expected_type().clone(),
             max_element,
             only_ids,
@@ -71,11 +71,11 @@ impl<'request> From<&dyn CibouletteInboundRequestCommons<'request>>
     }
 }
 
-impl<'response, B> From<CibouletteOutboundRequestDataAccumulatorSettings>
-    for CibouletteOutboundRequestDataAccumulator<'response, B>
+impl<'response, B> From<CibouletteResponseDataAccumulatorSettings>
+    for CibouletteResponseDataAccumulator<'response, B>
 {
-    fn from(settings: CibouletteOutboundRequestDataAccumulatorSettings) -> Self {
-        CibouletteOutboundRequestDataAccumulator {
+    fn from(settings: CibouletteResponseDataAccumulatorSettings) -> Self {
+        CibouletteResponseDataAccumulator {
             settings,
             main_data: IndexMap::new(),
             included_data: Vec::new(),
@@ -91,11 +91,11 @@ pub(super) struct CibouletteOutboundRequestExtractedData<'request, B> {
     >,
 }
 
-impl<'response, B> CibouletteOutboundRequestDataAccumulator<'response, B> {
+impl<'response, B> CibouletteResponseDataAccumulator<'response, B> {
     /// Extract the accumulated data
     pub fn extract<'request>(
         self,
-        inbound_request: &dyn CibouletteInboundRequestCommons<'request>,
+        inbound_request: &dyn CibouletteRequestCommons<'request>,
     ) -> Result<CibouletteOutboundRequestExtractedData<'response, B>, CibouletteError> {
         let settings = self.settings;
         let mut main_data = self.main_data;
@@ -196,7 +196,7 @@ impl<'response, B> CibouletteOutboundRequestDataAccumulator<'response, B> {
             CibouletteResourceResponseIdentifier<'response>,
             CibouletteResponseResource<'response, B>,
         >,
-        inbound_request: &dyn CibouletteInboundRequestCommons,
+        inbound_request: &dyn CibouletteRequestCommons,
     ) -> CibouletteOptionalData<CibouletteResponseResourceSelector<'response, B>> {
         let body_data: CibouletteResponseBodyData<'response, B> =
             match inbound_request.expected_response_type() {

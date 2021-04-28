@@ -20,7 +20,7 @@ pub struct CibouletteCreateRequest<'request> {
     pub expected_response_type: CibouletteResponseRequiredType,
 }
 
-impl<'request> CibouletteInboundRequestCommons<'request> for CibouletteCreateRequest<'request> {
+impl<'request> CibouletteRequestCommons<'request> for CibouletteCreateRequest<'request> {
     fn path(&self) -> &CiboulettePath<'request> {
         &self.path
     }
@@ -47,11 +47,11 @@ impl<'request> CibouletteInboundRequestCommons<'request> for CibouletteCreateReq
     }
 }
 
-impl<'request> TryFrom<CibouletteInboundRequest<'request>> for CibouletteCreateRequest<'request> {
+impl<'request> TryFrom<CibouletteRequest<'request>> for CibouletteCreateRequest<'request> {
     type Error = CibouletteError;
 
-    fn try_from(value: CibouletteInboundRequest<'request>) -> Result<Self, Self::Error> {
-        let CibouletteInboundRequest {
+    fn try_from(value: CibouletteRequest<'request>) -> Result<Self, Self::Error> {
+        let CibouletteRequest {
             query,
             body,
             intention,

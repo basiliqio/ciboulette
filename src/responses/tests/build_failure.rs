@@ -9,11 +9,11 @@ fn too_many_main_data() {
     const INTENTION: CibouletteIntention = CibouletteIntention::Read;
 
     let parsed_url = opt.parse(URL).unwrap();
-    let builder = CibouletteInboundRequestBuilder::new(INTENTION, &parsed_url, &None);
+    let builder = CibouletteRequestBuilder::new(INTENTION, &parsed_url, &None);
     let request = builder.build(&store).unwrap();
     let res = CibouletteReadRequest::try_from(request).unwrap();
     let base_type = store.get_type("comments").unwrap();
-    let err = CibouletteOutboundRequestDataBuilder::new(
+    let err = CibouletteResponseDataBuilder::new(
         &res,
         vec![
             gen_data_row(
@@ -35,7 +35,7 @@ fn too_many_main_data() {
     .build()
     .unwrap_err();
     assert_eq!(
-        matches!(err, CibouletteError::OutboundTooManyMainData(x) if x == "comments"),
+        matches!(err, CibouletteError::ResponseTooManyMainData(x) if x == "comments"),
         true
     );
 }

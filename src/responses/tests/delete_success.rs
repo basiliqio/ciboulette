@@ -9,10 +9,10 @@ fn simple_update() {
     const INTENTION: CibouletteIntention = CibouletteIntention::Delete;
 
     let parsed_url = opt.parse(URL).unwrap();
-    let builder = CibouletteInboundRequestBuilder::new(INTENTION, &parsed_url, &None);
+    let builder = CibouletteRequestBuilder::new(INTENTION, &parsed_url, &None);
     let request = builder.build(&store).unwrap();
     let res = CibouletteDeleteRequest::try_from(request).unwrap();
-    let response = CibouletteOutboundRequestDataBuilder::<'_, '_, String, _>::new(&res, vec![])
+    let response = CibouletteResponseDataBuilder::<'_, '_, String, _>::new(&res, vec![])
         .build()
         .unwrap();
     assert_eq!(response.status(), CibouletteResponseStatus::Ok);

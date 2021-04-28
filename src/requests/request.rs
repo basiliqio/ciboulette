@@ -3,7 +3,7 @@ use super::*;
 /// ## Builder object for [CibouletteBody](CibouletteBody)
 #[derive(Debug, Clone, Getters)]
 #[getset(get = "pub", get_mut = "pub")]
-pub struct CibouletteInboundRequestBuilder<'request> {
+pub struct CibouletteRequestBuilder<'request> {
     /// The request URL
     req_url: &'request Url,
     /// The method used
@@ -15,7 +15,7 @@ pub struct CibouletteInboundRequestBuilder<'request> {
 /// ## Abstract representation of a `JSON:API` request
 #[derive(Debug, Getters, Clone)]
 #[getset(get = "pub")]
-pub struct CibouletteInboundRequest<'request> {
+pub struct CibouletteRequest<'request> {
     /// The path used for the query
     pub path: CiboulettePath<'request>,
     /// The query parameter included
@@ -33,7 +33,7 @@ pub struct CibouletteInboundRequest<'request> {
 }
 
 /// ## `JSON:API` inbound requests
-pub trait CibouletteInboundRequestCommons<'request>: Send + Sync {
+pub trait CibouletteRequestCommons<'request>: Send + Sync {
     /// Get a reference to request path
     fn path(&self) -> &CiboulettePath<'request>;
     /// Get a reference to request query parameters
@@ -50,14 +50,14 @@ pub trait CibouletteInboundRequestCommons<'request>: Send + Sync {
     fn meta(&self) -> &Option<serde_json::Value>;
 }
 
-impl<'request> CibouletteInboundRequestBuilder<'request> {
+impl<'request> CibouletteRequestBuilder<'request> {
     /// Create a new inbound requests from parts
     pub fn new(
         intention: CibouletteIntention,
         req_url: &'request Url,
         body: &'request Option<&'request str>,
     ) -> Self {
-        CibouletteInboundRequestBuilder {
+        CibouletteRequestBuilder {
             req_url,
             body,
             intention,
@@ -71,7 +71,7 @@ impl<'request> CibouletteInboundRequestBuilder<'request> {
     pub fn build(
         self,
         bag: &CibouletteStore,
-    ) -> Result<CibouletteInboundRequest<'request>, CibouletteError> {
+    ) -> Result<CibouletteRequest<'request>, CibouletteError> {
         let path: CiboulettePath<'request> =
             CiboulettePathBuilder::parse(self.req_url)?.build(&bag)?;
         let body: Option<
@@ -99,7 +99,7 @@ impl<'request> CibouletteInboundRequestBuilder<'request> {
             None => None,
         };
 
-        Ok(CibouletteInboundRequest {
+        Ok(CibouletteRequest {
             path,
             body,
             query: query.unwrap_or_default(),

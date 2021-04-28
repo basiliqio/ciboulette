@@ -20,7 +20,7 @@ pub struct CibouletteDeleteRequest<'request> {
     pub path: CiboulettePath<'request>,
 }
 
-impl<'request> CibouletteInboundRequestCommons<'request> for CibouletteDeleteRequest<'request> {
+impl<'request> CibouletteRequestCommons<'request> for CibouletteDeleteRequest<'request> {
     fn path(&self) -> &CiboulettePath<'request> {
         &self.path
     }
@@ -48,11 +48,11 @@ impl<'request> CibouletteInboundRequestCommons<'request> for CibouletteDeleteReq
     }
 }
 
-impl<'request> TryFrom<CibouletteInboundRequest<'request>> for CibouletteDeleteRequest<'request> {
+impl<'request> TryFrom<CibouletteRequest<'request>> for CibouletteDeleteRequest<'request> {
     type Error = CibouletteError;
 
-    fn try_from(value: CibouletteInboundRequest<'request>) -> Result<Self, Self::Error> {
-        let CibouletteInboundRequest {
+    fn try_from(value: CibouletteRequest<'request>) -> Result<Self, Self::Error> {
+        let CibouletteRequest {
             query,
             body,
             path,

@@ -107,7 +107,7 @@ impl<'de> Visitor<'de> for CibouletteBodyFieldVisitor {
     where
         E: serde::de::Error,
     {
-        /// Match the field key
+        // Match the field key
         match value {
             "data" => Ok(CibouletteBodyField::Data),
             "errors" => Ok(CibouletteBodyField::Errors),
@@ -124,7 +124,7 @@ impl<'de> Visitor<'de> for CibouletteBodyFieldVisitor {
     where
         E: serde::de::Error,
     {
-        /// Match the field key
+        // Match the field key
         match value {
             b"data" => Ok(CibouletteBodyField::Data),
             b"errors" => Ok(CibouletteBodyField::Errors),

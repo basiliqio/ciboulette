@@ -1,9 +1,9 @@
 use super::*;
 use getset::CopyGetters;
 
-/// An outbound response, built from an inbound request.
+/// A response, built from a request.
 #[derive(Debug, Getters, CopyGetters, Serialize)]
-pub struct CibouletteOutboundRequest<'response, B> {
+pub struct CibouletteResponse<'response, B> {
     /// The body of the response.
     #[serde(flatten)]
     #[getset(get = "pub")]

@@ -10,9 +10,7 @@ pub mod request_data_builder;
 pub mod status;
 pub mod type_;
 
-use accumulator::{
-    CibouletteOutboundRequestDataAccumulator, CibouletteOutboundRequestDataAccumulatorSettings,
-};
+use accumulator::{CibouletteResponseDataAccumulator, CibouletteResponseDataAccumulatorSettings};
 use element::CibouletteResponseElement;
 
 #[cfg(test)]

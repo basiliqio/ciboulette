@@ -19,11 +19,11 @@ fn simple_create() {
     let body: Option<&str> = Some(body_str.as_str());
 
     let parsed_url = opt.parse(URL).unwrap();
-    let builder = CibouletteInboundRequestBuilder::new(INTENTION, &parsed_url, &body);
+    let builder = CibouletteRequestBuilder::new(INTENTION, &parsed_url, &body);
     let request = builder.build(&store).unwrap();
     let res = CibouletteCreateRequest::try_from(request).unwrap();
     let base_type = store.get_type("comments").unwrap();
-    let response = CibouletteOutboundRequestDataBuilder::new(
+    let response = CibouletteResponseDataBuilder::new(
         &res,
         vec![gen_data_row(
             &store,
@@ -58,10 +58,10 @@ fn simple_create_no_content() {
     let body: Option<&str> = Some(body_str.as_str());
 
     let parsed_url = opt.parse(URL).unwrap();
-    let builder = CibouletteInboundRequestBuilder::new(INTENTION, &parsed_url, &body);
+    let builder = CibouletteRequestBuilder::new(INTENTION, &parsed_url, &body);
     let request = builder.build(&store).unwrap();
     let res = CibouletteCreateRequest::try_from(request).unwrap();
-    let response = CibouletteOutboundRequestDataBuilder::<'_, '_, String, _>::new(&res, vec![])
+    let response = CibouletteResponseDataBuilder::<'_, '_, String, _>::new(&res, vec![])
         .build()
         .unwrap();
     assert_eq!(response.status(), CibouletteResponseStatus::Ok);

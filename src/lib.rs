@@ -4,13 +4,13 @@ mod config;
 mod error_request;
 mod errors;
 mod id;
-mod inbound_request;
 mod intention;
 mod member_name;
-mod outbound_request;
 mod path;
 mod query;
 mod request_selector;
+mod requests;
+mod responses;
 mod serde_utils;
 mod store;
 
@@ -54,40 +54,40 @@ pub use body::resource_type::{CibouletteResourceRelationshipDetails, CibouletteR
 pub use body::resource_type_builder::CibouletteResourceTypeBuilder;
 pub use id::{CibouletteId, CibouletteIdBuilder, CibouletteIdType};
 pub use intention::CibouletteIntention;
-pub use outbound_request::request::CibouletteOutboundRequest;
-pub use outbound_request::status::CibouletteResponseStatus;
+pub use responses::request::CibouletteResponse;
+pub use responses::status::CibouletteResponseStatus;
 
-pub use inbound_request::create::CibouletteCreateRequest;
-pub use inbound_request::delete::CibouletteDeleteRequest;
-pub use inbound_request::read::CibouletteReadRequest;
-pub use inbound_request::update::{
-    CibouletteUpdateRelationshipBody, CibouletteUpdateRequest, CibouletteUpdateRequestType,
-};
-pub use outbound_request::body::{
-    CibouletteResponseBody, CibouletteResponseBodyData, CibouletteResponseRelationshipObject,
-    CibouletteResponseResource, CibouletteResponseResourceSelector,
-};
-pub use outbound_request::element::CibouletteResponseElement;
-pub use outbound_request::element_identifier::{
-    CibouletteResourceResponseIdentifier, CibouletteResourceResponseIdentifierBuilder,
-    CibouletteResourceResponseIdentifierSelector,
-    CibouletteResourceResponseIdentifierSelectorBuilder,
-};
-pub use outbound_request::request_data_builder::CibouletteOutboundRequestDataBuilder;
 pub use query::{
     CiboulettePageType, CibouletteQueryParameters, CibouletteQueryParametersBuilder,
     CibouletteSortingDirection, CibouletteSortingElement,
 };
 pub use request_selector::CibouletteRequestSelector;
+pub use requests::create::CibouletteCreateRequest;
+pub use requests::delete::CibouletteDeleteRequest;
+pub use requests::read::CibouletteReadRequest;
+pub use requests::update::{
+    CibouletteUpdateRelationshipBody, CibouletteUpdateRequest, CibouletteUpdateRequestType,
+};
+pub use responses::body::{
+    CibouletteResponseBody, CibouletteResponseBodyData, CibouletteResponseRelationshipObject,
+    CibouletteResponseResource, CibouletteResponseResourceSelector,
+};
+pub use responses::element::CibouletteResponseElement;
+pub use responses::element_identifier::{
+    CibouletteResourceResponseIdentifier, CibouletteResourceResponseIdentifierBuilder,
+    CibouletteResourceResponseIdentifierSelector,
+    CibouletteResourceResponseIdentifierSelectorBuilder,
+};
+pub use responses::request_data_builder::CibouletteResponseDataBuilder;
 
 pub use config::CibouletteConfig;
 pub use error_request::CibouletteErrorRequest;
 pub use errors::{CibouletteClashDirection, CibouletteError, CiboulettePathType};
-pub use inbound_request::request::{
-    CibouletteInboundRequest, CibouletteInboundRequestBuilder, CibouletteInboundRequestCommons,
-};
 pub use member_name::check_member_name;
-pub use outbound_request::type_::{CibouletteResponseQuantity, CibouletteResponseRequiredType};
+pub use requests::request::{
+    CibouletteRequest, CibouletteRequestBuilder, CibouletteRequestCommons,
+};
+pub use responses::type_::{CibouletteResponseQuantity, CibouletteResponseRequiredType};
 
 pub use path::path_container::{CiboulettePath, CiboulettePathBuilder};
 pub use store::{
