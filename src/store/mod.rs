@@ -4,10 +4,17 @@ use getset::CopyGetters;
 mod builder;
 mod many_to_many;
 mod one_to_many;
-pub mod relationships_options;
-pub mod relationships_options_builder;
+mod relationships_options;
+mod relationships_options_builder;
 pub use builder::CibouletteStoreBuilder;
-use relationships_options::CibouletteRelationshipOneToManyOption;
+pub use relationships_options::{
+    CibouletteRelationshipManyToManyOption, CibouletteRelationshipOneToManyOption,
+    CibouletteRelationshipOption,
+};
+pub use relationships_options_builder::{
+    CibouletteRelationshipManyToManyOptionBuilder, CibouletteRelationshipOneToManyOptionBuilder,
+    CibouletteRelationshipOptionBuilder,
+};
 
 #[cfg(test)]
 mod tests;

@@ -4,16 +4,23 @@ use super::*;
 #[derive(Debug, Clone, Getters)]
 #[getset(get = "pub", get_mut = "pub")]
 pub struct CibouletteInboundRequestBuilder<'request> {
+    /// The request URL
     req_url: &'request Url,
+    /// The method used
     intention: CibouletteIntention,
+    /// The body, if any
     body: &'request Option<&'request str>,
 }
 
+/// ## Abstract representation of a `JSON:API` request
 #[derive(Debug, Getters, Clone)]
 #[getset(get = "pub")]
 pub struct CibouletteInboundRequest<'request> {
+    /// The path used for the query
     pub path: CiboulettePath<'request>,
+    /// The query parameter included
     pub query: CibouletteQueryParameters<'request>,
+    /// The request body if any
     pub body: Option<
         CibouletteBody<
             'request,
@@ -21,21 +28,30 @@ pub struct CibouletteInboundRequest<'request> {
             MessyJsonObjectValue<'request>,
         >,
     >,
+    /// The method used
     pub intention: CibouletteIntention,
 }
 
+/// ## `JSON:API` inbound requests
 pub trait CibouletteInboundRequestCommons<'request>: Send + Sync {
+    /// Get a reference to request path
     fn path(&self) -> &CiboulettePath<'request>;
+    /// Get a reference to request query parameters
     fn query(&self) -> &CibouletteQueryParameters<'request>;
+    /// Get a reference to the request intention (method)
     fn intention(&self) -> CibouletteIntention;
+    /// Get the expected response type for that request
     fn expected_response_type(&self) -> &CibouletteResponseRequiredType;
+    /// The expected response type when building a response for that request
     fn expected_type(&self) -> &Arc<CibouletteResourceType>;
+    /// The type on which relationships should be based on
     fn anchor_type(&self) -> &Arc<CibouletteResourceType>;
-
+    /// Meta data included by the client, if any
     fn meta(&self) -> &Option<serde_json::Value>;
 }
 
 impl<'request> CibouletteInboundRequestBuilder<'request> {
+    /// Create a new inbound requests from parts
     pub fn new(
         intention: CibouletteIntention,
         req_url: &'request Url,
@@ -48,6 +64,10 @@ impl<'request> CibouletteInboundRequestBuilder<'request> {
         }
     }
 
+    /// Build the inbound request, checking its validity and parsing the inner body
+    ///
+    /// Once built, this request can be transformed into the definitive request depending
+    /// on its intention.
     pub fn build(
         self,
         bag: &CibouletteStore,

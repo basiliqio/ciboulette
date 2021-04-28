@@ -1,18 +1,22 @@
 use super::*;
 
+/// ## A 'GET' request
 #[derive(Debug, Clone, Getters, MutGetters)]
 #[getset(get = "pub")]
 pub struct CibouletteReadRequest<'request> {
+    /// The path used to query
     pub path: CiboulettePath<'request>,
+    /// The query parameters used
     pub query: CibouletteQueryParameters<'request>,
+    /// The included data if any
     pub data: CibouletteResourceSelector<
         'request,
         MessyJsonObjectValue<'request>,
         CibouletteResourceIdentifier<'request>,
     >,
+    /// The meta data sent by the client
     pub meta: Option<Value>,
-    pub links: Option<CibouletteBodyLink<'request>>,
-    pub jsonapi: Option<CibouletteJsonApiVersion<'request>>, // TODO Semver
+    /// The expected response type
     pub expected_response_type: CibouletteResponseRequiredType,
 }
 
@@ -25,6 +29,10 @@ impl<'request> CibouletteInboundRequestCommons<'request> for CibouletteReadReque
     }
 
     fn expected_type(&self) -> &Arc<CibouletteResourceType> {
+        // match self.path() {
+        //     CiboulettePath::TypeIdRelationship(_, _, _) => self.path().base_type(),
+        //     _ => self.path().main_type(),
+        // }
         self.path().main_type()
     }
 
@@ -40,6 +48,7 @@ impl<'request> CibouletteInboundRequestCommons<'request> for CibouletteReadReque
             CiboulettePath::TypeIdRelationship(_, _, _) => self.path().base_type(),
             _ => self.path().main_type(),
         }
+        // self.path().main_type()
     }
 
     fn meta(&self) -> &Option<serde_json::Value> {
@@ -75,13 +84,7 @@ impl<'request> TryFrom<CibouletteInboundRequest<'request>> for CibouletteReadReq
             ));
         }
 
-        let CibouletteBody {
-            data,
-            meta,
-            links,
-            jsonapi,
-            ..
-        } = body.unwrap_or_default();
+        let CibouletteBody { data, meta, .. } = body.unwrap_or_default();
 
         let data = match data {
             CibouletteBodyData::Object(obj) => obj,
@@ -96,8 +99,6 @@ impl<'request> TryFrom<CibouletteInboundRequest<'request>> for CibouletteReadReq
             query,
             data,
             meta,
-            links,
-            jsonapi,
             expected_response_type,
         })
     }

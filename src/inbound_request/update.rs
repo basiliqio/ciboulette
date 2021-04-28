@@ -1,5 +1,8 @@
 use super::*;
 
+/// ## Update request type
+///
+/// Can either be an update of an object or of a relationship
 #[derive(Debug, Clone)]
 pub enum CibouletteUpdateRequestType<'request> {
     MainType(
@@ -9,28 +12,36 @@ pub enum CibouletteUpdateRequestType<'request> {
             CibouletteResourceIdentifier<'request>,
         >,
     ),
-    Relationship(CibouletteUpdateRelationship<'request>),
+    Relationship(CibouletteUpdateRelationshipBody<'request>),
 }
 
+/// ## Body of a relationships update request
 #[derive(Debug, Getters, Clone)]
 #[getset(get = "pub")]
-pub struct CibouletteUpdateRelationship<'request> {
+pub struct CibouletteUpdateRelationshipBody<'request> {
     type_: Arc<CibouletteResourceType>,
     value: CibouletteOptionalData<CibouletteResourceIdentifierSelector<'request>>,
 }
 
+/// An `UPDATE` request
 #[derive(Debug, Getters, MutGetters, Clone)]
 #[getset(get = "pub")]
 pub struct CibouletteUpdateRequest<'request> {
+    /// The base type beeing updated
     pub resource_type: Arc<CibouletteResourceType>,
+    /// The resource id on which the update is based
     pub resource_id: CibouletteId<'request>,
+    /// If updating a relationships, the related type
     pub related_type: Option<Arc<CibouletteResourceType>>,
+    /// The path used to query
     pub path: CiboulettePath<'request>,
+    /// The query parameters included
     pub query: CibouletteQueryParameters<'request>,
+    /// The update requests data provided by the client
     pub data: CibouletteUpdateRequestType<'request>,
+    /// The meta data included by the client
     pub meta: Option<Value>,
-    pub links: Option<CibouletteBodyLink<'request>>,
-    pub jsonapi: Option<CibouletteJsonApiVersion<'request>>, // TODO Semver
+    /// The expected response type for that request
     pub expected_response_type: CibouletteResponseRequiredType,
 }
 
@@ -101,17 +112,11 @@ impl<'request> TryFrom<CibouletteInboundRequest<'request>> for CibouletteUpdateR
             ));
         }
 
-        let CibouletteBody {
-            data,
-            meta,
-            links,
-            jsonapi,
-            ..
-        } = body.unwrap_or_default();
+        let CibouletteBody { data, meta, .. } = body.unwrap_or_default();
         let data = match data {
             CibouletteBodyData::Object(selector) => match related_type {
                 Some(related_details) => {
-                    CibouletteUpdateRequestType::Relationship(CibouletteUpdateRelationship {
+                    CibouletteUpdateRequestType::Relationship(CibouletteUpdateRelationshipBody {
                         type_: related_details.related_type().clone(),
                         value: CibouletteOptionalData::Object(selector.try_into()?),
                     })
@@ -133,7 +138,7 @@ impl<'request> TryFrom<CibouletteInboundRequest<'request>> for CibouletteUpdateR
             },
             CibouletteBodyData::Null(present) => match related_type {
                 Some(related_details) => {
-                    CibouletteUpdateRequestType::Relationship(CibouletteUpdateRelationship {
+                    CibouletteUpdateRequestType::Relationship(CibouletteUpdateRelationshipBody {
                         type_: related_details.related_type().clone(),
                         value: CibouletteOptionalData::Null(present),
                     })
@@ -149,8 +154,6 @@ impl<'request> TryFrom<CibouletteInboundRequest<'request>> for CibouletteUpdateR
             data,
             meta,
             path,
-            links,
-            jsonapi,
             expected_response_type: CibouletteResponseRequiredType::Object(
                 CibouletteResponseQuantity::Single,
             ),

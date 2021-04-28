@@ -22,6 +22,7 @@ impl std::fmt::Display for CibouletteClashDirection {
     }
 }
 
+/// ## `JSON:API` Path type
 #[derive(Debug, PartialEq)]
 pub enum CiboulettePathType {
     Type,

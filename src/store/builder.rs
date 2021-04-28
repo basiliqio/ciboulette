@@ -1,16 +1,20 @@
 use super::*;
 
-/// ## Map of accepted resource types
+/// ## Builder for [CibouletteStore](CibouletteStore)
 #[derive(Clone, Debug, Getters, MutGetters)]
 #[getset(get = "pub", get_mut = "pub(crate)")]
 pub struct CibouletteStoreBuilder {
+    /// Graph of relationships between [CibouletteResourceType](CibouletteResourceType)
     pub(crate) graph: petgraph::graph::Graph<
         CibouletteResourceType,
         CibouletteRelationshipOptionBuilder,
         petgraph::Directed,
         u16,
     >,
+    /// A map of every [CibouletteResourceType](CibouletteResourceType) in the graph
+    /// mapped by their alias
     pub(crate) map: BTreeMap<String, petgraph::graph::NodeIndex<u16>>,
+    /// The configuration
     pub(crate) config: CibouletteConfig,
 }
 
@@ -122,6 +126,7 @@ impl CibouletteStoreBuilder {
         Ok(())
     }
 
+    /// Build the [CibouletteStore](CibouletteStore)
     pub fn build(self) -> Result<CibouletteStore, CibouletteError> {
         let mut tmp_graph: petgraph::graph::Graph<
             Arc<CibouletteResourceType>,

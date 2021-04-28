@@ -1,5 +1,6 @@
 use super::*;
 
+/// ## Builder for [CibouletteRelationshipObject](CibouletteRelationshipObject)
 #[derive(Debug, Deserialize, Serialize, Getters, MutGetters, Default, Clone)]
 #[getset(get = "pub", get_mut = "pub")]
 #[serde(default)]

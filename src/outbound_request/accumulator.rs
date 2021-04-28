@@ -63,7 +63,7 @@ impl<'request> From<&dyn CibouletteInboundRequestCommons<'request>>
             _ => None,
         };
         CibouletteOutboundRequestDataAccumulatorSettings::new(
-            inbound_request.path().main_type().clone(),
+            inbound_request.expected_type().clone(),
             max_element,
             only_ids,
             include_rels,

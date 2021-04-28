@@ -2,8 +2,15 @@ use super::*;
 
 pub type CibouletteBodyDataBuilder<'request> =
     CibouletteOptionalData<CibouletteResourceSelectorBuilder<'request>>;
+
 pub type CibouletteBodyData<'request, I, B> =
     CibouletteOptionalData<CibouletteResourceSelector<'request, B, I>>;
+
+pub type CibouletteBodyDataPermissive<'request> = CibouletteResourceSelector<
+    'request,
+    CibouletteResourceIdentifierPermissive<'request>,
+    MessyJsonObjectValue<'request>,
+>;
 
 // CibouletteResourceSelector<'request, CibouletteResourceIdentifierPermissive<'request>>
 

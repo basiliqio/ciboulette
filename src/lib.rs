@@ -12,7 +12,7 @@ mod path;
 mod query;
 mod request_selector;
 mod serde_utils;
-pub mod store;
+mod store;
 
 #[cfg(test)]
 mod tests;
@@ -38,7 +38,9 @@ pub use body::link::{
 };
 pub use body::relationship::{CibouletteRelationshipObject, CibouletteRelationshipObjectBuilder};
 pub use body::request_body::{CibouletteBody, CibouletteBodyBuilder, CibouletteJsonApiVersion};
-pub use body::request_body_data::{CibouletteBodyData, CibouletteBodyDataBuilder};
+pub use body::request_body_data::{
+    CibouletteBodyData, CibouletteBodyDataBuilder, CibouletteBodyDataPermissive,
+};
 pub use body::resource_identifier::{
     CibouletteResourceIdentifier, CibouletteResourceIdentifierBuilder,
     CibouletteResourceIdentifierPermissive, CibouletteResourceIdentifierSelector,
@@ -59,7 +61,7 @@ pub use inbound_request::create::CibouletteCreateRequest;
 pub use inbound_request::delete::CibouletteDeleteRequest;
 pub use inbound_request::read::CibouletteReadRequest;
 pub use inbound_request::update::{
-    CibouletteUpdateRelationship, CibouletteUpdateRequest, CibouletteUpdateRequestType,
+    CibouletteUpdateRelationshipBody, CibouletteUpdateRequest, CibouletteUpdateRequestType,
 };
 pub use outbound_request::body::{
     CibouletteResponseBody, CibouletteResponseBodyData, CibouletteResponseRelationshipObject,
@@ -88,12 +90,9 @@ pub use member_name::check_member_name;
 pub use outbound_request::type_::{CibouletteResponseQuantity, CibouletteResponseRequiredType};
 
 pub use path::path_container::{CiboulettePath, CiboulettePathBuilder};
-pub use store::relationships_options::{
-    CibouletteRelationshipManyToManyOption, CibouletteRelationshipOneToManyOption,
-    CibouletteRelationshipOption,
+pub use store::{
+    CibouletteRelationshipManyToManyOption, CibouletteRelationshipManyToManyOptionBuilder,
+    CibouletteRelationshipOneToManyOption, CibouletteRelationshipOneToManyOptionBuilder,
+    CibouletteRelationshipOption, CibouletteRelationshipOptionBuilder, CibouletteStore,
+    CibouletteStoreBuilder,
 };
-pub use store::relationships_options_builder::{
-    CibouletteRelationshipManyToManyOptionBuilder, CibouletteRelationshipOneToManyOptionBuilder,
-    CibouletteRelationshipOptionBuilder,
-};
-pub use store::{CibouletteStore, CibouletteStoreBuilder};

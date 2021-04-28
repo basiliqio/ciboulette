@@ -1,5 +1,8 @@
 use super::*;
 
+/// Extract the type of query param
+///
+/// i.e. `[public__peoples]` => `public__peoples`
 pub fn parse_typed_query_param(s: &str) -> Option<Cow<'_, str>> {
     if s.len() <= 2 || !(s.starts_with('[') && s.ends_with(']')) {
         return None;

@@ -1,14 +1,22 @@
 use super::*;
 
+/// ## Path builder for `JSON:API` requests
 #[derive(Debug, Clone)]
 pub enum CiboulettePathBuilder<'request> {
+    /// When selecting a whole type `/public__peoples`
     Type(Cow<'request, str>),
+    /// When selecting a single object `/public__peoples/863b8f21-ccc2-49bb-aa18-cc65faace9b7`
     TypeId(Cow<'request, str>, Cow<'request, str>),
+    /// When selecting a related object `/public__peoples/acec9cfa-ada1-4653-adde-a64691b46dfb/public__articles`
     TypeIdRelated(Cow<'request, str>, Cow<'request, str>, Cow<'request, str>),
+    /// When selecting a relationship `/public__peoples/acec9cfa-ada1-4653-adde-a64691b46dfb/relationships/public__articles`
     TypeIdRelationship(Cow<'request, str>, Cow<'request, str>, Cow<'request, str>),
 }
 
 impl<'request> CiboulettePath<'request> {
+    /// Return the main type of the path
+    ///
+    /// The base type for `Type` and `TypeId` and the related type for `TypeIdRelated` and `TypeIdRelationship`
     pub fn main_type(&self) -> &Arc<CibouletteResourceType> {
         match self {
             CiboulettePath::Type(x) => x,
@@ -18,6 +26,7 @@ impl<'request> CiboulettePath<'request> {
         }
     }
 
+    /// Return the first type of the path
     pub fn base_type(&self) -> &Arc<CibouletteResourceType> {
         match self {
             CiboulettePath::Type(x) => x,
@@ -28,15 +37,20 @@ impl<'request> CiboulettePath<'request> {
     }
 }
 
+/// ## Path of a `JSON:API` request
 #[derive(Debug, Clone)]
 pub enum CiboulettePath<'request> {
+    /// The base type
     Type(Arc<CibouletteResourceType>),
+    /// The base type and its id
     TypeId(Arc<CibouletteResourceType>, CibouletteId<'request>),
+    /// The base type, its id and the relationship details with the related type
     TypeIdRelated(
         Arc<CibouletteResourceType>,
         CibouletteId<'request>,
         CibouletteResourceRelationshipDetails,
     ),
+    /// The base type, its id and the relationship details with the related type
     TypeIdRelationship(
         Arc<CibouletteResourceType>,
         CibouletteId<'request>,
@@ -45,6 +59,7 @@ pub enum CiboulettePath<'request> {
 }
 
 impl<'request> CiboulettePathBuilder<'request> {
+    /// Parse an URL, returning a [CiboulettePathBuilder](CiboulettePathBuilder)
     pub fn parse(url: &'request Url) -> Result<Self, CibouletteError> {
         let mut segs: [Option<&str>; 4] = [None; 4];
         let mut ii = 0;
@@ -88,6 +103,7 @@ impl<'request> CiboulettePathBuilder<'request> {
         }
     }
 
+    /// Build a path with a main type and related type, returning the main type and the relationship's metadata
     fn build_double_typed(
         store: &CibouletteStore,
         ftype: Cow<'request, str>,
@@ -104,6 +120,7 @@ impl<'request> CiboulettePathBuilder<'request> {
         Ok((nftype.clone(), nstype_rel))
     }
 
+    /// Build the [CiboulettePath](CiboulettePath)
     pub fn build(
         self,
         store: &CibouletteStore,

@@ -24,6 +24,10 @@ impl CibouletteResourceTypeBuilder {
             name: ArcStr::from(name),
         }
     }
+
+    /// Check the the name of every field in an object.
+    ///
+    /// Return `Some(field)` if a field doesn't respect the member name's checks.
     fn check_member_name_obj(val: &MessyJsonObject) -> Option<String> {
         for (k, v) in val.properties().iter() {
             if !crate::member_name::check_member_name(&*k) {
@@ -35,6 +39,10 @@ impl CibouletteResourceTypeBuilder {
         }
         None
     }
+
+    /// Check the the name of every field in an document.
+    ///
+    /// Return `Some(field)` if a field doesn't respect the member name's checks.
     fn check_member_name(val: &MessyJson) -> Option<String> {
         match val.deref() {
             MessyJsonInner::Obj(map) => Self::check_member_name_obj(map),
@@ -42,6 +50,8 @@ impl CibouletteResourceTypeBuilder {
             _ => None,
         }
     }
+
+    /// Build the resource type, checking once the member names
     pub fn build(self) -> Result<CibouletteResourceType, CibouletteError> {
         if let Some(x) = Self::check_member_name_obj(self.schema()) {
             return Err(CibouletteError::InvalidMemberName(x));

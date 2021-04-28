@@ -1,11 +1,14 @@
 use super::*;
 use serde::de::{DeserializeSeed, Deserializer};
-/// ## Element of a sorting vector.
+/// ## Element of a sorting list.
 #[derive(Debug, Getters, Clone, Ord, PartialEq, Eq, PartialOrd)]
 #[getset(get = "pub")]
 pub struct CibouletteSortingElement {
+    /// The relation chain
     pub rel_chain: Vec<CibouletteResourceRelationshipDetails>,
+    /// The direction of the sort
     pub direction: CibouletteSortingDirection,
+    /// The field that is beeing sorted
     pub field: ArcStr,
 }
 
@@ -28,12 +31,19 @@ impl CibouletteSortingElement {
 #[derive(Debug, Getters)]
 #[getset(get = "pub")]
 pub struct CibouletteQueryParametersBuilder<'request> {
+    /// Include other resource with response
     pub(super) include: Option<Vec<Vec<Cow<'request, str>>>>,
+    /// Don't include all the field for some types
     pub(super) sparse: BTreeMap<Cow<'request, str>, Vec<Cow<'request, str>>>,
+    /// Directive to sort the main type
     pub(super) sorting: Vec<(CibouletteSortingDirection, Cow<'request, str>)>,
+    /// Paginate the response
     pub(super) page: BTreeMap<CiboulettePageType<'request>, Cow<'request, str>>,
+    /// TBD
     pub(super) filter: Option<Cow<'request, str>>,
+    /// TBD
     pub(super) filter_typed: BTreeMap<Cow<'request, str>, Cow<'request, str>>,
+    /// The other query parameters
     pub(super) meta: BTreeMap<Cow<'request, str>, Cow<'request, str>>,
 }
 

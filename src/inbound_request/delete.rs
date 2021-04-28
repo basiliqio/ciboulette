@@ -1,14 +1,22 @@
 use super::*;
 
+/// ## A `DELETE` request
 #[derive(Debug, Getters, MutGetters, Clone)]
 #[getset(get = "pub")]
 pub struct CibouletteDeleteRequest<'request> {
+    /// The resource type beeing deleted
     pub resource_type: Arc<CibouletteResourceType>,
+    /// The resource id beeing delete
     pub resource_id: CibouletteId<'request>,
+    /// The related type beeing delete when deleting M2O relationships
     pub related_type: Option<Arc<CibouletteResourceType>>,
+    /// The query parameters
     pub query: CibouletteQueryParameters<'request>,
+    /// The meta data sent by the client
     pub meta: Option<Value>,
+    /// The expected response type
     pub expected_response_type: CibouletteResponseRequiredType,
+    /// The path used to query
     pub path: CiboulettePath<'request>,
 }
 

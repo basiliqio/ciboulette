@@ -1,19 +1,28 @@
 use super::*;
 
+/// ## Many-to-Many relationships option builder
 #[derive(Debug, Clone, Getters, PartialEq)]
 #[getset(get = "pub")]
 pub struct CibouletteRelationshipManyToManyOptionBuilder {
+    /// The bucket resource
     bucket_resource: CibouletteResourceType,
+    /// The keys associated type and their matching field in bucket
     keys: [(CibouletteResourceType, ArcStr); 2],
 }
 
+/// ## One-to-Many/Many-to-one relationships option builder
 #[derive(Debug, Clone, Getters, PartialEq)]
 #[getset(get = "pub")]
 pub struct CibouletteRelationshipOneToManyOptionBuilder {
+    /// The "one" resource
     one_table: CibouletteResourceType,
+    /// The "many" resource
     many_table: CibouletteResourceType,
+    /// The field in the "many" resource that points to the "one" resource
     many_table_key: ArcStr,
+    /// True if that relationships is optional
     optional: bool,
+    /// True if this relationships is part of Many-to-Many relationships
     part_of_many_to_many: Option<petgraph::graph::EdgeIndex<u16>>,
 }
 
@@ -28,6 +37,7 @@ impl CibouletteRelationshipManyToManyOptionBuilder {
         }
     }
 
+    /// Get the field for the resource in a Many-to-Many relationships
     pub fn keys_for_type(&self, type_: &CibouletteResourceType) -> Result<ArcStr, CibouletteError> {
         self.keys
             .iter()
@@ -40,6 +50,8 @@ impl CibouletteRelationshipManyToManyOptionBuilder {
                 )
             })
     }
+
+    /// Build into [Arc<CibouletteRelationshipManyToManyOption>](CibouletteRelationshipManyToManyOption)
     pub(crate) fn build(
         &self,
         store_builder: &CibouletteStoreBuilder,
@@ -109,6 +121,7 @@ impl CibouletteRelationshipOneToManyOptionBuilder {
         }
     }
 
+    /// Build a new O2M/M2O relationships in the process of creating a new M2M relationships
     pub(crate) fn new_from_many_to_many(
         one_table: CibouletteResourceType,
         many_table: CibouletteResourceType,
@@ -125,6 +138,7 @@ impl CibouletteRelationshipOneToManyOptionBuilder {
         }
     }
 
+    /// Build into [Arc<CibouletteRelationshipOneToManyOption>](CibouletteRelationshipOneToManyOption)
     pub(crate) fn build(
         &self,
         store_builder: &CibouletteStoreBuilder,
@@ -162,6 +176,7 @@ impl CibouletteRelationshipOneToManyOptionBuilder {
     }
 }
 
+/// ## Relationship options builder
 #[derive(Debug, Clone)]
 pub enum CibouletteRelationshipOptionBuilder {
     /// One to many relationship, without the intermediate node
@@ -173,6 +188,7 @@ pub enum CibouletteRelationshipOptionBuilder {
 }
 
 impl CibouletteRelationshipOptionBuilder {
+    /// Build into [CibouletteRelationshipOption](CibouletteRelationshipOption)
     pub(crate) fn build(
         &self,
         store_builder: &CibouletteStoreBuilder,

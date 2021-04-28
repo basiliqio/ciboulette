@@ -10,6 +10,8 @@ pub struct CibouletteResourceType {
     id_type: CibouletteIdType,
     name: ArcStr,
 }
+
+/// ## Relationships metadata for [CibouletteResourceType](CibouletteResourceType)
 #[derive(Clone, Debug, Getters, MutGetters, Ord, PartialEq, PartialOrd, Eq, Hash)]
 #[getset(get = "pub", get_mut = "pub")]
 pub struct CibouletteResourceRelationshipDetails {
@@ -37,6 +39,7 @@ impl CibouletteResourceType {
         })
     }
 
+    /// Fetch a relationships alongside its alias
     pub fn get_relationship_with_alias(
         &self,
         store: &CibouletteStore,
@@ -65,6 +68,7 @@ impl CibouletteResourceType {
         ))
     }
 
+    /// Fetch a relationships related type
     pub fn get_relationship(
         &self,
         store: &CibouletteStore,
@@ -90,6 +94,7 @@ impl CibouletteResourceType {
         })
     }
 
+    /// Get a relationships metadata
     pub fn get_relationship_details(
         &self,
         store: &CibouletteStore,
@@ -128,6 +133,7 @@ impl CibouletteResourceType {
         })
     }
 
+    /// Check if a resource type has every the top level fields in the iterator
     pub fn has_fields<'store, I>(&self, fields: I) -> Result<Option<String>, CibouletteError>
     where
         I: Iterator<Item = &'store str>,

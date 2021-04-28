@@ -2,6 +2,7 @@ use super::*;
 use serde::de::{DeserializeSeed, Deserializer};
 use std::fmt::Formatter;
 
+/// The query parameter beeing deserialized
 const CIBOULETTE_QUERY_PARAMETERS_FIELDS: &[&str] = &[
     "include",
     "fields[*]",
@@ -12,6 +13,7 @@ const CIBOULETTE_QUERY_PARAMETERS_FIELDS: &[&str] = &[
     "filter[*]",
 ];
 
+/// Visitor for the query parameters values
 #[derive(Clone, Copy, Debug)]
 pub struct CibouletteQueryParametersBuilderVisitor;
 

@@ -10,9 +10,13 @@ struct CibouletteManyToManyNodeIndexes {
 #[derive(Clone, Debug, CopyGetters)]
 #[getset(get_copy = "pub")]
 struct CibouletteManyToManyEdgeIndexes {
+    /// From the source type to the bucket type
     from: petgraph::graph::EdgeIndex<u16>,
+    /// From the source type to the dest type
     from_direct: petgraph::graph::EdgeIndex<u16>,
+    /// From the dest type to the bucket type
     to: petgraph::graph::EdgeIndex<u16>,
+    /// From the dest type to the source type
     to_direct: petgraph::graph::EdgeIndex<u16>,
 }
 
@@ -36,6 +40,7 @@ impl CibouletteStoreBuilder {
         let node_indexes = self.get_many_to_many_node_indexes(from, to, &opt)?;
         self.check_bucket_exists(node_indexes.bucket(), from, &opt)?;
         let edge_indexes = self.get_many_to_many_edge_indexes(&node_indexes, &opt)?;
+        // Add relationship from `from` to `to`
         cancel_rel_edge_on_failure!(
             self,
             edge_indexes,
@@ -46,6 +51,7 @@ impl CibouletteStoreBuilder {
                 edge_indexes.to_direct(),
             )
         );
+        // Add relationship from `to` to `from`
         cancel_rel_edge_on_failure!(
             self,
             edge_indexes,
@@ -56,6 +62,7 @@ impl CibouletteStoreBuilder {
                 edge_indexes.from_direct(),
             )
         );
+        // Add edge for relationship with the bucket table for each parts of M2M
         for i in 0..=1 {
             let (edge_index, alias) = match opt.keys()[i].0.name() == from {
                 true => (edge_indexes.to(), alias_from),
@@ -101,7 +108,7 @@ impl CibouletteStoreBuilder {
         Ok(())
     }
 
-    /// Add a relationships (one/many-to-one/many) to the graph
+    /// Add a relationships M2M to the graph, but only from `from` to `to` and not the reverse
     pub fn add_many_to_many_rel_no_reverse(
         &mut self,
         from: &str,
@@ -134,6 +141,7 @@ impl CibouletteStoreBuilder {
         Ok(())
     }
 
+    /// Add a relationship M2M
     fn add_many_to_many_rel_routine(
         &mut self,
         (orig, orig_i): (&str, petgraph::graph::NodeIndex<u16>),
@@ -167,6 +175,7 @@ impl CibouletteStoreBuilder {
         Ok(())
     }
 
+    /// Cancel relationships edges
     fn cancel_rel_edges(&mut self, edge_indexes: &CibouletteManyToManyEdgeIndexes) {
         self.graph.remove_edge(edge_indexes.from());
         self.graph.remove_edge(edge_indexes.to());
@@ -174,6 +183,7 @@ impl CibouletteStoreBuilder {
         self.graph.remove_edge(edge_indexes.to_direct());
     }
 
+    /// Create the graph edges for M2M relationships
     fn get_many_to_many_edge_indexes(
         &mut self,
         indexes: &CibouletteManyToManyNodeIndexes,
@@ -192,6 +202,7 @@ impl CibouletteStoreBuilder {
         })
     }
 
+    /// Create the edges for a new M2M relationships for destination type
     fn get_many_to_many_edge_indexes_to(
         &mut self,
         bucket_type: &CibouletteResourceType,
@@ -227,6 +238,7 @@ impl CibouletteStoreBuilder {
         Ok((edge_to_i_direct, edge_to_i))
     }
 
+    /// Create the edges for a new M2M relationships for source type
     fn get_many_to_many_edge_indexes_from(
         &mut self,
         bucket_type: &CibouletteResourceType,
@@ -262,6 +274,7 @@ impl CibouletteStoreBuilder {
         Ok((edge_from_i_direct, edge_from_i))
     }
 
+    /// Get the type from graph node index when building a M2M relationships.
     fn extract_many_to_many_types(
         &mut self,
         indexes: &CibouletteManyToManyNodeIndexes,
@@ -288,6 +301,7 @@ impl CibouletteStoreBuilder {
         Ok((from_type, bucket_type, to_type))
     }
 
+    /// Check that the bucket used in a M2M relationship exists
     fn check_bucket_exists(
         &mut self,
         bucket_i: petgraph::graph::NodeIndex<u16>,
@@ -306,6 +320,7 @@ impl CibouletteStoreBuilder {
         Ok(())
     }
 
+    /// Create the node indexes for the specified type when creating a M2M relationship
     fn get_many_to_many_node_indexes(
         &mut self,
         from: &str,

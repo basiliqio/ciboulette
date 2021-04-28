@@ -1,5 +1,5 @@
 use super::*;
-/// Container for response element. While building a response, every object should be wrapped in this container
+/// ## Container for response element. While building a response, every object should be wrapped in this container
 #[derive(Debug, Getters, Clone, Serialize)]
 #[getset(get = "pub")]
 pub struct CibouletteResponseElement<'request, B> {
@@ -14,11 +14,14 @@ pub struct CibouletteResponseElement<'request, B> {
     pub(crate) related: Option<CibouletteResponseElementAlias<'request>>,
 }
 
+/// ## Response element when linking resource
 #[derive(Debug, Getters, Clone, Serialize, Hash)]
 #[getset(get = "pub")]
 pub struct CibouletteResponseElementAlias<'request> {
+    /// The rel chain that identify it
     #[serde(skip_serializing)]
     pub(crate) rel_chain: Vec<CibouletteResourceRelationshipDetails>,
+    /// The element it relates too
     #[serde(flatten)]
     pub(crate) element: CibouletteResourceResponseIdentifier<'request>,
 }

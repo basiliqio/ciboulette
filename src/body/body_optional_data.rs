@@ -2,6 +2,9 @@ use super::*;
 use serde::de::{Deserialize, Deserializer, Visitor};
 use std::fmt::Formatter;
 
+/// ## Wrapper for optional data
+///
+/// Providing a nuance between explicitely null-ed values and absent ones.
 #[derive(Debug, Clone, Serialize)]
 #[serde(untagged)]
 pub enum CibouletteOptionalData<T> {

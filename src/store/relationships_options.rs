@@ -1,41 +1,33 @@
 use super::*;
 
+/// ## Many-to-Many relationships options
 #[derive(Debug, Clone, Getters, Ord, PartialEq, PartialOrd, Eq, Hash)]
 #[getset(get = "pub")]
 pub struct CibouletteRelationshipManyToManyOption {
+    /// The bucket resource
     pub(crate) bucket_resource: Arc<CibouletteResourceType>,
+    /// The related types and their relating fields
     pub(crate) keys: [(Arc<CibouletteResourceType>, ArcStr); 2],
 }
 
+/// ## One-to-Many/Many-to-One relationships options
 #[derive(Debug, Clone, Getters, Ord, PartialEq, PartialOrd, Eq, Hash)]
 #[getset(get = "pub")]
 pub struct CibouletteRelationshipOneToManyOption {
+    /// The "one" resource
     pub(crate) one_table: Arc<CibouletteResourceType>,
+    /// The "many" resource
     pub(crate) many_table: Arc<CibouletteResourceType>,
+    /// The "many" field relating to the "one" resource
     pub(crate) many_table_key: ArcStr,
+    /// True if the relationships is optional
     pub(crate) optional: bool,
+    /// Contains the relationship edge is part of many-to-many relationships
     pub(crate) part_of_many_to_many: Option<petgraph::graph::EdgeIndex<u16>>,
 }
 
-#[derive(Debug, Clone, Getters, PartialEq)]
-#[getset(get = "pub")]
-pub struct CibouletteRelationshipOneToOneOption {
-    key: ArcStr,
-    id_type: CibouletteIdType,
-    optional: bool,
-}
-
-impl CibouletteRelationshipOneToOneOption {
-    pub fn new(key: &str, id_type: CibouletteIdType, optional: bool) -> Self {
-        CibouletteRelationshipOneToOneOption {
-            key: ArcStr::from(key),
-            id_type,
-            optional,
-        }
-    }
-}
-
 impl CibouletteRelationshipManyToManyOption {
+    /// Get the relating field in the bucket resource for the provided type
     pub fn keys_for_type(&self, type_: &CibouletteResourceType) -> Result<ArcStr, CibouletteError> {
         self.keys
             .iter()
@@ -53,6 +45,7 @@ impl CibouletteRelationshipManyToManyOption {
 impl CibouletteRelationshipOneToManyOption {}
 
 impl<'request> CibouletteRelationshipObjectBuilder<'request> {
+    /// Build into a new [CibouletteRelationshipObject](CibouletteRelationshipObject)
     pub fn build(
         self,
         type_: &Arc<CibouletteResourceType>,
@@ -69,6 +62,8 @@ impl<'request> CibouletteRelationshipObjectBuilder<'request> {
         })
     }
 }
+
+/// ## Relationships options
 #[derive(Debug, Clone, Ord, PartialEq, PartialOrd, Eq, Hash)]
 pub enum CibouletteRelationshipOption {
     /// One to many relationship, without the intermediate node

@@ -1,9 +1,12 @@
 use super::*;
 use std::borrow::Borrow;
 
+/// ## Direction for sorting element
 #[derive(Debug, PartialEq, Eq, Ord, PartialOrd, Clone, Hash, Copy)]
 pub enum CibouletteSortingDirection {
+    /// Ascending
     Asc,
+    /// Descending
     Desc,
 }
 

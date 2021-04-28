@@ -26,7 +26,7 @@ where
             elements,
         }
     }
-
+    /// Build body of the outbound request
     fn build_body(
         inbound_request: &'request dyn CibouletteInboundRequestCommons<'request>,
         elements: I,

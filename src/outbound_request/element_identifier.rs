@@ -2,6 +2,7 @@ use super::*;
 use element::CibouletteResponseElementAlias;
 use std::cmp::{Ord, Ordering};
 
+/// ## Builder for [CibouletteResourceResponseIdentifier](CibouletteResourceResponseIdentifier)
 #[derive(Deserialize, Serialize, Debug, Getters, MutGetters, Clone)]
 #[getset(get = "pub", get_mut = "pub")]
 pub struct CibouletteResourceResponseIdentifierBuilder<'request> {
@@ -55,6 +56,7 @@ impl<'request> From<CibouletteResourceIdentifierBuilder<'request>>
     }
 }
 impl<'request> CibouletteResourceResponseIdentifierBuilder<'request> {
+    /// Build into a [CibouletteResourceResponseIdentifier](CibouletteResourceResponseIdentifier)
     pub fn build(
         self,
         store: &CibouletteStore,
@@ -69,6 +71,7 @@ impl<'request> CibouletteResourceResponseIdentifierBuilder<'request> {
         })
     }
 
+    /// Build a rel chain into a relationships metadata list and return the related type id type
     fn build_rel_chain(
         store: &CibouletteStore,
         base_type: Arc<CibouletteResourceType>,
@@ -88,6 +91,7 @@ impl<'request> CibouletteResourceResponseIdentifierBuilder<'request> {
         Ok((res, last_id_type))
     }
 
+    /// Build a resource identifier where the type if a relationships alias of the `base_type`
     pub fn build_relationships(
         self,
         store: &CibouletteStore,
@@ -115,6 +119,7 @@ impl<'request> CibouletteResourceResponseIdentifierBuilder<'request> {
     }
 }
 
+/// Selector for [CibouletteResourceResponseIdentifierSelectorBuilder](CibouletteResourceResponseIdentifierSelectorBuilder)
 #[derive(Deserialize, Debug, Serialize, Clone)]
 #[serde(untagged)]
 pub enum CibouletteResourceResponseIdentifierSelectorBuilder<'request> {

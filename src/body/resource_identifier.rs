@@ -1,6 +1,9 @@
 use super::*;
 use std::cmp::{Ord, Ordering};
 
+/// ## Builder for resource identifier
+///
+/// When building, the `id` is optional.
 #[derive(Deserialize, Serialize, Debug, Getters, MutGetters, Clone)]
 #[getset(get = "pub", get_mut = "pub")]
 pub struct CibouletteResourceIdentifierBuilder<'request> {
@@ -11,6 +14,8 @@ pub struct CibouletteResourceIdentifierBuilder<'request> {
 }
 
 /// ## A `json:api` [resource identifier](https://jsonapi.org/format/#document-resource-identifier-objects) object
+///
+/// The `id` is not optional in that case
 #[derive(Serialize, Debug, Getters, MutGetters, Clone)]
 #[getset(get = "pub", get_mut = "pub")]
 pub struct CibouletteResourceIdentifier<'request> {
@@ -48,6 +53,8 @@ impl<'request> PartialEq for CibouletteResourceIdentifier<'request> {
 impl<'request> Eq for CibouletteResourceIdentifier<'request> {}
 
 /// ## A `json:api` [resource identifier](https://jsonapi.org/format/#document-resource-identifier-objects) object
+///
+/// The `id` is optional in that case
 #[derive(Serialize, Debug, Getters, MutGetters, Clone)]
 #[getset(get = "pub", get_mut = "pub")]
 pub struct CibouletteResourceIdentifierPermissive<'request> {
@@ -57,19 +64,7 @@ pub struct CibouletteResourceIdentifierPermissive<'request> {
 }
 
 impl<'request> CibouletteResourceIdentifierBuilder<'request> {
-    pub fn build_from_store(
-        self,
-        store: &CibouletteStore,
-    ) -> Result<CibouletteResourceIdentifier<'request>, CibouletteError> {
-        Ok(CibouletteResourceIdentifier {
-            id: match self.id {
-                Some(id) => id.build(&store.get_type(&self.type_)?.id_type())?,
-                None => return Err(CibouletteError::MissingId),
-            },
-            type_: self.type_,
-        })
-    }
-
+    /// Build the resource identifier, with type being a relationship alias for the `main_type`
     pub fn build_relationships(
         self,
         store: &CibouletteStore,
@@ -85,6 +80,7 @@ impl<'request> CibouletteResourceIdentifierBuilder<'request> {
             type_: self.type_,
         })
     }
+    /// Build the resource identifier providing the type that is beeing parsed
     pub fn build(
         self,
         type_: &CibouletteResourceType,
@@ -98,6 +94,9 @@ impl<'request> CibouletteResourceIdentifierBuilder<'request> {
         })
     }
 
+    /// Build the resource identifier providing the type that is beeing parsed.
+    ///
+    /// Allows the `id` key to be empty (for `POST` for instance)
     pub fn build_permissive(
         self,
         type_: &CibouletteResourceType,
@@ -163,6 +162,7 @@ impl<'request> CibouletteResourceIdentifierBuilder<'request> {
     }
 }
 
+/// ## A selector for resource identifier, to either select one or many resource identifiers
 #[derive(Deserialize, Debug, Serialize, Clone)]
 #[serde(untagged)]
 pub enum CibouletteResourceIdentifierSelectorBuilder<'request> {
@@ -171,6 +171,7 @@ pub enum CibouletteResourceIdentifierSelectorBuilder<'request> {
 }
 
 impl<'request> CibouletteResourceIdentifierSelectorBuilder<'request> {
+    /// Build the underlyings resource identifiers
     pub fn build(
         self,
         type_: &CibouletteResourceType,

@@ -1,18 +1,22 @@
 use super::*;
 
+/// ## A `POST` request
 #[derive(Debug, Getters, MutGetters, Clone)]
 #[getset(get = "pub")]
 pub struct CibouletteCreateRequest<'request> {
+    /// The path of the request
     pub path: CiboulettePath<'request>,
+    /// The query used
     pub query: CibouletteQueryParameters<'request>,
+    /// The data sent by the client
     pub data: CibouletteResource<
         'request,
         MessyJsonObjectValue<'request>,
         CibouletteResourceIdentifierPermissive<'request>,
     >,
+    /// The meta data sent by the client
     pub meta: Option<Value>,
-    pub links: Option<CibouletteBodyLink<'request>>,
-    pub jsonapi: Option<CibouletteJsonApiVersion<'request>>,
+    /// What response type to expect from that request.
     pub expected_response_type: CibouletteResponseRequiredType,
 }
 
@@ -70,13 +74,7 @@ impl<'request> TryFrom<CibouletteInboundRequest<'request>> for CibouletteCreateR
             ));
         }
 
-        let CibouletteBody {
-            data,
-            meta,
-            links,
-            jsonapi,
-            ..
-        } = body.ok_or(CibouletteError::NoData)?;
+        let CibouletteBody { data, meta, .. } = body.ok_or(CibouletteError::NoData)?;
 
         let data = match data {
             CibouletteBodyData::Object(x) => x,
@@ -97,8 +95,6 @@ impl<'request> TryFrom<CibouletteInboundRequest<'request>> for CibouletteCreateR
             query,
             data,
             meta,
-            links,
-            jsonapi,
             expected_response_type: CibouletteResponseRequiredType::Object(
                 CibouletteResponseQuantity::Single,
             ),

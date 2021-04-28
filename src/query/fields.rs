@@ -2,9 +2,10 @@ use super::*;
 use serde::de::Visitor;
 use std::fmt::Formatter;
 
+/// ## Visitor for query parameters fields
 pub struct CibouletteQueryParametersFieldVisitor;
 
-/// Field of `json:api` query parameters object
+/// ## Field of `json:api` query parameters object
 pub enum CibouletteQueryParametersField<'request> {
     /// `include` parameter
     Include,

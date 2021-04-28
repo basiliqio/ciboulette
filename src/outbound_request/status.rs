@@ -3,12 +3,19 @@ use super::*;
 /// The status a response should send
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum CibouletteResponseStatus {
+    /// HTTP 200
     Ok,
+    /// HTTP 204
     OkEmpty,
+    /// HTTP 202
     OkAsync,
+    /// HTTP 201
     Created,
+    /// HTTP 403
     Unsupported,
+    /// HTTP 404
     NotFound,
+    /// HTTP 409
     Conflict,
 }
 

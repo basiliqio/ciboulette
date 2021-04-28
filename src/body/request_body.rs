@@ -18,28 +18,43 @@ impl<'request> CibouletteJsonApiVersion<'request> {
 #[derive(Debug, Getters, MutGetters)]
 #[getset(get = "pub", get_mut = "pub")]
 pub struct CibouletteBodyBuilder<'request> {
+    /// The semver of the `JSON:API` specs
+    jsonapi: Option<CibouletteJsonApiVersion<'request>>, // TODO Semver
+    /// The data of the request/response. Cannot be set with `errors`.
     data: CibouletteBodyDataBuilder<'request>,
+    /// The error object of the response. Cannot be set with `data`.
     errors: Option<CibouletteErrorObj<'request>>,
     meta: Option<Value>,
+    /// Links to the current object/relationship
     links: Option<CibouletteBodyLink<'request>>,
+    /// The included objects. Cannot be set without `data`
     included: Vec<CibouletteResourceBuilder<'request>>,
-    jsonapi: Option<CibouletteJsonApiVersion<'request>>, // TODO Semver
 }
 
 /// ## A `json:api` [document](https://jsonapi.org/format/#document-top-level) object
+///
+/// This struct hold the top level document of a request or a response
+///
+/// Use [CibouletteBodyBuilder](CibouletteBodyBuilder) to be build.
 #[derive(Debug, Getters, MutGetters, Clone, Serialize)]
 #[getset(get = "pub", get_mut = "pub")]
 pub struct CibouletteBody<'request, I, B> {
+    /// The semver of the `JSON:API` specs
     #[serde(skip_serializing_if = "Option::is_none")]
     pub jsonapi: Option<CibouletteJsonApiVersion<'request>>, // TODO Semver
+    /// Links to the current object/relationship
     #[serde(skip_serializing_if = "Option::is_none")]
     pub links: Option<CibouletteBodyLink<'request>>,
+    /// The data of the request/response. Cannot be set with `errors`.
     #[serde(skip_serializing_if = "CibouletteOptionalData::is_absent")]
     pub data: CibouletteBodyData<'request, I, B>,
+    /// The error object of the response. Cannot be set with `data`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub errors: Option<CibouletteErrorObj<'request>>,
+    /// The meta object.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub meta: Option<Value>,
+    /// The included objects. Cannot be set without `data`
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub included: Vec<CibouletteResource<'request, B, I>>,
 }
@@ -60,9 +75,11 @@ where
     }
 }
 
+/// The possible top level field, as described in the `JSON:API` specification.
 const CIBOULETTE_TOP_LEVEL_FIELDS: &[&str] =
     &["data", "errors", "meta", "links", "included", "jsonapi"];
 
+/// The visitor for the body builder
 #[derive(Clone, Debug)]
 struct CibouletteBodyBuilderVisitor;
 
@@ -90,6 +107,7 @@ impl<'de> Visitor<'de> for CibouletteBodyFieldVisitor {
     where
         E: serde::de::Error,
     {
+        /// Match the field key
         match value {
             "data" => Ok(CibouletteBodyField::Data),
             "errors" => Ok(CibouletteBodyField::Errors),
@@ -106,6 +124,7 @@ impl<'de> Visitor<'de> for CibouletteBodyFieldVisitor {
     where
         E: serde::de::Error,
     {
+        /// Match the field key
         match value {
             b"data" => Ok(CibouletteBodyField::Data),
             b"errors" => Ok(CibouletteBodyField::Errors),
@@ -186,6 +205,7 @@ impl<'de> serde::de::Visitor<'de> for CibouletteBodyBuilderVisitor {
 
         let included = match included {
             Some(included) => match included {
+                // `included` must be an array. Error if included is an object or a value
                 CibouletteResourceSelectorBuilder::Many(included) => Ok(included),
                 _ => Err(<A::Error as serde::de::Error>::custom(
                     "`included` must be an array",
@@ -237,12 +257,13 @@ impl<'request> CibouletteBodyBuilder<'request> {
         let mut obj_set: BTreeSet<(&str, &CibouletteId<'request>)> = BTreeSet::new();
 
         match data {
-            CibouletteResourceSelector::One(_) => Ok(()),
+            CibouletteResourceSelector::One(_) => Ok(()), // Must be unique if there's only one.
             CibouletteResourceSelector::Many(objs) => {
                 for obj in objs.iter() {
                     match obj.identifier().id() {
                         Some(id) => {
                             if !obj_set.insert((obj.identifier().type_(), id)) {
+                                // If already exists, fails.
                                 return Err(CibouletteError::UniqObj(
                                     obj.identifier().type_().to_string(),
                                     id.to_string(),
@@ -270,6 +291,7 @@ impl<'request> CibouletteBodyBuilder<'request> {
             match rel.data() {
                 CibouletteOptionalData::Object(CibouletteResourceIdentifierSelector::One(el)) => {
                     if !linked_set.insert((el.type_(), el.id())) {
+                        // If already exists, fails.
                         return Err(CibouletteError::UniqRelationshipObject(
                             el.type_().to_string(),
                             el.id().to_string(),
@@ -279,6 +301,7 @@ impl<'request> CibouletteBodyBuilder<'request> {
                 CibouletteOptionalData::Object(CibouletteResourceIdentifierSelector::Many(els)) => {
                     for el in els.iter() {
                         if !linked_set.insert((el.type_(), el.id())) {
+                            // If already exists, fails.
                             return Err(CibouletteError::UniqRelationshipObject(
                                 el.type_().to_string(),
                                 el.id().to_string(),
@@ -339,6 +362,7 @@ impl<'request> CibouletteBodyBuilder<'request> {
                             id.to_string(),
                         ));
                     }
+                    // Check obj is complete for full linkage
                     if check_full_linkage && obj.attributes().is_none() {
                         return Err(CibouletteError::NoCompleteLinkage(
                             obj.identifier().type_().to_string(),
@@ -369,6 +393,7 @@ impl<'request> CibouletteBodyBuilder<'request> {
     ) -> Result<(), CibouletteError> {
         let is_data_null = matches!(data, CibouletteBodyData::Null(_));
 
+        // Can't have an empty `data` with an `included` key
         if is_data_null && !included.is_empty() {
             return Err(CibouletteError::KeyClash(
                 "included".to_string(),
@@ -376,6 +401,7 @@ impl<'request> CibouletteBodyBuilder<'request> {
                 "data".to_string(),
             ));
         }
+        // Can't have a `data` obj with an `errors` key
         if !is_data_null && errors.is_some() {
             return Err(CibouletteError::KeyClash(
                 "data".to_string(),
@@ -434,7 +460,9 @@ impl<'request> CibouletteBodyBuilder<'request> {
         Ok(())
     }
 
-    /// Build a [CibouletteBody](CibouletteBody) from the builder
+    /// Build a [CibouletteBody](CibouletteBody) from the builder.
+    ///
+    /// Runs `check` before building
     pub fn build(
         self,
         bag: &CibouletteStore,
@@ -453,12 +481,7 @@ impl<'request> CibouletteBodyBuilder<'request> {
             MessyJsonObjectValue<'request>,
         >;
 
-        let data: CibouletteOptionalData<
-            CibouletteResourceSelector<
-                MessyJsonObjectValue<'request>,
-                CibouletteResourceIdentifierPermissive<'request>,
-            >,
-        > = self.data.build(&bag, &intention)?;
+        let data = self.data.build(&bag, &intention)?;
         let mut included: Vec<
             CibouletteResource<
                 'request,

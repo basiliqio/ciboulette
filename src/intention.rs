@@ -1,4 +1,4 @@
-/// ## Represent the client intention when sending the request
+/// ## Represent the client intention (request method) when sending the request
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum CibouletteIntention {
     /// Corresponds to a `POST` request

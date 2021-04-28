@@ -1,20 +1,4 @@
 use super::*;
-#[derive(Clone, Debug, CopyGetters)]
-#[getset(get_copy = "pub")]
-struct CibouletteManyToManyNodeIndexes {
-    from: petgraph::graph::NodeIndex<u16>,
-    to: petgraph::graph::NodeIndex<u16>,
-    bucket: petgraph::graph::NodeIndex<u16>,
-}
-
-#[derive(Clone, Debug, CopyGetters)]
-#[getset(get_copy = "pub")]
-struct CibouletteManyToManyEdgeIndexes {
-    from: petgraph::graph::EdgeIndex<u16>,
-    from_direct: petgraph::graph::EdgeIndex<u16>,
-    to: petgraph::graph::EdgeIndex<u16>,
-    to_direct: petgraph::graph::EdgeIndex<u16>,
-}
 
 impl CibouletteStoreBuilder {
     /// Add a relationships (one-to-many) to the graph
@@ -26,6 +10,7 @@ impl CibouletteStoreBuilder {
     ) -> Result<(), CibouletteError> {
         let (from_i, to_i) = self.get_one_to_many_node_indexes(&opt)?;
         let (from_rel_i, to_rel_i) = self.get_one_to_many_edge_indexes(&from_i, &to_i, &opt);
+        // From source to dest
         self.add_one_to_many_rel_routine(
             opt.one_table(),
             opt.many_table(),
@@ -34,6 +19,7 @@ impl CibouletteStoreBuilder {
             alias_many_table,
             to_rel_i,
         )?;
+        // From dest to source
         self.add_one_to_many_rel_routine(
             opt.many_table(),
             opt.one_table(),
@@ -53,6 +39,7 @@ impl CibouletteStoreBuilder {
     ) -> Result<(), CibouletteError> {
         let (from_i, to_i) = self.get_one_to_many_node_indexes(&opt)?;
         let (from_rel_i, to_rel_i) = self.get_one_to_many_edge_indexes(&from_i, &to_i, &opt);
+        // From source to dest
         self.add_one_to_many_rel_routine(
             opt.one_table(),
             opt.many_table(),
@@ -72,6 +59,7 @@ impl CibouletteStoreBuilder {
     ) -> Result<(), CibouletteError> {
         let (from_i, to_i) = self.get_one_to_many_node_indexes(&opt)?;
         let (from_rel_i, to_rel_i) = self.get_one_to_many_edge_indexes(&from_i, &to_i, &opt);
+        // From source to dest
         self.add_one_to_many_rel_routine(
             opt.many_table(),
             opt.one_table(),
@@ -113,6 +101,7 @@ impl CibouletteStoreBuilder {
         Ok(())
     }
 
+    /// Get the edge indexes for a O2M or M2O relationships
     fn get_one_to_many_edge_indexes(
         &mut self,
         from_i: &petgraph::graph::NodeIndex<u16>,
@@ -135,6 +124,7 @@ impl CibouletteStoreBuilder {
         (edge_from_i, edge_to_i)
     }
 
+    /// Get the node indexes for O2M or M2O relationships
     fn get_one_to_many_node_indexes(
         &mut self,
         opt: &CibouletteRelationshipOneToManyOptionBuilder,

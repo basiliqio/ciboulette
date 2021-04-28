@@ -4,6 +4,8 @@ use serde::de::{DeserializeSeed, Deserializer, Visitor};
 use sqlx::{TypeInfo, ValueRef};
 use std::fmt::Formatter;
 use std::str::FromStr;
+
+/// ## Builder for [CibouletteId](CibouletteId)
 #[derive(Debug, Clone, PartialEq, PartialOrd, Eq, Ord, Hash, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CibouletteIdBuilder<'request> {
@@ -11,11 +13,15 @@ pub enum CibouletteIdBuilder<'request> {
     Text(Cow<'request, str>),
 }
 
+/// ## Resource id type
 #[derive(Debug, Clone, PartialEq, PartialOrd, Eq, Ord, Hash, Serialize)]
 #[serde(untagged)]
 pub enum CibouletteId<'request> {
+    /// Serial or number id
     Number(u64),
+    /// Uuid id
     Uuid(Uuid),
+    /// Text id
     Text(Cow<'request, str>),
 }
 
@@ -112,6 +118,7 @@ impl<'request> ToString for CibouletteId<'request> {
     }
 }
 
+/// ## Type of resource id
 #[derive(Debug, Clone, Copy, PartialEq, PartialOrd, Eq, Ord, Hash)]
 pub enum CibouletteIdType {
     Number,
