@@ -20,6 +20,18 @@ pub enum CibouletteResponseStatus {
 }
 
 impl CibouletteResponseStatus {
+    pub fn is_success(&self) -> bool {
+        match self {
+            CibouletteResponseStatus::Ok
+            | CibouletteResponseStatus::OkEmpty
+            | CibouletteResponseStatus::OkAsync
+            | CibouletteResponseStatus::Created => true,
+            CibouletteResponseStatus::Unsupported
+            | CibouletteResponseStatus::NotFound
+            | CibouletteResponseStatus::Conflict => false,
+        }
+    }
+
     /// Get a response status for a given request type and data.
     ///
     /// Applicable only if the request was a success

@@ -1,11 +1,11 @@
 [package]
 name = "ciboulette"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Francis Le Roy <francis.leroy@protonmail.ch>"]
 edition = "2018"
 keywords = ["jsonapi", "json", "api"]
 description = "Library to parse JSON:API requests and build responses"
-repository = "https://gitlab.com/basiliq/ciboulette"
+repository = "https://github.com/basiliqio/ciboulette"
 license = "MIT"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
