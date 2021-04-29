@@ -4,10 +4,10 @@
 
 </center>
 <a href="https://gitlab.com/basiliqio/ciboulette/-/pipelines" alt="Gitlab pipeline status">
-  <img src="https://img.shields.io/gitlab/pipeline/basiliqio/ciboulette/master">
+  <img src="https://img.shields.io/gitlab/pipeline/basiliqio/ciboulette/main">
 </a>
 <a href="https://codecov.io/gl/basiliqio/ciboulette" alt="Codecov">
-  <img src="https://img.shields.io/codecov/c/gitlab/basiliqio/ciboulette?token=F2BNX5EOYV">
+  <img src="https://img.shields.io/codecov/c/github/basiliqio/ciboulette?token=F2BNX5EOYV">
 </a>
 <a href="https://crates.io/crates/ciboulette" alt="Crates.io version">
   <img src="https://img.shields.io/crates/v/ciboulette">
