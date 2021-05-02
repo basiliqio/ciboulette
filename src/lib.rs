@@ -103,8 +103,8 @@
 //! | `type`                 | ✅                                                     | The current element [resource type](CibouletteResourceType)                          |
 //! | `identifier`           | ✅                                                     | The current element [resource identifier](CibouletteResourceIdentifier)              |
 //! | `data`                 | ❌                                                     | The `JSON` data of the resource, if any                                              |
-//! | `related`.`rel_chain`  | ❌<br />(only for related data)                             | Chain of relation metadata from the main [resource type](CibouletteResourceType)     |
-//! | `related`.`element`    | ❌<br />(only for related data)                             | The [resource identifier](CibouletteResourceIdentifier) of the element it relates to |
+//! | `related`.`rel_chain`  | ❌<br />(only for related data)                        | Chain of relation metadata from the main [resource type](CibouletteResourceType)     |
+//! | `related`.`element`    | ❌<br />(only for related data)                        | The [resource identifier](CibouletteResourceIdentifier) of the element it relates to |
 //!
 //!
 //!
