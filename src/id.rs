@@ -5,14 +5,6 @@ use sqlx::{TypeInfo, ValueRef};
 use std::fmt::Formatter;
 use std::str::FromStr;
 
-/// ## Builder for [CibouletteId](CibouletteId)
-#[derive(Debug, Clone, PartialEq, PartialOrd, Eq, Ord, Hash, Serialize, Deserialize)]
-#[serde(untagged)]
-pub enum CibouletteIdBuilder<'request> {
-    Number(u64),
-    Text(Cow<'request, str>),
-}
-
 /// ## Resource id type
 #[derive(Debug, Clone, PartialEq, PartialOrd, Eq, Ord, Hash, Serialize)]
 #[serde(untagged)]
@@ -66,31 +58,15 @@ impl<'r> sqlx::Type<sqlx::Postgres> for CibouletteId<'r> {
     }
 }
 
-impl<'request> CibouletteIdBuilder<'request> {
-    pub fn build(
-        self,
-        type_: &CibouletteIdType,
+impl CibouletteIdType {
+    pub fn build_id<'request>(
+        &self,
+        id_str: Cow<'request, str>,
     ) -> Result<CibouletteId<'request>, CibouletteError> {
-        match (self, type_) {
-            (CibouletteIdBuilder::Text(x), CibouletteIdType::Text) => {
-                Ok(CibouletteId::Text(x.clone()))
-            }
-            (CibouletteIdBuilder::Text(x), CibouletteIdType::Number) => {
-                Ok(CibouletteId::Number(u64::from_str(x.as_ref())?))
-            }
-            (CibouletteIdBuilder::Text(x), CibouletteIdType::Uuid) => {
-                Ok(CibouletteId::Uuid(Uuid::from_str(x.as_ref())?))
-            }
-
-            (CibouletteIdBuilder::Number(x), CibouletteIdType::Text) => {
-                Ok(CibouletteId::Text(Cow::Owned(x.to_string())))
-            }
-            (CibouletteIdBuilder::Number(x), CibouletteIdType::Number) => {
-                Ok(CibouletteId::Number(x))
-            }
-            (CibouletteIdBuilder::Number(_), CibouletteIdType::Uuid) => Err(
-                CibouletteError::BadIdType(CibouletteIdType::Number, CibouletteIdType::Uuid),
-            ),
+        match self {
+            CibouletteIdType::Text => Ok(CibouletteId::Text(id_str)),
+            CibouletteIdType::Number => Ok(CibouletteId::Number(u64::from_str(id_str.as_ref())?)),
+            CibouletteIdType::Uuid => Ok(CibouletteId::Uuid(Uuid::from_str(id_str.as_ref())?)),
         }
     }
 }

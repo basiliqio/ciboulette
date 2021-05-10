@@ -10,7 +10,7 @@ pub struct CibouletteResourceIdentifierBuilder<'request> {
     #[serde(rename = "type")]
     pub type_: Cow<'request, str>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub id: Option<CibouletteIdBuilder<'request>>,
+    pub id: Option<Cow<'request, str>>,
 }
 
 /// ## A `json:api` [resource identifier](https://jsonapi.org/format/#document-resource-identifier-objects) object
@@ -74,7 +74,7 @@ impl<'request> CibouletteResourceIdentifierBuilder<'request> {
         let id_type = rel.id_type();
         Ok(CibouletteResourceIdentifier {
             id: match self.id {
-                Some(id) => id.build(id_type)?,
+                Some(id) => id_type.build_id(id)?,
                 None => return Err(CibouletteError::MissingId),
             },
             type_: self.type_,
@@ -88,7 +88,7 @@ impl<'request> CibouletteResourceIdentifierBuilder<'request> {
         Ok(CibouletteResourceIdentifier {
             type_: self.type_,
             id: match self.id {
-                Some(id) => id.build(&type_.id_type())?,
+                Some(id) => type_.id_type().build_id(id)?,
                 None => return Err(CibouletteError::MissingId),
             },
         })
@@ -104,7 +104,7 @@ impl<'request> CibouletteResourceIdentifierBuilder<'request> {
         Ok(CibouletteResourceIdentifierPermissive {
             type_: self.type_,
             id: match self.id {
-                Some(id) => Some(id.build(&type_.id_type())?),
+                Some(id) => Some(type_.id_type().build_id(id)?),
                 None => None,
             },
         })
@@ -157,7 +157,7 @@ impl<'request> CibouletteResourceIdentifierPermissive<'request> {
 
 impl<'request> CibouletteResourceIdentifierBuilder<'request> {
     /// Create a new resource identifier from an id, a type an potentially a meta argument
-    pub fn new(id: Option<CibouletteIdBuilder<'request>>, type_: Cow<'request, str>) -> Self {
+    pub fn new(id: Option<Cow<'request, str>>, type_: Cow<'request, str>) -> Self {
         CibouletteResourceIdentifierBuilder { id, type_ }
     }
 }

@@ -8,7 +8,7 @@ use std::cmp::{Ord, Ordering};
 pub struct CibouletteResourceResponseIdentifierBuilder<'request> {
     #[serde(rename = "type")]
     pub type_: Cow<'request, str>,
-    pub id: Option<CibouletteIdBuilder<'request>>,
+    pub id: Option<Cow<'request, str>>,
 }
 
 /// ## A `json:api` [resource identifier](https://jsonapi.org/format/#document-resource-identifier-objects) object
@@ -64,7 +64,7 @@ impl<'request> CibouletteResourceResponseIdentifierBuilder<'request> {
         let type_ = store.get_type(&self.type_)?;
         Ok(CibouletteResourceResponseIdentifier {
             id: match self.id {
-                Some(id) => id.build(type_.id_type())?,
+                Some(id) => type_.id_type().build_id(id)?,
                 None => return Err(CibouletteError::MissingId),
             },
             type_: type_.name().clone(),
@@ -106,7 +106,7 @@ impl<'request> CibouletteResourceResponseIdentifierBuilder<'request> {
             rel_chain,
             CibouletteResourceResponseIdentifier {
                 type_: last_type.name().clone(),
-                id: self.id.ok_or(CibouletteError::MissingId)?.build(&id_type)?,
+                id: id_type.build_id(self.id.ok_or(CibouletteError::MissingId)?)?,
             },
         ))
     }
@@ -114,7 +114,7 @@ impl<'request> CibouletteResourceResponseIdentifierBuilder<'request> {
 
 impl<'request> CibouletteResourceResponseIdentifierBuilder<'request> {
     /// Create a new resource identifier from an id, a type an potentially a meta argument
-    pub fn new(id: Option<CibouletteIdBuilder<'request>>, type_: Cow<'request, str>) -> Self {
+    pub fn new(id: Option<Cow<'request, str>>, type_: Cow<'request, str>) -> Self {
         CibouletteResourceResponseIdentifierBuilder { id, type_ }
     }
 }

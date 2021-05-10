@@ -24,10 +24,7 @@ fn gen_data_row<'request>(
     CibouletteResponseElement::new(
         &store,
         &base_type,
-        CibouletteResourceIdentifierBuilder::new(
-            Some(CibouletteIdBuilder::Text(Cow::Borrowed(id))),
-            Cow::Borrowed(type_),
-        ),
+        CibouletteResourceIdentifierBuilder::new(Some(Cow::Borrowed(id)), Cow::Borrowed(type_)),
         match join_data {
             true => Some(String::from("<some data>")),
             false => None,
@@ -49,16 +46,13 @@ fn gen_data_row_related<'request>(
     CibouletteResponseElement::new(
         &store,
         &base_type,
-        CibouletteResourceIdentifierBuilder::new(
-            Some(CibouletteIdBuilder::Text(Cow::Borrowed(id))),
-            Cow::Borrowed(type_),
-        ),
+        CibouletteResourceIdentifierBuilder::new(Some(Cow::Borrowed(id)), Cow::Borrowed(type_)),
         match join_data {
             true => Some(String::from("<some data>")),
             false => None,
         },
         Some(CibouletteResourceIdentifierBuilder::new(
-            Some(CibouletteIdBuilder::Text(Cow::Borrowed(related_id))),
+            Some(Cow::Borrowed(related_id)),
             Cow::Borrowed(related_type_),
         )),
     )
