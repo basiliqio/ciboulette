@@ -7,7 +7,7 @@ pub struct CibouletteDeleteRequest<'request> {
     /// The resource type beeing deleted
     pub resource_type: Arc<CibouletteResourceType>,
     /// The resource id beeing delete
-    pub resource_id: CibouletteId<'request>,
+    pub resource_id: CibouletteIdSelector<'request>,
     /// The related type beeing delete when deleting M2O relationships
     pub related_type: Option<Arc<CibouletteResourceType>>,
     /// The query parameters

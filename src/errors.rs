@@ -106,6 +106,8 @@ pub enum CibouletteError {
     WrongPathType(CiboulettePathType, Vec<CiboulettePathType>),
     #[error("Too many main data to build the response document for type `{0}`")]
     ResponseTooManyMainData(String),
+    #[error("Wrong number of id, got {0}, expected {1}")]
+    WrongIdNumber(usize, usize),
     /// When there is a failure while deserializing the JSON
     #[error("An unkown error occured : {0}")]
     UnknownError(String),

@@ -43,17 +43,17 @@ pub enum CiboulettePath<'request> {
     /// The base type
     Type(Arc<CibouletteResourceType>),
     /// The base type and its id
-    TypeId(Arc<CibouletteResourceType>, CibouletteId<'request>),
+    TypeId(Arc<CibouletteResourceType>, CibouletteIdSelector<'request>),
     /// The base type, its id and the relationship details with the related type
     TypeIdRelated(
         Arc<CibouletteResourceType>,
-        CibouletteId<'request>,
+        CibouletteIdSelector<'request>,
         CibouletteResourceRelationshipDetails,
     ),
     /// The base type, its id and the relationship details with the related type
     TypeIdRelationship(
         Arc<CibouletteResourceType>,
-        CibouletteId<'request>,
+        CibouletteIdSelector<'request>,
         CibouletteResourceRelationshipDetails,
     ),
 }
@@ -134,14 +134,14 @@ impl<'request> CiboulettePathBuilder<'request> {
                 let ftype = store.get_type(type_.as_ref())?;
                 Ok(CiboulettePath::TypeId(
                     ftype.clone(),
-                    CibouletteId::parse(*ftype.id_type(), id)?,
+                    CibouletteId::build_id(ftype.ids(), id)?,
                 ))
             }
             CiboulettePathBuilder::TypeIdRelated(ftype, id, stype) => {
                 let (nftype, nstype) = Self::build_double_typed(&store, ftype, stype)?;
                 Ok(CiboulettePath::TypeIdRelated(
                     nftype.clone(),
-                    CibouletteId::parse(*nftype.id_type(), id)?,
+                    CibouletteId::build_id(nftype.ids(), id)?,
                     nstype,
                 ))
             }
@@ -149,7 +149,7 @@ impl<'request> CiboulettePathBuilder<'request> {
                 let (nftype, nstype) = Self::build_double_typed(&store, ftype, stype)?;
                 Ok(CiboulettePath::TypeIdRelationship(
                     nftype.clone(),
-                    CibouletteId::parse(*nftype.id_type(), id)?,
+                    CibouletteId::build_id(nftype.ids(), id)?,
                     nstype,
                 ))
             }

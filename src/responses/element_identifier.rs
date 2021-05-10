@@ -1,5 +1,7 @@
 use super::*;
 use element::CibouletteResponseElementAlias;
+use itertools::Itertools;
+use serde::ser::SerializeStruct;
 use std::cmp::{Ord, Ordering};
 
 /// ## Builder for [CibouletteResourceResponseIdentifier](CibouletteResourceResponseIdentifier)
@@ -12,12 +14,11 @@ pub struct CibouletteResourceResponseIdentifierBuilder<'request> {
 }
 
 /// ## A `json:api` [resource identifier](https://jsonapi.org/format/#document-resource-identifier-objects) object
-#[derive(Serialize, Debug, Getters, MutGetters, Clone, Hash)]
+#[derive(Debug, Getters, MutGetters, Clone, Hash)]
 #[getset(get = "pub", get_mut = "pub")]
 pub struct CibouletteResourceResponseIdentifier<'request> {
-    #[serde(rename = "type")]
     pub type_: ArcStr,
-    pub id: CibouletteId<'request>,
+    pub id: CibouletteIdSelector<'request>,
 }
 
 impl<'request> Ord for CibouletteResourceResponseIdentifier<'request> {
@@ -64,7 +65,7 @@ impl<'request> CibouletteResourceResponseIdentifierBuilder<'request> {
         let type_ = store.get_type(&self.type_)?;
         Ok(CibouletteResourceResponseIdentifier {
             id: match self.id {
-                Some(id) => type_.id_type().build_id(id)?,
+                Some(id) => CibouletteId::build_id(type_.ids(), id)?,
                 None => return Err(CibouletteError::MissingId),
             },
             type_: type_.name().clone(),
@@ -76,19 +77,24 @@ impl<'request> CibouletteResourceResponseIdentifierBuilder<'request> {
         store: &CibouletteStore,
         base_type: Arc<CibouletteResourceType>,
         rel_chain: Cow<'request, str>,
-    ) -> Result<(Vec<CibouletteResourceRelationshipDetails>, CibouletteIdType), CibouletteError>
-    {
+    ) -> Result<
+        (
+            Vec<CibouletteResourceRelationshipDetails>,
+            CibouletteIdTypeSelector,
+        ),
+        CibouletteError,
+    > {
         let mut wtype: Arc<CibouletteResourceType> = base_type.clone();
         let mut res: Vec<CibouletteResourceRelationshipDetails> = Vec::new();
-        let mut last_id_type = *base_type.id_type();
+        let mut last_id_type = base_type.ids();
         for rel_name in rel_chain.split('.') {
             let rel_details = wtype.get_relationship_details(store, rel_name)?;
 
             wtype = rel_details.related_type().clone();
-            last_id_type = *wtype.id_type();
+            last_id_type = wtype.ids();
             res.push(rel_details);
         }
-        Ok((res, last_id_type))
+        Ok((res, last_id_type.clone()))
     }
 
     /// Build a resource identifier where the type if a relationships alias of the `base_type`
@@ -106,7 +112,7 @@ impl<'request> CibouletteResourceResponseIdentifierBuilder<'request> {
             rel_chain,
             CibouletteResourceResponseIdentifier {
                 type_: last_type.name().clone(),
-                id: id_type.build_id(self.id.ok_or(CibouletteError::MissingId)?)?,
+                id: CibouletteId::build_id(&id_type, self.id.ok_or(CibouletteError::MissingId)?)?,
             },
         ))
     }
@@ -189,5 +195,38 @@ impl<'request, B>
                 )
             }
         }
+    }
+}
+
+impl<'request> CibouletteResourceResponseIdentifier<'request> {
+    /// Create a comma separated string of the identifiers
+    pub fn id_to_string(&self) -> String {
+        match self.id() {
+            CibouletteIdSelector::Single(x) => x.to_string(),
+            CibouletteIdSelector::Multi(x) => x.iter().join(","),
+        }
+    }
+}
+
+impl<'request> Serialize for CibouletteResourceResponseIdentifier<'request> {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        let mut state = serializer.serialize_struct("CibouletteResourceIdentifier", 3)?;
+        state.serialize_field("type", &self.type_)?;
+        match self.id().len() {
+            0 => state.skip_field("id")?,
+            1 => state.serialize_field(
+                "id",
+                self.id().get(0).map_err(|_| {
+                    serde::ser::Error::custom(
+                        "Wrong number of id when deserializing resource identifier",
+                    )
+                })?,
+            )?,
+            _ => state.serialize_field("id", &self.id_to_string())?,
+        };
+        state.end()
     }
 }

@@ -7,21 +7,21 @@ fn ok() {
     store
         .add_type(
             "peoples",
-            CibouletteIdType::Uuid,
+            CibouletteIdTypeSelector::Single(CibouletteIdType::Uuid(arcstr::literal!("id"))),
             ciboulette_test_helper::gen_messy_json_schema_peoples(),
         )
         .unwrap();
     store
         .add_type(
             "articles",
-            CibouletteIdType::Uuid,
+            CibouletteIdTypeSelector::Single(CibouletteIdType::Uuid(arcstr::literal!("id"))),
             ciboulette_test_helper::gen_messy_json_schema_articles(),
         )
         .unwrap();
     store
         .add_type(
             "people-article",
-            CibouletteIdType::Uuid,
+            CibouletteIdTypeSelector::Single(CibouletteIdType::Uuid(arcstr::literal!("id"))),
             ciboulette_test_helper::gen_messy_json_schema_people_article(),
         )
         .unwrap();
@@ -81,21 +81,21 @@ fn ok_reverse() {
     store
         .add_type(
             "peoples",
-            CibouletteIdType::Uuid,
+            CibouletteIdTypeSelector::Single(CibouletteIdType::Uuid(arcstr::literal!("id"))),
             ciboulette_test_helper::gen_messy_json_schema_peoples(),
         )
         .unwrap();
     store
         .add_type(
             "articles",
-            CibouletteIdType::Uuid,
+            CibouletteIdTypeSelector::Single(CibouletteIdType::Uuid(arcstr::literal!("id"))),
             ciboulette_test_helper::gen_messy_json_schema_articles(),
         )
         .unwrap();
     store
         .add_type(
             "people-article",
-            CibouletteIdType::Uuid,
+            CibouletteIdTypeSelector::Single(CibouletteIdType::Uuid(arcstr::literal!("id"))),
             ciboulette_test_helper::gen_messy_json_schema_people_article(),
         )
         .unwrap();
@@ -129,21 +129,21 @@ fn no_reverse() {
     store
         .add_type(
             "peoples",
-            CibouletteIdType::Uuid,
+            CibouletteIdTypeSelector::Single(CibouletteIdType::Uuid(arcstr::literal!("id"))),
             ciboulette_test_helper::gen_messy_json_schema_peoples(),
         )
         .unwrap();
     store
         .add_type(
             "articles",
-            CibouletteIdType::Uuid,
+            CibouletteIdTypeSelector::Single(CibouletteIdType::Uuid(arcstr::literal!("id"))),
             ciboulette_test_helper::gen_messy_json_schema_articles(),
         )
         .unwrap();
     store
         .add_type(
             "people-article",
-            CibouletteIdType::Uuid,
+            CibouletteIdTypeSelector::Single(CibouletteIdType::Uuid(arcstr::literal!("id"))),
             ciboulette_test_helper::gen_messy_json_schema_people_article(),
         )
         .unwrap();
@@ -178,21 +178,21 @@ fn duplicate() {
     store
         .add_type(
             "peoples",
-            CibouletteIdType::Uuid,
+            CibouletteIdTypeSelector::Single(CibouletteIdType::Uuid(arcstr::literal!("id"))),
             ciboulette_test_helper::gen_messy_json_schema_peoples(),
         )
         .unwrap();
     store
         .add_type(
             "articles",
-            CibouletteIdType::Uuid,
+            CibouletteIdTypeSelector::Single(CibouletteIdType::Uuid(arcstr::literal!("id"))),
             ciboulette_test_helper::gen_messy_json_schema_articles(),
         )
         .unwrap();
     store
         .add_type(
             "people-article",
-            CibouletteIdType::Uuid,
+            CibouletteIdTypeSelector::Single(CibouletteIdType::Uuid(arcstr::literal!("id"))),
             ciboulette_test_helper::gen_messy_json_schema_people_article(),
         )
         .unwrap();
@@ -228,21 +228,21 @@ fn alias() {
     store
         .add_type(
             "peoples",
-            CibouletteIdType::Uuid,
+            CibouletteIdTypeSelector::Single(CibouletteIdType::Uuid(arcstr::literal!("id"))),
             ciboulette_test_helper::gen_messy_json_schema_peoples(),
         )
         .unwrap();
     store
         .add_type(
             "articles",
-            CibouletteIdType::Uuid,
+            CibouletteIdTypeSelector::Single(CibouletteIdType::Uuid(arcstr::literal!("id"))),
             ciboulette_test_helper::gen_messy_json_schema_articles(),
         )
         .unwrap();
     store
         .add_type(
             "people-article",
-            CibouletteIdType::Uuid,
+            CibouletteIdTypeSelector::Single(CibouletteIdType::Uuid(arcstr::literal!("id"))),
             ciboulette_test_helper::gen_messy_json_schema_people_article(),
         )
         .unwrap();

@@ -19,8 +19,8 @@ fn ok() {
     let res = res.unwrap();
     assert_eq!(
         res.resource_id(),
-        &CibouletteId::parse(
-            CibouletteIdType::Uuid,
+        &CibouletteId::build_id(
+            &CibouletteIdTypeSelector::Single(CibouletteIdType::Uuid(arcstr::literal!("id"))),
             Cow::Borrowed("6720877a-e27e-4e9e-9ac0-3fff4deb55f2")
         )
         .unwrap()

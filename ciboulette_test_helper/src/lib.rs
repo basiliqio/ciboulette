@@ -130,32 +130,32 @@ pub fn gen_bag() -> CibouletteStore {
 
     res.add_type(
         "articles",
-        CibouletteIdType::Uuid,
+        CibouletteIdTypeSelector::Single(CibouletteIdType::Uuid(arcstr::literal!("id"))),
         gen_messy_json_schema_articles(),
     )
     .unwrap();
     res.add_type(
         "comments",
-        CibouletteIdType::Uuid,
+        CibouletteIdTypeSelector::Single(CibouletteIdType::Uuid(arcstr::literal!("id"))),
         gen_messy_json_schema_comments(),
     )
     .unwrap();
     res.add_type(
         "peoples",
-        CibouletteIdType::Uuid,
+        CibouletteIdTypeSelector::Single(CibouletteIdType::Uuid(arcstr::literal!("id"))),
         gen_messy_json_schema_peoples(),
     )
     .unwrap();
     res.add_type(
         "favorite_color",
-        CibouletteIdType::Uuid,
+        CibouletteIdTypeSelector::Single(CibouletteIdType::Uuid(arcstr::literal!("id"))),
         gen_messy_json_schema_favorite_color(),
     )
     .unwrap();
 
     res.add_type(
         "people-article",
-        CibouletteIdType::Uuid,
+        CibouletteIdTypeSelector::Single(CibouletteIdType::Uuid(arcstr::literal!("id"))),
         gen_messy_json_schema_people_article(),
     )
     .unwrap();
@@ -214,17 +214,17 @@ pub fn gen_bag() -> CibouletteStore {
     res.build().unwrap()
 }
 
-pub fn check_ident<'request>(ident: &CibouletteResourceIdentifier<'request>, type_: &str, id: &CibouletteId) {
-    assert_eq!(ident.id(), id, "`id`s mismatch");
+pub fn check_ident<'request>(ident: &CibouletteResourceIdentifier<'request>, type_: &str, id: CibouletteIdSelector) {
+    assert_eq!(ident.id(), &id, "`id`s mismatch");
     assert_eq!(ident.type_(), type_, "`type`s mismatch");
 }
 
 pub fn check_ident_permissive<'request>(
     ident: &CibouletteResourceIdentifierPermissive<'request>,
     type_: &str,
-    id: &Option<CibouletteId>,
+    id: Option<CibouletteIdSelector>,
 ) {
-    assert_eq!(ident.id(), id, "`id`s mismatch");
+    assert_eq!(ident.id(), &id, "`id`s mismatch");
     assert_eq!(ident.type_(), type_, "`type`s mismatch");
 }
 
