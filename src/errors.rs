@@ -90,8 +90,6 @@ pub enum CibouletteError {
     NoData,
     #[error("Missing `id` field for a resource identifier")]
     MissingId,
-    #[error("Bad `id` type: found `{0}`, expected `{1}`")]
-    BadIdType(CibouletteIdType, CibouletteIdType),
     #[error("Unkown id type `{0}`")]
     UnknownIdType(String),
     #[error("Compound documents are forbidden for that kind of request")]
@@ -108,6 +106,8 @@ pub enum CibouletteError {
     WrongPathType(CiboulettePathType, Vec<CiboulettePathType>),
     #[error("Too many main data to build the response document for type `{0}`")]
     ResponseTooManyMainData(String),
+    #[error("Wrong number of id, got {0}, expected {1}")]
+    WrongIdNumber(usize, usize),
     /// When there is a failure while deserializing the JSON
     #[error("An unkown error occured : {0}")]
     UnknownError(String),

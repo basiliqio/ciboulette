@@ -254,7 +254,7 @@ impl<'request> CibouletteBodyBuilder<'request> {
             CibouletteResourceIdentifierPermissive<'request>,
         >,
     ) -> Result<(), CibouletteError> {
-        let mut obj_set: BTreeSet<(&str, &CibouletteId<'request>)> = BTreeSet::new();
+        let mut obj_set: BTreeSet<(&str, CibouletteIdSelector<'request>)> = BTreeSet::new();
 
         match data {
             CibouletteResourceSelector::One(_) => Ok(()), // Must be unique if there's only one.
@@ -262,7 +262,7 @@ impl<'request> CibouletteBodyBuilder<'request> {
                 for obj in objs.iter() {
                     match obj.identifier().id() {
                         Some(id) => {
-                            if !obj_set.insert((obj.identifier().type_(), id)) {
+                            if !obj_set.insert((obj.identifier().type_(), id.clone())) {
                                 // If already exists, fails.
                                 return Err(CibouletteError::UniqObj(
                                     obj.identifier().type_().to_string(),
@@ -280,7 +280,7 @@ impl<'request> CibouletteBodyBuilder<'request> {
 
     /// Check that every relationships in `data` is unique by `type` and `id` for a single object
     fn check_relationships_uniqueness_single<'store, 'c>(
-        linked_set: &mut BTreeSet<(&'c str, &'c CibouletteId<'c>)>,
+        linked_set: &mut BTreeSet<(&'c str, CibouletteIdSelector<'c>)>,
         obj: &'c CibouletteResource<
             'request,
             MessyJsonObjectValue<'store>,
@@ -290,21 +290,21 @@ impl<'request> CibouletteBodyBuilder<'request> {
         for (_link_name, rel) in obj.relationships().iter() {
             match rel.data() {
                 CibouletteOptionalData::Object(CibouletteResourceIdentifierSelector::One(el)) => {
-                    if !linked_set.insert((el.type_(), el.id())) {
+                    if !linked_set.insert((el.type_(), el.id().clone())) {
                         // If already exists, fails.
                         return Err(CibouletteError::UniqRelationshipObject(
                             el.type_().to_string(),
-                            el.id().to_string(),
+                            el.id_to_string(),
                         ));
                     }
                 }
                 CibouletteOptionalData::Object(CibouletteResourceIdentifierSelector::Many(els)) => {
                     for el in els.iter() {
-                        if !linked_set.insert((el.type_(), el.id())) {
+                        if !linked_set.insert((el.type_(), el.id().clone())) {
                             // If already exists, fails.
                             return Err(CibouletteError::UniqRelationshipObject(
                                 el.type_().to_string(),
-                                el.id().to_string(),
+                                el.id_to_string(),
                             ));
                         }
                     }
@@ -322,7 +322,7 @@ impl<'request> CibouletteBodyBuilder<'request> {
             MessyJsonObjectValue<'store>,
             CibouletteResourceIdentifierPermissive<'request>,
         >,
-    ) -> Result<BTreeSet<(&'c str, &'c CibouletteId<'c>)>, CibouletteError> {
+    ) -> Result<BTreeSet<(&'c str, CibouletteIdSelector<'c>)>, CibouletteError> {
         let mut linked_set = BTreeSet::new();
 
         match data {
@@ -332,7 +332,8 @@ impl<'request> CibouletteBodyBuilder<'request> {
             }
             CibouletteResourceSelector::Many(objs) => {
                 for obj in objs.iter() {
-                    let mut linked_set_inner: BTreeSet<(&str, &CibouletteId)> = BTreeSet::new();
+                    let mut linked_set_inner: BTreeSet<(&str, CibouletteIdSelector)> =
+                        BTreeSet::new();
                     Self::check_relationships_uniqueness_single(&mut linked_set_inner, &obj)?;
                     linked_set.append(&mut linked_set_inner);
                 }
@@ -350,13 +351,13 @@ impl<'request> CibouletteBodyBuilder<'request> {
             CibouletteResourceIdentifierPermissive<'request>,
         >],
         check_full_linkage: bool,
-    ) -> Result<BTreeSet<(&'c str, &'c CibouletteId<'c>)>, CibouletteError> {
-        let mut linked_set: BTreeSet<(&str, &CibouletteId)> = BTreeSet::new();
+    ) -> Result<BTreeSet<(&'c str, CibouletteIdSelector<'c>)>, CibouletteError> {
+        let mut linked_set: BTreeSet<(&str, CibouletteIdSelector)> = BTreeSet::new();
 
         for obj in included.iter() {
             match obj.identifier().id() {
                 Some(id) => {
-                    if !linked_set.insert((obj.identifier().type_(), id)) {
+                    if !linked_set.insert((obj.identifier().type_(), id.clone())) {
                         return Err(CibouletteError::UniqObj(
                             obj.identifier().type_().to_string(),
                             id.to_string(),
@@ -430,7 +431,7 @@ impl<'request> CibouletteBodyBuilder<'request> {
         Self::check_key_clash(&data, &included, &errors)?;
         match data {
             CibouletteBodyData::Object(data) => {
-                let rel_set: BTreeSet<(&str, &CibouletteId)>;
+                let rel_set: BTreeSet<(&str, CibouletteIdSelector)>;
 
                 Self::check_obj_uniqueness(&data)?;
                 rel_set = Self::check_relationships_uniqueness(&data)?;

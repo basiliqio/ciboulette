@@ -1,17 +1,9 @@
 use super::*;
-use serde::de::{DeserializeSeed, Deserializer, Visitor};
+use itertools::Itertools;
 #[cfg(feature = "sqlx_postgres")]
 use sqlx::{TypeInfo, ValueRef};
-use std::fmt::Formatter;
 use std::str::FromStr;
-
-/// ## Builder for [CibouletteId](CibouletteId)
-#[derive(Debug, Clone, PartialEq, PartialOrd, Eq, Ord, Hash, Serialize, Deserialize)]
-#[serde(untagged)]
-pub enum CibouletteIdBuilder<'request> {
-    Number(u64),
-    Text(Cow<'request, str>),
-}
+use std::{fmt::Formatter, usize};
 
 /// ## Resource id type
 #[derive(Debug, Clone, PartialEq, PartialOrd, Eq, Ord, Hash, Serialize)]
@@ -23,6 +15,58 @@ pub enum CibouletteId<'request> {
     Uuid(Uuid),
     /// Text id
     Text(Cow<'request, str>),
+}
+
+/// ## Resource id type selector
+#[derive(Debug, Clone, PartialEq, PartialOrd, Eq, Ord, Hash)]
+pub enum CibouletteIdSelector<'request> {
+    Single(CibouletteId<'request>),
+    Multi(Vec<CibouletteId<'request>>),
+}
+
+impl<'request> CibouletteIdSelector<'request> {
+    pub fn len(&self) -> usize {
+        match self {
+            CibouletteIdSelector::Single(_) => 1,
+            CibouletteIdSelector::Multi(x) => x.len(),
+        }
+    }
+
+    pub fn is_empty(&self) -> bool {
+        match self {
+            CibouletteIdSelector::Single(_) => false,
+            CibouletteIdSelector::Multi(x) => x.is_empty(),
+        }
+    }
+
+    pub fn get(&self, i: usize) -> Result<&CibouletteId, CibouletteError> {
+        match self {
+            CibouletteIdSelector::Single(x) if i == 0 => Ok(x),
+            CibouletteIdSelector::Multi(x) => Ok(x
+                .get(i)
+                .ok_or_else(|| CibouletteError::WrongIdNumber(i, x.len()))?),
+            _ => Err(CibouletteError::WrongIdNumber(i, 1)),
+        }
+    }
+}
+
+impl<'request> std::fmt::Display for CibouletteIdSelector<'request> {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        match self {
+            CibouletteIdSelector::Single(x) => write!(f, "{}", x),
+            CibouletteIdSelector::Multi(x) => write!(f, "{}", x.iter().join(",")),
+        }
+    }
+}
+
+impl<'request> std::fmt::Display for CibouletteId<'request> {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        match self {
+            CibouletteId::Number(x) => write!(f, "{}", x),
+            CibouletteId::Uuid(x) => write!(f, "{}", x),
+            CibouletteId::Text(x) => write!(f, "{}", x),
+        }
+    }
 }
 
 #[cfg(feature = "sqlx_postgres")]
@@ -66,136 +110,76 @@ impl<'r> sqlx::Type<sqlx::Postgres> for CibouletteId<'r> {
     }
 }
 
-impl<'request> CibouletteIdBuilder<'request> {
-    pub fn build(
-        self,
-        type_: &CibouletteIdType,
-    ) -> Result<CibouletteId<'request>, CibouletteError> {
-        match (self, type_) {
-            (CibouletteIdBuilder::Text(x), CibouletteIdType::Text) => {
-                Ok(CibouletteId::Text(x.clone()))
-            }
-            (CibouletteIdBuilder::Text(x), CibouletteIdType::Number) => {
-                Ok(CibouletteId::Number(u64::from_str(x.as_ref())?))
-            }
-            (CibouletteIdBuilder::Text(x), CibouletteIdType::Uuid) => {
-                Ok(CibouletteId::Uuid(Uuid::from_str(x.as_ref())?))
-            }
-
-            (CibouletteIdBuilder::Number(x), CibouletteIdType::Text) => {
-                Ok(CibouletteId::Text(Cow::Owned(x.to_string())))
-            }
-            (CibouletteIdBuilder::Number(x), CibouletteIdType::Number) => {
-                Ok(CibouletteId::Number(x))
-            }
-            (CibouletteIdBuilder::Number(_), CibouletteIdType::Uuid) => Err(
-                CibouletteError::BadIdType(CibouletteIdType::Number, CibouletteIdType::Uuid),
-            ),
-        }
-    }
-}
-
 impl<'request> CibouletteId<'request> {
-    pub fn parse(
-        id_type: CibouletteIdType,
-        val: Cow<'request, str>,
-    ) -> Result<Self, CibouletteError> {
-        Ok(match id_type {
-            CibouletteIdType::Number => CibouletteId::Number(u64::from_str(val.as_ref())?),
-            CibouletteIdType::Text => CibouletteId::Text(val),
-            CibouletteIdType::Uuid => CibouletteId::Uuid(Uuid::parse_str(val.as_ref())?),
-        })
-    }
-}
+    pub fn build_id(
+        id_selector: &CibouletteIdTypeSelector,
+        id_str: Cow<'request, str>,
+    ) -> Result<CibouletteIdSelector<'request>, CibouletteError> {
+        let res = match id_selector {
+            CibouletteIdTypeSelector::Single(x) => {
+                CibouletteIdSelector::Single(match x {
+                    CibouletteIdType::Text(_) => CibouletteId::Text(Cow::Owned(id_str.to_string())), // TODO Better
+                    CibouletteIdType::Number(_) => {
+                        CibouletteId::Number(u64::from_str(id_str.as_ref())?)
+                    }
+                    CibouletteIdType::Uuid(_) => {
+                        CibouletteId::Uuid(Uuid::from_str(id_str.as_ref())?)
+                    }
+                })
+            }
+            CibouletteIdTypeSelector::Multi(x) => {
+                let mut res = Vec::with_capacity(2);
 
-impl<'request> ToString for CibouletteId<'request> {
-    fn to_string(&self) -> String {
-        match self {
-            CibouletteId::Number(x) => x.to_string(),
-            CibouletteId::Text(x) => x.to_string(),
-            CibouletteId::Uuid(x) => x.to_string(),
-        }
+                for (i, id) in id_str.split(',').enumerate() {
+                    let id_type = x
+                        .get(i)
+                        .ok_or_else(|| CibouletteError::WrongIdNumber(i, x.len()))?;
+                    res.push(match id_type {
+                        CibouletteIdType::Text(_) => CibouletteId::Text(Cow::Owned(id.to_string())), // TODO Better
+                        CibouletteIdType::Number(_) => CibouletteId::Number(u64::from_str(id)?),
+                        CibouletteIdType::Uuid(_) => CibouletteId::Uuid(Uuid::from_str(id)?),
+                    });
+                }
+                CibouletteIdSelector::Multi(res)
+            }
+        };
+        Ok(res)
     }
 }
 
 /// ## Type of resource id
-#[derive(Debug, Clone, Copy, PartialEq, PartialOrd, Eq, Ord, Hash)]
+#[derive(Debug, Clone, PartialEq, PartialOrd, Eq, Ord, Hash)]
 pub enum CibouletteIdType {
-    Number,
-    Text,
-    Uuid,
+    Number(ArcStr),
+    Text(ArcStr),
+    Uuid(ArcStr),
 }
 
 impl<'request> std::fmt::Display for CibouletteIdType {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            CibouletteIdType::Number => write!(f, "number"),
-            CibouletteIdType::Text => write!(f, "text"),
-            CibouletteIdType::Uuid => write!(f, "uuid"),
+            CibouletteIdType::Number(x) => write!(f, "{} (number)", x),
+            CibouletteIdType::Text(x) => write!(f, "{} (text)", x),
+            CibouletteIdType::Uuid(x) => write!(f, "{} (uuid)", x),
         }
     }
 }
 
-struct CibouletteIdVisitor(CibouletteIdType);
-
-impl<'de> Visitor<'de> for CibouletteIdVisitor {
-    type Value = CibouletteId<'de>;
-
-    #[inline]
-    fn expecting(&self, formatter: &mut Formatter) -> std::fmt::Result {
-        Formatter::write_str(formatter, "an id identifier")
-    }
-
-    #[inline]
-    fn visit_borrowed_str<E>(self, value: &'de str) -> Result<Self::Value, E>
-    where
-        E: serde::de::Error,
-    {
-        match self.0 {
-            CibouletteIdType::Text => Ok(CibouletteId::Text(Cow::Borrowed(value))),
-            CibouletteIdType::Uuid => {
-                Ok(CibouletteId::Uuid(Uuid::parse_str(value).map_err(|e| {
-                    serde::de::Error::custom(format!("Failed to deserialize UUID: {}", e))
-                })?))
-            }
-            CibouletteIdType::Number => {
-                Ok(CibouletteId::Number(u64::from_str(value).map_err(|e| {
-                    serde::de::Error::custom(format!("Failed to deserialize unsigned long: {}", e))
-                })?))
-            }
-        }
-    }
-
-    #[inline]
-    fn visit_u64<E>(self, value: u64) -> Result<Self::Value, E>
-    where
-        E: serde::de::Error,
-    {
-        match self.0 {
-            CibouletteIdType::Number => Ok(CibouletteId::Number(value)),
-            CibouletteIdType::Text => Err(serde::de::Error::invalid_type(
-                serde::de::Unexpected::Unsigned(value),
-                &"a text unique identifier",
-            )),
-            CibouletteIdType::Uuid => Err(serde::de::Error::invalid_type(
-                serde::de::Unexpected::Unsigned(value),
-                &"an UUID",
-            )),
-        }
-    }
+/// ## Type of resource id
+#[derive(Debug, Clone, PartialEq, PartialOrd, Eq, Ord, Hash)]
+pub enum CibouletteIdTypeSelector {
+    Single(CibouletteIdType),
+    Multi(Vec<CibouletteIdType>),
 }
-impl<'de> DeserializeSeed<'de> for CibouletteIdVisitor {
-    type Value = CibouletteId<'de>;
 
-    #[inline]
-    fn deserialize<D>(self, deserializer: D) -> Result<Self::Value, D::Error>
-    where
-        D: Deserializer<'de>,
-    {
-        match self.0 {
-            CibouletteIdType::Number => deserializer.deserialize_u64(self),
-            CibouletteIdType::Text => deserializer.deserialize_str(self),
-            CibouletteIdType::Uuid => deserializer.deserialize_str(self),
+impl CibouletteIdTypeSelector {
+    pub fn get(&self, i: usize) -> Result<&CibouletteIdType, CibouletteError> {
+        match self {
+            CibouletteIdTypeSelector::Single(x) if i == 0 => Ok(x),
+            CibouletteIdTypeSelector::Multi(x) => Ok(x
+                .get(i)
+                .ok_or_else(|| CibouletteError::WrongIdNumber(i, x.len()))?),
+            _ => Err(CibouletteError::WrongIdNumber(i, 1)),
         }
     }
 }

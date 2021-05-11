@@ -111,7 +111,7 @@ impl CibouletteStoreBuilder {
     pub fn add_type(
         &mut self,
         name: &str,
-        id_type: CibouletteIdType,
+        ids: CibouletteIdTypeSelector,
         schema: MessyJsonObject,
     ) -> Result<(), CibouletteError> {
         let name = name.to_string();
@@ -120,7 +120,7 @@ impl CibouletteStoreBuilder {
         {
             return Err(CibouletteError::UniqType(name));
         }
-        let t = CibouletteResourceTypeBuilder::new(name.clone(), id_type, schema).build()?;
+        let t = CibouletteResourceTypeBuilder::new(name.clone(), ids, schema).build()?;
         let index = self.graph.add_node(t); // Add the node
         self.map.insert(name, index); // Save the index to the map
         Ok(())

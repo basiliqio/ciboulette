@@ -169,7 +169,7 @@ pub use body::resource_obj_selector::{
 };
 pub use body::resource_type::{CibouletteResourceRelationshipDetails, CibouletteResourceType};
 pub use body::resource_type_builder::CibouletteResourceTypeBuilder;
-pub use id::{CibouletteId, CibouletteIdBuilder, CibouletteIdType};
+pub use id::{CibouletteId, CibouletteIdSelector, CibouletteIdType, CibouletteIdTypeSelector};
 pub use intention::CibouletteIntention;
 pub use responses::request::CibouletteResponse;
 pub use responses::status::CibouletteResponseStatus;

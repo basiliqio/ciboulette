@@ -1,4 +1,7 @@
+use itertools::Itertools;
+
 use super::*;
+use serde::ser::SerializeStruct;
 use std::cmp::{Ord, Ordering};
 
 /// ## Builder for resource identifier
@@ -10,18 +13,17 @@ pub struct CibouletteResourceIdentifierBuilder<'request> {
     #[serde(rename = "type")]
     pub type_: Cow<'request, str>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub id: Option<CibouletteIdBuilder<'request>>,
+    pub id: Option<Cow<'request, str>>,
 }
 
 /// ## A `json:api` [resource identifier](https://jsonapi.org/format/#document-resource-identifier-objects) object
 ///
 /// The `id` is not optional in that case
-#[derive(Serialize, Debug, Getters, MutGetters, Clone)]
+#[derive(Debug, Getters, MutGetters, Clone)]
 #[getset(get = "pub", get_mut = "pub")]
 pub struct CibouletteResourceIdentifier<'request> {
-    #[serde(rename = "type")]
     pub type_: Cow<'request, str>,
-    pub id: CibouletteId<'request>,
+    pub id: CibouletteIdSelector<'request>,
 }
 
 impl<'request> Ord for CibouletteResourceIdentifier<'request> {
@@ -55,12 +57,11 @@ impl<'request> Eq for CibouletteResourceIdentifier<'request> {}
 /// ## A `json:api` [resource identifier](https://jsonapi.org/format/#document-resource-identifier-objects) object
 ///
 /// The `id` is optional in that case
-#[derive(Serialize, Debug, Getters, MutGetters, Clone)]
+#[derive(Debug, Getters, MutGetters, Clone)]
 #[getset(get = "pub", get_mut = "pub")]
 pub struct CibouletteResourceIdentifierPermissive<'request> {
-    #[serde(rename = "type")]
     pub type_: Cow<'request, str>,
-    pub id: Option<CibouletteId<'request>>,
+    pub id: Option<CibouletteIdSelector<'request>>,
 }
 
 impl<'request> CibouletteResourceIdentifierBuilder<'request> {
@@ -71,10 +72,10 @@ impl<'request> CibouletteResourceIdentifierBuilder<'request> {
         main_type: &CibouletteResourceType,
     ) -> Result<CibouletteResourceIdentifier<'request>, CibouletteError> {
         let rel = main_type.get_relationship(store, &self.type_)?;
-        let id_type = rel.id_type();
+
         Ok(CibouletteResourceIdentifier {
             id: match self.id {
-                Some(id) => id.build(id_type)?,
+                Some(id) => CibouletteId::build_id(rel.ids(), id)?,
                 None => return Err(CibouletteError::MissingId),
             },
             type_: self.type_,
@@ -88,7 +89,7 @@ impl<'request> CibouletteResourceIdentifierBuilder<'request> {
         Ok(CibouletteResourceIdentifier {
             type_: self.type_,
             id: match self.id {
-                Some(id) => id.build(&type_.id_type())?,
+                Some(id) => CibouletteId::build_id(type_.ids(), id)?,
                 None => return Err(CibouletteError::MissingId),
             },
         })
@@ -104,7 +105,7 @@ impl<'request> CibouletteResourceIdentifierBuilder<'request> {
         Ok(CibouletteResourceIdentifierPermissive {
             type_: self.type_,
             id: match self.id {
-                Some(id) => Some(id.build(&type_.id_type())?),
+                Some(id) => Some(CibouletteId::build_id(type_.ids(), id)?),
                 None => None,
             },
         })
@@ -143,21 +144,38 @@ impl<'request> From<CibouletteResourceIdentifier<'request>>
 
 impl<'request> CibouletteResourceIdentifier<'request> {
     /// Create a new resource identifier from an id, a type an potentially a meta argument
-    pub fn new(id: CibouletteId<'request>, type_: Cow<'request, str>) -> Self {
+    pub fn new(id: CibouletteIdSelector<'request>, type_: Cow<'request, str>) -> Self {
         CibouletteResourceIdentifier { id, type_ }
+    }
+
+    /// Create a comma separated string of the identifiers
+    pub fn id_to_string(&self) -> String {
+        match self.id() {
+            CibouletteIdSelector::Single(x) => x.to_string(),
+            CibouletteIdSelector::Multi(x) => x.iter().join(","),
+        }
     }
 }
 
 impl<'request> CibouletteResourceIdentifierPermissive<'request> {
     /// Create a new resource identifier from an id, a type an potentially a meta argument
-    pub fn new(id: Option<CibouletteId<'request>>, type_: Cow<'request, str>) -> Self {
+    pub fn new(id: Option<CibouletteIdSelector<'request>>, type_: Cow<'request, str>) -> Self {
         CibouletteResourceIdentifierPermissive { id, type_ }
+    }
+
+    /// Create a comma separated string of the identifiers
+    pub fn id_to_string(&self) -> String {
+        match self.id() {
+            Some(CibouletteIdSelector::Single(x)) => x.to_string(),
+            Some(CibouletteIdSelector::Multi(x)) => x.iter().join(","),
+            None => String::default(),
+        }
     }
 }
 
 impl<'request> CibouletteResourceIdentifierBuilder<'request> {
     /// Create a new resource identifier from an id, a type an potentially a meta argument
-    pub fn new(id: Option<CibouletteIdBuilder<'request>>, type_: Cow<'request, str>) -> Self {
+    pub fn new(id: Option<Cow<'request, str>>, type_: Cow<'request, str>) -> Self {
         CibouletteResourceIdentifierBuilder { id, type_ }
     }
 }
@@ -270,5 +288,51 @@ impl<'request, B>
                 Ok(CibouletteResourceIdentifierSelector::Many(res))
             }
         }
+    }
+}
+
+impl<'request> Serialize for CibouletteResourceIdentifier<'request> {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        let mut state = serializer.serialize_struct("CibouletteResourceIdentifier", 3)?;
+        state.serialize_field("type", &self.type_)?;
+        match self.id.len() {
+            0 => state.skip_field("id")?,
+            1 => state.serialize_field(
+                "id",
+                self.id().get(0).map_err(|_| {
+                    serde::ser::Error::custom("Wrong number of id when serializing")
+                })?,
+            )?,
+            _ => state.serialize_field("id", &self.id_to_string())?,
+        };
+        state.end()
+    }
+}
+
+impl<'request> Serialize for CibouletteResourceIdentifierPermissive<'request> {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        let mut state = serializer.serialize_struct("CibouletteResourceIdentifier", 3)?;
+        state.serialize_field("type", &self.type_)?;
+        if let Some(id) = &self.id {
+            match id.len() {
+                0 => state.skip_field("id")?,
+                1 => state.serialize_field(
+                    "id",
+                    id.get(0).map_err(|_| {
+                        serde::ser::Error::custom("Wrong number of id when serializing")
+                    })?,
+                )?,
+                _ => state.serialize_field("id", &self.id_to_string())?,
+            };
+        } else {
+            state.skip_field("id")?
+        }
+        state.end()
     }
 }

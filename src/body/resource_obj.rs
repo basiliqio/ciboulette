@@ -185,7 +185,7 @@ impl<'de> serde::de::Visitor<'de> for CibouletteResourceBuilderVisitor {
     where
         A: serde::de::MapAccess<'de>,
     {
-        let mut id: Option<CibouletteIdBuilder<'de>> = None;
+        let mut id: Option<Cow<'de, str>> = None;
         let mut type_: Option<Cow<'de, str>> = None;
         let mut meta: Option<Value> = None;
         let mut attributes: Option<&'de RawValue> = None;

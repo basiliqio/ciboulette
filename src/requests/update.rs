@@ -30,7 +30,7 @@ pub struct CibouletteUpdateRequest<'request> {
     /// The base type beeing updated
     pub resource_type: Arc<CibouletteResourceType>,
     /// The resource id on which the update is based
-    pub resource_id: CibouletteId<'request>,
+    pub resource_id: CibouletteIdSelector<'request>,
     /// If updating a relationships, the related type
     pub related_type: Option<Arc<CibouletteResourceType>>,
     /// The path used to query
@@ -90,7 +90,7 @@ impl<'request> TryFrom<CibouletteRequest<'request>> for CibouletteUpdateRequest<
 
         let (resource_type, resource_id, related_type): (
             Arc<CibouletteResourceType>,
-            &CibouletteId,
+            &CibouletteIdSelector,
             Option<&CibouletteResourceRelationshipDetails>,
         ) = match &path {
             CiboulettePath::TypeId(type_, id) => (type_.clone(), id, None),
