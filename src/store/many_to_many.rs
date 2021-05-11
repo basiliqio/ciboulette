@@ -62,28 +62,46 @@ impl CibouletteStoreBuilder {
                 edge_indexes.from_direct(),
             )
         );
-        // Add edge for relationship with the bucket table for each parts of M2M
-        for i in 0..=1 {
-            let (edge_index, alias) = match opt.keys()[i].0.name() == from {
-                true => (edge_indexes.to(), alias_from),
-                false => (edge_indexes.from(), alias_to),
-            };
-            cancel_rel_edge_on_failure!(
-                self,
-                edge_indexes,
-                self.add_one_to_many_rel(
-                    CibouletteRelationshipOneToManyOptionBuilder::new_from_many_to_many(
-                        opt.keys()[i].0.clone(),
-                        opt.bucket_resource().clone(),
-                        opt.keys()[i].1.clone(),
-                        false,
-                        edge_index
-                    ),
-                    alias.map(ArcStr::from),
-                    None,
-                )
-            );
-        }
+        let (edge_index, alias) = match opt.keys()[0].0.name() == from {
+            true => (edge_indexes.to(), alias_from),
+            false => (edge_indexes.from(), alias_to),
+        };
+        cancel_rel_edge_on_failure!(
+            self,
+            edge_indexes,
+            self.add_one_to_many_rel(
+                CibouletteRelationshipOneToManyOptionBuilder::new_from_many_to_many(
+                    opt.keys()[0].0.clone(),
+                    opt.keys()[1].1.clone(),
+                    opt.bucket_resource().clone(),
+                    opt.keys()[0].1.clone(),
+                    false,
+                    edge_index
+                ),
+                alias.map(ArcStr::from),
+                None,
+            )
+        );
+        let (edge_index, alias) = match opt.keys()[1].0.name() == from {
+            true => (edge_indexes.to(), alias_from),
+            false => (edge_indexes.from(), alias_to),
+        };
+        cancel_rel_edge_on_failure!(
+            self,
+            edge_indexes,
+            self.add_one_to_many_rel(
+                CibouletteRelationshipOneToManyOptionBuilder::new_from_many_to_many(
+                    opt.keys()[1].0.clone(),
+                    opt.keys()[0].1.clone(),
+                    opt.bucket_resource().clone(),
+                    opt.keys()[1].1.clone(),
+                    false,
+                    edge_index
+                ),
+                alias.map(ArcStr::from),
+                None,
+            )
+        );
         Ok(())
     }
 
@@ -96,9 +114,14 @@ impl CibouletteStoreBuilder {
     ) -> Result<(), CibouletteError> {
         let node_indexes = self.get_many_to_many_node_indexes(from, to, &opt)?;
         self.check_bucket_exists(node_indexes.bucket(), from, &opt)?;
-        let (_, bucket_type, to_type) = self.extract_many_to_many_types(&node_indexes)?;
-        let (edge_to_direct, _) =
-            self.get_many_to_many_edge_indexes_to(&bucket_type, to_type, &node_indexes, &opt)?;
+        let (from_type, bucket_type, to_type) = self.extract_many_to_many_types(&node_indexes)?;
+        let (edge_to_direct, _) = self.get_many_to_many_edge_indexes_to(
+            &bucket_type,
+            &from_type,
+            to_type,
+            &node_indexes,
+            &opt,
+        )?;
         self.add_many_to_many_rel_routine(
             (from, node_indexes.from()),
             (to, alias_to),
@@ -118,14 +141,21 @@ impl CibouletteStoreBuilder {
         let node_indexes = self.get_many_to_many_node_indexes(from, to, &opt)?;
         self.check_bucket_exists(node_indexes.bucket(), from, &opt)?;
         let (from_type, bucket_type, to_type) = self.extract_many_to_many_types(&node_indexes)?;
-        let (edge_to_direct, edge_to) =
-            self.get_many_to_many_edge_indexes_to(&bucket_type, to_type, &node_indexes, &opt)?;
-        let rel_type = opt.keys_for_type(&from_type)?;
+        let many_resource_key = opt.keys_for_type(&from_type)?;
+        let one_resource_key = opt.keys_for_type(&to_type)?;
+        let (edge_to_direct, edge_to) = self.get_many_to_many_edge_indexes_to(
+            &bucket_type,
+            &from_type,
+            to_type,
+            &node_indexes,
+            &opt,
+        )?;
         self.add_one_to_many_rel(
             CibouletteRelationshipOneToManyOptionBuilder::new_from_many_to_many(
                 from_type,
+                one_resource_key,
                 opt.bucket_resource().clone(),
-                rel_type,
+                many_resource_key,
                 false,
                 edge_to,
             ),
@@ -190,10 +220,20 @@ impl CibouletteStoreBuilder {
         opt: &CibouletteRelationshipManyToManyOptionBuilder,
     ) -> Result<CibouletteManyToManyEdgeIndexes, CibouletteError> {
         let (from_type, bucket_type, to_type) = self.extract_many_to_many_types(indexes)?;
-        let (edge_to_direct, edge_to) =
-            self.get_many_to_many_edge_indexes_to(&bucket_type, to_type, indexes, opt)?;
-        let (edge_from_direct, edge_from) =
-            self.get_many_to_many_edge_indexes_from(&bucket_type, from_type, indexes, opt)?;
+        let (edge_to_direct, edge_to) = self.get_many_to_many_edge_indexes_to(
+            &bucket_type,
+            &from_type,
+            to_type.clone(),
+            indexes,
+            opt,
+        )?;
+        let (edge_from_direct, edge_from) = self.get_many_to_many_edge_indexes_from(
+            &bucket_type,
+            to_type,
+            &from_type,
+            indexes,
+            opt,
+        )?;
         Ok(CibouletteManyToManyEdgeIndexes {
             from: edge_from,
             to: edge_to,
@@ -206,6 +246,7 @@ impl CibouletteStoreBuilder {
     fn get_many_to_many_edge_indexes_to(
         &mut self,
         bucket_type: &CibouletteResourceType,
+        from_type: &CibouletteResourceType,
         to_type: CibouletteResourceType,
         indexes: &CibouletteManyToManyNodeIndexes,
         opt: &CibouletteRelationshipManyToManyOptionBuilder,
@@ -221,6 +262,7 @@ impl CibouletteStoreBuilder {
             indexes.from(),
             CibouletteRelationshipOptionBuilder::ManyToMany(opt.clone()),
         );
+        let from_key = opt.keys_for_type(&from_type)?;
         let to_key = opt.keys_for_type(&to_type)?;
         let edge_to_i = self.graph_mut().add_edge(
             indexes.bucket(),
@@ -228,6 +270,7 @@ impl CibouletteStoreBuilder {
             CibouletteRelationshipOptionBuilder::OneToMany(
                 CibouletteRelationshipOneToManyOptionBuilder::new_from_many_to_many(
                     to_type,
+                    from_key,
                     bucket_type.clone(),
                     to_key,
                     false,
@@ -243,6 +286,7 @@ impl CibouletteStoreBuilder {
         &mut self,
         bucket_type: &CibouletteResourceType,
         from_type: CibouletteResourceType,
+        to_type: &CibouletteResourceType,
         indexes: &CibouletteManyToManyNodeIndexes,
         opt: &CibouletteRelationshipManyToManyOptionBuilder,
     ) -> Result<
@@ -258,12 +302,14 @@ impl CibouletteStoreBuilder {
             CibouletteRelationshipOptionBuilder::ManyToMany(opt.clone()),
         );
         let from_key = opt.keys_for_type(&from_type)?;
+        let to_key = opt.keys_for_type(&to_type)?;
         let edge_from_i = self.graph_mut().add_edge(
             indexes.bucket(),
             indexes.from(),
             CibouletteRelationshipOptionBuilder::OneToMany(
                 CibouletteRelationshipOneToManyOptionBuilder::new_from_many_to_many(
                     from_type,
+                    to_key,
                     bucket_type.clone(),
                     from_key,
                     false,

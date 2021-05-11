@@ -20,6 +20,7 @@ fn ok() {
         .unwrap();
     let opt = CibouletteRelationshipOneToManyOptionBuilder::new(
         store.get_type("favorite_color").unwrap().clone(),
+        arcstr::literal!("id"),
         store.get_type("peoples").unwrap().clone(),
         arcstr::literal!("favorite_color"),
         true,
@@ -52,6 +53,7 @@ fn ok_reverse() {
         .unwrap();
     let opt = CibouletteRelationshipOneToManyOptionBuilder::new(
         store.get_type("favorite_color").unwrap().clone(),
+        arcstr::literal!("id"),
         store.get_type("peoples").unwrap().clone(),
         arcstr::literal!("favorite_color"),
         true,
@@ -84,6 +86,7 @@ fn no_reverse() {
         .unwrap();
     let opt = CibouletteRelationshipOneToManyOptionBuilder::new(
         store.get_type("favorite_color").unwrap().clone(),
+        arcstr::literal!("id"),
         store.get_type("peoples").unwrap().clone(),
         arcstr::literal!("favorite_color"),
         true,
@@ -117,6 +120,7 @@ fn duplicate() {
         .unwrap();
     let opt = CibouletteRelationshipOneToManyOptionBuilder::new(
         store.get_type("favorite_color").unwrap().clone(),
+        arcstr::literal!("id"),
         store.get_type("peoples").unwrap().clone(),
         arcstr::literal!("favorite_color"),
         true,
