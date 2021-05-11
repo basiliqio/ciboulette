@@ -16,6 +16,8 @@ pub struct CibouletteRelationshipManyToManyOption {
 pub struct CibouletteRelationshipOneToManyOption {
     /// The "one" resource
     pub(crate) one_resource: Arc<CibouletteResourceType>,
+    /// The field in the "one" resource that points to the "many" resource
+    pub(crate) one_resource_key: ArcStr,
     /// The "many" resource
     pub(crate) many_resource: Arc<CibouletteResourceType>,
     /// The "many" field relating to the "one" resource

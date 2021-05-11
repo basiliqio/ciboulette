@@ -173,6 +173,7 @@ impl CibouletteRelationshipOneToManyOptionBuilder {
                     CibouletteError::TypeNotInGraph(self.one_resource().name().to_string())
                 })?
                 .clone(),
+            one_resource_key: self.one_resource_key.clone(),
             many_resource: graph
                 .node_weight(*many_resource)
                 .ok_or_else(|| {
