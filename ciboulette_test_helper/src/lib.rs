@@ -155,7 +155,7 @@ pub fn gen_bag() -> CibouletteStore {
 
     res.add_type(
         "people-article",
-        CibouletteIdTypeSelector::Single(CibouletteIdType::Uuid(arcstr::literal!("id"))),
+        CibouletteIdTypeSelector::Multi(vec![CibouletteIdType::Uuid(arcstr::literal!("people_id")), CibouletteIdType::Uuid(arcstr::literal!("article_id"))]),
         gen_messy_json_schema_people_article(),
     )
     .unwrap();
