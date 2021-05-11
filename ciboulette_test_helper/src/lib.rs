@@ -163,6 +163,7 @@ pub fn gen_bag() -> CibouletteStore {
     res.add_one_to_many_rel(
         CibouletteRelationshipOneToManyOptionBuilder::new(
             res.get_type("favorite_color").unwrap().clone(),
+            arcstr::literal!("id"),
             res.get_type("peoples").unwrap().clone(),
             arcstr::literal!("favorite_color"),
 			true,
@@ -174,6 +175,7 @@ pub fn gen_bag() -> CibouletteStore {
     res.add_one_to_many_rel(
         CibouletteRelationshipOneToManyOptionBuilder::new(
             res.get_type("articles").unwrap().clone(),
+            arcstr::literal!("id"),
             res.get_type("comments").unwrap().clone(),
             arcstr::literal!("article"),
 			false,
@@ -185,6 +187,7 @@ pub fn gen_bag() -> CibouletteStore {
     res.add_one_to_many_rel(
         CibouletteRelationshipOneToManyOptionBuilder::new(
             res.get_type("peoples").unwrap().clone(),
+            arcstr::literal!("id"),
             res.get_type("comments").unwrap().clone(),
             arcstr::literal!("author"),
 			false

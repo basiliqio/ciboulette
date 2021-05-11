@@ -16,6 +16,8 @@ pub struct CibouletteRelationshipManyToManyOptionBuilder {
 pub struct CibouletteRelationshipOneToManyOptionBuilder {
     /// The "one" resource
     one_resource: CibouletteResourceType,
+    /// The field in the "one" resource that points to the "many" resource
+    one_resource_key: ArcStr,
     /// The "many" resource
     many_resource: CibouletteResourceType,
     /// The field in the "many" resource that points to the "one" resource
@@ -108,6 +110,7 @@ impl CibouletteRelationshipManyToManyOptionBuilder {
 impl CibouletteRelationshipOneToManyOptionBuilder {
     pub fn new(
         one_resource: CibouletteResourceType,
+        one_resource_key: ArcStr,
         many_resource: CibouletteResourceType,
         many_resource_key: ArcStr,
         optional: bool,
@@ -115,6 +118,7 @@ impl CibouletteRelationshipOneToManyOptionBuilder {
         CibouletteRelationshipOneToManyOptionBuilder {
             one_resource,
             many_resource,
+            one_resource_key,
             many_resource_key,
             part_of_many_to_many: None,
             optional,
@@ -124,6 +128,7 @@ impl CibouletteRelationshipOneToManyOptionBuilder {
     /// Build a new O2M/M2O relationships in the process of creating a new M2M relationships
     pub(crate) fn new_from_many_to_many(
         one_resource: CibouletteResourceType,
+        one_resource_key: ArcStr,
         many_resource: CibouletteResourceType,
         many_resource_key: ArcStr,
         optional: bool,
@@ -131,6 +136,7 @@ impl CibouletteRelationshipOneToManyOptionBuilder {
     ) -> Self {
         CibouletteRelationshipOneToManyOptionBuilder {
             one_resource,
+            one_resource_key,
             many_resource,
             many_resource_key,
             part_of_many_to_many: Some(part_of_many_to_many),
