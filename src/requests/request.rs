@@ -72,10 +72,8 @@ impl<'request> CibouletteRequestBuilder<'request> {
         self,
         bag: &CibouletteStore,
     ) -> Result<CibouletteRequest<'request>, CibouletteError> {
-        println!("AAAAA");
         let path: CiboulettePath<'request> =
             CiboulettePathBuilder::parse(self.req_url)?.build(&bag)?;
-        println!("AAAAA");
         let body: Option<
             CibouletteBody<
                 'request,
@@ -86,12 +84,10 @@ impl<'request> CibouletteRequestBuilder<'request> {
             // Build body
             Some(body) => {
                 let builder: CibouletteBodyBuilder<'request> = serde_json::from_str(body)?;
-                println!("AAAAA");
                 Some(builder.build(bag, self.intention())?)
             }
             None => None,
         };
-        println!("AAAAA");
 
         let query: Option<CibouletteQueryParameters<'request>> = match self.req_url.query() {
             // Build query parameters
@@ -102,7 +98,6 @@ impl<'request> CibouletteRequestBuilder<'request> {
             }
             None => None,
         };
-        println!("AAAAA");
 
         Ok(CibouletteRequest {
             path,
