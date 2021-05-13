@@ -303,17 +303,9 @@ impl<'request> CibouletteResourceBuilder<'request> {
         let mut relationships: BTreeMap<ArcStr, CibouletteRelationshipObject<'request>> =
             BTreeMap::new();
         for (k, v) in self.relationships {
-            match current_type.relationships().get_key_value(k.as_ref()) {
-                Some((k, _)) => {
-                    relationships.insert(k.clone(), v.build(&current_type)?);
-                }
-                None => {
-                    return Err(CibouletteError::UnknownRelationship(
-                        current_type.name().to_string(),
-                        k.to_string(),
-                    ))
-                }
-            }
+            let (rel_alias, rel_type) =
+                current_type.get_relationship_with_alias(&bag, k.as_ref())?;
+            relationships.insert(rel_alias, v.build(&rel_type)?);
         }
         Ok(CibouletteResource {
             identifier: self.identifier.build_permissive(&current_type)?,

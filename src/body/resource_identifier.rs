@@ -199,6 +199,7 @@ impl<'request> CibouletteResourceIdentifierSelectorBuilder<'request> {
                 Ok(CibouletteResourceIdentifierSelector::One(x.build(type_)?))
             }
             CibouletteResourceIdentifierSelectorBuilder::Many(ids) => {
+                println!("OH NO");
                 let mut res: Vec<CibouletteResourceIdentifier<'request>> =
                     Vec::with_capacity(ids.len());
 
