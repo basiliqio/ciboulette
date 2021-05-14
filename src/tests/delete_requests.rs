@@ -21,8 +21,7 @@ fn ok() {
         res.resource_id(),
         &CibouletteIdSelector::build_id(
             &CibouletteIdTypeSelector::Single(CibouletteIdType::Uuid(arcstr::literal!("id"))),
-            Cow::Borrowed("6720877a-e27e-4e9e-9ac0-3fff4deb55f2"),
-            true
+            Cow::Borrowed("6720877a-e27e-4e9e-9ac0-3fff4deb55f2")
         )
         .unwrap()
     );

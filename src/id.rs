@@ -49,31 +49,20 @@ impl<'request> CibouletteIdSelector<'request> {
         }
     }
 
-    fn build_id_routine(
-        id_type: &CibouletteIdType,
-        id_str: &str,
-        decode: bool,
-    ) -> Result<CibouletteId<'request>, CibouletteError> {
-        let res = match id_type {
-            CibouletteIdType::Text(_) if decode => {
-                CibouletteId::Text(Cow::Owned(String::from_utf8(base64::decode(id_str)?)?))
-            }
-            CibouletteIdType::Text(_) => CibouletteId::Text(id_str.to_string().into()),
-            CibouletteIdType::Number(_) => CibouletteId::Number(u64::from_str(id_str)?),
-            CibouletteIdType::Uuid(_) => CibouletteId::Uuid(Uuid::from_str(id_str)?),
-        };
-        Ok(res)
-    }
-
     pub fn build_id(
         id_selector: &CibouletteIdTypeSelector,
         id_str: Cow<'request, str>,
-        decode: bool,
     ) -> Result<CibouletteIdSelector<'request>, CibouletteError> {
         let res = match id_selector {
-            CibouletteIdTypeSelector::Single(x) => {
-                CibouletteIdSelector::Single(Self::build_id_routine(x, id_str.as_ref(), decode)?)
-            }
+            CibouletteIdTypeSelector::Single(x) => CibouletteIdSelector::Single(match x {
+                CibouletteIdType::Text(_) => CibouletteId::Text(Cow::Owned(String::from_utf8(
+                    base64::decode(id_str.as_ref())?,
+                )?)),
+                CibouletteIdType::Number(_) => {
+                    CibouletteId::Number(u64::from_str(id_str.as_ref())?)
+                }
+                CibouletteIdType::Uuid(_) => CibouletteId::Uuid(Uuid::from_str(id_str.as_ref())?),
+            }),
             CibouletteIdTypeSelector::Multi(x) => {
                 let mut res = Vec::with_capacity(2);
 
@@ -81,7 +70,13 @@ impl<'request> CibouletteIdSelector<'request> {
                     let id_type = x
                         .get(i)
                         .ok_or_else(|| CibouletteError::WrongIdNumber(i, x.len()))?;
-                    res.push(Self::build_id_routine(id_type, id, decode)?);
+                    res.push(match id_type {
+                        CibouletteIdType::Text(_) => {
+                            CibouletteId::Text(Cow::Owned(String::from_utf8(base64::decode(id)?)?))
+                        }
+                        CibouletteIdType::Number(_) => CibouletteId::Number(u64::from_str(id)?),
+                        CibouletteIdType::Uuid(_) => CibouletteId::Uuid(Uuid::from_str(id)?),
+                    });
                 }
                 CibouletteIdSelector::Multi(res)
             }
