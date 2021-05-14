@@ -1,7 +1,7 @@
 ## Unreleased
 ### Changed
 - CibouletteId::build_id moved to CibouletteIdSelector::build
-
+- Text 'id's are base64 encoded
 
 ## [0.1.4] - 2021-05-13
 ### Fixed

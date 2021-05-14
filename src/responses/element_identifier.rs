@@ -65,7 +65,7 @@ impl<'request> CibouletteResourceResponseIdentifierBuilder<'request> {
         let type_ = store.get_type(&self.type_)?;
         Ok(CibouletteResourceResponseIdentifier {
             id: match self.id {
-                Some(id) => CibouletteIdSelector::build_id(type_.ids(), id)?,
+                Some(id) => CibouletteIdSelector::build_id(type_.ids(), id, false)?,
                 None => return Err(CibouletteError::MissingId),
             },
             type_: type_.name().clone(),
@@ -115,6 +115,7 @@ impl<'request> CibouletteResourceResponseIdentifierBuilder<'request> {
                 id: CibouletteIdSelector::build_id(
                     &id_type,
                     self.id.ok_or(CibouletteError::MissingId)?,
+                    false,
                 )?,
             },
         ))

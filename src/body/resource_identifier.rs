@@ -75,7 +75,7 @@ impl<'request> CibouletteResourceIdentifierBuilder<'request> {
 
         Ok(CibouletteResourceIdentifier {
             id: match self.id {
-                Some(id) => CibouletteIdSelector::build_id(rel.ids(), id)?,
+                Some(id) => CibouletteIdSelector::build_id(rel.ids(), id, true)?,
                 None => return Err(CibouletteError::MissingId),
             },
             type_: self.type_,
@@ -89,7 +89,7 @@ impl<'request> CibouletteResourceIdentifierBuilder<'request> {
         Ok(CibouletteResourceIdentifier {
             type_: self.type_,
             id: match self.id {
-                Some(id) => CibouletteIdSelector::build_id(type_.ids(), id)?,
+                Some(id) => CibouletteIdSelector::build_id(type_.ids(), id, true)?,
                 None => return Err(CibouletteError::MissingId),
             },
         })
@@ -105,7 +105,7 @@ impl<'request> CibouletteResourceIdentifierBuilder<'request> {
         Ok(CibouletteResourceIdentifierPermissive {
             type_: self.type_,
             id: match self.id {
-                Some(id) => Some(CibouletteIdSelector::build_id(type_.ids(), id)?),
+                Some(id) => Some(CibouletteIdSelector::build_id(type_.ids(), id, true)?),
                 None => None,
             },
         })

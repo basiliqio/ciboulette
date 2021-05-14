@@ -10,6 +10,7 @@ fn text_to_uuid() {
     let res = CibouletteIdSelector::build_id(
         &CibouletteIdTypeSelector::Single(CibouletteIdType::Uuid(arcstr::literal!("id"))),
         builder,
+        true,
     )
     .unwrap();
     assert_eq!(res.len(), 1);
@@ -26,6 +27,7 @@ fn text_to_number() {
     let res = CibouletteIdSelector::build_id(
         &CibouletteIdTypeSelector::Single(CibouletteIdType::Number(arcstr::literal!("id"))),
         builder,
+        true,
     )
     .unwrap();
     assert_eq!(res.len(), 1);
@@ -42,6 +44,7 @@ fn text_to_text() {
     let res = CibouletteIdSelector::build_id(
         &CibouletteIdTypeSelector::Single(CibouletteIdType::Text(arcstr::literal!("id"))),
         builder,
+        true,
     )
     .unwrap();
     assert_eq!(res.len(), 1);
@@ -58,6 +61,7 @@ fn number_to_text() {
     let res = CibouletteIdSelector::build_id(
         &CibouletteIdTypeSelector::Single(CibouletteIdType::Text(arcstr::literal!("id"))),
         builder,
+        true,
     )
     .unwrap();
     assert_eq!(res.len(), 1);
@@ -74,6 +78,7 @@ fn number_to_uuid() {
     let err = CibouletteIdSelector::build_id(
         &CibouletteIdTypeSelector::Single(CibouletteIdType::Uuid(arcstr::literal!("id"))),
         builder,
+        true,
     )
     .unwrap_err();
     assert_eq!(matches!(err, CibouletteError::UuidError(_)), true);
@@ -95,6 +100,7 @@ fn multi_text() {
             CibouletteIdType::Text(arcstr::literal!("cc")),
         ]),
         builder,
+        true,
     )
     .unwrap();
     assert_eq!(res.len(), 3);
@@ -130,6 +136,7 @@ fn multi_mixed() {
             CibouletteIdType::Text(arcstr::literal!("cc")),
         ]),
         builder,
+        true,
     )
     .unwrap();
     assert_eq!(res.len(), 3);
@@ -156,6 +163,7 @@ fn bad_utf8() {
     let res = CibouletteIdSelector::build_id(
         &CibouletteIdTypeSelector::Single(CibouletteIdType::Text(arcstr::literal!("cc"))),
         builder,
+        true,
     )
     .unwrap_err();
 

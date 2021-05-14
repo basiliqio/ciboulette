@@ -134,14 +134,14 @@ impl<'request> CiboulettePathBuilder<'request> {
                 let ftype = store.get_type(type_.as_ref())?;
                 Ok(CiboulettePath::TypeId(
                     ftype.clone(),
-                    CibouletteIdSelector::build_id(ftype.ids(), id)?,
+                    CibouletteIdSelector::build_id(ftype.ids(), id, true)?,
                 ))
             }
             CiboulettePathBuilder::TypeIdRelated(ftype, id, stype) => {
                 let (nftype, nstype) = Self::build_double_typed(&store, ftype, stype)?;
                 Ok(CiboulettePath::TypeIdRelated(
                     nftype.clone(),
-                    CibouletteIdSelector::build_id(nftype.ids(), id)?,
+                    CibouletteIdSelector::build_id(nftype.ids(), id, true)?,
                     nstype,
                 ))
             }
@@ -149,7 +149,7 @@ impl<'request> CiboulettePathBuilder<'request> {
                 let (nftype, nstype) = Self::build_double_typed(&store, ftype, stype)?;
                 Ok(CiboulettePath::TypeIdRelationship(
                     nftype.clone(),
-                    CibouletteIdSelector::build_id(nftype.ids(), id)?,
+                    CibouletteIdSelector::build_id(nftype.ids(), id, true)?,
                     nstype,
                 ))
             }
