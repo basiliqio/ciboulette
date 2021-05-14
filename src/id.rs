@@ -5,6 +5,13 @@ use sqlx::{TypeInfo, ValueRef};
 use std::str::FromStr;
 use std::{fmt::Formatter, usize};
 
+lazy_static::lazy_static! {
+    static ref BASE64_CONFIG: base64::Config = {
+        base64::Config::new(base64::CharacterSet::UrlSafe, true)
+        .decode_allow_trailing_bits(true)
+    };
+}
+
 /// ## Resource id type
 #[derive(Debug, Clone, PartialEq, PartialOrd, Eq, Ord, Hash, Serialize)]
 #[serde(untagged)]
@@ -56,7 +63,7 @@ impl<'request> CibouletteIdSelector<'request> {
         let res = match id_selector {
             CibouletteIdTypeSelector::Single(x) => CibouletteIdSelector::Single(match x {
                 CibouletteIdType::Text(_) => CibouletteId::Text(Cow::Owned(String::from_utf8(
-                    base64::decode(id_str.as_ref())?,
+                    base64::decode_config(id_str.as_ref(), *BASE64_CONFIG)?,
                 )?)),
                 CibouletteIdType::Number(_) => {
                     CibouletteId::Number(u64::from_str(id_str.as_ref())?)
@@ -71,9 +78,9 @@ impl<'request> CibouletteIdSelector<'request> {
                         .get(i)
                         .ok_or_else(|| CibouletteError::WrongIdNumber(i, x.len()))?;
                     res.push(match id_type {
-                        CibouletteIdType::Text(_) => {
-                            CibouletteId::Text(Cow::Owned(String::from_utf8(base64::decode(id)?)?))
-                        }
+                        CibouletteIdType::Text(_) => CibouletteId::Text(Cow::Owned(
+                            String::from_utf8(base64::decode_config(id, *BASE64_CONFIG)?)?,
+                        )),
                         CibouletteIdType::Number(_) => CibouletteId::Number(u64::from_str(id)?),
                         CibouletteIdType::Uuid(_) => CibouletteId::Uuid(Uuid::from_str(id)?),
                     });
