@@ -120,5 +120,11 @@ pub enum CibouletteError {
     #[error(transparent)]
     SerdeUrlEncoded(#[from] serde_urlencoded::de::Error),
     #[error(transparent)]
+    Base64(#[from] base64::DecodeError),
+    #[error(transparent)]
+    FromUtf8(#[from] std::string::FromUtf8Error),
+    #[error(transparent)]
+    ToUtf8(#[from] std::str::Utf8Error),
+    #[error(transparent)]
     Url(#[from] url::ParseError),
 }

@@ -75,7 +75,7 @@ impl<'request> CibouletteResourceIdentifierBuilder<'request> {
 
         Ok(CibouletteResourceIdentifier {
             id: match self.id {
-                Some(id) => CibouletteId::build_id(rel.ids(), id)?,
+                Some(id) => CibouletteIdSelector::build_id(rel.ids(), id)?,
                 None => return Err(CibouletteError::MissingId),
             },
             type_: self.type_,
@@ -89,7 +89,7 @@ impl<'request> CibouletteResourceIdentifierBuilder<'request> {
         Ok(CibouletteResourceIdentifier {
             type_: self.type_,
             id: match self.id {
-                Some(id) => CibouletteId::build_id(type_.ids(), id)?,
+                Some(id) => CibouletteIdSelector::build_id(type_.ids(), id)?,
                 None => return Err(CibouletteError::MissingId),
             },
         })
@@ -105,7 +105,7 @@ impl<'request> CibouletteResourceIdentifierBuilder<'request> {
         Ok(CibouletteResourceIdentifierPermissive {
             type_: self.type_,
             id: match self.id {
-                Some(id) => Some(CibouletteId::build_id(type_.ids(), id)?),
+                Some(id) => Some(CibouletteIdSelector::build_id(type_.ids(), id)?),
                 None => None,
             },
         })
@@ -152,7 +152,13 @@ impl<'request> CibouletteResourceIdentifier<'request> {
     pub fn id_to_string(&self) -> String {
         match self.id() {
             CibouletteIdSelector::Single(x) => x.to_string(),
-            CibouletteIdSelector::Multi(x) => x.iter().join(","),
+            CibouletteIdSelector::Multi(x) => x
+                .iter()
+                .map(|x| match x {
+                    CibouletteId::Text(id) => base64::encode(id.as_ref()),
+                    _ => x.to_string(),
+                })
+                .join(","),
         }
     }
 }

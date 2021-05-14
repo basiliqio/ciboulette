@@ -37,7 +37,7 @@ impl<'request> CibouletteResponseElementAlias<'request> {
 }
 
 impl<'request, B> CibouletteResponseElement<'request, B> {
-    pub fn new(
+    pub fn build(
         store: &CibouletteStore,
         main_type: &Arc<CibouletteResourceType>,
         identifier: CibouletteResourceIdentifierBuilder<'request>,
