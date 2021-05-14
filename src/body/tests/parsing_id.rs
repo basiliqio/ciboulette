@@ -148,3 +148,16 @@ fn multi_mixed() {
         true
     );
 }
+
+#[test]
+fn bad_utf8() {
+    let builder = Cow::Borrowed("tutu");
+
+    let res = CibouletteIdSelector::build_id(
+        &CibouletteIdTypeSelector::Single(CibouletteIdType::Text(arcstr::literal!("cc"))),
+        builder,
+    )
+    .unwrap_err();
+
+    assert_eq!(matches!(res, CibouletteError::FromUtf8(_)), true);
+}
