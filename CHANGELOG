@@ -1,3 +1,8 @@
+## Unreleased
+### Changed
+- CibouletteId::build_id moved to CibouletteIdSelector::build
+
+
 ## [0.1.4] - 2021-05-13
 ### Fixed
 - Error when deserializing multiple 'id's in relationships objects

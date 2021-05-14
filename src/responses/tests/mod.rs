@@ -21,7 +21,7 @@ fn gen_data_row<'request>(
     id: &'request str,
     join_data: bool,
 ) -> CibouletteResponseElement<'request, String> {
-    CibouletteResponseElement::new(
+    CibouletteResponseElement::build(
         &store,
         &base_type,
         CibouletteResourceIdentifierBuilder::new(Some(Cow::Borrowed(id)), Cow::Borrowed(type_)),
@@ -43,7 +43,7 @@ fn gen_data_row_related<'request>(
     related_type_: &'request str,
     related_id: &'request str,
 ) -> CibouletteResponseElement<'request, String> {
-    CibouletteResponseElement::new(
+    CibouletteResponseElement::build(
         &store,
         &base_type,
         CibouletteResourceIdentifierBuilder::new(Some(Cow::Borrowed(id)), Cow::Borrowed(type_)),

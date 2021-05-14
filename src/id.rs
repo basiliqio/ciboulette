@@ -48,6 +48,41 @@ impl<'request> CibouletteIdSelector<'request> {
             _ => Err(CibouletteError::WrongIdNumber(i, 1)),
         }
     }
+
+    pub fn build_id(
+        id_selector: &CibouletteIdTypeSelector,
+        id_str: Cow<'request, str>,
+    ) -> Result<CibouletteIdSelector<'request>, CibouletteError> {
+        let res = match id_selector {
+            CibouletteIdTypeSelector::Single(x) => {
+                CibouletteIdSelector::Single(match x {
+                    CibouletteIdType::Text(_) => CibouletteId::Text(Cow::Owned(id_str.to_string())), // TODO Better
+                    CibouletteIdType::Number(_) => {
+                        CibouletteId::Number(u64::from_str(id_str.as_ref())?)
+                    }
+                    CibouletteIdType::Uuid(_) => {
+                        CibouletteId::Uuid(Uuid::from_str(id_str.as_ref())?)
+                    }
+                })
+            }
+            CibouletteIdTypeSelector::Multi(x) => {
+                let mut res = Vec::with_capacity(2);
+
+                for (i, id) in id_str.split(',').enumerate() {
+                    let id_type = x
+                        .get(i)
+                        .ok_or_else(|| CibouletteError::WrongIdNumber(i, x.len()))?;
+                    res.push(match id_type {
+                        CibouletteIdType::Text(_) => CibouletteId::Text(Cow::Owned(id.to_string())), // TODO Better
+                        CibouletteIdType::Number(_) => CibouletteId::Number(u64::from_str(id)?),
+                        CibouletteIdType::Uuid(_) => CibouletteId::Uuid(Uuid::from_str(id)?),
+                    });
+                }
+                CibouletteIdSelector::Multi(res)
+            }
+        };
+        Ok(res)
+    }
 }
 
 impl<'request> std::fmt::Display for CibouletteIdSelector<'request> {
@@ -107,43 +142,6 @@ impl<'r> sqlx::Type<sqlx::Postgres> for CibouletteId<'r> {
             "UUID" | "TEXT" | "SERIAL" => true,
             _ => false,
         }
-    }
-}
-
-impl<'request> CibouletteId<'request> {
-    pub fn build_id(
-        id_selector: &CibouletteIdTypeSelector,
-        id_str: Cow<'request, str>,
-    ) -> Result<CibouletteIdSelector<'request>, CibouletteError> {
-        let res = match id_selector {
-            CibouletteIdTypeSelector::Single(x) => {
-                CibouletteIdSelector::Single(match x {
-                    CibouletteIdType::Text(_) => CibouletteId::Text(Cow::Owned(id_str.to_string())), // TODO Better
-                    CibouletteIdType::Number(_) => {
-                        CibouletteId::Number(u64::from_str(id_str.as_ref())?)
-                    }
-                    CibouletteIdType::Uuid(_) => {
-                        CibouletteId::Uuid(Uuid::from_str(id_str.as_ref())?)
-                    }
-                })
-            }
-            CibouletteIdTypeSelector::Multi(x) => {
-                let mut res = Vec::with_capacity(2);
-
-                for (i, id) in id_str.split(',').enumerate() {
-                    let id_type = x
-                        .get(i)
-                        .ok_or_else(|| CibouletteError::WrongIdNumber(i, x.len()))?;
-                    res.push(match id_type {
-                        CibouletteIdType::Text(_) => CibouletteId::Text(Cow::Owned(id.to_string())), // TODO Better
-                        CibouletteIdType::Number(_) => CibouletteId::Number(u64::from_str(id)?),
-                        CibouletteIdType::Uuid(_) => CibouletteId::Uuid(Uuid::from_str(id)?),
-                    });
-                }
-                CibouletteIdSelector::Multi(res)
-            }
-        };
-        Ok(res)
     }
 }
 

@@ -7,7 +7,7 @@ use uuid::Uuid;
 fn text_to_uuid() {
     let builder = Cow::Borrowed("8278146c-b037-4364-8326-55db392e13a2");
 
-    let res = CibouletteId::build_id(
+    let res = CibouletteIdSelector::build_id(
         &CibouletteIdTypeSelector::Single(CibouletteIdType::Uuid(arcstr::literal!("id"))),
         builder,
     )
@@ -23,7 +23,7 @@ fn text_to_uuid() {
 fn text_to_number() {
     let builder = Cow::Borrowed("42");
 
-    let res = CibouletteId::build_id(
+    let res = CibouletteIdSelector::build_id(
         &CibouletteIdTypeSelector::Single(CibouletteIdType::Number(arcstr::literal!("id"))),
         builder,
     )
@@ -39,7 +39,7 @@ fn text_to_number() {
 fn text_to_text() {
     let builder = Cow::Borrowed("hello_world");
 
-    let res = CibouletteId::build_id(
+    let res = CibouletteIdSelector::build_id(
         &CibouletteIdTypeSelector::Single(CibouletteIdType::Text(arcstr::literal!("id"))),
         builder,
     )
@@ -55,7 +55,7 @@ fn text_to_text() {
 fn number_to_text() {
     let builder = Cow::Borrowed("42");
 
-    let res = CibouletteId::build_id(
+    let res = CibouletteIdSelector::build_id(
         &CibouletteIdTypeSelector::Single(CibouletteIdType::Text(arcstr::literal!("id"))),
         builder,
     )
@@ -71,7 +71,7 @@ fn number_to_text() {
 fn number_to_uuid() {
     let builder = Cow::Borrowed("42");
 
-    let err = CibouletteId::build_id(
+    let err = CibouletteIdSelector::build_id(
         &CibouletteIdTypeSelector::Single(CibouletteIdType::Uuid(arcstr::literal!("id"))),
         builder,
     )
@@ -83,7 +83,7 @@ fn number_to_uuid() {
 fn multi_text() {
     let builder = Cow::Borrowed("hello_world,toto,tutu");
 
-    let res = CibouletteId::build_id(
+    let res = CibouletteIdSelector::build_id(
         &CibouletteIdTypeSelector::Multi(vec![
             CibouletteIdType::Text(arcstr::literal!("aa")),
             CibouletteIdType::Text(arcstr::literal!("bb")),
@@ -113,7 +113,7 @@ fn multi_text() {
 fn multi_mixed() {
     let builder = Cow::Borrowed("42,2e99cd9a-b93e-48df-b183-d219f390b8fd,tutu");
 
-    let res = CibouletteId::build_id(
+    let res = CibouletteIdSelector::build_id(
         &CibouletteIdTypeSelector::Multi(vec![
             CibouletteIdType::Number(arcstr::literal!("aa")),
             CibouletteIdType::Uuid(arcstr::literal!("bb")),
