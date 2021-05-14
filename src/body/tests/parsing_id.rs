@@ -37,7 +37,7 @@ fn text_to_number() {
 
 #[test]
 fn text_to_text() {
-    let builder = Cow::Borrowed("hello_world");
+    let builder = Cow::Owned(base64::encode("hello_world"));
 
     let res = CibouletteIdSelector::build_id(
         &CibouletteIdTypeSelector::Single(CibouletteIdType::Text(arcstr::literal!("id"))),
@@ -53,7 +53,7 @@ fn text_to_text() {
 
 #[test]
 fn number_to_text() {
-    let builder = Cow::Borrowed("42");
+    let builder = Cow::Owned(base64::encode("42"));
 
     let res = CibouletteIdSelector::build_id(
         &CibouletteIdTypeSelector::Single(CibouletteIdType::Text(arcstr::literal!("id"))),
@@ -81,7 +81,12 @@ fn number_to_uuid() {
 
 #[test]
 fn multi_text() {
-    let builder = Cow::Borrowed("hello_world,toto,tutu");
+    let builder = Cow::Owned(format!(
+        "{},{},{}",
+        base64::encode("hello_world"),
+        base64::encode("toto"),
+        base64::encode("tutu")
+    ));
 
     let res = CibouletteIdSelector::build_id(
         &CibouletteIdTypeSelector::Multi(vec![
@@ -111,7 +116,12 @@ fn multi_text() {
 
 #[test]
 fn multi_mixed() {
-    let builder = Cow::Borrowed("42,2e99cd9a-b93e-48df-b183-d219f390b8fd,tutu");
+    let builder = Cow::Owned(format!(
+        "{},{},{}",
+        42,
+        "2e99cd9a-b93e-48df-b183-d219f390b8fd",
+        base64::encode("tutu")
+    ));
 
     let res = CibouletteIdSelector::build_id(
         &CibouletteIdTypeSelector::Multi(vec![

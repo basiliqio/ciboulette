@@ -54,17 +54,15 @@ impl<'request> CibouletteIdSelector<'request> {
         id_str: Cow<'request, str>,
     ) -> Result<CibouletteIdSelector<'request>, CibouletteError> {
         let res = match id_selector {
-            CibouletteIdTypeSelector::Single(x) => {
-                CibouletteIdSelector::Single(match x {
-                    CibouletteIdType::Text(_) => CibouletteId::Text(Cow::Owned(id_str.to_string())), // TODO Better
-                    CibouletteIdType::Number(_) => {
-                        CibouletteId::Number(u64::from_str(id_str.as_ref())?)
-                    }
-                    CibouletteIdType::Uuid(_) => {
-                        CibouletteId::Uuid(Uuid::from_str(id_str.as_ref())?)
-                    }
-                })
-            }
+            CibouletteIdTypeSelector::Single(x) => CibouletteIdSelector::Single(match x {
+                CibouletteIdType::Text(_) => CibouletteId::Text(Cow::Owned(String::from_utf8(
+                    base64::decode(id_str.as_ref())?,
+                )?)),
+                CibouletteIdType::Number(_) => {
+                    CibouletteId::Number(u64::from_str(id_str.as_ref())?)
+                }
+                CibouletteIdType::Uuid(_) => CibouletteId::Uuid(Uuid::from_str(id_str.as_ref())?),
+            }),
             CibouletteIdTypeSelector::Multi(x) => {
                 let mut res = Vec::with_capacity(2);
 
@@ -73,7 +71,9 @@ impl<'request> CibouletteIdSelector<'request> {
                         .get(i)
                         .ok_or_else(|| CibouletteError::WrongIdNumber(i, x.len()))?;
                     res.push(match id_type {
-                        CibouletteIdType::Text(_) => CibouletteId::Text(Cow::Owned(id.to_string())), // TODO Better
+                        CibouletteIdType::Text(_) => {
+                            CibouletteId::Text(Cow::Owned(String::from_utf8(base64::decode(id)?)?))
+                        }
                         CibouletteIdType::Number(_) => CibouletteId::Number(u64::from_str(id)?),
                         CibouletteIdType::Uuid(_) => CibouletteId::Uuid(Uuid::from_str(id)?),
                     });

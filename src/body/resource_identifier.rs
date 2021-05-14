@@ -152,7 +152,13 @@ impl<'request> CibouletteResourceIdentifier<'request> {
     pub fn id_to_string(&self) -> String {
         match self.id() {
             CibouletteIdSelector::Single(x) => x.to_string(),
-            CibouletteIdSelector::Multi(x) => x.iter().join(","),
+            CibouletteIdSelector::Multi(x) => x
+                .iter()
+                .map(|x| match x {
+                    CibouletteId::Text(id) => base64::encode(id.as_ref()),
+                    _ => x.to_string(),
+                })
+                .join(","),
         }
     }
 }
