@@ -20,7 +20,7 @@ where
 {
     match (config.base_url(), id, final_type) {
         (None, Some(id), Some(final_type)) if is_related => {
-            format!("/{}/{}/related/{}", type_, id, final_type)
+            format!("/{}/{}/{}", type_, id, final_type)
         }
         (None, Some(id), Some(final_type)) => {
             format!("/{}/{}/relationships/{}", type_, id, final_type)
@@ -29,7 +29,7 @@ where
         (None, Some(id), None) => format!("/{}/{}", type_, id),
         (None, None, None) => format!("/{}", type_),
         (Some(base_url), Some(id), Some(final_type)) if is_related => {
-            format!("{}/{}/{}/related/{}", base_url, type_, id, final_type)
+            format!("{}/{}/{}/{}", base_url, type_, id, final_type)
         }
         (Some(base_url), Some(id), Some(final_type)) => {
             format!("{}/{}/{}/relationships/{}", base_url, type_, id, final_type)

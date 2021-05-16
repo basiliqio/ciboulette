@@ -8,7 +8,7 @@ expression: response
     "version": "1.0"
   },
   "links": {
-    "self": "/peoples/073b5936-0acb-4601-b4b7-9de607dfc2ef/related/articles"
+    "self": "/peoples/073b5936-0acb-4601-b4b7-9de607dfc2ef/articles"
   },
   "data": [
     {

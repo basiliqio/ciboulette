@@ -30,6 +30,7 @@ pub struct CibouletteStore {
         u16,
     >,
     map: BTreeMap<ArcStr, petgraph::graph::NodeIndex<u16>>,
+    #[getset(get_mut = "pub")]
     config: CibouletteConfig,
 }
 
