@@ -1,3 +1,5 @@
+extern crate ciboulette;
+
 use criterion::*;
 mod parse_body;
 mod parse_query;

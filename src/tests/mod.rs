@@ -6,5 +6,3 @@ mod delete_requests;
 mod inbound_request;
 mod read_requests;
 mod update_requests;
-
-mod benches;

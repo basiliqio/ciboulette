@@ -11,6 +11,7 @@ license = "MIT OR Apache-2.0"
 
 [features]
 sqlx_postgres = ["sqlx/postgres"]
+test_utils = []
 
 [dependencies]
 serde = { version = "1", features = [ "derive", "rc" ] }
@@ -41,7 +42,7 @@ doc-comment = "0.3.3"
 
 [[bench]]
 name = "ciboulette_benches"
-path = "src/tests/benches/mod.rs"
+path = "src/test_helper/benches/mod.rs"
 harness = false
 
 [profile.dev]

@@ -1,3 +1,5 @@
+extern crate ciboulette;
+
 use criterion::Criterion;
 use std::time::Duration;
 

@@ -218,5 +218,6 @@ pub use store::{
 #[cfg(test)]
 pub mod test_helper;
 
-#[cfg(bench)]
+#[cfg(not(test))]
+#[cfg(feature = "test_utils")]
 pub mod test_helper;
