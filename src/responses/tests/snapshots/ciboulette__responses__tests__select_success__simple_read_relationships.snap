@@ -1,11 +1,15 @@
 ---
-source: src/outbound_request/tests/select_success.rs
+source: src/responses/tests/select_success.rs
 expression: response
 
 ---
 {
   "jsonapi": {
     "version": "1.0"
+  },
+  "links": {
+    "self": "/peoples/073b5936-0acb-4601-b4b7-9de607dfc2ef/relationships/articles",
+    "related": "/peoples/073b5936-0acb-4601-b4b7-9de607dfc2ef/related/articles"
   },
   "data": [
     {

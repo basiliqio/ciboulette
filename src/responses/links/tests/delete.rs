@@ -1,7 +1,7 @@
 use super::*;
 
 #[test]
-fn simple_update() {
+fn delete() {
     let store = gen_bag();
     let url = Url::parse("http://localhost/").unwrap();
     let opt = url::Url::options().base_url(Some(&url));
@@ -12,9 +12,5 @@ fn simple_update() {
     let builder = CibouletteRequestBuilder::new(INTENTION, &parsed_url, &None);
     let request = builder.build(&store).unwrap();
     let res = CibouletteDeleteRequest::try_from(request).unwrap();
-    let response = CibouletteResponseDataBuilder::<'_, '_, String, _>::new(&res, vec![])
-        .build(store.config())
-        .unwrap();
-    assert_eq!(response.status(), CibouletteResponseStatus::Ok);
-    assert_json_snapshot!(response);
+    let link = crate::responses::links::build_link_for_response_root(store.config(), &res);
 }

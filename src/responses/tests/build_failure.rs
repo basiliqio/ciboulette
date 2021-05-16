@@ -32,7 +32,7 @@ fn too_many_main_data() {
             ),
         ],
     )
-    .build()
+    .build(store.config())
     .unwrap_err();
     assert_eq!(
         matches!(err, CibouletteError::ResponseTooManyMainData(x) if x == "comments"),

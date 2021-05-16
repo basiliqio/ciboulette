@@ -33,7 +33,7 @@ fn simple_create() {
             true,
         )],
     )
-    .build()
+    .build(store.config())
     .unwrap();
     assert_eq!(response.status(), CibouletteResponseStatus::Created);
     assert_json_snapshot!(response);
@@ -62,7 +62,7 @@ fn simple_create_no_content() {
     let request = builder.build(&store).unwrap();
     let res = CibouletteCreateRequest::try_from(request).unwrap();
     let response = CibouletteResponseDataBuilder::<'_, '_, String, _>::new(&res, vec![])
-        .build()
+        .build(store.config())
         .unwrap();
     assert_eq!(response.status(), CibouletteResponseStatus::Ok);
     assert_json_snapshot!(response);

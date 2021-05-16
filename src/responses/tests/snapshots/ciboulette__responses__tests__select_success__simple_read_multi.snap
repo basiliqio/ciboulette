@@ -1,11 +1,14 @@
 ---
-source: src/outbound_request/tests/select_success.rs
+source: src/responses/tests/select_success.rs
 expression: response
 
 ---
 {
   "jsonapi": {
     "version": "1.0"
+  },
+  "links": {
+    "self": "/comments"
   },
   "data": [
     {

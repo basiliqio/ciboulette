@@ -8,14 +8,14 @@ fn ok() {
         .add_type(
             "peoples",
             CibouletteIdTypeSelector::Single(CibouletteIdType::Uuid(arcstr::literal!("id"))),
-            ciboulette_test_helper::gen_messy_json_schema_peoples(),
+            crate::test_helper::gen_messy_json_schema_peoples(),
         )
         .unwrap();
     store
         .add_type(
             "favorite_color",
             CibouletteIdTypeSelector::Single(CibouletteIdType::Uuid(arcstr::literal!("id"))),
-            ciboulette_test_helper::gen_messy_json_schema_favorite_color(),
+            crate::test_helper::gen_messy_json_schema_favorite_color(),
         )
         .unwrap();
     let opt = CibouletteRelationshipOneToManyOptionBuilder::new(
@@ -41,14 +41,14 @@ fn ok_reverse() {
         .add_type(
             "peoples",
             CibouletteIdTypeSelector::Single(CibouletteIdType::Uuid(arcstr::literal!("id"))),
-            ciboulette_test_helper::gen_messy_json_schema_peoples(),
+            crate::test_helper::gen_messy_json_schema_peoples(),
         )
         .unwrap();
     store
         .add_type(
             "favorite_color",
             CibouletteIdTypeSelector::Single(CibouletteIdType::Uuid(arcstr::literal!("id"))),
-            ciboulette_test_helper::gen_messy_json_schema_favorite_color(),
+            crate::test_helper::gen_messy_json_schema_favorite_color(),
         )
         .unwrap();
     let opt = CibouletteRelationshipOneToManyOptionBuilder::new(
@@ -74,14 +74,14 @@ fn no_reverse() {
         .add_type(
             "peoples",
             CibouletteIdTypeSelector::Single(CibouletteIdType::Uuid(arcstr::literal!("id"))),
-            ciboulette_test_helper::gen_messy_json_schema_peoples(),
+            crate::test_helper::gen_messy_json_schema_peoples(),
         )
         .unwrap();
     store
         .add_type(
             "favorite_color",
             CibouletteIdTypeSelector::Single(CibouletteIdType::Uuid(arcstr::literal!("id"))),
-            ciboulette_test_helper::gen_messy_json_schema_favorite_color(),
+            crate::test_helper::gen_messy_json_schema_favorite_color(),
         )
         .unwrap();
     let opt = CibouletteRelationshipOneToManyOptionBuilder::new(
@@ -108,14 +108,14 @@ fn duplicate() {
         .add_type(
             "peoples",
             CibouletteIdTypeSelector::Single(CibouletteIdType::Uuid(arcstr::literal!("id"))),
-            ciboulette_test_helper::gen_messy_json_schema_peoples(),
+            crate::test_helper::gen_messy_json_schema_peoples(),
         )
         .unwrap();
     store
         .add_type(
             "favorite_color",
             CibouletteIdTypeSelector::Single(CibouletteIdType::Uuid(arcstr::literal!("id"))),
-            ciboulette_test_helper::gen_messy_json_schema_favorite_color(),
+            crate::test_helper::gen_messy_json_schema_favorite_color(),
         )
         .unwrap();
     let opt = CibouletteRelationshipOneToManyOptionBuilder::new(

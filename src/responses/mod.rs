@@ -5,6 +5,7 @@ mod accumulator;
 pub mod body;
 pub mod element;
 pub mod element_identifier;
+pub mod links;
 pub mod request;
 pub mod request_data_builder;
 pub mod status;

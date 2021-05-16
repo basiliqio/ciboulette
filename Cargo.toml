@@ -37,12 +37,11 @@ features = ["precommit-hook", "run-cargo-check", "run-cargo-fmt"]
 [dev-dependencies]
 insta = { version = "1.7", features = [ "redactions" ] }
 criterion = { version = "0.3.4", features = [ "html_reports", "cargo_bench_support" ] }
-ciboulette_test_helper = { path = "ciboulette_test_helper" }
 doc-comment = "0.3.3"
 
 [[bench]]
 name = "ciboulette_benches"
-path = "benches/main.rs"
+path = "src/tests/benches/mod.rs"
 harness = false
 
 [profile.dev]
