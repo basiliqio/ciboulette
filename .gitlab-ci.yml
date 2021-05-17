@@ -15,7 +15,7 @@ build_and_test_rust:
   script:
     - cargo fmt -- --check
     - cargo clippy -- -D warnings
-    - cargo build --all-targets
+    - cargo build --all-targets --all-features
     - cargo test
   after_script:
     - for file in $(find target/debug/deps -executable \( -name "$(basename ciboulette)-*" -o -name "mod-*" \) );
