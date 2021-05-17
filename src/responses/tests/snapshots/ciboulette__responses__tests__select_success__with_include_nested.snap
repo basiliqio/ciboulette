@@ -21,6 +21,9 @@ expression: response
           "id": "c49094ce-71ab-40d4-a642-ea200f72eac6"
         }
       }
+    },
+    "links": {
+      "self": "/peoples/073b5936-0acb-4601-b4b7-9de607dfc2ef"
     }
   },
   "included": [
@@ -35,12 +38,18 @@ expression: response
             "id": "f2dde16b-d26d-4b34-944f-7430c81e2d8e"
           }
         }
+      },
+      "links": {
+        "self": "/articles/c49094ce-71ab-40d4-a642-ea200f72eac6"
       }
     },
     {
       "type": "comments",
       "id": "f2dde16b-d26d-4b34-944f-7430c81e2d8e",
-      "attributes": "<some data>"
+      "attributes": "<some data>",
+      "links": {
+        "self": "/comments/f2dde16b-d26d-4b34-944f-7430c81e2d8e"
+      }
     }
   ]
 }

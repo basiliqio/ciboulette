@@ -4,5 +4,6 @@ use crate::*;
 
 mod create;
 mod delete;
+mod obj;
 mod read;
 mod update;

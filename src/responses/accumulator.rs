@@ -93,8 +93,9 @@ pub(super) struct CibouletteOutboundRequestExtractedData<'request, B> {
 
 impl<'response, B> CibouletteResponseDataAccumulator<'response, B> {
     /// Extract the accumulated data
-    pub fn extract<'request>(
+    pub fn extract<'request, 'store>(
         self,
+        config: &'store CibouletteConfig,
         inbound_request: &dyn CibouletteRequestCommons<'request>,
     ) -> Result<CibouletteOutboundRequestExtractedData<'response, B>, CibouletteError> {
         let settings = self.settings;
@@ -102,11 +103,12 @@ impl<'response, B> CibouletteResponseDataAccumulator<'response, B> {
         match settings.include_rels() {
             None => {
                 let included_data = Self::extract_included_data(
+                    config,
                     inbound_request.expected_type(),
                     &mut main_data,
                     self.included_data,
                 )?;
-                let body_data = Self::extract_main_data(main_data, inbound_request);
+                let body_data = Self::extract_main_data(config, main_data, inbound_request);
                 Ok(CibouletteOutboundRequestExtractedData {
                     main_data: body_data,
                     included_data,
@@ -133,7 +135,7 @@ impl<'response, B> CibouletteResponseDataAccumulator<'response, B> {
                             })
                     })
                     .collect();
-                let body_data = Self::extract_main_data(main_data, inbound_request);
+                let body_data = Self::extract_main_data(config, main_data, inbound_request);
                 Ok(CibouletteOutboundRequestExtractedData {
                     main_data: body_data,
                     included_data: BTreeMap::default(),
@@ -142,7 +144,8 @@ impl<'response, B> CibouletteResponseDataAccumulator<'response, B> {
         }
     }
 
-    fn extract_included_data(
+    fn extract_included_data<'store>(
+        config: &'store CibouletteConfig,
         base_type: &Arc<CibouletteResourceType>,
         main_data: &mut IndexMap<
             CibouletteResourceResponseIdentifier<'response>,
@@ -166,6 +169,7 @@ impl<'response, B> CibouletteResponseDataAccumulator<'response, B> {
             1 => {
                 let el = included_data.into_iter().next().unwrap();
                 if let Some(resource) = Self::insert_included_data_as_relationships(
+                    config,
                     base_type,
                     el,
                     main_data,
@@ -177,6 +181,7 @@ impl<'response, B> CibouletteResponseDataAccumulator<'response, B> {
             _ => {
                 for el in included_data.into_iter() {
                     if let Some(resource) = Self::insert_included_data_as_relationships(
+                        config,
                         base_type,
                         el,
                         main_data,
@@ -191,7 +196,8 @@ impl<'response, B> CibouletteResponseDataAccumulator<'response, B> {
         Ok(res)
     }
 
-    fn extract_main_data(
+    fn extract_main_data<'store>(
+        config: &'store CibouletteConfig,
         main_data: IndexMap<
             CibouletteResourceResponseIdentifier<'response>,
             CibouletteResponseResource<'response, B>,
@@ -203,16 +209,25 @@ impl<'response, B> CibouletteResponseDataAccumulator<'response, B> {
                 CibouletteResponseRequiredType::Object(CibouletteResponseQuantity::Single)
                 | CibouletteResponseRequiredType::Id(CibouletteResponseQuantity::Single) => {
                     match main_data.into_iter().next() {
-                        Some((_, x)) => CibouletteOptionalData::Object(
-                            CibouletteResponseResourceSelector::One(x),
-                        ),
+                        Some((_, mut response_resource)) => {
+                            *response_resource.links_mut() =
+                                super::links::build_link_for_response_object(
+                                    config,
+                                    response_resource.identifier(),
+                                );
+                            CibouletteOptionalData::Object(CibouletteResponseResourceSelector::One(
+                                response_resource,
+                            ))
+                        }
                         None => CibouletteOptionalData::Null(true),
                     }
                 }
                 CibouletteResponseRequiredType::Object(CibouletteResponseQuantity::Multiple)
                 | CibouletteResponseRequiredType::Id(CibouletteResponseQuantity::Multiple) => {
                     let mut res = Vec::with_capacity(main_data.len());
-                    for (_, el) in main_data.into_iter() {
+                    for (_, mut el) in main_data.into_iter() {
+                        *el.links_mut() =
+                            super::links::build_link_for_response_object(config, el.identifier());
                         res.push(el);
                     }
                     CibouletteOptionalData::Object(CibouletteResponseResourceSelector::Many(res))
@@ -222,7 +237,8 @@ impl<'response, B> CibouletteResponseDataAccumulator<'response, B> {
         body_data
     }
 
-    fn insert_included_data_as_relationships(
+    fn insert_included_data_as_relationships<'store>(
+        config: &'store CibouletteConfig,
         base_type: &Arc<CibouletteResourceType>,
         el: CibouletteResponseElement<'response, B>,
         main_data: &mut IndexMap<
@@ -269,10 +285,10 @@ impl<'response, B> CibouletteResponseDataAccumulator<'response, B> {
         } else {
             let resource = CibouletteResponseResource::<B> {
                 type_: main_type,
+                links: super::links::build_link_for_response_object(config, &related.element),
                 identifier: related.element,
                 attributes: el.data,
                 relationships: BTreeMap::default(),
-                links: Option::default(),
             };
             Ok(Some(resource))
         }

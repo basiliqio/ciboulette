@@ -44,10 +44,38 @@ pub fn build_link_for_response_root<'result, 'store, 'request>(
     config: &'store CibouletteConfig,
     inbound_request: &'request dyn CibouletteRequestCommons<'request>,
 ) -> Option<CibouletteLink<'result>> {
-    match inbound_request.intention() {
-        CibouletteIntention::Create => Some(create::root_link(config, inbound_request)),
-        CibouletteIntention::Read => Some(read::root_link(config, inbound_request)),
-        CibouletteIntention::Update => Some(read::root_link(config, inbound_request)),
-        CibouletteIntention::Delete => None,
+    if config.gen_root_links() {
+        match inbound_request.intention() {
+            CibouletteIntention::Create => Some(create::root_link(config, inbound_request)),
+            CibouletteIntention::Read => Some(read::root_link(config, inbound_request)),
+            CibouletteIntention::Update => Some(read::root_link(config, inbound_request)),
+            CibouletteIntention::Delete => None,
+        }
+    } else {
+        None
+    }
+}
+
+pub fn build_link_for_response_object<'result, 'store, 'request>(
+    config: &'store CibouletteConfig,
+    identifier: &'request CibouletteResourceResponseIdentifier<'request>,
+) -> Option<CibouletteLink<'result>> {
+    if config.gen_resource_links() {
+        Some(CibouletteLink {
+            self_: Some(CibouletteLinkSelector::Simple(Cow::Owned(create_link::<
+                _,
+                _,
+                &str,
+            >(
+                config,
+                identifier.type_(),
+                Some(identifier.id()),
+                false,
+                None,
+            )))),
+            related: None,
+        })
+    } else {
+        None
     }
 }

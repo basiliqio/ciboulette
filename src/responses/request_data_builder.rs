@@ -34,7 +34,7 @@ where
     ) -> Result<CibouletteResponseBody<'response, B>, CibouletteError> {
         let acc_settings = CibouletteResponseDataAccumulatorSettings::from(inbound_request);
         let acc = element::fold_elements(elements, acc_settings)?;
-        let extracted_data = acc.extract(inbound_request)?;
+        let extracted_data = acc.extract(config, inbound_request)?;
         let inner_link = links::build_link_for_response_root(config, inbound_request);
         let body_link = match inner_link {
             Some(inner_link) => Some(CibouletteBodyLink {
