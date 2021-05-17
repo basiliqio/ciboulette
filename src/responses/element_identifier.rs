@@ -124,7 +124,7 @@ impl<'request> CibouletteResourceResponseIdentifierBuilder<'request> {
 impl<'request> CibouletteResourceResponseIdentifierBuilder<'request> {
     /// Create a new resource identifier from an id, a type an potentially a meta argument
     pub fn new(id: Option<Cow<'request, str>>, type_: Cow<'request, str>) -> Self {
-        CibouletteResourceResponseIdentifierBuilder { id, type_ }
+        CibouletteResourceResponseIdentifierBuilder { type_, id }
     }
 }
 

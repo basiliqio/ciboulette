@@ -1,5 +1,5 @@
-use ciboulette_test_helper::ciboulette::*;
-use ciboulette_test_helper::*;
+use crate::test_helper::*;
+use crate::*;
 
 mod filter;
 mod filter_simple;

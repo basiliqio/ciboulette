@@ -1,3 +1,5 @@
+extern crate ciboulette;
+
 use criterion::Criterion;
 use serde::Deserialize;
 use std::time::Duration;
@@ -15,7 +17,7 @@ const VAL: &str = r#"
 				},
 				"relationships":
 				{
-					"planet":
+					"author":
 					{
 					  "links":
 					  {
@@ -80,13 +82,13 @@ const VAL: &str = r#"
 
 pub fn criterion_benchmark(c: &mut Criterion) {
     let mut group = c.benchmark_group("json:api body");
-    let bag = ciboulette_test_helper::gen_bag();
+    let bag = ciboulette::test_helper::gen_bag();
 
     group.sample_size(1000);
     group.warm_up_time(Duration::from_secs(2));
     group.measurement_time(Duration::from_secs(10));
     group.bench_with_input(
-        criterion::BenchmarkId::new("body_complexe", "normal"),
+        criterion::BenchmarkId::new("body_complex", "normal"),
         &VAL,
         |b, i| {
             b.iter(|| {

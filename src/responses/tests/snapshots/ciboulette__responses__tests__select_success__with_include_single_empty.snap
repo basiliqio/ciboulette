@@ -1,5 +1,5 @@
 ---
-source: src/outbound_request/tests/select_success.rs
+source: src/responses/tests/select_success.rs
 expression: response
 
 ---
@@ -7,9 +7,15 @@ expression: response
   "jsonapi": {
     "version": "1.0"
   },
+  "links": {
+    "self": "/peoples/073b5936-0acb-4601-b4b7-9de607dfc2ef"
+  },
   "data": {
     "type": "peoples",
     "id": "073b5936-0acb-4601-b4b7-9de607dfc2ef",
-    "attributes": "<some data>"
+    "attributes": "<some data>",
+    "links": {
+      "self": "/peoples/073b5936-0acb-4601-b4b7-9de607dfc2ef"
+    }
   }
 }

@@ -1,11 +1,14 @@
 ---
-source: src/outbound_request/tests/select_success.rs
+source: src/responses/tests/select_success.rs
 expression: response
 
 ---
 {
   "jsonapi": {
     "version": "1.0"
+  },
+  "links": {
+    "self": "/peoples"
   },
   "data": [
     {
@@ -14,11 +17,18 @@ expression: response
       "attributes": "<some data>",
       "relationships": {
         "articles": {
+          "links": {
+            "self": "/peoples/073b5936-0acb-4601-b4b7-9de607dfc2ef/relationships/articles",
+            "related": "/peoples/073b5936-0acb-4601-b4b7-9de607dfc2ef/articles"
+          },
           "data": {
             "type": "articles",
             "id": "c49094ce-71ab-40d4-a642-ea200f72eac6"
           }
         }
+      },
+      "links": {
+        "self": "/peoples/073b5936-0acb-4601-b4b7-9de607dfc2ef"
       }
     },
     {
@@ -27,11 +37,18 @@ expression: response
       "attributes": "<some data>",
       "relationships": {
         "articles": {
+          "links": {
+            "self": "/peoples/01b8fb1f-989b-4ec0-86a0-72786017682b/relationships/articles",
+            "related": "/peoples/01b8fb1f-989b-4ec0-86a0-72786017682b/articles"
+          },
           "data": {
             "type": "articles",
             "id": "90e676f5-9598-44e7-9e5b-f0c7b1a188d1"
           }
         }
+      },
+      "links": {
+        "self": "/peoples/01b8fb1f-989b-4ec0-86a0-72786017682b"
       }
     }
   ],
@@ -39,12 +56,18 @@ expression: response
     {
       "type": "articles",
       "id": "90e676f5-9598-44e7-9e5b-f0c7b1a188d1",
-      "attributes": "<some data>"
+      "attributes": "<some data>",
+      "links": {
+        "self": "/articles/90e676f5-9598-44e7-9e5b-f0c7b1a188d1"
+      }
     },
     {
       "type": "articles",
       "id": "c49094ce-71ab-40d4-a642-ea200f72eac6",
-      "attributes": "<some data>"
+      "attributes": "<some data>",
+      "links": {
+        "self": "/articles/c49094ce-71ab-40d4-a642-ea200f72eac6"
+      }
     }
   ]
 }

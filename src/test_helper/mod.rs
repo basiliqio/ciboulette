@@ -1,6 +1,4 @@
-pub use ciboulette;
-use ciboulette::*;
-use messy_json::*;
+use super::*;
 // Articles:
 // - attributes:
 //   - title
@@ -155,7 +153,10 @@ pub fn gen_bag() -> CibouletteStore {
 
     res.add_type(
         "people-article",
-        CibouletteIdTypeSelector::Multi(vec![CibouletteIdType::Uuid(arcstr::literal!("people_id")), CibouletteIdType::Uuid(arcstr::literal!("article_id"))]),
+        CibouletteIdTypeSelector::Multi(vec![
+            CibouletteIdType::Uuid(arcstr::literal!("people_id")),
+            CibouletteIdType::Uuid(arcstr::literal!("article_id")),
+        ]),
         gen_messy_json_schema_people_article(),
     )
     .unwrap();
@@ -166,10 +167,10 @@ pub fn gen_bag() -> CibouletteStore {
             arcstr::literal!("id"),
             res.get_type("peoples").unwrap().clone(),
             arcstr::literal!("favorite_color"),
-			true,
+            true,
         ),
         None,
-		None
+        None,
     )
     .unwrap(); // Articles -> Comments
     res.add_one_to_many_rel(
@@ -178,7 +179,7 @@ pub fn gen_bag() -> CibouletteStore {
             arcstr::literal!("id"),
             res.get_type("comments").unwrap().clone(),
             arcstr::literal!("article"),
-			false,
+            false,
         ),
         None,
         None,
@@ -190,7 +191,7 @@ pub fn gen_bag() -> CibouletteStore {
             arcstr::literal!("id"),
             res.get_type("comments").unwrap().clone(),
             arcstr::literal!("author"),
-			false
+            false,
         ),
         Some(arcstr::ArcStr::from("author")),
         None,
@@ -217,7 +218,11 @@ pub fn gen_bag() -> CibouletteStore {
     res.build().unwrap()
 }
 
-pub fn check_ident<'request>(ident: &CibouletteResourceIdentifier<'request>, type_: &str, id: CibouletteIdSelector) {
+pub fn check_ident<'request>(
+    ident: &CibouletteResourceIdentifier<'request>,
+    type_: &str,
+    id: CibouletteIdSelector,
+) {
     assert_eq!(ident.id(), &id, "`id`s mismatch");
     assert_eq!(ident.type_(), type_, "`type`s mismatch");
 }
@@ -231,9 +236,9 @@ pub fn check_ident_permissive<'request>(
     assert_eq!(ident.type_(), type_, "`type`s mismatch");
 }
 
-pub fn check_single<'request,MessyJsonObjectValue, T>(
-    selector: &'request CibouletteResourceSelector<'request,MessyJsonObjectValue, T>,
-) -> &'request CibouletteResource<'request,MessyJsonObjectValue, T> {
+pub fn check_single<'request, MessyJsonObjectValue, T>(
+    selector: &'request CibouletteResourceSelector<'request, MessyJsonObjectValue, T>,
+) -> &'request CibouletteResource<'request, MessyJsonObjectValue, T> {
     match selector {
         CibouletteResourceSelector::One(x) => x,
         _ => panic!("Expected a single resource"),

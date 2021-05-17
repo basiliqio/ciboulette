@@ -1,13 +1,15 @@
 use super::*;
 
 #[test]
-fn simple_create() {
+fn create_simple() {
     let store = gen_bag();
+    // *store.config_mut().base_url_mut() = Some("http://localhost:80/".to_string());
+
     let url = Url::parse("http://localhost/").unwrap();
     let opt = url::Url::options().base_url(Some(&url));
     const URL: &str = "/comments";
     const INTENTION: CibouletteIntention = CibouletteIntention::Create;
-    let body_str: String = json!({
+    let body: String = json!({
         "data": json!({
             "type": "comments",
             "attributes": json!({
@@ -16,37 +18,31 @@ fn simple_create() {
         })
     })
     .to_string();
-    let body: Option<&str> = Some(body_str.as_str());
+    let body_str = Some(body.as_str());
 
     let parsed_url = opt.parse(URL).unwrap();
-    let builder = CibouletteRequestBuilder::new(INTENTION, &parsed_url, &body);
+    let builder = CibouletteRequestBuilder::new(INTENTION, &parsed_url, &body_str);
     let request = builder.build(&store).unwrap();
     let res = CibouletteCreateRequest::try_from(request).unwrap();
-    let base_type = store.get_type("comments").unwrap();
-    let response = CibouletteResponseDataBuilder::new(
-        &res,
-        vec![gen_data_row(
-            &store,
-            &base_type,
-            "comments",
-            "073b5936-0acb-4601-b4b7-9de607dfc2ef",
-            true,
-        )],
-    )
-    .build(store.config())
-    .unwrap();
-    assert_eq!(response.status(), CibouletteResponseStatus::Created);
-    assert_json_snapshot!(response);
+    let link = crate::responses::links::build_link_for_response_root(store.config(), &res).unwrap();
+
+    assert_eq!(
+        matches!(link.self_(), Some(CibouletteLinkSelector::Simple(x)) if x.as_ref() == "/comments"),
+        true
+    );
+    assert_eq!(matches!(link.related(), None), true);
 }
 
 #[test]
-fn simple_create_no_content() {
-    let store = gen_bag();
+fn create_simple_with_base_url() {
+    let mut store = gen_bag();
+    *store.config_mut().base_url_mut() = Some("http://localhost:80".to_string());
+
     let url = Url::parse("http://localhost/").unwrap();
     let opt = url::Url::options().base_url(Some(&url));
     const URL: &str = "/comments";
     const INTENTION: CibouletteIntention = CibouletteIntention::Create;
-    let body_str: String = json!({
+    let body: String = json!({
         "data": json!({
             "type": "comments",
             "attributes": json!({
@@ -55,15 +51,17 @@ fn simple_create_no_content() {
         })
     })
     .to_string();
-    let body: Option<&str> = Some(body_str.as_str());
+    let body_str = Some(body.as_str());
 
     let parsed_url = opt.parse(URL).unwrap();
-    let builder = CibouletteRequestBuilder::new(INTENTION, &parsed_url, &body);
+    let builder = CibouletteRequestBuilder::new(INTENTION, &parsed_url, &body_str);
     let request = builder.build(&store).unwrap();
     let res = CibouletteCreateRequest::try_from(request).unwrap();
-    let response = CibouletteResponseDataBuilder::<'_, '_, String, _>::new(&res, vec![])
-        .build(store.config())
-        .unwrap();
-    assert_eq!(response.status(), CibouletteResponseStatus::Ok);
-    assert_json_snapshot!(response);
+    let link = crate::responses::links::build_link_for_response_root(store.config(), &res).unwrap();
+
+    assert_eq!(
+        matches!(link.self_(), Some(CibouletteLinkSelector::Simple(x)) if x.as_ref() == "http://localhost:80/comments"),
+        true
+    );
+    assert_eq!(matches!(link.related(), None), true);
 }

@@ -1,11 +1,14 @@
 ---
-source: src/outbound_request/tests/select_success.rs
+source: src/responses/tests/select_success.rs
 expression: response
 
 ---
 {
   "jsonapi": {
     "version": "1.0"
+  },
+  "links": {
+    "self": "/peoples/c49094ce-71ab-40d4-a642-ea200f72eac6/articles"
   },
   "data": [
     {
@@ -14,11 +17,18 @@ expression: response
       "attributes": "<some data>",
       "relationships": {
         "author": {
+          "links": {
+            "self": "/articles/073b5936-0acb-4601-b4b7-9de607dfc2ef/relationships/author",
+            "related": "/articles/073b5936-0acb-4601-b4b7-9de607dfc2ef/author"
+          },
           "data": {
             "type": "peoples",
             "id": "c49094ce-71ab-40d4-a642-ea200f72eac6"
           }
         }
+      },
+      "links": {
+        "self": "/articles/073b5936-0acb-4601-b4b7-9de607dfc2ef"
       }
     }
   ],
@@ -26,7 +36,10 @@ expression: response
     {
       "type": "peoples",
       "id": "c49094ce-71ab-40d4-a642-ea200f72eac6",
-      "attributes": "<some data>"
+      "attributes": "<some data>",
+      "links": {
+        "self": "/peoples/c49094ce-71ab-40d4-a642-ea200f72eac6"
+      }
     }
   ]
 }

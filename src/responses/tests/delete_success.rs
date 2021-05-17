@@ -13,7 +13,7 @@ fn simple_update() {
     let request = builder.build(&store).unwrap();
     let res = CibouletteDeleteRequest::try_from(request).unwrap();
     let response = CibouletteResponseDataBuilder::<'_, '_, String, _>::new(&res, vec![])
-        .build()
+        .build(store.config())
         .unwrap();
     assert_eq!(response.status(), CibouletteResponseStatus::Ok);
     assert_json_snapshot!(response);

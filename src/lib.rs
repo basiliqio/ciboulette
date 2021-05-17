@@ -152,6 +152,7 @@ pub use body::body_optional_data::CibouletteOptionalData;
 pub use body::errors_obj::{CibouletteErrorLink, CibouletteErrorObj, CibouletteErrorSource};
 pub use body::link::{
     CibouletteBodyLink, CibouletteBodyPagination, CibouletteLink, CibouletteLinkObj,
+    CibouletteLinkSelector,
 };
 pub use body::relationship::{CibouletteRelationshipObject, CibouletteRelationshipObjectBuilder};
 pub use body::request_body::{CibouletteBody, CibouletteBodyBuilder, CibouletteJsonApiVersion};
@@ -213,3 +214,10 @@ pub use store::{
     CibouletteRelationshipOption, CibouletteRelationshipOptionBuilder, CibouletteStore,
     CibouletteStoreBuilder,
 };
+
+#[cfg(test)]
+pub mod test_helper;
+
+#[cfg(not(test))]
+#[cfg(feature = "test_utils")]
+pub mod test_helper;

@@ -59,8 +59,8 @@ impl<'request> CibouletteRequestBuilder<'request> {
     ) -> Self {
         CibouletteRequestBuilder {
             req_url,
-            body,
             intention,
+            body,
         }
     }
 

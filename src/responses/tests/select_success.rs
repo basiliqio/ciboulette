@@ -23,7 +23,7 @@ fn simple_read_multi() {
             true,
         )],
     )
-    .build()
+    .build(store.config())
     .unwrap();
     assert_eq!(response.status(), CibouletteResponseStatus::Ok);
     assert_json_snapshot!(response);
@@ -52,7 +52,7 @@ fn simple_read_single() {
             true,
         )],
     )
-    .build()
+    .build(store.config())
     .unwrap();
     assert_json_snapshot!(response);
     assert_eq!(response.status(), CibouletteResponseStatus::Ok);
@@ -97,7 +97,7 @@ fn simple_read_related() {
             ),
         ],
     )
-    .build()
+    .build(store.config())
     .unwrap();
     assert_json_snapshot!(response);
     assert_eq!(response.status(), CibouletteResponseStatus::Ok);
@@ -155,7 +155,7 @@ fn simple_read_relationships() {
             ),
         ],
     )
-    .build()
+    .build(store.config())
     .unwrap();
     assert_json_snapshot!(response);
     assert_eq!(response.status(), CibouletteResponseStatus::Ok);
@@ -204,7 +204,7 @@ fn with_included() {
             ),
         ],
     )
-    .build()
+    .build(store.config())
     .unwrap();
     assert_json_snapshot!(response);
     assert_eq!(response.status(), CibouletteResponseStatus::Ok);
@@ -260,7 +260,7 @@ fn with_multi_included() {
             ),
         ],
     )
-    .build()
+    .build(store.config())
     .unwrap();
     assert_json_snapshot!(response);
     assert_eq!(response.status(), CibouletteResponseStatus::Ok);
@@ -298,7 +298,7 @@ fn with_multi_included_empty() {
             ),
         ],
     )
-    .build()
+    .build(store.config())
     .unwrap();
     assert_json_snapshot!(response);
     assert_eq!(response.status(), CibouletteResponseStatus::Ok);
@@ -338,7 +338,7 @@ fn with_include_single() {
             ),
         ],
     )
-    .build()
+    .build(store.config())
     .unwrap();
     assert_json_snapshot!(response);
     assert_eq!(response.status(), CibouletteResponseStatus::Ok);
@@ -367,7 +367,7 @@ fn with_include_single_empty() {
             true,
         )],
     )
-    .build()
+    .build(store.config())
     .unwrap();
     assert_json_snapshot!(response);
     assert_eq!(response.status(), CibouletteResponseStatus::Ok);
@@ -407,7 +407,7 @@ fn with_include_related() {
             ),
         ],
     )
-    .build()
+    .build(store.config())
     .unwrap();
     assert_json_snapshot!(response);
     assert_eq!(response.status(), CibouletteResponseStatus::Ok);
@@ -456,7 +456,7 @@ fn with_include_nested() {
             ),
         ],
     )
-    .build()
+    .build(store.config())
     .unwrap();
     assert_json_snapshot!(response);
     assert_eq!(response.status(), CibouletteResponseStatus::Ok);
@@ -515,7 +515,7 @@ fn with_include_nested_self() {
             ),
         ],
     )
-    .build()
+    .build(store.config())
     .unwrap();
     assert_json_snapshot!(response);
     assert_eq!(response.status(), CibouletteResponseStatus::Ok);

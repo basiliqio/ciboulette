@@ -1,3 +1,5 @@
+extern crate ciboulette;
+
 use criterion::Criterion;
 use std::time::Duration;
 
@@ -5,7 +7,7 @@ const VAL: &str = r#"include=comments&fields%5Bcomments%5D=body&fields[peoples]=
 
 pub fn criterion_benchmark(c: &mut Criterion) {
     let mut group = c.benchmark_group("json:api query");
-    let bag = ciboulette_test_helper::gen_bag();
+    let bag = ciboulette::test_helper::gen_bag();
     let rt = bag.get_type("peoples").unwrap();
 
     group.sample_size(1000);

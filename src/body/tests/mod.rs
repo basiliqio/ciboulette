@@ -8,8 +8,8 @@ mod parsing_id;
 mod request_data;
 mod top_level_quick_checks;
 
-use ciboulette_test_helper::ciboulette::*;
-use ciboulette_test_helper::*;
+use crate::test_helper::*;
+use crate::*;
 use serde::Deserialize;
 
 fn parse_attribute_comments() -> serde_json::Value {
