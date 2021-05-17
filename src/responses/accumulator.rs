@@ -31,8 +31,8 @@ impl CibouletteResponseDataAccumulatorSettings {
         include_rels: Option<CibouletteResourceRelationshipDetails>,
     ) -> Self {
         CibouletteResponseDataAccumulatorSettings {
-            only_ids,
             max_elements,
+            only_ids,
             main_type,
             include_rels,
         }
@@ -192,7 +192,7 @@ impl<'response, B> CibouletteResponseDataAccumulator<'response, B> {
                 }
             }
         }
-        Self::late_linking(&mut res, late_linking)?;
+        Self::late_linking(config, &mut res, late_linking)?;
         Ok(res)
     }
 
@@ -270,6 +270,7 @@ impl<'response, B> CibouletteResponseDataAccumulator<'response, B> {
             1 => {
                 if let Some(main_el) = main_data.get_mut(&main_id) {
                     insert_relationships_into_existing(
+                        config,
                         main_el,
                         related.element.clone(),
                         related.rel_chain().first().unwrap().relation_alias(),
@@ -294,7 +295,8 @@ impl<'response, B> CibouletteResponseDataAccumulator<'response, B> {
         }
     }
 
-    fn late_linking(
+    fn late_linking<'store>(
+        config: &'store CibouletteConfig,
         included_data: &mut BTreeMap<
             CibouletteResourceResponseIdentifier<'response>,
             CibouletteResponseResource<'response, B>,
@@ -308,6 +310,7 @@ impl<'response, B> CibouletteResponseDataAccumulator<'response, B> {
             let v_type = v.element().type_().clone();
             if let Some(el) = included_data.get_mut(&k) {
                 insert_relationships_into_existing(
+                    config,
                     el,
                     v.element,
                     v.rel_chain
@@ -329,7 +332,8 @@ impl<'response, B> CibouletteResponseDataAccumulator<'response, B> {
 }
 
 /// Inserts into an existing relationships a new entry, updating its format if necessary
-fn insert_relationships_into_existing<'response, B>(
+fn insert_relationships_into_existing<'store, 'response, B>(
+    config: &'store CibouletteConfig,
     obj: &mut CibouletteResponseResource<'response, B>,
     alias_identifier: CibouletteResourceResponseIdentifier<'response>,
     alias_str: &ArcStr,
@@ -361,14 +365,15 @@ fn insert_relationships_into_existing<'response, B>(
             }
         }
     } else {
+        let links =
+            super::links::build_link_for_response_relationship(config, obj.identifier(), alias_str);
         obj.relationships_mut().insert(
             alias_str.clone(),
             CibouletteResponseRelationshipObject {
-                // TODO links
+                links,
                 data: CibouletteOptionalData::Object(
                     CibouletteResourceResponseIdentifierSelector::One(alias_identifier.clone()),
                 ),
-                ..Default::default()
             },
         );
     }

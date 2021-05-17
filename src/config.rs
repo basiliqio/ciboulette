@@ -13,6 +13,9 @@ pub struct CibouletteConfig {
     /// True if Ciboulette should generate resource level self links. Default `true`
     #[getset(get_copy = "pub", get_mut = "pub")]
     gen_resource_links: bool,
+    /// True if Ciboulette should generate resource level self links. Default `true`
+    #[getset(get_copy = "pub", get_mut = "pub")]
+    gen_relationship_links: bool,
 }
 
 impl Default for CibouletteConfig {
@@ -20,6 +23,7 @@ impl Default for CibouletteConfig {
         CibouletteConfig {
             gen_resource_links: true,
             gen_root_links: true,
+            gen_relationship_links: true,
             base_url: None,
         }
     }

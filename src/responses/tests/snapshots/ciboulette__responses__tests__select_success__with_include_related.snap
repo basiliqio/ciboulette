@@ -17,6 +17,10 @@ expression: response
       "attributes": "<some data>",
       "relationships": {
         "author": {
+          "links": {
+            "self": "/articles/073b5936-0acb-4601-b4b7-9de607dfc2ef/relationships/author",
+            "related": "/articles/073b5936-0acb-4601-b4b7-9de607dfc2ef/author"
+          },
           "data": {
             "type": "peoples",
             "id": "c49094ce-71ab-40d4-a642-ea200f72eac6"

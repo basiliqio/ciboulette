@@ -145,7 +145,7 @@ impl<'request> From<CibouletteResourceIdentifier<'request>>
 impl<'request> CibouletteResourceIdentifier<'request> {
     /// Create a new resource identifier from an id, a type an potentially a meta argument
     pub fn new(id: CibouletteIdSelector<'request>, type_: Cow<'request, str>) -> Self {
-        CibouletteResourceIdentifier { id, type_ }
+        CibouletteResourceIdentifier { type_, id }
     }
 
     /// Create a comma separated string of the identifiers
@@ -166,7 +166,7 @@ impl<'request> CibouletteResourceIdentifier<'request> {
 impl<'request> CibouletteResourceIdentifierPermissive<'request> {
     /// Create a new resource identifier from an id, a type an potentially a meta argument
     pub fn new(id: Option<CibouletteIdSelector<'request>>, type_: Cow<'request, str>) -> Self {
-        CibouletteResourceIdentifierPermissive { id, type_ }
+        CibouletteResourceIdentifierPermissive { type_, id }
     }
 
     /// Create a comma separated string of the identifiers
@@ -182,7 +182,7 @@ impl<'request> CibouletteResourceIdentifierPermissive<'request> {
 impl<'request> CibouletteResourceIdentifierBuilder<'request> {
     /// Create a new resource identifier from an id, a type an potentially a meta argument
     pub fn new(id: Option<Cow<'request, str>>, type_: Cow<'request, str>) -> Self {
-        CibouletteResourceIdentifierBuilder { id, type_ }
+        CibouletteResourceIdentifierBuilder { type_, id }
     }
 }
 

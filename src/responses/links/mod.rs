@@ -40,7 +40,7 @@ where
     }
 }
 
-pub fn build_link_for_response_root<'result, 'store, 'request>(
+pub(crate) fn build_link_for_response_root<'result, 'store, 'request>(
     config: &'store CibouletteConfig,
     inbound_request: &'request dyn CibouletteRequestCommons<'request>,
 ) -> Option<CibouletteLink<'result>> {
@@ -56,7 +56,7 @@ pub fn build_link_for_response_root<'result, 'store, 'request>(
     }
 }
 
-pub fn build_link_for_response_object<'result, 'store, 'request>(
+pub(crate) fn build_link_for_response_object<'result, 'store, 'request>(
     config: &'store CibouletteConfig,
     identifier: &'request CibouletteResourceResponseIdentifier<'request>,
 ) -> Option<CibouletteLink<'result>> {
@@ -74,6 +74,33 @@ pub fn build_link_for_response_object<'result, 'store, 'request>(
                 None,
             )))),
             related: None,
+        })
+    } else {
+        None
+    }
+}
+
+pub(crate) fn build_link_for_response_relationship<'result, 'store, 'request>(
+    config: &'store CibouletteConfig,
+    relates_to: &'request CibouletteResourceResponseIdentifier<'request>,
+    relationship_name: &ArcStr,
+) -> Option<CibouletteLink<'result>> {
+    if config.gen_relationship_links() {
+        Some(CibouletteLink {
+            self_: Some(CibouletteLinkSelector::Simple(Cow::Owned(create_link(
+                config,
+                relates_to.type_(),
+                Some(relates_to.id()),
+                false,
+                Some(relationship_name.clone()),
+            )))),
+            related: Some(CibouletteLinkSelector::Simple(Cow::Owned(create_link(
+                config,
+                relates_to.type_(),
+                Some(relates_to.id()),
+                true,
+                Some(relationship_name.clone()),
+            )))),
         })
     } else {
         None

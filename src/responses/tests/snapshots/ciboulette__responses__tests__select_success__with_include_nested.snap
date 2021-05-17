@@ -16,6 +16,10 @@ expression: response
     "attributes": "<some data>",
     "relationships": {
       "articles": {
+        "links": {
+          "self": "/peoples/073b5936-0acb-4601-b4b7-9de607dfc2ef/relationships/articles",
+          "related": "/peoples/073b5936-0acb-4601-b4b7-9de607dfc2ef/articles"
+        },
         "data": {
           "type": "articles",
           "id": "c49094ce-71ab-40d4-a642-ea200f72eac6"
@@ -33,6 +37,10 @@ expression: response
       "attributes": "<some data>",
       "relationships": {
         "comments": {
+          "links": {
+            "self": "/articles/c49094ce-71ab-40d4-a642-ea200f72eac6/relationships/comments",
+            "related": "/articles/c49094ce-71ab-40d4-a642-ea200f72eac6/comments"
+          },
           "data": {
             "type": "comments",
             "id": "f2dde16b-d26d-4b34-944f-7430c81e2d8e"

@@ -36,13 +36,10 @@ where
         let acc = element::fold_elements(elements, acc_settings)?;
         let extracted_data = acc.extract(config, inbound_request)?;
         let inner_link = links::build_link_for_response_root(config, inbound_request);
-        let body_link = match inner_link {
-            Some(inner_link) => Some(CibouletteBodyLink {
-                inner_link,
-                pagination: CibouletteBodyPagination::default(),
-            }),
-            None => None,
-        };
+        let body_link = inner_link.map(|inner_link| CibouletteBodyLink {
+            inner_link,
+            pagination: CibouletteBodyPagination::default(),
+        });
         Ok(CibouletteResponseBody {
             data: extracted_data.main_data,
             errors: None,
