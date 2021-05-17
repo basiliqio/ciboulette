@@ -40,6 +40,7 @@ where
     }
 }
 
+/// Build the root link for the response document
 pub(crate) fn build_link_for_response_root<'result, 'store, 'request>(
     config: &'store CibouletteConfig,
     inbound_request: &'request dyn CibouletteRequestCommons<'request>,
@@ -56,6 +57,7 @@ pub(crate) fn build_link_for_response_root<'result, 'store, 'request>(
     }
 }
 
+/// Build the resource link for the response document
 pub(crate) fn build_link_for_response_object<'result, 'store, 'request>(
     config: &'store CibouletteConfig,
     identifier: &'request CibouletteResourceResponseIdentifier<'request>,
@@ -80,6 +82,7 @@ pub(crate) fn build_link_for_response_object<'result, 'store, 'request>(
     }
 }
 
+/// Build the resource link for the relationships objects in the response document
 pub(crate) fn build_link_for_response_relationship<'result, 'store, 'request>(
     config: &'store CibouletteConfig,
     relates_to: &'request CibouletteResourceResponseIdentifier<'request>,
