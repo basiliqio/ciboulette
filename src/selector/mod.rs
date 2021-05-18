@@ -2,6 +2,8 @@ use super::*;
 mod deserializing;
 mod error;
 mod iter;
+#[cfg(test)]
+mod tests;
 
 pub use error::CibouletteSelectorError;
 pub use iter::CibouletteSelectorIterator;
@@ -15,6 +17,15 @@ pub enum CibouletteSelector<T> {
 }
 
 impl<T> CibouletteSelector<T> {
+    /// Create a new [CibouletteSelector](CibouletteSelector) with a single value
+    pub fn new_single(val: T) -> Self {
+        CibouletteSelector::Single(val)
+    }
+
+    /// Create a new [CibouletteSelector](CibouletteSelector) with multiple values
+    pub fn new_multi(val: Vec<T>) -> Self {
+        CibouletteSelector::Multi(val)
+    }
     /// Get the length of the value(s)
     pub fn len(&self) -> usize {
         match self {
@@ -56,5 +67,17 @@ impl<T> CibouletteSelector<T> {
             }
             CibouletteSelector::Multi(list) => list.push(val),
         }
+    }
+}
+
+impl<T> From<T> for CibouletteSelector<T> {
+    fn from(val: T) -> Self {
+        CibouletteSelector::Single(val)
+    }
+}
+
+impl<T> From<Vec<T>> for CibouletteSelector<T> {
+    fn from(vals: Vec<T>) -> Self {
+        CibouletteSelector::Multi(vals)
     }
 }
