@@ -15,6 +15,7 @@ lazy_static::lazy_static! {
 /// ## Resource id type
 #[derive(Debug, Clone, PartialEq, PartialOrd, Eq, Ord, Hash, Serialize)]
 #[serde(untagged)]
+// TODO custom deserialize
 pub enum CibouletteId<'request> {
     /// Serial or number id
     Number(u64),

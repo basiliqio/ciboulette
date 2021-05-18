@@ -12,6 +12,7 @@ pub struct CibouletteLinkObj<'request> {
 /// ## A selector between simple or complex `json:api` [link](https://jsonapi.org/format/#document-links) inner object
 #[derive(Debug, Deserialize, Serialize, Clone)]
 #[serde(untagged)]
+// TODO custom deserialize
 pub enum CibouletteLinkSelector<'request> {
     Simple(Cow<'request, str>),
     Obj(CibouletteLinkObj<'request>),

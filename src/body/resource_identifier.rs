@@ -189,6 +189,7 @@ impl<'request> CibouletteResourceIdentifierBuilder<'request> {
 /// ## A selector for resource identifier, to either select one or many resource identifiers
 #[derive(Deserialize, Debug, Serialize, Clone)]
 #[serde(untagged)]
+/// TODO custom deserializer
 pub enum CibouletteResourceIdentifierSelectorBuilder<'request> {
     One(CibouletteResourceIdentifierBuilder<'request>),
     Many(Vec<CibouletteResourceIdentifierBuilder<'request>>),
@@ -220,6 +221,7 @@ impl<'request> CibouletteResourceIdentifierSelectorBuilder<'request> {
 /// ## A selector between a single or multiple `json:api` [resource identifier](https://jsonapi.org/format/#document-resource-identifier-objects) objects
 #[derive(Debug, Serialize, Clone)]
 #[serde(untagged)]
+// TODO custom deserialize
 pub enum CibouletteResourceIdentifierSelector<'request> {
     One(CibouletteResourceIdentifier<'request>),
     Many(Vec<CibouletteResourceIdentifier<'request>>),

@@ -7,6 +7,7 @@ use std::fmt::Formatter;
 /// Providing a nuance between explicitely null-ed values and absent ones.
 #[derive(Debug, Clone, Serialize)]
 #[serde(untagged)]
+// TODO custom deserialize
 pub enum CibouletteOptionalData<T> {
     Object(T),
     #[serde(serialize_with = "serialize_null_for_optional_data")]

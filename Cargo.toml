@@ -45,5 +45,11 @@ name = "ciboulette_benches"
 path = "src/test_helper/benches/mod.rs"
 harness = false
 
+
+[[bench]]
+name = "selector_benches"
+path = "src/selector/benchmark.rs"
+harness = false
+
 [profile.dev]
 panic = "abort"

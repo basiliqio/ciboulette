@@ -100,5 +100,16 @@ pub fn criterion_benchmark(c: &mut Criterion) {
             })
         },
     );
+    group.bench_with_input(
+        criterion::BenchmarkId::new("body_complex", "no_building"),
+        &VAL,
+        |b, i| {
+            b.iter(|| {
+                let mut deserializer = serde_json::Deserializer::from_str(i);
+                ciboulette::CibouletteBodyBuilder::deserialize(&mut deserializer)
+                    .expect("no error");
+            })
+        },
+    );
     group.finish();
 }
