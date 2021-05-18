@@ -1,8 +1,7 @@
 use super::*;
-use serde::{
-    de::{Error, MapAccess, SeqAccess, Visitor},
-    Deserializer,
-};
+mod deserializing;
+mod error;
+pub use error::CibouletteSelectorError;
 
 /// Selector between a single object T or a list of object T
 #[derive(Debug, Clone, Serialize)]
@@ -12,149 +11,47 @@ pub enum CibouletteSelector<T> {
     Multi(Vec<T>),
 }
 
-/// Builder for the [CibouletteSelector](CibouletteSelector)
-#[derive(Debug, Clone)]
-enum CibouletteSelectorBuilder<T> {
-    Single(Value),
-    Multi(Vec<T>),
-}
-
-#[derive(Debug, Clone, Copy)]
-struct CibouletteSelectorVisitor<'de, T> {
-    pub _marker: std::marker::PhantomData<Option<&'de T>>,
-}
-
-impl<'de, T> Default for CibouletteSelectorVisitor<'de, T> {
-    fn default() -> Self {
-        CibouletteSelectorVisitor {
-            _marker: std::marker::PhantomData::default(),
+impl<T> CibouletteSelector<T> {
+    /// Get the length of the value(s)
+    pub fn len(&self) -> usize {
+        match self {
+            CibouletteSelector::Single(_) => 1,
+            CibouletteSelector::Multi(list) => list.len(),
         }
     }
-}
 
-impl<'de, T> Deserialize<'de> for CibouletteSelector<T>
-where
-    T: 'de + Deserialize<'de>,
-{
-    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-    where
-        D: Deserializer<'de>,
-    {
-        match deserializer.deserialize_any(CibouletteSelectorVisitor::default())? {
-            CibouletteSelectorBuilder::Multi(result) => Ok(CibouletteSelector::Multi(result)),
-            CibouletteSelectorBuilder::Single(value) => Ok(CibouletteSelector::Single(
-                T::deserialize(value).map_err(|err| serde::de::Error::custom(err.to_string()))?,
-            )),
+    /// Return true if the values are empty
+    pub fn is_empty(&self) -> bool {
+        self.len() == 0
+    }
+
+    /// Get a value by its index
+    pub fn get(&self, idx: usize) -> Result<&T, CibouletteSelectorError> {
+        match self {
+            CibouletteSelector::Single(el) if idx == 0 => Ok(el),
+            CibouletteSelector::Multi(el) if idx < el.len() => Ok(&el[idx]),
+            _ => Err(CibouletteSelectorError::OutOfBound(idx)),
         }
     }
-}
 
-impl<'de, T> Visitor<'de> for CibouletteSelectorVisitor<'de, T>
-where
-    T: Deserialize<'de>,
-{
-    type Value = CibouletteSelectorBuilder<T>;
+    /// Push another element in this value.
+    ///
+    /// It'll convert the enum to the `Multi` variant
+    /// if it's originally a `Single` variant
+    pub fn push(&mut self, val: T) {
+        match self {
+            CibouletteSelector::Single(_) => {
+                let mut new_self = CibouletteSelector::Multi(Vec::with_capacity(2));
 
-    #[inline]
-    fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
-        write!(formatter, "a value or an array of values")
-    }
-
-    #[inline]
-    fn visit_seq<A>(self, mut seq: A) -> Result<Self::Value, A::Error>
-    where
-        A: SeqAccess<'de>,
-    {
-        let mut res: Vec<T> = Vec::with_capacity(seq.size_hint().unwrap_or_default());
-
-        while let Some(next) = seq.next_element()? {
-            res.push(next);
+                std::mem::swap(self, &mut new_self);
+                let first_value = match new_self {
+                    CibouletteSelector::Single(el) => el,
+                    _ => unreachable!(),
+                };
+                self.push(first_value);
+                self.push(val);
+            }
+            CibouletteSelector::Multi(list) => list.push(val),
         }
-        Ok(CibouletteSelectorBuilder::Multi(res))
-    }
-
-    #[inline]
-    fn visit_bool<E>(self, v: bool) -> Result<Self::Value, E>
-    where
-        E: Error,
-    {
-        Ok(CibouletteSelectorBuilder::Single(Value::from(v)))
-    }
-
-    #[inline]
-    fn visit_i64<E>(self, v: i64) -> Result<Self::Value, E>
-    where
-        E: Error,
-    {
-        Ok(CibouletteSelectorBuilder::Single(Value::from(v)))
-    }
-
-    #[inline]
-    fn visit_u64<E>(self, v: u64) -> Result<Self::Value, E>
-    where
-        E: Error,
-    {
-        Ok(CibouletteSelectorBuilder::Single(Value::from(v)))
-    }
-
-    #[inline]
-    fn visit_f64<E>(self, v: f64) -> Result<Self::Value, E>
-    where
-        E: Error,
-    {
-        Ok(CibouletteSelectorBuilder::Single(Value::from(v)))
-    }
-
-    #[inline]
-    fn visit_str<E>(self, v: &str) -> Result<Self::Value, E>
-    where
-        E: Error,
-    {
-        Ok(CibouletteSelectorBuilder::Single(Value::from(v)))
-    }
-
-    #[inline]
-    fn visit_bytes<E>(self, v: &[u8]) -> Result<Self::Value, E>
-    where
-        E: Error,
-    {
-        Ok(CibouletteSelectorBuilder::Single(Value::from(v)))
-    }
-
-    #[inline]
-    fn visit_none<E>(self) -> Result<Self::Value, E>
-    where
-        E: Error,
-    {
-        Ok(CibouletteSelectorBuilder::Single(Value::Null))
-    }
-
-    #[inline]
-    fn visit_some<D>(self, deserializer: D) -> Result<Self::Value, D::Error>
-    where
-        D: Deserializer<'de>,
-    {
-        deserializer.deserialize_any(self)
-    }
-
-    #[inline]
-    fn visit_unit<E>(self) -> Result<Self::Value, E>
-    where
-        E: Error,
-    {
-        Ok(CibouletteSelectorBuilder::Single(Value::Null))
-    }
-
-    #[inline]
-    fn visit_map<A>(self, mut map: A) -> Result<Self::Value, A::Error>
-    where
-        A: MapAccess<'de>,
-    {
-        let mut res = serde_json::Map::with_capacity(map.size_hint().unwrap_or_default());
-
-        while let Some(el) = map.next_entry()? {
-            res.insert(el.0, el.1);
-        }
-        Ok(CibouletteSelectorBuilder::Single(Value::from(res)))
     }
 }
