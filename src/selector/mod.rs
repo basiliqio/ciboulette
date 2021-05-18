@@ -1,7 +1,10 @@
 use super::*;
 mod deserializing;
 mod error;
+mod iter;
+
 pub use error::CibouletteSelectorError;
+pub use iter::CibouletteSelectorIterator;
 
 /// Selector between a single object T or a list of object T
 #[derive(Debug, Clone, Serialize)]

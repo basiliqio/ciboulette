@@ -209,7 +209,7 @@ pub use requests::request::{
 pub use responses::type_::{CibouletteResponseQuantity, CibouletteResponseRequiredType};
 
 pub use path::path_container::{CiboulettePath, CiboulettePathBuilder};
-pub use selector::CibouletteSelector;
+pub use selector::{CibouletteSelector, CibouletteSelectorError, CibouletteSelectorIterator};
 pub use store::{
     CibouletteRelationshipManyToManyOption, CibouletteRelationshipManyToManyOptionBuilder,
     CibouletteRelationshipOneToManyOption, CibouletteRelationshipOneToManyOptionBuilder,
