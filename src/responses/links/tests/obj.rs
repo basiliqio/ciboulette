@@ -9,7 +9,7 @@ fn simple_obj_link() {
         store.config(),
         &CibouletteResourceResponseIdentifier {
             type_: arcstr::literal!("mytype"),
-            id: CibouletteIdSelector::Single(CibouletteId::Uuid(id)),
+            id: CibouletteIdSelector::new(CibouletteSelector::Single(CibouletteId::Uuid(id))),
         },
     )
     .unwrap();
@@ -31,7 +31,7 @@ fn simple_obj_link_with_base_url() {
         store.config(),
         &CibouletteResourceResponseIdentifier {
             type_: arcstr::literal!("mytype"),
-            id: CibouletteIdSelector::Single(CibouletteId::Uuid(id)),
+            id: CibouletteIdSelector::new(CibouletteSelector::Single(CibouletteId::Uuid(id))),
         },
     )
     .unwrap();

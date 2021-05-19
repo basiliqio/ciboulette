@@ -1,6 +1,5 @@
 use super::*;
 use element::CibouletteResponseElementAlias;
-use itertools::Itertools;
 use serde::ser::SerializeStruct;
 use std::cmp::{Ord, Ordering};
 
@@ -203,16 +202,6 @@ impl<'request, B>
     }
 }
 
-impl<'request> CibouletteResourceResponseIdentifier<'request> {
-    /// Create a comma separated string of the identifiers
-    pub fn id_to_string(&self) -> String {
-        match self.id() {
-            CibouletteIdSelector::Single(x) => x.to_string(),
-            CibouletteIdSelector::Multi(x) => x.iter().join(","),
-        }
-    }
-}
-
 impl<'request> Serialize for CibouletteResourceResponseIdentifier<'request> {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
@@ -230,7 +219,7 @@ impl<'request> Serialize for CibouletteResourceResponseIdentifier<'request> {
                     )
                 })?,
             )?,
-            _ => state.serialize_field("id", &self.id_to_string())?,
+            _ => state.serialize_field("id", &self.id().to_string())?,
         };
         state.end()
     }

@@ -27,50 +27,46 @@ pub enum CibouletteId<'request> {
 
 /// ## Resource id type selector
 #[derive(Debug, Clone, PartialEq, PartialOrd, Eq, Ord, Hash)]
-pub enum CibouletteIdSelector<'request> {
-    Single(CibouletteId<'request>),
-    Multi(Vec<CibouletteId<'request>>),
+pub struct CibouletteIdSelector<'request>(CibouletteSelector<CibouletteId<'request>>);
+
+impl<'request> std::ops::Deref for CibouletteIdSelector<'request> {
+    type Target = CibouletteSelector<CibouletteId<'request>>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
 }
 
 impl<'request> CibouletteIdSelector<'request> {
-    pub fn len(&self) -> usize {
-        match self {
-            CibouletteIdSelector::Single(_) => 1,
-            CibouletteIdSelector::Multi(x) => x.len(),
-        }
+    pub fn new(val: CibouletteSelector<CibouletteId<'request>>) -> Self {
+        CibouletteIdSelector(val)
     }
 
-    pub fn is_empty(&self) -> bool {
-        match self {
-            CibouletteIdSelector::Single(_) => false,
-            CibouletteIdSelector::Multi(x) => x.is_empty(),
+    /// Create a string from the id
+    pub fn to_string(&self) -> String {
+        match &**self {
+            CibouletteSelector::Single(x) => x.to_string(),
+            CibouletteSelector::Multi(x) => x.iter().join(","),
         }
     }
-
-    pub fn get(&self, i: usize) -> Result<&CibouletteId, CibouletteError> {
-        match self {
-            CibouletteIdSelector::Single(x) if i == 0 => Ok(x),
-            CibouletteIdSelector::Multi(x) => Ok(x
-                .get(i)
-                .ok_or_else(|| CibouletteError::WrongIdNumber(i, x.len()))?),
-            _ => Err(CibouletteError::WrongIdNumber(i, 1)),
-        }
-    }
-
     pub fn build_id(
         id_selector: &CibouletteIdTypeSelector,
         id_str: Cow<'request, str>,
     ) -> Result<CibouletteIdSelector<'request>, CibouletteError> {
         let res = match id_selector {
-            CibouletteIdTypeSelector::Single(x) => CibouletteIdSelector::Single(match x {
-                CibouletteIdType::Text(_) => CibouletteId::Text(Cow::Owned(String::from_utf8(
-                    base64::decode_config(id_str.as_ref(), *BASE64_CONFIG)?,
-                )?)),
-                CibouletteIdType::Number(_) => {
-                    CibouletteId::Number(u64::from_str(id_str.as_ref())?)
-                }
-                CibouletteIdType::Uuid(_) => CibouletteId::Uuid(Uuid::from_str(id_str.as_ref())?),
-            }),
+            CibouletteIdTypeSelector::Single(x) => {
+                CibouletteIdSelector(CibouletteSelector::Single(match x {
+                    CibouletteIdType::Text(_) => CibouletteId::Text(Cow::Owned(String::from_utf8(
+                        base64::decode_config(id_str.as_ref(), *BASE64_CONFIG)?,
+                    )?)),
+                    CibouletteIdType::Number(_) => {
+                        CibouletteId::Number(u64::from_str(id_str.as_ref())?)
+                    }
+                    CibouletteIdType::Uuid(_) => {
+                        CibouletteId::Uuid(Uuid::from_str(id_str.as_ref())?)
+                    }
+                }))
+            }
             CibouletteIdTypeSelector::Multi(x) => {
                 let mut res = Vec::with_capacity(2);
 
@@ -86,7 +82,7 @@ impl<'request> CibouletteIdSelector<'request> {
                         CibouletteIdType::Uuid(_) => CibouletteId::Uuid(Uuid::from_str(id)?),
                     });
                 }
-                CibouletteIdSelector::Multi(res)
+                CibouletteIdSelector(CibouletteSelector::Multi(res))
             }
         };
         Ok(res)
@@ -95,9 +91,9 @@ impl<'request> CibouletteIdSelector<'request> {
 
 impl<'request> std::fmt::Display for CibouletteIdSelector<'request> {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        match self {
-            CibouletteIdSelector::Single(x) => write!(f, "{}", x),
-            CibouletteIdSelector::Multi(x) => write!(f, "{}", x.iter().join(",")),
+        match &**self {
+            CibouletteSelector::Single(x) => write!(f, "{}", x),
+            CibouletteSelector::Multi(x) => write!(f, "{}", x.iter().join(",")),
         }
     }
 }

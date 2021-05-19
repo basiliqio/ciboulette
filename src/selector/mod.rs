@@ -9,7 +9,7 @@ pub use error::CibouletteSelectorError;
 pub use iter::CibouletteSelectorIterator;
 
 /// Selector between a single object T or a list of object T
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Hash, PartialEq, Ord, Eq, PartialOrd)]
 #[serde(untagged)]
 pub enum CibouletteSelector<T> {
     Single(T),

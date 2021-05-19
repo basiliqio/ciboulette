@@ -1,5 +1,3 @@
-use itertools::Itertools;
-
 use super::*;
 use serde::ser::SerializeStruct;
 use std::cmp::{Ord, Ordering};
@@ -147,20 +145,6 @@ impl<'request> CibouletteResourceIdentifier<'request> {
     pub fn new(id: CibouletteIdSelector<'request>, type_: Cow<'request, str>) -> Self {
         CibouletteResourceIdentifier { type_, id }
     }
-
-    /// Create a comma separated string of the identifiers
-    pub fn id_to_string(&self) -> String {
-        match self.id() {
-            CibouletteIdSelector::Single(x) => x.to_string(),
-            CibouletteIdSelector::Multi(x) => x
-                .iter()
-                .map(|x| match x {
-                    CibouletteId::Text(id) => base64::encode(id.as_ref()),
-                    _ => x.to_string(),
-                })
-                .join(","),
-        }
-    }
 }
 
 impl<'request> CibouletteResourceIdentifierPermissive<'request> {
@@ -172,8 +156,7 @@ impl<'request> CibouletteResourceIdentifierPermissive<'request> {
     /// Create a comma separated string of the identifiers
     pub fn id_to_string(&self) -> String {
         match self.id() {
-            Some(CibouletteIdSelector::Single(x)) => x.to_string(),
-            Some(CibouletteIdSelector::Multi(x)) => x.iter().join(","),
+            Some(x) => x.to_string(),
             None => String::default(),
         }
     }
@@ -314,7 +297,7 @@ impl<'request> Serialize for CibouletteResourceIdentifier<'request> {
                     serde::ser::Error::custom("Wrong number of id when serializing")
                 })?,
             )?,
-            _ => state.serialize_field("id", &self.id_to_string())?,
+            _ => state.serialize_field("id", &self.id().to_string())?,
         };
         state.end()
     }

@@ -294,7 +294,7 @@ impl<'request> CibouletteBodyBuilder<'request> {
                         // If already exists, fails.
                         return Err(CibouletteError::UniqRelationshipObject(
                             el.type_().to_string(),
-                            el.id_to_string(),
+                            el.id().to_string(),
                         ));
                     }
                 }
@@ -304,7 +304,7 @@ impl<'request> CibouletteBodyBuilder<'request> {
                             // If already exists, fails.
                             return Err(CibouletteError::UniqRelationshipObject(
                                 el.type_().to_string(),
-                                el.id_to_string(),
+                                el.id().to_string(),
                             ));
                         }
                     }
