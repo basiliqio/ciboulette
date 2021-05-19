@@ -116,6 +116,8 @@
 
 #![warn(clippy::all)]
 
+#[macro_use]
+mod macros;
 mod body;
 mod config;
 mod error_request;
@@ -136,7 +138,6 @@ mod store;
 mod tests;
 
 use arcstr::ArcStr;
-use body::resource_obj::CibouletteResourceBuilderVisitor;
 use getset::{Getters, MutGetters};
 use messy_json::*;
 use serde::{Deserialize, Serialize};

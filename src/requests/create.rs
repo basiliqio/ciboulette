@@ -80,8 +80,8 @@ impl<'request> TryFrom<CibouletteRequest<'request>> for CibouletteCreateRequest<
             CibouletteBodyData::Object(x) => x,
             CibouletteBodyData::Null(_) => return Err(CibouletteError::NoData),
         };
-        let data = match data {
-            CibouletteResourceSelector::One(data) => {
+        let data = match data.take() {
+            CibouletteSelector::Single(data) => {
                 if data.identifier().type_() != path.main_type().name() {
                     return Err(CibouletteError::MainTypeClash);
                 }

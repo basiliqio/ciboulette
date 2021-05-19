@@ -2,8 +2,8 @@ use super::*;
 use itertools::Itertools;
 #[cfg(feature = "sqlx_postgres")]
 use sqlx::{TypeInfo, ValueRef};
+use std::fmt::Formatter;
 use std::str::FromStr;
-use std::{fmt::Formatter, usize};
 
 lazy_static::lazy_static! {
     static ref BASE64_CONFIG: base64::Config = {
@@ -29,19 +29,9 @@ pub enum CibouletteId<'request> {
 #[derive(Debug, Clone, PartialEq, PartialOrd, Eq, Ord, Hash)]
 pub struct CibouletteIdSelector<'request>(CibouletteSelector<CibouletteId<'request>>);
 
-impl<'request> std::ops::Deref for CibouletteIdSelector<'request> {
-    type Target = CibouletteSelector<CibouletteId<'request>>;
-
-    fn deref(&self) -> &Self::Target {
-        &self.0
-    }
-}
+ciboulette_selector_utils!(CibouletteIdSelector, CibouletteId, 'request);
 
 impl<'request> CibouletteIdSelector<'request> {
-    pub fn new(val: CibouletteSelector<CibouletteId<'request>>) -> Self {
-        CibouletteIdSelector(val)
-    }
-
     pub fn build_id(
         id_selector: &CibouletteIdTypeSelector,
         id_str: Cow<'request, str>,
@@ -164,16 +154,4 @@ impl<'request> std::fmt::Display for CibouletteIdType {
 #[derive(Debug, Clone, PartialEq, PartialOrd, Eq, Ord, Hash)]
 pub struct CibouletteIdTypeSelector(CibouletteSelector<CibouletteIdType>);
 
-impl std::ops::Deref for CibouletteIdTypeSelector {
-    type Target = CibouletteSelector<CibouletteIdType>;
-
-    fn deref(&self) -> &Self::Target {
-        &self.0
-    }
-}
-
-impl CibouletteIdTypeSelector {
-    pub fn new(val: CibouletteSelector<CibouletteIdType>) -> Self {
-        CibouletteIdTypeSelector(val)
-    }
-}
+ciboulette_selector_utils!(CibouletteIdTypeSelector, CibouletteIdType);

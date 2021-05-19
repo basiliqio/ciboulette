@@ -247,8 +247,8 @@ pub fn check_ident_permissive<'request>(
 pub fn check_single<'request, MessyJsonObjectValue, T>(
     selector: &'request CibouletteResourceSelector<'request, MessyJsonObjectValue, T>,
 ) -> &'request CibouletteResource<'request, MessyJsonObjectValue, T> {
-    match selector {
-        CibouletteResourceSelector::One(x) => x,
+    match &**selector {
+        CibouletteSelector::Single(x) => x,
         _ => panic!("Expected a single resource"),
     }
 }
@@ -256,8 +256,8 @@ pub fn check_single<'request, MessyJsonObjectValue, T>(
 pub fn check_multi<'request, T>(
     selector: &'request CibouletteResourceSelector<'request, MessyJsonObjectValue<'request>, T>,
 ) -> &'request Vec<CibouletteResource<'request, MessyJsonObjectValue<'request>, T>> {
-    match selector {
-        CibouletteResourceSelector::Many(x) => x,
+    match &**selector {
+        CibouletteSelector::Multi(x) => x,
         _ => panic!("Expected a multiple resources"),
     }
 }

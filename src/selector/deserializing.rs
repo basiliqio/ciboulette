@@ -5,7 +5,7 @@ use serde::{
 };
 
 #[derive(Debug, Clone, Copy)]
-struct CibouletteSelectorVisitor<T> {
+pub(crate) struct CibouletteSelectorVisitor<T> {
     pub _marker: std::marker::PhantomData<Option<T>>,
 }
 
@@ -19,7 +19,7 @@ impl<'de, T> Default for CibouletteSelectorVisitor<T> {
 
 /// Builder for the [CibouletteSelector](CibouletteSelector)
 #[derive(Debug, Clone)]
-enum CibouletteSelectorBuilder<T> {
+pub(crate) enum CibouletteSelectorBuilder<T> {
     Single(Value),
     Multi(Vec<T>),
 }
@@ -65,6 +65,18 @@ where
         Ok(CibouletteSelectorBuilder::Multi(res))
     }
 
+    #[inline]
+    fn visit_map<A>(self, mut map: A) -> Result<Self::Value, A::Error>
+    where
+        A: MapAccess<'de>,
+    {
+        let mut res = serde_json::Map::with_capacity(map.size_hint().unwrap_or_default());
+
+        while let Some(el) = map.next_entry()? {
+            res.insert(el.0, el.1);
+        }
+        Ok(CibouletteSelectorBuilder::Single(Value::from(res)))
+    }
     #[inline]
     fn visit_bool<E>(self, v: bool) -> Result<Self::Value, E>
     where
@@ -135,18 +147,5 @@ where
         E: Error,
     {
         Ok(CibouletteSelectorBuilder::Single(Value::Null))
-    }
-
-    #[inline]
-    fn visit_map<A>(self, mut map: A) -> Result<Self::Value, A::Error>
-    where
-        A: MapAccess<'de>,
-    {
-        let mut res = serde_json::Map::with_capacity(map.size_hint().unwrap_or_default());
-
-        while let Some(el) = map.next_entry()? {
-            res.insert(el.0, el.1);
-        }
-        Ok(CibouletteSelectorBuilder::Single(Value::from(res)))
     }
 }

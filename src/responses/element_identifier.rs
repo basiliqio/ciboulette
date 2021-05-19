@@ -189,15 +189,13 @@ impl<'request, B>
             CibouletteResourceResponseIdentifier<'request>,
         >,
     ) -> Self {
-        match obj {
-            CibouletteResourceSelector::One(x) => {
+        match obj.take() {
+            CibouletteSelector::Single(x) => {
                 CibouletteResourceResponseIdentifierSelector::One(x.identifier)
             }
-            CibouletteResourceSelector::Many(x) => {
-                CibouletteResourceResponseIdentifierSelector::Many(
-                    x.into_iter().map(|x| x.identifier).collect(),
-                )
-            }
+            CibouletteSelector::Multi(x) => CibouletteResourceResponseIdentifierSelector::Many(
+                x.into_iter().map(|x| x.identifier).collect(),
+            ),
         }
     }
 }

@@ -199,19 +199,7 @@ pub struct CibouletteResourceIdentifierSelector<'request>(
     CibouletteSelector<CibouletteResourceIdentifier<'request>>,
 );
 
-impl<'request> std::ops::Deref for CibouletteResourceIdentifierSelector<'request> {
-    type Target = CibouletteSelector<CibouletteResourceIdentifier<'request>>;
-
-    fn deref(&self) -> &Self::Target {
-        &self.0
-    }
-}
-
-impl<'request> CibouletteResourceIdentifierSelector<'request> {
-    fn new(val: CibouletteSelector<CibouletteResourceIdentifier<'request>>) -> Self {
-        CibouletteResourceIdentifierSelector(val)
-    }
-}
+ciboulette_selector_utils!(CibouletteResourceIdentifierSelector, CibouletteResourceIdentifier, 'request);
 
 impl<'request, B> From<CibouletteResource<'request, B, CibouletteResourceIdentifier<'request>>>
     for CibouletteResourceIdentifierSelector<'request>
@@ -243,11 +231,11 @@ impl<'request, B>
     fn from(
         obj: CibouletteResourceSelector<'request, B, CibouletteResourceIdentifier<'request>>,
     ) -> Self {
-        match obj {
-            CibouletteResourceSelector::One(x) => {
+        match obj.take() {
+            CibouletteSelector::Single(x) => {
                 CibouletteResourceIdentifierSelector::new(CibouletteSelector::Single(x.identifier))
             }
-            CibouletteResourceSelector::Many(x) => CibouletteResourceIdentifierSelector::new(
+            CibouletteSelector::Multi(x) => CibouletteResourceIdentifierSelector::new(
                 CibouletteSelector::Multi(x.into_iter().map(|x| x.identifier).collect()),
             ),
         }
@@ -268,11 +256,11 @@ impl<'request, B>
             CibouletteResourceIdentifierPermissive<'request>,
         >,
     ) -> Result<Self, Self::Error> {
-        match obj {
-            CibouletteResourceSelector::One(x) => Ok(CibouletteResourceIdentifierSelector::new(
+        match obj.take() {
+            CibouletteSelector::Single(x) => Ok(CibouletteResourceIdentifierSelector::new(
                 CibouletteSelector::Single(x.identifier.try_into()?),
             )),
-            CibouletteResourceSelector::Many(x) => {
+            CibouletteSelector::Multi(x) => {
                 let mut res: Vec<CibouletteResourceIdentifier<'request>> =
                     Vec::with_capacity(x.len());
 
