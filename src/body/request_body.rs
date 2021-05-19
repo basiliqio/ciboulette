@@ -288,8 +288,8 @@ impl<'request> CibouletteBodyBuilder<'request> {
         >,
     ) -> Result<(), CibouletteError> {
         for (_link_name, rel) in obj.relationships().iter() {
-            match rel.data() {
-                CibouletteOptionalData::Object(CibouletteResourceIdentifierSelector::One(el)) => {
+            match rel.data().inner_deref() {
+                CibouletteOptionalData::Object(CibouletteSelector::Single(el)) => {
                     if !linked_set.insert((el.type_(), el.id().clone())) {
                         // If already exists, fails.
                         return Err(CibouletteError::UniqRelationshipObject(
@@ -298,7 +298,7 @@ impl<'request> CibouletteBodyBuilder<'request> {
                         ));
                     }
                 }
-                CibouletteOptionalData::Object(CibouletteResourceIdentifierSelector::Many(els)) => {
+                CibouletteOptionalData::Object(CibouletteSelector::Multi(els)) => {
                     for el in els.iter() {
                         if !linked_set.insert((el.type_(), el.id().clone())) {
                             // If already exists, fails.

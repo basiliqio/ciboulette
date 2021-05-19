@@ -5,11 +5,11 @@ use serde::{
 };
 
 #[derive(Debug, Clone, Copy)]
-struct CibouletteSelectorVisitor<'de, T> {
-    pub _marker: std::marker::PhantomData<Option<&'de T>>,
+struct CibouletteSelectorVisitor<T> {
+    pub _marker: std::marker::PhantomData<Option<T>>,
 }
 
-impl<'de, T> Default for CibouletteSelectorVisitor<'de, T> {
+impl<'de, T> Default for CibouletteSelectorVisitor<T> {
     fn default() -> Self {
         CibouletteSelectorVisitor {
             _marker: std::marker::PhantomData::default(),
@@ -26,7 +26,7 @@ enum CibouletteSelectorBuilder<T> {
 
 impl<'de, T> Deserialize<'de> for CibouletteSelector<T>
 where
-    T: 'de + Deserialize<'de>,
+    T: Deserialize<'de>,
 {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
@@ -41,7 +41,7 @@ where
     }
 }
 
-impl<'de, T> Visitor<'de> for CibouletteSelectorVisitor<'de, T>
+impl<'de, T> Visitor<'de> for CibouletteSelectorVisitor<T>
 where
     T: Deserialize<'de>,
 {

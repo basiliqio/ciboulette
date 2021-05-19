@@ -42,13 +42,6 @@ impl<'request> CibouletteIdSelector<'request> {
         CibouletteIdSelector(val)
     }
 
-    /// Create a string from the id
-    pub fn to_string(&self) -> String {
-        match &**self {
-            CibouletteSelector::Single(x) => x.to_string(),
-            CibouletteSelector::Multi(x) => x.iter().join(","),
-        }
-    }
     pub fn build_id(
         id_selector: &CibouletteIdTypeSelector,
         id_str: Cow<'request, str>,

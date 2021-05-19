@@ -163,7 +163,6 @@ pub use body::request_body_data::{
 pub use body::resource_identifier::{
     CibouletteResourceIdentifier, CibouletteResourceIdentifierBuilder,
     CibouletteResourceIdentifierPermissive, CibouletteResourceIdentifierSelector,
-    CibouletteResourceIdentifierSelectorBuilder,
 };
 pub use body::resource_obj::{CibouletteResource, CibouletteResourceBuilder};
 pub use body::resource_obj_selector::{

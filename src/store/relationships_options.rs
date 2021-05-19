@@ -57,9 +57,9 @@ impl<'request> CibouletteRelationshipObjectBuilder<'request> {
             meta: self.meta,
             data: match self.data {
                 CibouletteOptionalData::Null(x) => CibouletteOptionalData::Null(x),
-                CibouletteOptionalData::Object(obj) => {
-                    CibouletteOptionalData::Object(obj.build(&type_)?)
-                }
+                CibouletteOptionalData::Object(obj) => CibouletteOptionalData::Object(
+                    CibouletteResourceIdentifierSelector::build_from(obj, &type_)?,
+                ),
             },
         })
     }
