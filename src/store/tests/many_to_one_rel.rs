@@ -7,14 +7,18 @@ fn ok() {
     store
         .add_type(
             "peoples",
-            CibouletteIdTypeSelector::Single(CibouletteIdType::Uuid(arcstr::literal!("id"))),
+            CibouletteIdTypeSelector::new(CibouletteSelector::Single(CibouletteIdType::Uuid(
+                arcstr::literal!("id"),
+            ))),
             crate::test_helper::gen_messy_json_schema_peoples(),
         )
         .unwrap();
     store
         .add_type(
             "favorite_color",
-            CibouletteIdTypeSelector::Single(CibouletteIdType::Uuid(arcstr::literal!("id"))),
+            CibouletteIdTypeSelector::new(CibouletteSelector::Single(CibouletteIdType::Uuid(
+                arcstr::literal!("id"),
+            ))),
             crate::test_helper::gen_messy_json_schema_favorite_color(),
         )
         .unwrap();
@@ -40,14 +44,18 @@ fn ok_reverse() {
     store
         .add_type(
             "peoples",
-            CibouletteIdTypeSelector::Single(CibouletteIdType::Uuid(arcstr::literal!("id"))),
+            CibouletteIdTypeSelector::new(CibouletteSelector::Single(CibouletteIdType::Uuid(
+                arcstr::literal!("id"),
+            ))),
             crate::test_helper::gen_messy_json_schema_peoples(),
         )
         .unwrap();
     store
         .add_type(
             "favorite_color",
-            CibouletteIdTypeSelector::Single(CibouletteIdType::Uuid(arcstr::literal!("id"))),
+            CibouletteIdTypeSelector::new(CibouletteSelector::Single(CibouletteIdType::Uuid(
+                arcstr::literal!("id"),
+            ))),
             crate::test_helper::gen_messy_json_schema_favorite_color(),
         )
         .unwrap();
@@ -73,14 +81,18 @@ fn no_reverse() {
     store
         .add_type(
             "peoples",
-            CibouletteIdTypeSelector::Single(CibouletteIdType::Uuid(arcstr::literal!("id"))),
+            CibouletteIdTypeSelector::new(CibouletteSelector::Single(CibouletteIdType::Uuid(
+                arcstr::literal!("id"),
+            ))),
             crate::test_helper::gen_messy_json_schema_peoples(),
         )
         .unwrap();
     store
         .add_type(
             "favorite_color",
-            CibouletteIdTypeSelector::Single(CibouletteIdType::Uuid(arcstr::literal!("id"))),
+            CibouletteIdTypeSelector::new(CibouletteSelector::Single(CibouletteIdType::Uuid(
+                arcstr::literal!("id"),
+            ))),
             crate::test_helper::gen_messy_json_schema_favorite_color(),
         )
         .unwrap();
@@ -107,14 +119,18 @@ fn duplicate() {
     store
         .add_type(
             "peoples",
-            CibouletteIdTypeSelector::Single(CibouletteIdType::Uuid(arcstr::literal!("id"))),
+            CibouletteIdTypeSelector::new(CibouletteSelector::Single(CibouletteIdType::Uuid(
+                arcstr::literal!("id"),
+            ))),
             crate::test_helper::gen_messy_json_schema_peoples(),
         )
         .unwrap();
     store
         .add_type(
             "favorite_color",
-            CibouletteIdTypeSelector::Single(CibouletteIdType::Uuid(arcstr::literal!("id"))),
+            CibouletteIdTypeSelector::new(CibouletteSelector::Single(CibouletteIdType::Uuid(
+                arcstr::literal!("id"),
+            ))),
             crate::test_helper::gen_messy_json_schema_favorite_color(),
         )
         .unwrap();

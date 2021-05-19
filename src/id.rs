@@ -46,8 +46,8 @@ impl<'request> CibouletteIdSelector<'request> {
         id_selector: &CibouletteIdTypeSelector,
         id_str: Cow<'request, str>,
     ) -> Result<CibouletteIdSelector<'request>, CibouletteError> {
-        let res = match id_selector {
-            CibouletteIdTypeSelector::Single(x) => {
+        let res = match &**id_selector {
+            CibouletteSelector::Single(x) => {
                 CibouletteIdSelector(CibouletteSelector::Single(match x {
                     CibouletteIdType::Text(_) => CibouletteId::Text(Cow::Owned(String::from_utf8(
                         base64::decode_config(id_str.as_ref(), *BASE64_CONFIG)?,
@@ -60,7 +60,7 @@ impl<'request> CibouletteIdSelector<'request> {
                     }
                 }))
             }
-            CibouletteIdTypeSelector::Multi(x) => {
+            CibouletteSelector::Multi(x) => {
                 let mut res = Vec::with_capacity(2);
 
                 for (i, id) in id_str.split(',').enumerate() {
@@ -162,19 +162,18 @@ impl<'request> std::fmt::Display for CibouletteIdType {
 
 /// ## Type of resource id
 #[derive(Debug, Clone, PartialEq, PartialOrd, Eq, Ord, Hash)]
-pub enum CibouletteIdTypeSelector {
-    Single(CibouletteIdType),
-    Multi(Vec<CibouletteIdType>),
+pub struct CibouletteIdTypeSelector(CibouletteSelector<CibouletteIdType>);
+
+impl std::ops::Deref for CibouletteIdTypeSelector {
+    type Target = CibouletteSelector<CibouletteIdType>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
 }
 
 impl CibouletteIdTypeSelector {
-    pub fn get(&self, i: usize) -> Result<&CibouletteIdType, CibouletteError> {
-        match self {
-            CibouletteIdTypeSelector::Single(x) if i == 0 => Ok(x),
-            CibouletteIdTypeSelector::Multi(x) => Ok(x
-                .get(i)
-                .ok_or_else(|| CibouletteError::WrongIdNumber(i, x.len()))?),
-            _ => Err(CibouletteError::WrongIdNumber(i, 1)),
-        }
+    pub fn new(val: CibouletteSelector<CibouletteIdType>) -> Self {
+        CibouletteIdTypeSelector(val)
     }
 }

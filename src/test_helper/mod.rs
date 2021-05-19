@@ -128,35 +128,43 @@ pub fn gen_bag() -> CibouletteStore {
 
     res.add_type(
         "articles",
-        CibouletteIdTypeSelector::Single(CibouletteIdType::Uuid(arcstr::literal!("id"))),
+        CibouletteIdTypeSelector::new(CibouletteSelector::Single(CibouletteIdType::Uuid(
+            arcstr::literal!("id"),
+        ))),
         gen_messy_json_schema_articles(),
     )
     .unwrap();
     res.add_type(
         "comments",
-        CibouletteIdTypeSelector::Single(CibouletteIdType::Uuid(arcstr::literal!("id"))),
+        CibouletteIdTypeSelector::new(CibouletteSelector::Single(CibouletteIdType::Uuid(
+            arcstr::literal!("id"),
+        ))),
         gen_messy_json_schema_comments(),
     )
     .unwrap();
     res.add_type(
         "peoples",
-        CibouletteIdTypeSelector::Single(CibouletteIdType::Uuid(arcstr::literal!("id"))),
+        CibouletteIdTypeSelector::new(CibouletteSelector::Single(CibouletteIdType::Uuid(
+            arcstr::literal!("id"),
+        ))),
         gen_messy_json_schema_peoples(),
     )
     .unwrap();
     res.add_type(
         "favorite_color",
-        CibouletteIdTypeSelector::Single(CibouletteIdType::Uuid(arcstr::literal!("id"))),
+        CibouletteIdTypeSelector::new(CibouletteSelector::Single(CibouletteIdType::Uuid(
+            arcstr::literal!("id"),
+        ))),
         gen_messy_json_schema_favorite_color(),
     )
     .unwrap();
 
     res.add_type(
         "people-article",
-        CibouletteIdTypeSelector::Multi(vec![
+        CibouletteIdTypeSelector::new(CibouletteSelector::Multi(vec![
             CibouletteIdType::Uuid(arcstr::literal!("people_id")),
             CibouletteIdType::Uuid(arcstr::literal!("article_id")),
-        ]),
+        ])),
         gen_messy_json_schema_people_article(),
     )
     .unwrap();
