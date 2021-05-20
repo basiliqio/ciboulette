@@ -142,7 +142,6 @@ use getset::{Getters, MutGetters};
 use messy_json::*;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
-use serde_utils::{handle_ident_in_map_stateful, handle_ident_in_map_stateless};
 use std::borrow::Cow;
 use std::collections::{BTreeMap, BTreeSet};
 use std::convert::{TryFrom, TryInto};

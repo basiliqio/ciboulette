@@ -174,23 +174,29 @@ impl<'de> serde::de::Visitor<'de> for CibouletteBodyBuilderVisitor {
         } {
             match key {
                 CibouletteBodyField::Data => {
-                    super::handle_ident_in_map_stateful(&mut data, &mut map, "data")?
+                    crate::serde_utils::handle_ident_in_map_stateful(&mut data, &mut map, "data")?
                 }
-                CibouletteBodyField::Errors => {
-                    super::handle_ident_in_map_stateless(&mut errors, &mut map, "errors")?
-                }
+                CibouletteBodyField::Errors => crate::serde_utils::handle_ident_in_map_stateless(
+                    &mut errors,
+                    &mut map,
+                    "errors",
+                )?,
                 CibouletteBodyField::Meta => {
-                    super::handle_ident_in_map_stateless(&mut meta, &mut map, "meta")?
+                    crate::serde_utils::handle_ident_in_map_stateless(&mut meta, &mut map, "meta")?
                 }
-                CibouletteBodyField::Links => {
-                    super::handle_ident_in_map_stateless(&mut links, &mut map, "links")?
-                }
-                CibouletteBodyField::Included => {
-                    super::handle_ident_in_map_stateful(&mut included, &mut map, "included")?
-                }
-                CibouletteBodyField::Jsonapi => {
-                    super::handle_ident_in_map_stateless(&mut jsonapi, &mut map, "jsonapi")?
-                }
+                CibouletteBodyField::Links => crate::serde_utils::handle_ident_in_map_stateless(
+                    &mut links, &mut map, "links",
+                )?,
+                CibouletteBodyField::Included => crate::serde_utils::handle_ident_in_map_stateful(
+                    &mut included,
+                    &mut map,
+                    "included",
+                )?,
+                CibouletteBodyField::Jsonapi => crate::serde_utils::handle_ident_in_map_stateless(
+                    &mut jsonapi,
+                    &mut map,
+                    "jsonapi",
+                )?,
                 _ => {
                     let _ =
                         match serde::de::MapAccess::next_value::<serde::de::IgnoredAny>(&mut map) {

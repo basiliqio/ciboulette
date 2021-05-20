@@ -187,7 +187,11 @@ impl<'de> serde::de::Visitor<'de> for CibouletteQueryParametersBuilderVisitor {
                     Self::build_page(&mut map, type_, &mut page)?
                 }
                 CibouletteQueryParametersField::Filter => {
-                    super::handle_ident_in_map_stateless(&mut filter, &mut map, "filter")?
+                    crate::serde_utils::handle_ident_in_map_stateless(
+                        &mut filter,
+                        &mut map,
+                        "filter",
+                    )?
                 }
                 CibouletteQueryParametersField::FilterTyped(type_) => {
                     Self::build_filter_typed(&mut map, type_, &mut filter_typed)?

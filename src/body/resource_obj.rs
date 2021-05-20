@@ -1,25 +1,16 @@
 use super::*;
 use serde::de::{DeserializeSeed, Deserializer, Visitor};
-use serde_json::value::RawValue;
 use std::fmt::Formatter;
 const CIBOULETTE_RESOURCE_FIELDS: &[&str] =
     &["id", "type", "meta", "attributes", "relationships", "links"];
-
-#[derive(Debug, Serialize, Deserialize)]
-#[serde(untagged)]
-pub enum CibouletteResourceRawValue<'request> {
-    #[serde(borrow = "'request")]
-    Borrowed(&'request RawValue),
-    Owned(Value),
-}
 
 /// ## Builder object for [CibouletterResource](CibouletterResource)
 #[derive(Debug, Getters, Serialize)]
 #[getset(get = "pub")]
 pub struct CibouletteResourceBuilder<'request> {
     identifier: CibouletteResourceIdentifierBuilder<'request>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    attributes: Option<CibouletteResourceRawValue<'request>>,
+    #[serde(skip_serializing_if = "CibouletteOptionalData::is_absent")]
+    attributes: CibouletteOptionalData<MessyJsonValueRaw<'request>>,
     #[serde(skip_serializing_if = "BTreeMap::is_empty")]
     relationships: BTreeMap<Cow<'request, str>, CibouletteRelationshipObjectBuilder<'request>>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -195,7 +186,8 @@ impl<'de> serde::de::Visitor<'de> for CibouletteResourceBuilderVisitor {
         let mut id: Option<Cow<'de, str>> = None;
         let mut type_: Option<Cow<'de, str>> = None;
         let mut meta: Option<Value> = None;
-        let mut attributes: Option<CibouletteResourceRawValue<'de>> = None;
+        let mut attributes: CibouletteOptionalData<MessyJsonValueRaw<'de>> =
+            CibouletteOptionalData::Null(false);
         let mut relationships: Option<
             BTreeMap<Cow<'de, str>, CibouletteRelationshipObjectBuilder<'de>>,
         > = None;
@@ -210,24 +202,32 @@ impl<'de> serde::de::Visitor<'de> for CibouletteResourceBuilderVisitor {
         {
             match key {
                 CibouletteResourceField::Id => {
-                    super::handle_ident_in_map_stateless(&mut id, &mut map, "id")?
+                    crate::serde_utils::handle_ident_in_map_stateless(&mut id, &mut map, "id")?
                 }
                 CibouletteResourceField::Type => {
-                    super::handle_ident_in_map_stateless(&mut type_, &mut map, "type")?
+                    crate::serde_utils::handle_ident_in_map_stateless(&mut type_, &mut map, "type")?
                 }
                 CibouletteResourceField::Meta => {
-                    super::handle_ident_in_map_stateless(&mut meta, &mut map, "meta")?
+                    crate::serde_utils::handle_ident_in_map_stateless(&mut meta, &mut map, "meta")?
                 }
                 CibouletteResourceField::Attributes => {
-                    super::handle_ident_in_map_stateless(&mut attributes, &mut map, "attributes")?
+                    crate::serde_utils::handle_ident_in_map_stateless_ciboulette_optional(
+                        &mut attributes,
+                        &mut map,
+                        "attributes",
+                    )?
                 }
-                CibouletteResourceField::Relationships => super::handle_ident_in_map_stateless(
-                    &mut relationships,
-                    &mut map,
-                    "relationships",
-                )?,
+                CibouletteResourceField::Relationships => {
+                    crate::serde_utils::handle_ident_in_map_stateless(
+                        &mut relationships,
+                        &mut map,
+                        "relationships",
+                    )?
+                }
                 CibouletteResourceField::Links => {
-                    super::handle_ident_in_map_stateless(&mut links, &mut map, "links")?
+                    crate::serde_utils::handle_ident_in_map_stateless(
+                        &mut links, &mut map, "links",
+                    )?
                 }
                 _ => {
                     let _ =
@@ -289,28 +289,19 @@ impl<'request> CibouletteResourceBuilder<'request> {
         let resource_type: Arc<CibouletteResourceType> =
             bag.get_type(self.identifier().type_().as_ref())?.clone();
         let attributes: Option<MessyJsonObjectValue<'request>> = match self.attributes {
-            Some(attributes) => {
+            CibouletteOptionalData::Object(attributes) => {
                 let deserializer_settings = matches!(intention, CibouletteIntention::Update);
                 let container_builder = resource_type.schema().builder(MessyJsonSettings {
                     all_optional: deserializer_settings,
                     preserve_mandatory: deserializer_settings,
                 });
-                let container = match attributes {
-                    CibouletteResourceRawValue::Borrowed(borrowed_value) => {
-                        let mut deserializer =
-                            serde_json::Deserializer::from_str(borrowed_value.get());
-                        container_builder.deserialize(&mut deserializer)?
-                    }
-                    CibouletteResourceRawValue::Owned(owned_value) => {
-                        container_builder.deserialize(owned_value)?
-                    }
-                };
+                let container = container_builder.deserialize(attributes)?;
                 match container.take() {
                     MessyJsonValue::Obj(obj) => Some(obj),
                     _ => return Err(CibouletteError::AttributesIsNotAnObject),
                 }
             }
-            None => None,
+            _ => None,
         };
         let mut relationships: BTreeMap<ArcStr, CibouletteRelationshipObject<'request>> =
             BTreeMap::new();
