@@ -1,7 +1,12 @@
 ## Unreleased
+### Added
+- Added `links` objects per json:api specification
+- Added configuration option for pagination
+
 ### Changed
 - CibouletteId::build_id moved to CibouletteIdSelector::build
-
+- Better performance when building documents and responses
+- Changed how resource are built, using a new structure holding more options
 
 ## [0.1.4] - 2021-05-13
 ### Fixed

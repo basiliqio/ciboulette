@@ -36,50 +36,60 @@ pub struct CibouletteResourceTypePaginationConfigurationBuilder {
 }
 
 impl CibouletteResourceTypePaginationConfigurationBuilder {
+    fn find_field_name(
+        name: &str,
+        resource_name: &str,
+        ids: &CibouletteIdTypeSelector,
+        schema: &MessyJsonObject,
+    ) -> Result<ArcStr, CibouletteError> {
+        schema
+            .properties()
+            .get_key_value(name)
+            .map(|x| x.0.clone())
+            .or_else(|| {
+                ids.iter()
+                    .find(|x| x.name().as_str() == name)
+                    .map(|x| x.name().clone())
+            })
+            .ok_or_else(|| {
+                CibouletteError::UnknownField(resource_name.to_string(), name.to_string())
+            })
+    }
+
     pub fn build(
         self,
         type_name: &str,
+        ids: &CibouletteIdTypeSelector,
         schema: &MessyJsonObject,
     ) -> Result<CibouletteResourceTypePaginationConfiguration, CibouletteError> {
         let mut sort_by: Vec<ArcStr> = Vec::with_capacity(self.sort_by.len());
         let mut discriminants: Vec<ArcStr> = Vec::with_capacity(self.discriminants.len());
-        let mut seen_set = BTreeSet::new();
+        let mut sort_set = BTreeSet::new();
+        let mut discriminant_set = BTreeSet::new();
 
         for sort_el in self.sort_by() {
-            if !seen_set.insert(sort_el.as_str()) {
-                return Err(CibouletteError::UnknownField(
-                    type_name.to_string(),
-                    sort_el.clone(),
-                ));
+            if !sort_set.insert(sort_el.as_str()) {
+                continue;
             }
-            sort_by.push(
-                schema
-                    .properties()
-                    .get_key_value(sort_el.as_str())
-                    .ok_or_else(|| {
-                        CibouletteError::UnknownField(type_name.to_string(), sort_el.clone())
-                    })?
-                    .0
-                    .clone(),
-            );
+            sort_by.push(Self::find_field_name(
+                sort_el.as_str(),
+                type_name,
+                ids,
+                schema,
+            )?);
         }
         for discriminant in self.discriminants() {
-            if !seen_set.insert(discriminant.as_str()) {
-                return Err(CibouletteError::UnknownField(
+            if !sort_set.contains(discriminant.as_str()) {
+                return Err(CibouletteError::UnknownPaginationField(
                     type_name.to_string(),
                     discriminant.clone(),
                 ));
             }
-            discriminants.push(
-                schema
-                    .properties()
-                    .get_key_value(discriminant.as_str())
-                    .ok_or_else(|| {
-                        CibouletteError::UnknownField(type_name.to_string(), discriminant.clone())
-                    })?
-                    .0
-                    .clone(),
-            );
+            let field = Self::find_field_name(discriminant.as_str(), type_name, ids, schema)?;
+            if !discriminant_set.insert(field.clone()) {
+                continue;
+            }
+            discriminants.push(field.clone());
         }
         Ok(CibouletteResourceTypePaginationConfiguration {
             sort_by,

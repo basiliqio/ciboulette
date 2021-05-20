@@ -60,15 +60,14 @@ impl CibouletteResourceTypeBuilder {
         }
         let name = self.name;
         let schema = self.schema;
+        let ids = self.ids;
 
         let pagination = match self.pagination {
-            Some(pagination) => Some(pagination.build(name.as_str(), &schema)?),
+            Some(pagination) => Some(pagination.build(name.as_str(), &ids, &schema)?),
             None => None,
         };
 
-        Ok(CibouletteResourceType::new(
-            name, self.ids, schema, pagination,
-        ))
+        Ok(CibouletteResourceType::new(name, ids, schema, pagination))
     }
 }
 

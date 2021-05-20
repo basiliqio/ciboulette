@@ -108,6 +108,8 @@ pub enum CibouletteError {
     ResponseTooManyMainData(String),
     #[error("Wrong number of id, got {0}, expected {1}")]
     WrongIdNumber(usize, usize),
+    #[error("No pagination field {1} for type {0}.")]
+    UnknownPaginationField(String, String),
     #[error(transparent)]
     CibouletteSelectorError(#[from] selector::CibouletteSelectorError),
     /// When there is a failure while deserializing the JSON
