@@ -204,9 +204,9 @@ impl<'de> serde::de::Visitor<'de> for CibouletteBodyBuilderVisitor {
         }
 
         let included = match included {
-            Some(included) => match included {
+            Some(included) => match included.take() {
                 // `included` must be an array. Error if included is an object or a value
-                CibouletteResourceSelectorBuilder::Many(included) => Ok(included),
+                CibouletteSelector::Multi(included) => Ok(included),
                 _ => Err(<A::Error as serde::de::Error>::custom(
                     "`included` must be an array",
                 )),
@@ -256,9 +256,9 @@ impl<'request> CibouletteBodyBuilder<'request> {
     ) -> Result<(), CibouletteError> {
         let mut obj_set: BTreeSet<(&str, CibouletteIdSelector<'request>)> = BTreeSet::new();
 
-        match data {
-            CibouletteResourceSelector::One(_) => Ok(()), // Must be unique if there's only one.
-            CibouletteResourceSelector::Many(objs) => {
+        match &**data {
+            CibouletteSelector::Single(_) => Ok(()), // Must be unique if there's only one.
+            CibouletteSelector::Multi(objs) => {
                 for obj in objs.iter() {
                     match obj.identifier().id() {
                         Some(id) => {
@@ -288,23 +288,23 @@ impl<'request> CibouletteBodyBuilder<'request> {
         >,
     ) -> Result<(), CibouletteError> {
         for (_link_name, rel) in obj.relationships().iter() {
-            match rel.data() {
-                CibouletteOptionalData::Object(CibouletteResourceIdentifierSelector::One(el)) => {
+            match rel.data().inner_deref() {
+                CibouletteOptionalData::Object(CibouletteSelector::Single(el)) => {
                     if !linked_set.insert((el.type_(), el.id().clone())) {
                         // If already exists, fails.
                         return Err(CibouletteError::UniqRelationshipObject(
                             el.type_().to_string(),
-                            el.id_to_string(),
+                            el.id().to_string(),
                         ));
                     }
                 }
-                CibouletteOptionalData::Object(CibouletteResourceIdentifierSelector::Many(els)) => {
+                CibouletteOptionalData::Object(CibouletteSelector::Multi(els)) => {
                     for el in els.iter() {
                         if !linked_set.insert((el.type_(), el.id().clone())) {
                             // If already exists, fails.
                             return Err(CibouletteError::UniqRelationshipObject(
                                 el.type_().to_string(),
-                                el.id_to_string(),
+                                el.id().to_string(),
                             ));
                         }
                     }
@@ -325,12 +325,12 @@ impl<'request> CibouletteBodyBuilder<'request> {
     ) -> Result<BTreeSet<(&'c str, CibouletteIdSelector<'c>)>, CibouletteError> {
         let mut linked_set = BTreeSet::new();
 
-        match data {
-            CibouletteResourceSelector::One(obj) => {
+        match &**data {
+            CibouletteSelector::Single(obj) => {
                 Self::check_relationships_uniqueness_single(&mut linked_set, &obj)?;
                 Ok(linked_set)
             }
-            CibouletteResourceSelector::Many(objs) => {
+            CibouletteSelector::Multi(objs) => {
                 for obj in objs.iter() {
                     let mut linked_set_inner: BTreeSet<(&str, CibouletteIdSelector)> =
                         BTreeSet::new();
@@ -435,12 +435,12 @@ impl<'request> CibouletteBodyBuilder<'request> {
 
                 Self::check_obj_uniqueness(&data)?;
                 rel_set = Self::check_relationships_uniqueness(&data)?;
-                let (check_full_linkage, included_set) = match &data {
-                    CibouletteResourceSelector::Many(_) => {
+                let (check_full_linkage, included_set) = match &**data {
+                    CibouletteSelector::Multi(_) => {
                         let included_set = Self::check_included(&included, true)?;
                         (true, included_set)
                     }
-                    CibouletteResourceSelector::One(_) => {
+                    CibouletteSelector::Single(_) => {
                         let included_set = Self::check_included(&included, false)?;
                         (true, included_set)
                     }
@@ -512,7 +512,7 @@ impl<'request, I, B> CibouletteBody<'request, I, B> {
         matches!(
             self.data(),
             CibouletteBodyData::Object(obj)
-            if matches!(obj, CibouletteResourceSelector::Many(_))
+            if matches!(&**obj, CibouletteSelector::Multi(_))
         )
     }
 
@@ -529,11 +529,11 @@ impl<'request, B> CibouletteBody<'request, CibouletteResourceIdentifierPermissiv
     /// Else `None` is returned
     pub fn get_main_type(&self, bag: &CibouletteStore) -> Option<Arc<CibouletteResourceType>> {
         match self.data() {
-            CibouletteBodyData::Object(data) => match data {
-                CibouletteResourceSelector::One(x) => {
+            CibouletteBodyData::Object(data) => match &**data {
+                CibouletteSelector::Single(x) => {
                     bag.get_type_if_exists(x.identifier().type_().as_ref())
                 }
-                CibouletteResourceSelector::Many(types) => {
+                CibouletteSelector::Multi(types) => {
                     let mut titer = types.iter();
                     let first_type = match titer.next() {
                         Some(x) => x.identifier().type_(),
@@ -556,11 +556,9 @@ impl<'request, B> CibouletteBody<'request, CibouletteResourceIdentifierPermissiv
     /// true if there is no data
     pub fn has_all_ids(&self) -> bool {
         if let CibouletteBodyData::Object(data) = self.data() {
-            match data {
-                CibouletteResourceSelector::One(r) => r.identifier().id().is_some(),
-                CibouletteResourceSelector::Many(rs) => {
-                    !rs.iter().any(|r| !r.identifier().id().is_some())
-                }
+            match &**data {
+                CibouletteSelector::Single(r) => r.identifier().id().is_some(),
+                CibouletteSelector::Multi(rs) => !rs.iter().any(|r| !r.identifier().id().is_some()),
             }
         } else {
             true

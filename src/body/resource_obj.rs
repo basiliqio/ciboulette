@@ -5,13 +5,21 @@ use std::fmt::Formatter;
 const CIBOULETTE_RESOURCE_FIELDS: &[&str] =
     &["id", "type", "meta", "attributes", "relationships", "links"];
 
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum CibouletteResourceRawValue<'request> {
+    #[serde(borrow = "'request")]
+    Borrowed(&'request RawValue),
+    Owned(Value),
+}
+
 /// ## Builder object for [CibouletterResource](CibouletterResource)
 #[derive(Debug, Getters, Serialize)]
 #[getset(get = "pub")]
 pub struct CibouletteResourceBuilder<'request> {
     identifier: CibouletteResourceIdentifierBuilder<'request>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    attributes: Option<&'request RawValue>,
+    attributes: Option<CibouletteResourceRawValue<'request>>,
     #[serde(skip_serializing_if = "BTreeMap::is_empty")]
     relationships: BTreeMap<Cow<'request, str>, CibouletteRelationshipObjectBuilder<'request>>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -96,13 +104,12 @@ impl<'request, 'store, B>
     }
 }
 
-impl<'request> CibouletteResourceBuilder<'request> {
-    pub fn deserialize<R>(d: &mut serde_json::Deserializer<R>) -> Result<Self, serde_json::Error>
+impl<'de> Deserialize<'de> for CibouletteResourceBuilder<'de> {
+    fn deserialize<D>(d: D) -> Result<Self, D::Error>
     where
-        R: serde_json::de::Read<'request>,
+        D: serde::Deserializer<'de>,
     {
         let visitor = CibouletteResourceBuilderVisitor;
-
         visitor.deserialize(d)
     }
 }
@@ -188,7 +195,7 @@ impl<'de> serde::de::Visitor<'de> for CibouletteResourceBuilderVisitor {
         let mut id: Option<Cow<'de, str>> = None;
         let mut type_: Option<Cow<'de, str>> = None;
         let mut meta: Option<Value> = None;
-        let mut attributes: Option<&'de RawValue> = None;
+        let mut attributes: Option<CibouletteResourceRawValue<'de>> = None;
         let mut relationships: Option<
             BTreeMap<Cow<'de, str>, CibouletteRelationshipObjectBuilder<'de>>,
         > = None;
@@ -279,20 +286,25 @@ impl<'request> CibouletteResourceBuilder<'request> {
     > {
         let current_type: &Arc<CibouletteResourceType> =
             bag.get_type(self.identifier().type_().as_ref())?;
+        let resource_type: Arc<CibouletteResourceType> =
+            bag.get_type(self.identifier().type_().as_ref())?.clone();
         let attributes: Option<MessyJsonObjectValue<'request>> = match self.attributes {
             Some(attributes) => {
-                let type_ident = self.identifier().type_().as_ref();
-                let resource_type: Arc<CibouletteResourceType> = bag.get_type(type_ident)?.clone();
-                let mut deserializer = serde_json::Deserializer::from_str(attributes.get());
                 let deserializer_settings = matches!(intention, CibouletteIntention::Update);
-
-                let container: MessyJsonValueContainer<'request> = resource_type
-                    .schema()
-                    .builder(MessyJsonSettings {
-                        all_optional: deserializer_settings,
-                        preserve_mandatory: deserializer_settings,
-                    })
-                    .deserialize(&mut deserializer)?;
+                let container_builder = resource_type.schema().builder(MessyJsonSettings {
+                    all_optional: deserializer_settings,
+                    preserve_mandatory: deserializer_settings,
+                });
+                let container = match attributes {
+                    CibouletteResourceRawValue::Borrowed(borrowed_value) => {
+                        let mut deserializer =
+                            serde_json::Deserializer::from_str(borrowed_value.get());
+                        container_builder.deserialize(&mut deserializer)?
+                    }
+                    CibouletteResourceRawValue::Owned(owned_value) => {
+                        container_builder.deserialize(owned_value)?
+                    }
+                };
                 match container.take() {
                     MessyJsonValue::Obj(obj) => Some(obj),
                     _ => return Err(CibouletteError::AttributesIsNotAnObject),

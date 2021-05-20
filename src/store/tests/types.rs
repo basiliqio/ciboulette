@@ -7,7 +7,9 @@ fn add_ok() {
     store
         .add_type(
             "toto",
-            CibouletteIdTypeSelector::Single(CibouletteIdType::Uuid(arcstr::literal!("id"))),
+            CibouletteIdTypeSelector::new(CibouletteSelector::Single(CibouletteIdType::Uuid(
+                arcstr::literal!("id"),
+            ))),
             MessyJsonObject::default(),
         )
         .unwrap();
@@ -20,14 +22,18 @@ fn add_duplicate() {
     store
         .add_type(
             "toto",
-            CibouletteIdTypeSelector::Single(CibouletteIdType::Uuid(arcstr::literal!("id"))),
+            CibouletteIdTypeSelector::new(CibouletteSelector::Single(CibouletteIdType::Uuid(
+                arcstr::literal!("id"),
+            ))),
             MessyJsonObject::default(),
         )
         .unwrap();
     let err = store
         .add_type(
             "toto",
-            CibouletteIdTypeSelector::Single(CibouletteIdType::Uuid(arcstr::literal!("id"))),
+            CibouletteIdTypeSelector::new(CibouletteSelector::Single(CibouletteIdType::Uuid(
+                arcstr::literal!("id"),
+            ))),
             MessyJsonObject::default(),
         )
         .unwrap_err();
@@ -44,7 +50,9 @@ fn get_ok() {
     store
         .add_type(
             "toto",
-            CibouletteIdTypeSelector::Single(CibouletteIdType::Uuid(arcstr::literal!("id"))),
+            CibouletteIdTypeSelector::new(CibouletteSelector::Single(CibouletteIdType::Uuid(
+                arcstr::literal!("id"),
+            ))),
             MessyJsonObject::default(),
         )
         .unwrap();
@@ -59,7 +67,9 @@ fn get_not_found() {
     store
         .add_type(
             "toto",
-            CibouletteIdTypeSelector::Single(CibouletteIdType::Uuid(arcstr::literal!("id"))),
+            CibouletteIdTypeSelector::new(CibouletteSelector::Single(CibouletteIdType::Uuid(
+                arcstr::literal!("id"),
+            ))),
             MessyJsonObject::default(),
         )
         .unwrap();
@@ -77,7 +87,9 @@ fn get_optional_found() {
     store
         .add_type(
             "toto",
-            CibouletteIdTypeSelector::Single(CibouletteIdType::Uuid(arcstr::literal!("id"))),
+            CibouletteIdTypeSelector::new(CibouletteSelector::Single(CibouletteIdType::Uuid(
+                arcstr::literal!("id"),
+            ))),
             MessyJsonObject::default(),
         )
         .unwrap();
@@ -92,7 +104,9 @@ fn get_optional_not_found() {
     store
         .add_type(
             "toto",
-            CibouletteIdTypeSelector::Single(CibouletteIdType::Uuid(arcstr::literal!("id"))),
+            CibouletteIdTypeSelector::new(CibouletteSelector::Single(CibouletteIdType::Uuid(
+                arcstr::literal!("id"),
+            ))),
             MessyJsonObject::default(),
         )
         .unwrap();
@@ -107,7 +121,9 @@ fn get_index() {
     store
         .add_type(
             "toto",
-            CibouletteIdTypeSelector::Single(CibouletteIdType::Uuid(arcstr::literal!("id"))),
+            CibouletteIdTypeSelector::new(CibouletteSelector::Single(CibouletteIdType::Uuid(
+                arcstr::literal!("id"),
+            ))),
             MessyJsonObject::default(),
         )
         .unwrap();
@@ -123,7 +139,9 @@ fn get_index_not_found() {
     store
         .add_type(
             "toto",
-            CibouletteIdTypeSelector::Single(CibouletteIdType::Uuid(arcstr::literal!("id"))),
+            CibouletteIdTypeSelector::new(CibouletteSelector::Single(CibouletteIdType::Uuid(
+                arcstr::literal!("id"),
+            ))),
             MessyJsonObject::default(),
         )
         .unwrap();
@@ -138,7 +156,9 @@ fn get_type_with_index() {
     store
         .add_type(
             "toto",
-            CibouletteIdTypeSelector::Single(CibouletteIdType::Uuid(arcstr::literal!("id"))),
+            CibouletteIdTypeSelector::new(CibouletteSelector::Single(CibouletteIdType::Uuid(
+                arcstr::literal!("id"),
+            ))),
             MessyJsonObject::default(),
         )
         .unwrap();

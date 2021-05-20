@@ -32,8 +32,10 @@ fn single_ok() {
     check_ident_permissive(
         data.get(0).unwrap().identifier(),
         "comments",
-        Some(CibouletteIdSelector::Single(CibouletteId::Uuid(
-            uuid::Uuid::parse_str("6720877a-e27e-4e9e-9ac0-3fff4deb55f2").unwrap(),
+        Some(CibouletteIdSelector::new(CibouletteSelector::Single(
+            CibouletteId::Uuid(
+                uuid::Uuid::parse_str("6720877a-e27e-4e9e-9ac0-3fff4deb55f2").unwrap(),
+            ),
         ))),
     );
     assert_eq!(

@@ -91,7 +91,7 @@ impl<'request> TryFrom<CibouletteRequest<'request>> for CibouletteReadRequest<'r
             CibouletteBodyData::Null(_) => CibouletteResourceSelector::<
                 MessyJsonObjectValue<'request>,
                 CibouletteResourceIdentifierPermissive<'_>,
-            >::Many(Vec::new()),
+            >::new(CibouletteSelector::Multi(Vec::new())),
         }
         .try_into()?;
         Ok(CibouletteReadRequest {

@@ -13,6 +13,19 @@ pub enum CibouletteOptionalData<T> {
     Null(bool),
 }
 
+impl<T> CibouletteOptionalData<T>
+where
+    T: std::ops::Deref,
+    <T as std::ops::Deref>::Target: Sized,
+{
+    pub fn inner_deref(&self) -> CibouletteOptionalData<&<T as std::ops::Deref>::Target> {
+        match self {
+            CibouletteOptionalData::Object(x) => CibouletteOptionalData::Object(&**x),
+            CibouletteOptionalData::Null(x) => CibouletteOptionalData::Null(*x),
+        }
+    }
+}
+
 impl<T> Default for CibouletteOptionalData<T> {
     fn default() -> Self {
         CibouletteOptionalData::Null(false)

@@ -204,10 +204,10 @@ impl<'de> serde::de::Visitor<'de> for CibouletteQueryParametersBuilderVisitor {
         Ok(CibouletteQueryParametersBuilder {
             include,
             sparse,
+            sorting,
+            page,
             filter,
             filter_typed,
-            page,
-            sorting,
             meta,
         })
     }

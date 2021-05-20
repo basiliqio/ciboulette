@@ -7,21 +7,27 @@ fn ok() {
     store
         .add_type(
             "peoples",
-            CibouletteIdTypeSelector::Single(CibouletteIdType::Uuid(arcstr::literal!("id"))),
+            CibouletteIdTypeSelector::new(CibouletteSelector::Single(CibouletteIdType::Uuid(
+                arcstr::literal!("id"),
+            ))),
             crate::test_helper::gen_messy_json_schema_peoples(),
         )
         .unwrap();
     store
         .add_type(
             "articles",
-            CibouletteIdTypeSelector::Single(CibouletteIdType::Uuid(arcstr::literal!("id"))),
+            CibouletteIdTypeSelector::new(CibouletteSelector::Single(CibouletteIdType::Uuid(
+                arcstr::literal!("id"),
+            ))),
             crate::test_helper::gen_messy_json_schema_articles(),
         )
         .unwrap();
     store
         .add_type(
             "people-article",
-            CibouletteIdTypeSelector::Single(CibouletteIdType::Uuid(arcstr::literal!("id"))),
+            CibouletteIdTypeSelector::new(CibouletteSelector::Single(CibouletteIdType::Uuid(
+                arcstr::literal!("id"),
+            ))),
             crate::test_helper::gen_messy_json_schema_people_article(),
         )
         .unwrap();
@@ -81,21 +87,27 @@ fn ok_reverse() {
     store
         .add_type(
             "peoples",
-            CibouletteIdTypeSelector::Single(CibouletteIdType::Uuid(arcstr::literal!("id"))),
+            CibouletteIdTypeSelector::new(CibouletteSelector::Single(CibouletteIdType::Uuid(
+                arcstr::literal!("id"),
+            ))),
             crate::test_helper::gen_messy_json_schema_peoples(),
         )
         .unwrap();
     store
         .add_type(
             "articles",
-            CibouletteIdTypeSelector::Single(CibouletteIdType::Uuid(arcstr::literal!("id"))),
+            CibouletteIdTypeSelector::new(CibouletteSelector::Single(CibouletteIdType::Uuid(
+                arcstr::literal!("id"),
+            ))),
             crate::test_helper::gen_messy_json_schema_articles(),
         )
         .unwrap();
     store
         .add_type(
             "people-article",
-            CibouletteIdTypeSelector::Single(CibouletteIdType::Uuid(arcstr::literal!("id"))),
+            CibouletteIdTypeSelector::new(CibouletteSelector::Single(CibouletteIdType::Uuid(
+                arcstr::literal!("id"),
+            ))),
             crate::test_helper::gen_messy_json_schema_people_article(),
         )
         .unwrap();
@@ -129,21 +141,27 @@ fn no_reverse() {
     store
         .add_type(
             "peoples",
-            CibouletteIdTypeSelector::Single(CibouletteIdType::Uuid(arcstr::literal!("id"))),
+            CibouletteIdTypeSelector::new(CibouletteSelector::Single(CibouletteIdType::Uuid(
+                arcstr::literal!("id"),
+            ))),
             crate::test_helper::gen_messy_json_schema_peoples(),
         )
         .unwrap();
     store
         .add_type(
             "articles",
-            CibouletteIdTypeSelector::Single(CibouletteIdType::Uuid(arcstr::literal!("id"))),
+            CibouletteIdTypeSelector::new(CibouletteSelector::Single(CibouletteIdType::Uuid(
+                arcstr::literal!("id"),
+            ))),
             crate::test_helper::gen_messy_json_schema_articles(),
         )
         .unwrap();
     store
         .add_type(
             "people-article",
-            CibouletteIdTypeSelector::Single(CibouletteIdType::Uuid(arcstr::literal!("id"))),
+            CibouletteIdTypeSelector::new(CibouletteSelector::Single(CibouletteIdType::Uuid(
+                arcstr::literal!("id"),
+            ))),
             crate::test_helper::gen_messy_json_schema_people_article(),
         )
         .unwrap();
@@ -178,21 +196,27 @@ fn duplicate() {
     store
         .add_type(
             "peoples",
-            CibouletteIdTypeSelector::Single(CibouletteIdType::Uuid(arcstr::literal!("id"))),
+            CibouletteIdTypeSelector::new(CibouletteSelector::Single(CibouletteIdType::Uuid(
+                arcstr::literal!("id"),
+            ))),
             crate::test_helper::gen_messy_json_schema_peoples(),
         )
         .unwrap();
     store
         .add_type(
             "articles",
-            CibouletteIdTypeSelector::Single(CibouletteIdType::Uuid(arcstr::literal!("id"))),
+            CibouletteIdTypeSelector::new(CibouletteSelector::Single(CibouletteIdType::Uuid(
+                arcstr::literal!("id"),
+            ))),
             crate::test_helper::gen_messy_json_schema_articles(),
         )
         .unwrap();
     store
         .add_type(
             "people-article",
-            CibouletteIdTypeSelector::Single(CibouletteIdType::Uuid(arcstr::literal!("id"))),
+            CibouletteIdTypeSelector::new(CibouletteSelector::Single(CibouletteIdType::Uuid(
+                arcstr::literal!("id"),
+            ))),
             crate::test_helper::gen_messy_json_schema_people_article(),
         )
         .unwrap();
@@ -228,21 +252,27 @@ fn alias() {
     store
         .add_type(
             "peoples",
-            CibouletteIdTypeSelector::Single(CibouletteIdType::Uuid(arcstr::literal!("id"))),
+            CibouletteIdTypeSelector::new(CibouletteSelector::Single(CibouletteIdType::Uuid(
+                arcstr::literal!("id"),
+            ))),
             crate::test_helper::gen_messy_json_schema_peoples(),
         )
         .unwrap();
     store
         .add_type(
             "articles",
-            CibouletteIdTypeSelector::Single(CibouletteIdType::Uuid(arcstr::literal!("id"))),
+            CibouletteIdTypeSelector::new(CibouletteSelector::Single(CibouletteIdType::Uuid(
+                arcstr::literal!("id"),
+            ))),
             crate::test_helper::gen_messy_json_schema_articles(),
         )
         .unwrap();
     store
         .add_type(
             "people-article",
-            CibouletteIdTypeSelector::Single(CibouletteIdType::Uuid(arcstr::literal!("id"))),
+            CibouletteIdTypeSelector::new(CibouletteSelector::Single(CibouletteIdType::Uuid(
+                arcstr::literal!("id"),
+            ))),
             crate::test_helper::gen_messy_json_schema_people_article(),
         )
         .unwrap();

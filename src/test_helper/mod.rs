@@ -128,35 +128,43 @@ pub fn gen_bag() -> CibouletteStore {
 
     res.add_type(
         "articles",
-        CibouletteIdTypeSelector::Single(CibouletteIdType::Uuid(arcstr::literal!("id"))),
+        CibouletteIdTypeSelector::new(CibouletteSelector::Single(CibouletteIdType::Uuid(
+            arcstr::literal!("id"),
+        ))),
         gen_messy_json_schema_articles(),
     )
     .unwrap();
     res.add_type(
         "comments",
-        CibouletteIdTypeSelector::Single(CibouletteIdType::Uuid(arcstr::literal!("id"))),
+        CibouletteIdTypeSelector::new(CibouletteSelector::Single(CibouletteIdType::Uuid(
+            arcstr::literal!("id"),
+        ))),
         gen_messy_json_schema_comments(),
     )
     .unwrap();
     res.add_type(
         "peoples",
-        CibouletteIdTypeSelector::Single(CibouletteIdType::Uuid(arcstr::literal!("id"))),
+        CibouletteIdTypeSelector::new(CibouletteSelector::Single(CibouletteIdType::Uuid(
+            arcstr::literal!("id"),
+        ))),
         gen_messy_json_schema_peoples(),
     )
     .unwrap();
     res.add_type(
         "favorite_color",
-        CibouletteIdTypeSelector::Single(CibouletteIdType::Uuid(arcstr::literal!("id"))),
+        CibouletteIdTypeSelector::new(CibouletteSelector::Single(CibouletteIdType::Uuid(
+            arcstr::literal!("id"),
+        ))),
         gen_messy_json_schema_favorite_color(),
     )
     .unwrap();
 
     res.add_type(
         "people-article",
-        CibouletteIdTypeSelector::Multi(vec![
+        CibouletteIdTypeSelector::new(CibouletteSelector::Multi(vec![
             CibouletteIdType::Uuid(arcstr::literal!("people_id")),
             CibouletteIdType::Uuid(arcstr::literal!("article_id")),
-        ]),
+        ])),
         gen_messy_json_schema_people_article(),
     )
     .unwrap();
@@ -239,8 +247,8 @@ pub fn check_ident_permissive<'request>(
 pub fn check_single<'request, MessyJsonObjectValue, T>(
     selector: &'request CibouletteResourceSelector<'request, MessyJsonObjectValue, T>,
 ) -> &'request CibouletteResource<'request, MessyJsonObjectValue, T> {
-    match selector {
-        CibouletteResourceSelector::One(x) => x,
+    match &**selector {
+        CibouletteSelector::Single(x) => x,
         _ => panic!("Expected a single resource"),
     }
 }
@@ -248,8 +256,8 @@ pub fn check_single<'request, MessyJsonObjectValue, T>(
 pub fn check_multi<'request, T>(
     selector: &'request CibouletteResourceSelector<'request, MessyJsonObjectValue<'request>, T>,
 ) -> &'request Vec<CibouletteResource<'request, MessyJsonObjectValue<'request>, T>> {
-    match selector {
-        CibouletteResourceSelector::Many(x) => x,
+    match &**selector {
+        CibouletteSelector::Multi(x) => x,
         _ => panic!("Expected a multiple resources"),
     }
 }

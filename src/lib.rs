@@ -116,6 +116,8 @@
 
 #![warn(clippy::all)]
 
+#[macro_use]
+mod macros;
 mod body;
 mod config;
 mod error_request;
@@ -128,6 +130,7 @@ mod query;
 mod request_selector;
 mod requests;
 mod responses;
+mod selector;
 mod serde_utils;
 mod store;
 
@@ -135,14 +138,13 @@ mod store;
 mod tests;
 
 use arcstr::ArcStr;
-use body::resource_obj::CibouletteResourceBuilderVisitor;
 use getset::{Getters, MutGetters};
 use messy_json::*;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use serde_utils::{handle_ident_in_map_stateful, handle_ident_in_map_stateless};
 use std::borrow::Cow;
-use std::collections::{BTreeMap, BTreeSet, HashMap};
+use std::collections::{BTreeMap, BTreeSet};
 use std::convert::{TryFrom, TryInto};
 use std::sync::Arc;
 use url::Url;
@@ -162,7 +164,6 @@ pub use body::request_body_data::{
 pub use body::resource_identifier::{
     CibouletteResourceIdentifier, CibouletteResourceIdentifierBuilder,
     CibouletteResourceIdentifierPermissive, CibouletteResourceIdentifierSelector,
-    CibouletteResourceIdentifierSelectorBuilder,
 };
 pub use body::resource_obj::{CibouletteResource, CibouletteResourceBuilder};
 pub use body::resource_obj_selector::{
@@ -208,6 +209,7 @@ pub use requests::request::{
 pub use responses::type_::{CibouletteResponseQuantity, CibouletteResponseRequiredType};
 
 pub use path::path_container::{CiboulettePath, CiboulettePathBuilder};
+pub use selector::{CibouletteSelector, CibouletteSelectorError, CibouletteSelectorIterator};
 pub use store::{
     CibouletteRelationshipManyToManyOption, CibouletteRelationshipManyToManyOptionBuilder,
     CibouletteRelationshipOneToManyOption, CibouletteRelationshipOneToManyOptionBuilder,

@@ -121,8 +121,8 @@ impl<'request> TryFrom<CibouletteRequest<'request>> for CibouletteUpdateRequest<
                         value: CibouletteOptionalData::Object(selector.try_into()?),
                     })
                 }
-                None => match selector {
-                    CibouletteResourceSelector::One(value) => {
+                None => match selector.take() {
+                    CibouletteSelector::Single(value) => {
                         let type_: CibouletteResource<
                             'request,
                             MessyJsonObjectValue<'request>,
@@ -133,7 +133,7 @@ impl<'request> TryFrom<CibouletteRequest<'request>> for CibouletteUpdateRequest<
                         }
                         CibouletteUpdateRequestType::MainType(type_)
                     }
-                    CibouletteResourceSelector::Many(_) => return Err(CibouletteError::NoCompound),
+                    CibouletteSelector::Multi(_) => return Err(CibouletteError::NoCompound),
                 },
             },
             CibouletteBodyData::Null(present) => match related_type {

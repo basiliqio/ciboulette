@@ -1,5 +1,3 @@
-use itertools::Itertools;
-
 use super::*;
 use serde::ser::SerializeStruct;
 use std::cmp::{Ord, Ordering};
@@ -147,20 +145,6 @@ impl<'request> CibouletteResourceIdentifier<'request> {
     pub fn new(id: CibouletteIdSelector<'request>, type_: Cow<'request, str>) -> Self {
         CibouletteResourceIdentifier { type_, id }
     }
-
-    /// Create a comma separated string of the identifiers
-    pub fn id_to_string(&self) -> String {
-        match self.id() {
-            CibouletteIdSelector::Single(x) => x.to_string(),
-            CibouletteIdSelector::Multi(x) => x
-                .iter()
-                .map(|x| match x {
-                    CibouletteId::Text(id) => base64::encode(id.as_ref()),
-                    _ => x.to_string(),
-                })
-                .join(","),
-        }
-    }
 }
 
 impl<'request> CibouletteResourceIdentifierPermissive<'request> {
@@ -172,8 +156,7 @@ impl<'request> CibouletteResourceIdentifierPermissive<'request> {
     /// Create a comma separated string of the identifiers
     pub fn id_to_string(&self) -> String {
         match self.id() {
-            Some(CibouletteIdSelector::Single(x)) => x.to_string(),
-            Some(CibouletteIdSelector::Multi(x)) => x.iter().join(","),
+            Some(x) => x.to_string(),
             None => String::default(),
         }
     }
@@ -186,32 +169,25 @@ impl<'request> CibouletteResourceIdentifierBuilder<'request> {
     }
 }
 
-/// ## A selector for resource identifier, to either select one or many resource identifiers
-#[derive(Deserialize, Debug, Serialize, Clone)]
-#[serde(untagged)]
-pub enum CibouletteResourceIdentifierSelectorBuilder<'request> {
-    One(CibouletteResourceIdentifierBuilder<'request>),
-    Many(Vec<CibouletteResourceIdentifierBuilder<'request>>),
-}
-
-impl<'request> CibouletteResourceIdentifierSelectorBuilder<'request> {
-    /// Build the underlyings resource identifiers
-    pub fn build(
-        self,
+impl<'request> CibouletteResourceIdentifierSelector<'request> {
+    pub fn build_from(
+        val: CibouletteSelector<CibouletteResourceIdentifierBuilder<'request>>,
         type_: &CibouletteResourceType,
-    ) -> Result<CibouletteResourceIdentifierSelector<'request>, CibouletteError> {
-        match self {
-            CibouletteResourceIdentifierSelectorBuilder::One(x) => {
-                Ok(CibouletteResourceIdentifierSelector::One(x.build(type_)?))
-            }
-            CibouletteResourceIdentifierSelectorBuilder::Many(ids) => {
+    ) -> Result<Self, CibouletteError> {
+        match val {
+            CibouletteSelector::Single(x) => Ok(CibouletteResourceIdentifierSelector::new(
+                CibouletteSelector::Single(x.build(type_)?),
+            )),
+            CibouletteSelector::Multi(ids) => {
                 let mut res: Vec<CibouletteResourceIdentifier<'request>> =
                     Vec::with_capacity(ids.len());
 
                 for id in ids.into_iter() {
                     res.push(id.build(&type_)?);
                 }
-                Ok(CibouletteResourceIdentifierSelector::Many(res))
+                Ok(CibouletteResourceIdentifierSelector::new(
+                    CibouletteSelector::Multi(res),
+                ))
             }
         }
     }
@@ -219,17 +195,17 @@ impl<'request> CibouletteResourceIdentifierSelectorBuilder<'request> {
 
 /// ## A selector between a single or multiple `json:api` [resource identifier](https://jsonapi.org/format/#document-resource-identifier-objects) objects
 #[derive(Debug, Serialize, Clone)]
-#[serde(untagged)]
-pub enum CibouletteResourceIdentifierSelector<'request> {
-    One(CibouletteResourceIdentifier<'request>),
-    Many(Vec<CibouletteResourceIdentifier<'request>>),
-}
+pub struct CibouletteResourceIdentifierSelector<'request>(
+    CibouletteSelector<CibouletteResourceIdentifier<'request>>,
+);
+
+ciboulette_selector_utils!(CibouletteResourceIdentifierSelector, CibouletteResourceIdentifier, 'request);
 
 impl<'request, B> From<CibouletteResource<'request, B, CibouletteResourceIdentifier<'request>>>
     for CibouletteResourceIdentifierSelector<'request>
 {
     fn from(obj: CibouletteResource<'request, B, CibouletteResourceIdentifier<'request>>) -> Self {
-        CibouletteResourceIdentifierSelector::One(obj.identifier)
+        CibouletteResourceIdentifierSelector::new(CibouletteSelector::Single(obj.identifier))
     }
 }
 
@@ -242,8 +218,8 @@ impl<'request, B>
     fn try_from(
         obj: CibouletteResource<'request, B, CibouletteResourceIdentifierPermissive<'request>>,
     ) -> Result<Self, Self::Error> {
-        Ok(CibouletteResourceIdentifierSelector::One(
-            obj.identifier.try_into()?,
+        Ok(CibouletteResourceIdentifierSelector::new(
+            CibouletteSelector::Single(obj.identifier.try_into()?),
         ))
     }
 }
@@ -255,12 +231,12 @@ impl<'request, B>
     fn from(
         obj: CibouletteResourceSelector<'request, B, CibouletteResourceIdentifier<'request>>,
     ) -> Self {
-        match obj {
-            CibouletteResourceSelector::One(x) => {
-                CibouletteResourceIdentifierSelector::One(x.identifier)
+        match obj.take() {
+            CibouletteSelector::Single(x) => {
+                CibouletteResourceIdentifierSelector::new(CibouletteSelector::Single(x.identifier))
             }
-            CibouletteResourceSelector::Many(x) => CibouletteResourceIdentifierSelector::Many(
-                x.into_iter().map(|x| x.identifier).collect(),
+            CibouletteSelector::Multi(x) => CibouletteResourceIdentifierSelector::new(
+                CibouletteSelector::Multi(x.into_iter().map(|x| x.identifier).collect()),
             ),
         }
     }
@@ -280,18 +256,20 @@ impl<'request, B>
             CibouletteResourceIdentifierPermissive<'request>,
         >,
     ) -> Result<Self, Self::Error> {
-        match obj {
-            CibouletteResourceSelector::One(x) => Ok(CibouletteResourceIdentifierSelector::One(
-                x.identifier.try_into()?,
+        match obj.take() {
+            CibouletteSelector::Single(x) => Ok(CibouletteResourceIdentifierSelector::new(
+                CibouletteSelector::Single(x.identifier.try_into()?),
             )),
-            CibouletteResourceSelector::Many(x) => {
+            CibouletteSelector::Multi(x) => {
                 let mut res: Vec<CibouletteResourceIdentifier<'request>> =
                     Vec::with_capacity(x.len());
 
                 for x in x.into_iter() {
                     res.push(x.identifier.try_into()?);
                 }
-                Ok(CibouletteResourceIdentifierSelector::Many(res))
+                Ok(CibouletteResourceIdentifierSelector::new(
+                    CibouletteSelector::Multi(res),
+                ))
             }
         }
     }
@@ -312,7 +290,7 @@ impl<'request> Serialize for CibouletteResourceIdentifier<'request> {
                     serde::ser::Error::custom("Wrong number of id when serializing")
                 })?,
             )?,
-            _ => state.serialize_field("id", &self.id_to_string())?,
+            _ => state.serialize_field("id", &self.id().to_string())?,
         };
         state.end()
     }

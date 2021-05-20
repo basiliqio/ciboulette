@@ -10,7 +10,7 @@ fn simple() {
         store.config(),
         &CibouletteResourceResponseIdentifier {
             type_: arcstr::literal!("mytype"),
-            id: CibouletteIdSelector::Single(CibouletteId::Uuid(id)),
+            id: CibouletteIdSelector::new(CibouletteSelector::Single(CibouletteId::Uuid(id))),
         },
         &rel_name,
     )
@@ -37,7 +37,7 @@ fn simple_with_base_url() {
         store.config(),
         &CibouletteResourceResponseIdentifier {
             type_: arcstr::literal!("mytype"),
-            id: CibouletteIdSelector::Single(CibouletteId::Uuid(id)),
+            id: CibouletteIdSelector::new(CibouletteSelector::Single(CibouletteId::Uuid(id))),
         },
         &rel_name,
     )
