@@ -54,7 +54,6 @@ pub struct CibouletteResponseRelationshipObject<'request> {
 /// ## Selector for [CibouletteResponseResource](CibouletteResponseResource)
 #[derive(Debug, Clone, Serialize)]
 #[serde(untagged)]
-// TODO custom deserialize
 pub enum CibouletteResponseResourceSelector<'request, B> {
     One(CibouletteResponseResource<'request, B>),
     Many(Vec<CibouletteResponseResource<'request, B>>),

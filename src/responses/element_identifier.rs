@@ -129,23 +129,22 @@ impl<'request> CibouletteResourceResponseIdentifierBuilder<'request> {
 
 /// Selector for [CibouletteResourceResponseIdentifierSelectorBuilder](CibouletteResourceResponseIdentifierSelectorBuilder)
 #[derive(Deserialize, Debug, Serialize, Clone)]
-#[serde(untagged)]
-// TODO custom deserialize
-pub enum CibouletteResourceResponseIdentifierSelectorBuilder<'request> {
-    One(CibouletteResourceResponseIdentifierBuilder<'request>),
-    Many(Vec<CibouletteResourceResponseIdentifierBuilder<'request>>),
-}
+pub struct CibouletteResourceResponseIdentifierSelectorBuilder<'request>(
+    CibouletteSelector<CibouletteResourceResponseIdentifierBuilder<'request>>,
+);
+
+ciboulette_selector_utils!(CibouletteResourceResponseIdentifierSelectorBuilder, CibouletteResourceResponseIdentifierBuilder, 'request);
 
 impl<'request> CibouletteResourceResponseIdentifierSelectorBuilder<'request> {
     pub fn build(
         self,
         store: &CibouletteStore,
     ) -> Result<CibouletteResourceResponseIdentifierSelector<'request>, CibouletteError> {
-        match self {
-            CibouletteResourceResponseIdentifierSelectorBuilder::One(x) => Ok(
-                CibouletteResourceResponseIdentifierSelector::One(x.build(store)?),
-            ),
-            CibouletteResourceResponseIdentifierSelectorBuilder::Many(ids) => {
+        match self.take() {
+            CibouletteSelector::Single(x) => Ok(CibouletteResourceResponseIdentifierSelector::One(
+                x.build(store)?,
+            )),
+            CibouletteSelector::Multi(ids) => {
                 let mut res: Vec<CibouletteResourceResponseIdentifier<'request>> =
                     Vec::with_capacity(ids.len());
 
@@ -161,7 +160,6 @@ impl<'request> CibouletteResourceResponseIdentifierSelectorBuilder<'request> {
 /// ## A selector between a single or multiple `json:api` [resource identifier](https://jsonapi.org/format/#document-resource-identifier-objects) objects
 #[derive(Debug, Serialize, Clone)]
 #[serde(untagged)]
-// TODO custom deserialize
 pub enum CibouletteResourceResponseIdentifierSelector<'request> {
     One(CibouletteResourceResponseIdentifier<'request>),
     Many(Vec<CibouletteResourceResponseIdentifier<'request>>),

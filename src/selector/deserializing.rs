@@ -19,8 +19,8 @@ impl<'de, T> Default for CibouletteSelectorVisitor<T> {
 
 /// Builder for the [CibouletteSelector](CibouletteSelector)
 #[derive(Debug, Clone)]
-pub(crate) enum CibouletteSelectorBuilder<T> {
-    Single(Value),
+pub(crate) enum CibouletteSelectorBuilder<'de, T> {
+    Single(MessyJsonValueRaw<'de>),
     Multi(Vec<T>),
 }
 
@@ -45,7 +45,7 @@ impl<'de, T> Visitor<'de> for CibouletteSelectorVisitor<T>
 where
     T: Deserialize<'de>,
 {
-    type Value = CibouletteSelectorBuilder<T>;
+    type Value = CibouletteSelectorBuilder<'de, T>;
 
     #[inline]
     fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
@@ -66,23 +66,22 @@ where
     }
 
     #[inline]
-    fn visit_map<A>(self, mut map: A) -> Result<Self::Value, A::Error>
+    fn visit_map<A>(self, map: A) -> Result<Self::Value, A::Error>
     where
         A: MapAccess<'de>,
     {
-        let mut res = serde_json::Map::with_capacity(map.size_hint().unwrap_or_default());
-
-        while let Some(el) = map.next_entry()? {
-            res.insert(el.0, el.1);
-        }
-        Ok(CibouletteSelectorBuilder::Single(Value::from(res)))
+        Ok(CibouletteSelectorBuilder::Single(
+            MessyJsonValueRawVisitor::visit_map(MessyJsonValueRawVisitor::default(), map)?,
+        ))
     }
     #[inline]
     fn visit_bool<E>(self, v: bool) -> Result<Self::Value, E>
     where
         E: Error,
     {
-        Ok(CibouletteSelectorBuilder::Single(Value::from(v)))
+        Ok(CibouletteSelectorBuilder::Single(MessyJsonValueRaw::Bool(
+            v,
+        )))
     }
 
     #[inline]
@@ -90,7 +89,9 @@ where
     where
         E: Error,
     {
-        Ok(CibouletteSelectorBuilder::Single(Value::from(v)))
+        Ok(CibouletteSelectorBuilder::Single(
+            MessyJsonValueRawVisitor::visit_i64(MessyJsonValueRawVisitor::default(), v)?,
+        ))
     }
 
     #[inline]
@@ -98,7 +99,9 @@ where
     where
         E: Error,
     {
-        Ok(CibouletteSelectorBuilder::Single(Value::from(v)))
+        Ok(CibouletteSelectorBuilder::Single(
+            MessyJsonValueRawVisitor::visit_u64(MessyJsonValueRawVisitor::default(), v)?,
+        ))
     }
 
     #[inline]
@@ -106,7 +109,9 @@ where
     where
         E: Error,
     {
-        Ok(CibouletteSelectorBuilder::Single(Value::from(v)))
+        Ok(CibouletteSelectorBuilder::Single(
+            MessyJsonValueRawVisitor::visit_f64(MessyJsonValueRawVisitor::default(), v)?,
+        ))
     }
 
     #[inline]
@@ -114,31 +119,9 @@ where
     where
         E: Error,
     {
-        Ok(CibouletteSelectorBuilder::Single(Value::from(v)))
-    }
-
-    #[inline]
-    fn visit_bytes<E>(self, v: &[u8]) -> Result<Self::Value, E>
-    where
-        E: Error,
-    {
-        Ok(CibouletteSelectorBuilder::Single(Value::from(v)))
-    }
-
-    #[inline]
-    fn visit_none<E>(self) -> Result<Self::Value, E>
-    where
-        E: Error,
-    {
-        Ok(CibouletteSelectorBuilder::Single(Value::Null))
-    }
-
-    #[inline]
-    fn visit_some<D>(self, deserializer: D) -> Result<Self::Value, D::Error>
-    where
-        D: Deserializer<'de>,
-    {
-        deserializer.deserialize_any(self)
+        Ok(CibouletteSelectorBuilder::Single(
+            MessyJsonValueRawVisitor::visit_str(MessyJsonValueRawVisitor::default(), v)?,
+        ))
     }
 
     #[inline]
@@ -146,6 +129,6 @@ where
     where
         E: Error,
     {
-        Ok(CibouletteSelectorBuilder::Single(Value::Null))
+        Ok(CibouletteSelectorBuilder::Single(MessyJsonValueRaw::Null))
     }
 }

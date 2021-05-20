@@ -36,7 +36,7 @@ struct TotoSerde {
 }
 
 pub fn selector(c: &mut Criterion) {
-    let mut group = c.benchmark_group("json:api body");
+    let mut group = c.benchmark_group("ciboulette selector");
 
     group.sample_size(1000);
     group.warm_up_time(Duration::from_secs(1));
