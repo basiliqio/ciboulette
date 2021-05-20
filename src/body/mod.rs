@@ -9,8 +9,6 @@ pub mod request_body_data;
 pub mod resource_identifier;
 pub mod resource_obj;
 pub mod resource_obj_selector;
-pub mod resource_type;
-pub mod resource_type_builder;
 
 #[cfg(test)]
 mod tests;

@@ -168,8 +168,6 @@ pub use body::resource_obj::{CibouletteResource, CibouletteResourceBuilder};
 pub use body::resource_obj_selector::{
     CibouletteResourceSelector, CibouletteResourceSelectorBuilder,
 };
-pub use body::resource_type::{CibouletteResourceRelationshipDetails, CibouletteResourceType};
-pub use body::resource_type_builder::CibouletteResourceTypeBuilder;
 pub use id::{CibouletteId, CibouletteIdSelector, CibouletteIdType, CibouletteIdTypeSelector};
 pub use intention::CibouletteIntention;
 pub use responses::request::CibouletteResponse;
@@ -209,12 +207,24 @@ pub use responses::type_::{CibouletteResponseQuantity, CibouletteResponseRequire
 
 pub use path::path_container::{CiboulettePath, CiboulettePathBuilder};
 pub use selector::{CibouletteSelector, CibouletteSelectorError, CibouletteSelectorIterator};
-pub use store::{
-    CibouletteRelationshipManyToManyOption, CibouletteRelationshipManyToManyOptionBuilder,
-    CibouletteRelationshipOneToManyOption, CibouletteRelationshipOneToManyOptionBuilder,
-    CibouletteRelationshipOption, CibouletteRelationshipOptionBuilder, CibouletteStore,
-    CibouletteStoreBuilder,
+pub use store::builder::CibouletteStoreBuilder;
+pub use store::relationships_options::{
+    CibouletteRelationshipManyToManyOption, CibouletteRelationshipOneToManyOption,
+    CibouletteRelationshipOption,
 };
+pub use store::relationships_options_builder::{
+    CibouletteRelationshipManyToManyOptionBuilder, CibouletteRelationshipOneToManyOptionBuilder,
+    CibouletteRelationshipOptionBuilder,
+};
+pub use store::resource_type::{CibouletteResourceRelationshipDetails, CibouletteResourceType};
+pub use store::resource_type_builder::CibouletteResourceTypeBuilder;
+pub use store::resource_type_configuration::{
+    CiboulettePaginationEncoding, CibouletteResourceTypeConfiguration,
+    CibouletteResourceTypePaginationConfiguration,
+    CibouletteResourceTypePaginationConfigurationBuilder,
+};
+
+pub use store::CibouletteStore;
 
 #[cfg(test)]
 pub mod test_helper;

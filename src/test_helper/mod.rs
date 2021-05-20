@@ -128,44 +128,59 @@ pub fn gen_bag() -> CibouletteStore {
 
     res.add_type(
         "articles",
-        CibouletteIdTypeSelector::new(CibouletteSelector::Single(CibouletteIdType::Uuid(
-            arcstr::literal!("id"),
-        ))),
-        gen_messy_json_schema_articles(),
+        CibouletteResourceTypeConfiguration::new(
+            CibouletteIdTypeSelector::new(CibouletteSelector::Single(CibouletteIdType::Uuid(
+                arcstr::literal!("id"),
+            ))),
+            gen_messy_json_schema_articles(),
+            None,
+        ),
     )
     .unwrap();
     res.add_type(
         "comments",
-        CibouletteIdTypeSelector::new(CibouletteSelector::Single(CibouletteIdType::Uuid(
-            arcstr::literal!("id"),
-        ))),
-        gen_messy_json_schema_comments(),
+        CibouletteResourceTypeConfiguration::new(
+            CibouletteIdTypeSelector::new(CibouletteSelector::Single(CibouletteIdType::Uuid(
+                arcstr::literal!("id"),
+            ))),
+            gen_messy_json_schema_comments(),
+            None,
+        ),
     )
     .unwrap();
     res.add_type(
         "peoples",
-        CibouletteIdTypeSelector::new(CibouletteSelector::Single(CibouletteIdType::Uuid(
-            arcstr::literal!("id"),
-        ))),
-        gen_messy_json_schema_peoples(),
+        CibouletteResourceTypeConfiguration::new(
+            CibouletteIdTypeSelector::new(CibouletteSelector::Single(CibouletteIdType::Uuid(
+                arcstr::literal!("id"),
+            ))),
+            gen_messy_json_schema_peoples(),
+            None,
+        ),
     )
     .unwrap();
     res.add_type(
         "favorite_color",
-        CibouletteIdTypeSelector::new(CibouletteSelector::Single(CibouletteIdType::Uuid(
-            arcstr::literal!("id"),
-        ))),
-        gen_messy_json_schema_favorite_color(),
+        CibouletteResourceTypeConfiguration::new(
+            CibouletteIdTypeSelector::new(CibouletteSelector::Single(CibouletteIdType::Uuid(
+                arcstr::literal!("id"),
+            ))),
+            gen_messy_json_schema_favorite_color(),
+            None,
+        ),
     )
     .unwrap();
 
     res.add_type(
         "people-article",
-        CibouletteIdTypeSelector::new(CibouletteSelector::Multi(vec![
-            CibouletteIdType::Uuid(arcstr::literal!("people_id")),
-            CibouletteIdType::Uuid(arcstr::literal!("article_id")),
-        ])),
-        gen_messy_json_schema_people_article(),
+        CibouletteResourceTypeConfiguration::new(
+            CibouletteIdTypeSelector::new(CibouletteSelector::Multi(vec![
+                CibouletteIdType::Uuid(arcstr::literal!("people_id")),
+                CibouletteIdType::Uuid(arcstr::literal!("article_id")),
+            ])),
+            gen_messy_json_schema_people_article(),
+            None,
+        ),
     )
     .unwrap();
 

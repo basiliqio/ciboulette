@@ -7,10 +7,13 @@ fn add_ok() {
     store
         .add_type(
             "toto",
-            CibouletteIdTypeSelector::new(CibouletteSelector::Single(CibouletteIdType::Uuid(
-                arcstr::literal!("id"),
-            ))),
-            MessyJsonObject::default(),
+            CibouletteResourceTypeConfiguration::new(
+                CibouletteIdTypeSelector::new(CibouletteSelector::Single(CibouletteIdType::Uuid(
+                    arcstr::literal!("id"),
+                ))),
+                MessyJsonObject::default(),
+                None,
+            ),
         )
         .unwrap();
 }
@@ -22,19 +25,25 @@ fn add_duplicate() {
     store
         .add_type(
             "toto",
-            CibouletteIdTypeSelector::new(CibouletteSelector::Single(CibouletteIdType::Uuid(
-                arcstr::literal!("id"),
-            ))),
-            MessyJsonObject::default(),
+            CibouletteResourceTypeConfiguration::new(
+                CibouletteIdTypeSelector::new(CibouletteSelector::Single(CibouletteIdType::Uuid(
+                    arcstr::literal!("id"),
+                ))),
+                MessyJsonObject::default(),
+                None,
+            ),
         )
         .unwrap();
     let err = store
         .add_type(
             "toto",
-            CibouletteIdTypeSelector::new(CibouletteSelector::Single(CibouletteIdType::Uuid(
-                arcstr::literal!("id"),
-            ))),
-            MessyJsonObject::default(),
+            CibouletteResourceTypeConfiguration::new(
+                CibouletteIdTypeSelector::new(CibouletteSelector::Single(CibouletteIdType::Uuid(
+                    arcstr::literal!("id"),
+                ))),
+                MessyJsonObject::default(),
+                None,
+            ),
         )
         .unwrap_err();
     assert_eq!(
@@ -50,10 +59,13 @@ fn get_ok() {
     store
         .add_type(
             "toto",
-            CibouletteIdTypeSelector::new(CibouletteSelector::Single(CibouletteIdType::Uuid(
-                arcstr::literal!("id"),
-            ))),
-            MessyJsonObject::default(),
+            CibouletteResourceTypeConfiguration::new(
+                CibouletteIdTypeSelector::new(CibouletteSelector::Single(CibouletteIdType::Uuid(
+                    arcstr::literal!("id"),
+                ))),
+                MessyJsonObject::default(),
+                None,
+            ),
         )
         .unwrap();
     let type_ = store.get_type("toto");
@@ -67,10 +79,13 @@ fn get_not_found() {
     store
         .add_type(
             "toto",
-            CibouletteIdTypeSelector::new(CibouletteSelector::Single(CibouletteIdType::Uuid(
-                arcstr::literal!("id"),
-            ))),
-            MessyJsonObject::default(),
+            CibouletteResourceTypeConfiguration::new(
+                CibouletteIdTypeSelector::new(CibouletteSelector::Single(CibouletteIdType::Uuid(
+                    arcstr::literal!("id"),
+                ))),
+                MessyJsonObject::default(),
+                None,
+            ),
         )
         .unwrap();
     let err = store.get_type("aaaaaaaaaaaaaaaaaaa").unwrap_err();
@@ -87,10 +102,13 @@ fn get_optional_found() {
     store
         .add_type(
             "toto",
-            CibouletteIdTypeSelector::new(CibouletteSelector::Single(CibouletteIdType::Uuid(
-                arcstr::literal!("id"),
-            ))),
-            MessyJsonObject::default(),
+            CibouletteResourceTypeConfiguration::new(
+                CibouletteIdTypeSelector::new(CibouletteSelector::Single(CibouletteIdType::Uuid(
+                    arcstr::literal!("id"),
+                ))),
+                MessyJsonObject::default(),
+                None,
+            ),
         )
         .unwrap();
     let val = store.get_type_if_exists("toto");
@@ -104,10 +122,13 @@ fn get_optional_not_found() {
     store
         .add_type(
             "toto",
-            CibouletteIdTypeSelector::new(CibouletteSelector::Single(CibouletteIdType::Uuid(
-                arcstr::literal!("id"),
-            ))),
-            MessyJsonObject::default(),
+            CibouletteResourceTypeConfiguration::new(
+                CibouletteIdTypeSelector::new(CibouletteSelector::Single(CibouletteIdType::Uuid(
+                    arcstr::literal!("id"),
+                ))),
+                MessyJsonObject::default(),
+                None,
+            ),
         )
         .unwrap();
     let val = store.get_type_if_exists("aaaaaaaaaaa");
@@ -121,10 +142,13 @@ fn get_index() {
     store
         .add_type(
             "toto",
-            CibouletteIdTypeSelector::new(CibouletteSelector::Single(CibouletteIdType::Uuid(
-                arcstr::literal!("id"),
-            ))),
-            MessyJsonObject::default(),
+            CibouletteResourceTypeConfiguration::new(
+                CibouletteIdTypeSelector::new(CibouletteSelector::Single(CibouletteIdType::Uuid(
+                    arcstr::literal!("id"),
+                ))),
+                MessyJsonObject::default(),
+                None,
+            ),
         )
         .unwrap();
     let val = store.get_type_index("toto");
@@ -139,10 +163,13 @@ fn get_index_not_found() {
     store
         .add_type(
             "toto",
-            CibouletteIdTypeSelector::new(CibouletteSelector::Single(CibouletteIdType::Uuid(
-                arcstr::literal!("id"),
-            ))),
-            MessyJsonObject::default(),
+            CibouletteResourceTypeConfiguration::new(
+                CibouletteIdTypeSelector::new(CibouletteSelector::Single(CibouletteIdType::Uuid(
+                    arcstr::literal!("id"),
+                ))),
+                MessyJsonObject::default(),
+                None,
+            ),
         )
         .unwrap();
     let val = store.get_type_index("aaaa");
@@ -156,10 +183,13 @@ fn get_type_with_index() {
     store
         .add_type(
             "toto",
-            CibouletteIdTypeSelector::new(CibouletteSelector::Single(CibouletteIdType::Uuid(
-                arcstr::literal!("id"),
-            ))),
-            MessyJsonObject::default(),
+            CibouletteResourceTypeConfiguration::new(
+                CibouletteIdTypeSelector::new(CibouletteSelector::Single(CibouletteIdType::Uuid(
+                    arcstr::literal!("id"),
+                ))),
+                MessyJsonObject::default(),
+                None,
+            ),
         )
         .unwrap();
     let (index, type_) = store.get_type_with_index("toto").unwrap();

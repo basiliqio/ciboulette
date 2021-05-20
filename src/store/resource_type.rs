@@ -9,6 +9,7 @@ pub struct CibouletteResourceType {
     relationships_type_to_alias: BTreeMap<ArcStr, ArcStr>,
     schema: MessyJsonObject,
     ids: CibouletteIdTypeSelector,
+    pagination: Option<CibouletteResourceTypePaginationConfiguration>,
     name: ArcStr,
 }
 
@@ -27,12 +28,14 @@ impl CibouletteResourceType {
         name: ArcStr,
         ids: CibouletteIdTypeSelector,
         schema: MessyJsonObject,
+        pagination: Option<CibouletteResourceTypePaginationConfiguration>,
     ) -> Self {
         CibouletteResourceType {
             relationships: BTreeMap::new(),
             relationships_type_to_alias: BTreeMap::new(),
             schema,
             ids,
+            pagination,
             name,
         }
     }
