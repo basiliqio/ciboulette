@@ -7,28 +7,37 @@ fn ok() {
     store
         .add_type(
             "peoples",
-            CibouletteIdTypeSelector::new(CibouletteSelector::Single(CibouletteIdType::Uuid(
-                arcstr::literal!("id"),
-            ))),
-            crate::test_helper::gen_messy_json_schema_peoples(),
+            CibouletteResourceTypeConfiguration::new(
+                CibouletteIdTypeSelector::new(CibouletteSelector::Single(CibouletteIdType::Uuid(
+                    arcstr::literal!("id"),
+                ))),
+                crate::test_helper::gen_messy_json_schema_peoples(),
+                None,
+            ),
         )
         .unwrap();
     store
         .add_type(
             "articles",
-            CibouletteIdTypeSelector::new(CibouletteSelector::Single(CibouletteIdType::Uuid(
-                arcstr::literal!("id"),
-            ))),
-            crate::test_helper::gen_messy_json_schema_articles(),
+            CibouletteResourceTypeConfiguration::new(
+                CibouletteIdTypeSelector::new(CibouletteSelector::Single(CibouletteIdType::Uuid(
+                    arcstr::literal!("id"),
+                ))),
+                crate::test_helper::gen_messy_json_schema_articles(),
+                None,
+            ),
         )
         .unwrap();
     store
         .add_type(
             "people-article",
-            CibouletteIdTypeSelector::new(CibouletteSelector::Single(CibouletteIdType::Uuid(
-                arcstr::literal!("id"),
-            ))),
-            crate::test_helper::gen_messy_json_schema_people_article(),
+            CibouletteResourceTypeConfiguration::new(
+                CibouletteIdTypeSelector::new(CibouletteSelector::Single(CibouletteIdType::Uuid(
+                    arcstr::literal!("id"),
+                ))),
+                crate::test_helper::gen_messy_json_schema_people_article(),
+                None,
+            ),
         )
         .unwrap();
     let opt = CibouletteRelationshipManyToManyOptionBuilder::new(
@@ -87,28 +96,37 @@ fn ok_reverse() {
     store
         .add_type(
             "peoples",
-            CibouletteIdTypeSelector::new(CibouletteSelector::Single(CibouletteIdType::Uuid(
-                arcstr::literal!("id"),
-            ))),
-            crate::test_helper::gen_messy_json_schema_peoples(),
+            CibouletteResourceTypeConfiguration::new(
+                CibouletteIdTypeSelector::new(CibouletteSelector::Single(CibouletteIdType::Uuid(
+                    arcstr::literal!("id"),
+                ))),
+                crate::test_helper::gen_messy_json_schema_peoples(),
+                None,
+            ),
         )
         .unwrap();
     store
         .add_type(
             "articles",
-            CibouletteIdTypeSelector::new(CibouletteSelector::Single(CibouletteIdType::Uuid(
-                arcstr::literal!("id"),
-            ))),
-            crate::test_helper::gen_messy_json_schema_articles(),
+            CibouletteResourceTypeConfiguration::new(
+                CibouletteIdTypeSelector::new(CibouletteSelector::Single(CibouletteIdType::Uuid(
+                    arcstr::literal!("id"),
+                ))),
+                crate::test_helper::gen_messy_json_schema_articles(),
+                None,
+            ),
         )
         .unwrap();
     store
         .add_type(
             "people-article",
-            CibouletteIdTypeSelector::new(CibouletteSelector::Single(CibouletteIdType::Uuid(
-                arcstr::literal!("id"),
-            ))),
-            crate::test_helper::gen_messy_json_schema_people_article(),
+            CibouletteResourceTypeConfiguration::new(
+                CibouletteIdTypeSelector::new(CibouletteSelector::Single(CibouletteIdType::Uuid(
+                    arcstr::literal!("id"),
+                ))),
+                crate::test_helper::gen_messy_json_schema_people_article(),
+                None,
+            ),
         )
         .unwrap();
     let opt = CibouletteRelationshipManyToManyOptionBuilder::new(
@@ -141,28 +159,37 @@ fn no_reverse() {
     store
         .add_type(
             "peoples",
-            CibouletteIdTypeSelector::new(CibouletteSelector::Single(CibouletteIdType::Uuid(
-                arcstr::literal!("id"),
-            ))),
-            crate::test_helper::gen_messy_json_schema_peoples(),
+            CibouletteResourceTypeConfiguration::new(
+                CibouletteIdTypeSelector::new(CibouletteSelector::Single(CibouletteIdType::Uuid(
+                    arcstr::literal!("id"),
+                ))),
+                crate::test_helper::gen_messy_json_schema_peoples(),
+                None,
+            ),
         )
         .unwrap();
     store
         .add_type(
             "articles",
-            CibouletteIdTypeSelector::new(CibouletteSelector::Single(CibouletteIdType::Uuid(
-                arcstr::literal!("id"),
-            ))),
-            crate::test_helper::gen_messy_json_schema_articles(),
+            CibouletteResourceTypeConfiguration::new(
+                CibouletteIdTypeSelector::new(CibouletteSelector::Single(CibouletteIdType::Uuid(
+                    arcstr::literal!("id"),
+                ))),
+                crate::test_helper::gen_messy_json_schema_articles(),
+                None,
+            ),
         )
         .unwrap();
     store
         .add_type(
             "people-article",
-            CibouletteIdTypeSelector::new(CibouletteSelector::Single(CibouletteIdType::Uuid(
-                arcstr::literal!("id"),
-            ))),
-            crate::test_helper::gen_messy_json_schema_people_article(),
+            CibouletteResourceTypeConfiguration::new(
+                CibouletteIdTypeSelector::new(CibouletteSelector::Single(CibouletteIdType::Uuid(
+                    arcstr::literal!("id"),
+                ))),
+                crate::test_helper::gen_messy_json_schema_people_article(),
+                None,
+            ),
         )
         .unwrap();
     let opt = CibouletteRelationshipManyToManyOptionBuilder::new(
@@ -196,28 +223,37 @@ fn duplicate() {
     store
         .add_type(
             "peoples",
-            CibouletteIdTypeSelector::new(CibouletteSelector::Single(CibouletteIdType::Uuid(
-                arcstr::literal!("id"),
-            ))),
-            crate::test_helper::gen_messy_json_schema_peoples(),
+            CibouletteResourceTypeConfiguration::new(
+                CibouletteIdTypeSelector::new(CibouletteSelector::Single(CibouletteIdType::Uuid(
+                    arcstr::literal!("id"),
+                ))),
+                crate::test_helper::gen_messy_json_schema_peoples(),
+                None,
+            ),
         )
         .unwrap();
     store
         .add_type(
             "articles",
-            CibouletteIdTypeSelector::new(CibouletteSelector::Single(CibouletteIdType::Uuid(
-                arcstr::literal!("id"),
-            ))),
-            crate::test_helper::gen_messy_json_schema_articles(),
+            CibouletteResourceTypeConfiguration::new(
+                CibouletteIdTypeSelector::new(CibouletteSelector::Single(CibouletteIdType::Uuid(
+                    arcstr::literal!("id"),
+                ))),
+                crate::test_helper::gen_messy_json_schema_articles(),
+                None,
+            ),
         )
         .unwrap();
     store
         .add_type(
             "people-article",
-            CibouletteIdTypeSelector::new(CibouletteSelector::Single(CibouletteIdType::Uuid(
-                arcstr::literal!("id"),
-            ))),
-            crate::test_helper::gen_messy_json_schema_people_article(),
+            CibouletteResourceTypeConfiguration::new(
+                CibouletteIdTypeSelector::new(CibouletteSelector::Single(CibouletteIdType::Uuid(
+                    arcstr::literal!("id"),
+                ))),
+                crate::test_helper::gen_messy_json_schema_people_article(),
+                None,
+            ),
         )
         .unwrap();
     let opt = CibouletteRelationshipManyToManyOptionBuilder::new(
@@ -252,28 +288,37 @@ fn alias() {
     store
         .add_type(
             "peoples",
-            CibouletteIdTypeSelector::new(CibouletteSelector::Single(CibouletteIdType::Uuid(
-                arcstr::literal!("id"),
-            ))),
-            crate::test_helper::gen_messy_json_schema_peoples(),
+            CibouletteResourceTypeConfiguration::new(
+                CibouletteIdTypeSelector::new(CibouletteSelector::Single(CibouletteIdType::Uuid(
+                    arcstr::literal!("id"),
+                ))),
+                crate::test_helper::gen_messy_json_schema_peoples(),
+                None,
+            ),
         )
         .unwrap();
     store
         .add_type(
             "articles",
-            CibouletteIdTypeSelector::new(CibouletteSelector::Single(CibouletteIdType::Uuid(
-                arcstr::literal!("id"),
-            ))),
-            crate::test_helper::gen_messy_json_schema_articles(),
+            CibouletteResourceTypeConfiguration::new(
+                CibouletteIdTypeSelector::new(CibouletteSelector::Single(CibouletteIdType::Uuid(
+                    arcstr::literal!("id"),
+                ))),
+                crate::test_helper::gen_messy_json_schema_articles(),
+                None,
+            ),
         )
         .unwrap();
     store
         .add_type(
             "people-article",
-            CibouletteIdTypeSelector::new(CibouletteSelector::Single(CibouletteIdType::Uuid(
-                arcstr::literal!("id"),
-            ))),
-            crate::test_helper::gen_messy_json_schema_people_article(),
+            CibouletteResourceTypeConfiguration::new(
+                CibouletteIdTypeSelector::new(CibouletteSelector::Single(CibouletteIdType::Uuid(
+                    arcstr::literal!("id"),
+                ))),
+                crate::test_helper::gen_messy_json_schema_people_article(),
+                None,
+            ),
         )
         .unwrap();
     let opt = CibouletteRelationshipManyToManyOptionBuilder::new(

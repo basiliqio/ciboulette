@@ -210,6 +210,11 @@ pub use responses::type_::{CibouletteResponseQuantity, CibouletteResponseRequire
 pub use path::path_container::{CiboulettePath, CiboulettePathBuilder};
 pub use selector::{CibouletteSelector, CibouletteSelectorError, CibouletteSelectorIterator};
 pub use store::{
+    CiboulettePaginationEncoding, CibouletteResourceTypeConfiguration,
+    CibouletteResourceTypePaginationConfiguration,
+    CibouletteResourceTypePaginationConfigurationBuilder,
+};
+pub use store::{
     CibouletteRelationshipManyToManyOption, CibouletteRelationshipManyToManyOptionBuilder,
     CibouletteRelationshipOneToManyOption, CibouletteRelationshipOneToManyOptionBuilder,
     CibouletteRelationshipOption, CibouletteRelationshipOptionBuilder, CibouletteStore,

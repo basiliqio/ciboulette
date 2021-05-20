@@ -6,6 +6,8 @@ mod many_to_many;
 mod one_to_many;
 mod relationships_options;
 mod relationships_options_builder;
+mod resource_type_configuration;
+
 pub use builder::CibouletteStoreBuilder;
 pub use relationships_options::{
     CibouletteRelationshipManyToManyOption, CibouletteRelationshipOneToManyOption,
@@ -14,6 +16,11 @@ pub use relationships_options::{
 pub use relationships_options_builder::{
     CibouletteRelationshipManyToManyOptionBuilder, CibouletteRelationshipOneToManyOptionBuilder,
     CibouletteRelationshipOptionBuilder,
+};
+pub use resource_type_configuration::{
+    CiboulettePaginationEncoding, CibouletteResourceTypeConfiguration,
+    CibouletteResourceTypePaginationConfiguration,
+    CibouletteResourceTypePaginationConfigurationBuilder,
 };
 
 #[cfg(test)]

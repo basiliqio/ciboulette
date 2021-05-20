@@ -10,17 +10,19 @@ pub struct CibouletteResourceTypeBuilder {
     relationships_type_to_alias: BTreeMap<ArcStr, ArcStr>,
     schema: MessyJsonObject,
     ids: CibouletteIdTypeSelector,
+    pagination: Option<CibouletteResourceTypePaginationConfigurationBuilder>,
     name: ArcStr,
 }
 
 impl CibouletteResourceTypeBuilder {
     /// Create a new type from a schema and a list of relationships
-    pub fn new(name: String, id_type: CibouletteIdTypeSelector, schema: MessyJsonObject) -> Self {
+    pub fn new(name: String, config: CibouletteResourceTypeConfiguration) -> Self {
         CibouletteResourceTypeBuilder {
             relationships: BTreeMap::new(),
             relationships_type_to_alias: BTreeMap::new(),
-            schema,
-            ids: id_type,
+            schema: config.schema,
+            ids: config.ids,
+            pagination: config.pagination,
             name: ArcStr::from(name),
         }
     }
@@ -56,10 +58,16 @@ impl CibouletteResourceTypeBuilder {
         if let Some(x) = Self::check_member_name_obj(self.schema()) {
             return Err(CibouletteError::InvalidMemberName(x));
         }
+        let name = self.name;
+        let schema = self.schema;
+
+        let pagination = match self.pagination {
+            Some(pagination) => Some(pagination.build(name.as_str(), &schema)?),
+            None => None,
+        };
+
         Ok(CibouletteResourceType::new(
-            self.name,
-            self.ids,
-            self.schema,
+            name, self.ids, schema, pagination,
         ))
     }
 }
